@@ -18,7 +18,7 @@ pub enum Token {
     LT(&'static u8),
     GT(&'static u8),
     EQ(&'static [u8]),
-    NOT_EQ(&'static [u8]),
+    NOTEQ(&'static [u8]),
 
     COMMA(&'static u8),
     SEMICOLON(&'static u8),

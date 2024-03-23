@@ -80,7 +80,7 @@ impl Lexer {
                 b'!' => match self.peek_char() {
                     Some(pk) if *pk == b'=' => {
                         let ch = &self.input[self.position..=self.read_position];
-                        tok = Token::NOT_EQ(ch);
+                        tok = Token::NOTEQ(ch);
                         self.read_char();
                     }
                     _ => tok = Token::BANG(ch),
@@ -299,7 +299,7 @@ let result = add(five, ten);";
             Token::INT(b"10"),
             Token::SEMICOLON(&b';'),
             Token::INT(b"9"),
-            Token::NOT_EQ(b"!="),
+            Token::NOTEQ(b"!="),
             Token::INT(b"10"),
             Token::SEMICOLON(&b';'),
         ];
