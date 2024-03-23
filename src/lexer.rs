@@ -1,14 +1,14 @@
 use crate::token::Token;
 
-pub struct Lexer {
-    input: &'static [u8],
+pub struct Lexer<'a> {
+    input: &'a [u8],
     position: usize,
     read_position: usize,
-    ch: Option<&'static u8>,
+    ch: Option<&'a u8>,
 }
 
-impl Lexer {
-    pub fn new(input: &'static [u8]) -> Lexer {
+impl<'a> Lexer<'a> {
+    pub fn new(input: &'a [u8]) -> Lexer {
         let mut lexer = Lexer {
             input,
             position: 0,

@@ -1,44 +1,44 @@
 #[derive(PartialEq, Eq, Debug)]
-pub enum Token {
+pub enum Token<'a> {
     EMPTY,
 
-    ILLEGAL(&'static u8),
+    ILLEGAL(&'a u8),
     EOF(),
 
-    IDENT(&'static [u8]),
-    INT(&'static [u8]),
+    IDENT(&'a [u8]),
+    INT(&'a [u8]),
 
-    ASSIGN(&'static u8),
-    PLUS(&'static u8),
-    MINUS(&'static u8),
-    BANG(&'static u8),
-    ASTERISK(&'static u8),
-    SLASH(&'static u8),
+    ASSIGN(&'a u8),
+    PLUS(&'a u8),
+    MINUS(&'a u8),
+    BANG(&'a u8),
+    ASTERISK(&'a u8),
+    SLASH(&'a u8),
 
-    LT(&'static u8),
-    GT(&'static u8),
-    EQ(&'static [u8]),
-    NOTEQ(&'static [u8]),
+    LT(&'a u8),
+    GT(&'a u8),
+    EQ(&'a [u8]),
+    NOTEQ(&'a [u8]),
 
-    COMMA(&'static u8),
-    SEMICOLON(&'static u8),
+    COMMA(&'a u8),
+    SEMICOLON(&'a u8),
 
-    LPAREN(&'static u8),
-    RPAREN(&'static u8),
-    LBRACE(&'static u8),
-    RBRACE(&'static u8),
+    LPAREN(&'a u8),
+    RPAREN(&'a u8),
+    LBRACE(&'a u8),
+    RBRACE(&'a u8),
 
-    FUNCTION(&'static [u8]),
-    LET(&'static [u8]),
-    TRUE(&'static [u8]),
-    FALSE(&'static [u8]),
-    IF(&'static [u8]),
-    ELSE(&'static [u8]),
-    RETURN(&'static [u8]),
+    FUNCTION(&'a [u8]),
+    LET(&'a [u8]),
+    TRUE(&'a [u8]),
+    FALSE(&'a [u8]),
+    IF(&'a [u8]),
+    ELSE(&'a [u8]),
+    RETURN(&'a [u8]),
 }
 
-impl Token {
-    pub fn lookup_ident(ident: &'static [u8]) -> Token {
+impl<'a> Token<'a> {
+    pub fn lookup_ident(ident: &'a [u8]) -> Token {
         match ident {
             b"let" => Token::LET(ident),
             b"fn" => Token::FUNCTION(ident),
