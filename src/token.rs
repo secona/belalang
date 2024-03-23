@@ -2,23 +2,23 @@
 pub enum Token {
     EMPTY,
 
-    ILLEGAL(u8),
-    EOF(u8),
+    ILLEGAL(&'static u8),
+    EOF(),
 
-    IDENT(u8),
-    INT(u8),
+    IDENT(&'static u8),
+    INT(&'static u8),
 
-    ASSIGN(u8),
-    PLUS(u8),
+    ASSIGN(&'static u8),
+    PLUS(&'static u8),
 
-    COMMA(u8),
-    SEMICOLON(u8),
+    COMMA(&'static u8),
+    SEMICOLON(&'static u8),
 
-    LPAREN(u8),
-    RPAREN(u8),
-    LBRACE(u8),
-    RBRACE(u8),
+    LPAREN(&'static u8),
+    RPAREN(&'static u8),
+    LBRACE(&'static u8),
+    RBRACE(&'static u8),
 
-    FUNCTION(u8),
-    LET(u8),
+    FUNCTION(&'static u8),
+    LET(&'static u8),
 }

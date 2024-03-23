@@ -1,19 +1,19 @@
 use crate::token::Token;
 
 pub struct Lexer {
-    input: Box<[u8]>,
+    input: &'static [u8],
     position: usize,
     read_position: usize,
-    ch: u8,
+    ch: Option<&'static u8>,
 }
 
 impl Lexer {
-    pub fn new(input: &[u8]) -> Lexer {
+    pub fn new(input: &'static [u8]) -> Lexer {
         let mut lexer = Lexer {
-            input: input.into(),
+            input,
             position: 0,
             read_position: 0,
-            ch: 0,
+            ch: None,
         };
 
         lexer.read_char();
@@ -22,9 +22,9 @@ impl Lexer {
 
     pub fn read_char(&mut self) {
         if self.read_position >= self.input.len() {
-            self.ch = 0;
+            self.ch = None;
         } else {
-            self.ch = self.input[self.read_position];
+            self.ch = Some(&self.input[self.read_position]);
         }
 
         self.position = self.read_position;
@@ -35,16 +35,18 @@ impl Lexer {
         let mut tok: Token = Token::EMPTY;
 
         match self.ch {
-            b'=' => tok = Token::ASSIGN(self.ch),
-            b';' => tok = Token::SEMICOLON(self.ch),
-            b'(' => tok = Token::LPAREN(self.ch),
-            b')' => tok = Token::RPAREN(self.ch),
-            b',' => tok = Token::COMMA(self.ch),
-            b'+' => tok = Token::PLUS(self.ch),
-            b'{' => tok = Token::LBRACE(self.ch),
-            b'}' => tok = Token::RBRACE(self.ch),
-            0 => tok = Token::EOF(0),
-            _ => {}
+            None => tok = Token::EOF(),
+            Some(ch) => match ch {
+                b'=' => tok = Token::ASSIGN(ch),
+                b';' => tok = Token::SEMICOLON(ch),
+                b'(' => tok = Token::LPAREN(ch),
+                b')' => tok = Token::RPAREN(ch),
+                b',' => tok = Token::COMMA(ch),
+                b'+' => tok = Token::PLUS(ch),
+                b'{' => tok = Token::LBRACE(ch),
+                b'}' => tok = Token::RBRACE(ch),
+                _ => {}
+            },
         }
 
         self.read_char();
@@ -62,14 +64,14 @@ mod tests {
         let input = b"=+(){},;";
 
         let expected: [Token; 8] = [
-            Token::ASSIGN(b'='),
-            Token::PLUS(b'+'),
-            Token::LPAREN(b'('),
-            Token::RPAREN(b')'),
-            Token::LBRACE(b'{'),
-            Token::RBRACE(b'}'),
-            Token::COMMA(b','),
-            Token::SEMICOLON(b';'),
+            Token::ASSIGN(&b'='),
+            Token::PLUS(&b'+'),
+            Token::LPAREN(&b'('),
+            Token::RPAREN(&b')'),
+            Token::LBRACE(&b'{'),
+            Token::RBRACE(&b'}'),
+            Token::COMMA(&b','),
+            Token::SEMICOLON(&b';'),
         ];
 
         let mut lexer = Lexer::new(input);
