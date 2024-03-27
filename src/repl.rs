@@ -15,14 +15,14 @@ impl Repl {
                 .read_line(&mut input)
                 .expect("Error reading from STDIN");
 
-            let mut lexer = Lexer::new(input.as_bytes());
+            let mut lexer = Lexer::new(input.into_bytes().into_boxed_slice());
 
             loop {
                 let tok = lexer.next_token();
 
                 println!("{:?}", tok);
 
-                if matches!(tok, Token::EOF()) {
+                if matches!(tok, Token::EOF) {
                     break;
                 }
             }
