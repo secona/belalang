@@ -51,7 +51,7 @@ impl Parser {
 
         while !self.curr_token_is(token::Token::EOF) {
             match self.parse_statement() {
-                Some(stmt) => program.add_stmt(Box::new(stmt)),
+                Some(stmt) => program.add_stmt(stmt),
                 None => {}
             }
             self.next_token();
@@ -60,17 +60,18 @@ impl Parser {
         program
     }
 
-    fn parse_statement(&mut self) -> Option<impl ast::Statement> {
+    fn parse_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
         match &self.curr_token {
             Some(tok) => match *tok {
                 token::Token::Let => self.parse_let_statement(),
+                token::Token::Return => self.parse_return_statement(),
                 _ => None,
             },
             _ => None,
         }
     }
 
-    fn parse_let_statement(&mut self) -> Option<ast::LetStatement> {
+    fn parse_let_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
         let let_token = self.curr_token.clone().unwrap();
 
         if !self.expect_peek(token::Token::Ident("".into())) {
@@ -86,6 +87,7 @@ impl Parser {
             return None;
         }
 
+        // TODO: parse expression
         while !self.curr_token_is(token::Token::Semicolon) {
             self.next_token();
         }
@@ -99,7 +101,26 @@ impl Parser {
             }),
         };
 
-        Some(stmt)
+        Some(Box::new(stmt))
+    }
+
+    fn parse_return_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
+        let stmt = ast::ReturnStatement {
+            token: self.curr_token.clone().unwrap(),
+            return_value: Box::new(ast::Identifier {
+                value: "5".to_owned(),
+                token: token::Token::Ident("5".to_owned()),
+            }),
+        };
+
+        self.next_token();
+
+        // TODO: parse expression
+        while !self.curr_token_is(token::Token::Semicolon) {
+            self.next_token();
+        }
+
+        Some(Box::new(stmt))
     }
 }
 
