@@ -96,7 +96,7 @@ impl Lexer {
                         tok = self.read_number();
                         return tok;
                     } else {
-                        tok = Token::Illegal(&[b' '])
+                        tok = Token::Illegal(" ".into())
                     }
                 }
             },
@@ -130,7 +130,9 @@ impl Lexer {
             self.read_char();
         }
 
-        Token::Int(&self.input[position..self.position])
+        let num = &self.input[position..self.position];
+        let num = std::str::from_utf8(num).unwrap();
+        Token::Int(String::from(num))
     }
 
     pub fn is_digit(&self) -> bool {
@@ -166,13 +168,13 @@ mod tests {
             Token::Minus,
             Token::Slash,
             Token::Asterisk,
-            Token::Int(b"5"),
+            Token::Int(String::from("5")),
             Token::Semicolon,
-            Token::Int(b"5"),
+            Token::Int(String::from("5")),
             Token::LT,
-            Token::Int(b"10"),
+            Token::Int(String::from("10")),
             Token::GT,
-            Token::Int(b"5"),
+            Token::Int(String::from("5")),
             Token::Semicolon,
         ];
 
@@ -181,7 +183,7 @@ mod tests {
         for exp in expected {
             let tok = lexer.next_token();
             println!("tok={:?} exp={:?}", tok, exp);
-            assert!(tok == exp);
+            assert_eq!(tok, exp);
         }
     }
 
@@ -201,39 +203,39 @@ let result = add(five, ten);"
 
         let expected: [Token; 37] = [
             Token::Let,
-            Token::Ident(b"five"),
+            Token::Ident(String::from("five")),
             Token::Assign,
-            Token::Int(b"5"),
+            Token::Int(String::from("5")),
             Token::Semicolon,
             Token::Let,
-            Token::Ident(b"ten"),
+            Token::Ident(String::from("ten")),
             Token::Assign,
-            Token::Int(b"10"),
+            Token::Int(String::from("10")),
             Token::Semicolon,
             Token::Let,
-            Token::Ident(b"add"),
+            Token::Ident(String::from("add")),
             Token::Assign,
             Token::Function,
             Token::LParen,
-            Token::Ident(b"x"),
+            Token::Ident(String::from("x")),
             Token::Comma,
-            Token::Ident(b"y"),
+            Token::Ident(String::from("y")),
             Token::RParen,
             Token::LBrace,
-            Token::Ident(b"x"),
+            Token::Ident(String::from("x")),
             Token::Plus,
-            Token::Ident(b"y"),
+            Token::Ident(String::from("y")),
             Token::Semicolon,
             Token::RBrace,
             Token::Semicolon,
             Token::Let,
-            Token::Ident(b"result"),
+            Token::Ident(String::from("result")),
             Token::Assign,
-            Token::Ident(b"add"),
+            Token::Ident(String::from("add")),
             Token::LParen,
-            Token::Ident(b"five"),
+            Token::Ident(String::from("five")),
             Token::Comma,
-            Token::Ident(b"ten"),
+            Token::Ident(String::from("ten")),
             Token::RParen,
             Token::Semicolon,
             Token::EOF,
@@ -244,7 +246,7 @@ let result = add(five, ten);"
         for exp in expected {
             let tok = lexer.next_token();
             println!("tok={:?} exp={:?}", tok, exp);
-            assert!(tok == exp);
+            assert_eq!(tok, exp);
         }
     }
 
@@ -262,9 +264,9 @@ let result = add(five, ten);"
         let expected: [Token; 18] = [
             Token::If,
             Token::LParen,
-            Token::Int(b"5"),
+            Token::Int(String::from("5")),
             Token::LT,
-            Token::Int(b"10"),
+            Token::Int(String::from("10")),
             Token::RParen,
             Token::LBrace,
             Token::Return,
@@ -285,7 +287,7 @@ let result = add(five, ten);"
         for exp in expected {
             let tok = lexer.next_token();
             println!("tok={:?} exp={:?}", tok, exp);
-            assert!(tok == exp);
+            assert_eq!(tok, exp);
         }
     }
     #[test]
@@ -296,13 +298,13 @@ let result = add(five, ten);"
             .into_boxed_slice();
 
         let expected: [Token; 8] = [
-            Token::Int(b"10"),
+            Token::Int(String::from("10")),
             Token::Eq,
-            Token::Int(b"10"),
+            Token::Int(String::from("10")),
             Token::Semicolon,
-            Token::Int(b"9"),
+            Token::Int(String::from("9")),
             Token::NotEq,
-            Token::Int(b"10"),
+            Token::Int(String::from("10")),
             Token::Semicolon,
         ];
 
@@ -311,7 +313,7 @@ let result = add(five, ten);"
         for exp in expected {
             let tok = lexer.next_token();
             println!("tok={:?} exp={:?}", tok, exp);
-            assert!(tok == exp);
+            assert_eq!(tok, exp);
         }
     }
 }

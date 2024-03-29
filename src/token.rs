@@ -1,11 +1,11 @@
-#[derive(PartialEq, Eq, Debug)]
-pub enum Token<'a> {
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum Token {
     Empty,
     EOF,
 
-    Ident(&'a [u8]),
-    Int(&'a [u8]),
-    Illegal(&'a [u8]),
+    Ident(String),
+    Int(String),
+    Illegal(String),
 
     Assign,
     Plus,
@@ -36,7 +36,7 @@ pub enum Token<'a> {
     Return,
 }
 
-impl Token<'_> {
+impl Token {
     pub fn lookup_ident(ident: &[u8]) -> Token {
         match ident {
             b"let" => Token::Let,
@@ -46,7 +46,7 @@ impl Token<'_> {
             b"if" => Token::If,
             b"else" => Token::Else,
             b"return" => Token::Return,
-            _ => Token::Ident(ident),
+            _ => Token::Ident(String::from_utf8(ident.to_vec()).unwrap()),
         }
     }
 }
