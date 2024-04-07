@@ -1,6 +1,5 @@
 use crate::token;
-
-use super::{Expression, Node};
+use crate::ast::{Expression, Node};
 
 pub struct Identifier {
     pub token: token::Token,

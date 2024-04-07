@@ -1,6 +1,5 @@
 use crate::token;
-
-use super::{Expression, Node, Statement};
+use crate::ast::{Expression, Node, Statement};
 
 pub struct ReturnStatement {
     pub token: token::Token,

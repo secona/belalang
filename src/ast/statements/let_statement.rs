@@ -1,6 +1,5 @@
 use crate::token;
-
-use super::{Expression, Identifier, Node, Statement};
+use crate::ast::{Expression, Identifier, Node, Statement};
 
 pub struct LetStatement {
     pub token: token::Token,

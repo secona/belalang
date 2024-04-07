@@ -1,18 +1,10 @@
-mod expression_statement;
-mod identifier;
-mod integer_literal;
-mod let_statement;
-mod prefix_expression;
+mod expressions;
 mod program;
-mod return_statement;
+mod statements;
 
-pub use expression_statement::ExpressionStatement;
-pub use identifier::Identifier;
-pub use integer_literal::IntegerLiteral;
-pub use let_statement::LetStatement;
-pub use prefix_expression::PrefixExpression;
+pub use expressions::*;
 pub use program::Program;
-pub use return_statement::ReturnStatement;
+pub use statements::*;
 
 use crate::token;
 use downcast_rs::{impl_downcast, Downcast};
