@@ -1,6 +1,6 @@
 use crate::token;
 
-use super::{Expression, Node};
+use super::{Expression, Node, Statement};
 
 pub struct ExpressionStatement {
     pub token: token::Token,
@@ -19,6 +19,6 @@ impl Node for ExpressionStatement {
     }
 }
 
-impl Expression for ExpressionStatement {
-    fn expression_node(&self) {}
+impl Statement for ExpressionStatement {
+    fn statement_node(&self) {}
 }

@@ -3,7 +3,7 @@ use crate::token;
 use super::{Node, Statement};
 
 pub struct Program {
-    statements: Vec<Box<dyn Statement>>,
+    pub statements: Vec<Box<dyn Statement>>,
 }
 
 impl Program {

@@ -1,9 +1,24 @@
+mod infix;
+mod prefix;
+
 use crate::{ast, lexer, token};
+
+#[derive(Debug, PartialEq, PartialOrd)]
+pub enum Precedence {
+    Lowest,
+    Equals,
+    LessGreater,
+    Sum,
+    Product,
+    Prefix,
+    Call,
+}
 
 pub struct Parser {
     lexer: lexer::Lexer,
     curr_token: Option<token::Token>,
     peek_token: Option<token::Token>,
+    errors: Vec<String>,
 }
 
 impl Parser {
@@ -12,6 +27,7 @@ impl Parser {
             lexer,
             curr_token: None,
             peek_token: None,
+            errors: Vec::new(),
         };
 
         parser.next_token();
@@ -65,7 +81,7 @@ impl Parser {
             Some(tok) => match *tok {
                 token::Token::Let => self.parse_let_statement(),
                 token::Token::Return => self.parse_return_statement(),
-                _ => None,
+                _ => self.parse_expression_statement(),
             },
             _ => None,
         }
@@ -122,11 +138,38 @@ impl Parser {
 
         Some(Box::new(stmt))
     }
+
+    fn parse_expression_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
+        let stmt = ast::ExpressionStatement {
+            token: self.curr_token.clone().unwrap(),
+            expression: self.parse_expression(Precedence::Lowest).unwrap(),
+        };
+
+        if self.peek_token_is(token::Token::Semicolon) {
+            self.next_token();
+        }
+
+        Some(Box::new(stmt))
+    }
+
+    fn parse_expression(&mut self, precedence: Precedence) -> Option<Box<dyn ast::Expression>> {
+        // let prefix_fn = prefix::lookup(self.curr_token.clone().unwrap())?;
+
+        // let left_exp = prefix_fn();
+        // let left_exp = self.prefix_fn(self.curr_token.clone().unwrap());
+        // Some(left_exp)
+        self.prefix_fn()
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast::Node, lexer, token};
+    use core::panic;
+
+    use crate::{
+        ast::{self, Node},
+        lexer, token,
+    };
 
     #[test]
     fn let_statements() {
@@ -141,5 +184,53 @@ mod tests {
         if let Some(inner) = tok {
             assert_eq!(*inner, token::Token::Let);
         }
+    }
+
+    #[test]
+    fn integer_literal_expression() {
+        let input = "5;".to_owned().into_bytes().into_boxed_slice();
+
+        let lexer = lexer::Lexer::new(input);
+        let mut parser = super::Parser::new(lexer);
+
+        let program = parser.parse_program();
+
+        assert_eq!(program.statements.len(), 1);
+
+        if let Some(stmt) = program.statements[0].downcast_ref::<ast::ExpressionStatement>() {
+            if let Some(literal) = stmt.expression.downcast_ref::<ast::IntegerLiteral>() {
+                assert_eq!(literal.value, 5);
+                assert_eq!(literal.token().unwrap(), &token::Token::Int("5".to_owned()));
+
+                return;
+            }
+
+            panic!("expression not ast::IntegerLiteral");
+        }
+
+        panic!("program.statements[0] not ast::ExpressionStatement");
+    }
+
+    #[test]
+    fn prefix_expression() {
+        let input = "!5;".to_owned().into_bytes().into_boxed_slice();
+
+        let lexer = lexer::Lexer::new(input);
+        let mut parser = super::Parser::new(lexer);
+
+        let program = parser.parse_program();
+
+        if let Some(stmt) = program.statements[0].downcast_ref::<ast::ExpressionStatement>() {
+            if let Some(exp) = stmt.expression.downcast_ref::<ast::PrefixExpression>() {
+                println!("{}", (*exp.right).to_string());
+                assert_eq!(exp.operator, "!");
+                assert_eq!((*exp.right).to_string(), "5".to_owned());
+                return;
+            }
+
+            panic!("expression not ast::PrefixExpression");
+        }
+
+        panic!("program.statements[0] not ast::ExpressionStatement");
     }
 }
