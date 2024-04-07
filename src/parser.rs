@@ -96,7 +96,7 @@ impl Parser {
 
         let name = ast::Identifier {
             token: self.curr_token.clone().unwrap(),
-            value: String::from(""),
+            value: self.curr_token.clone().unwrap().to_string(),
         };
 
         if !self.expect_peek(token::Token::Assign) {
@@ -112,7 +112,7 @@ impl Parser {
             name,
             token: let_token,
             value: Box::new(ast::Identifier {
-                value: "5".to_owned(),
+                value: "5".to_owned(), // TODO: Change this
                 token: token::Token::Ident("5".to_owned()),
             }),
         };
@@ -124,7 +124,7 @@ impl Parser {
         let stmt = ast::ReturnStatement {
             token: self.curr_token.clone().unwrap(),
             return_value: Box::new(ast::Identifier {
-                value: "5".to_owned(),
+                value: "5".to_owned(), // TODO: Change this
                 token: token::Token::Ident("5".to_owned()),
             }),
         };
