@@ -248,32 +248,60 @@ mod tests {
         panic!("program.statements[0] not ast::ExpressionStatement");
     }
 
-    #[test]
-    fn prefix_expression() {
-        let input = "!5;".to_owned().into_bytes().into_boxed_slice();
-
-        let lexer = lexer::Lexer::new(input);
-        let mut parser = super::Parser::new(lexer);
-
-        let program = parser.parse_program();
-
-        if let Some(stmt) = program.statements[0].downcast_ref::<ast::ExpressionStatement>() {
-            if let Some(exp) = stmt.expression.downcast_ref::<ast::PrefixExpression>() {
-                println!("{}", (*exp.right).to_string());
-                assert_eq!(exp.operator, "!");
-                assert_eq!((*exp.right).to_string(), "5".to_owned());
-                return;
-            }
-
-            panic!("expression not ast::PrefixExpression");
-        }
-
-        panic!("program.statements[0] not ast::ExpressionStatement");
+    struct PrefixTest {
+        input: Box<[u8]>,
+        exp_operator: String,
+        exp_right: String,
     }
 
     #[test]
-    fn parsing() {
-        let tests: [[&str; 2]; 13] = [
+    fn test_prefix_parsing() {
+        let tests: [PrefixTest; 4] = [
+            PrefixTest {
+                input: "!5;".to_owned().into_bytes().into_boxed_slice(),
+                exp_operator: String::from("!"),
+                exp_right: String::from("5"),
+            },
+            PrefixTest {
+                input: "-15;".to_owned().into_bytes().into_boxed_slice(),
+                exp_operator: String::from("-"),
+                exp_right: String::from("15"),
+            },
+            PrefixTest {
+                input: "!true;".to_owned().into_bytes().into_boxed_slice(),
+                exp_operator: String::from("!"),
+                exp_right: String::from("true"),
+            },
+            PrefixTest {
+                input: "!false;".to_owned().into_bytes().into_boxed_slice(),
+                exp_operator: String::from("!"),
+                exp_right: String::from("false"),
+            }
+        ];
+
+        for test in tests {
+            let lexer = lexer::Lexer::new(test.input);
+            let mut parser = super::Parser::new(lexer);
+
+            let program = parser.parse_program();
+
+            if let Some(stmt) = program.statements[0].downcast_ref::<ast::ExpressionStatement>() {
+                if let Some(exp) = stmt.expression.downcast_ref::<ast::PrefixExpression>() {
+                    assert_eq!(exp.operator, test.exp_operator);
+                    assert_eq!((*exp.right).to_string(), test.exp_right);
+                    return;
+                }
+
+                panic!("expression not ast::PrefixExpression");
+            }
+
+            panic!("program.statements[0] not ast::ExpressionStatement");
+        }
+    }
+
+    #[test]
+    fn test_operator_precedence_parsing() {
+        let tests: [[&str; 2]; 17] = [
             ["a * b + c", "((a * b) + c)"],
             ["!-a", "(!(-a))"],
             ["a + b + c", "((a + b) + c)"],
@@ -293,6 +321,10 @@ mod tests {
                 "3 + 4 * 5 == 3 * 1 + 4 * 5",
                 "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
             ],
+            ["true", "true"],
+            ["false", "false"],
+            ["3 > 5 == false", "((3 > 5) == false)"],
+            ["3 < 5 == true", "((3 < 5) == true)"],
         ];
 
         for test in tests {

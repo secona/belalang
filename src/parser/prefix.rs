@@ -11,8 +11,8 @@ impl super::Parser {
             Some(tok) => match tok {
                 token::Token::Ident(_) => Some(self.parse_identifier()),
                 token::Token::Int(_) => self.parse_integer_literal(),
-                token::Token::Bang => self.parse_prefix_expression(),
-                token::Token::Minus => self.parse_prefix_expression(),
+                token::Token::Bang | token::Token::Minus => self.parse_prefix_expression(),
+                token::Token::True | token::Token::False => self.parse_boolean(),
                 _ => None,
             },
             None => None,
@@ -51,6 +51,13 @@ impl super::Parser {
             operator: prev_token.clone().to_string(),
             token: prev_token,
             right: self.parse_expression(Precedence::Prefix).unwrap(),
+        }))
+    }
+
+    fn parse_boolean(&self) -> Option<Box<dyn ast::Expression>> {
+        Some(Box::new(ast::BooleanExpression {
+            token: self.curr_token.clone().unwrap(),
+            value: self.curr_token_is(token::Token::True),
         }))
     }
 }
