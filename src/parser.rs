@@ -276,7 +276,7 @@ mod tests {
                 input: "!false;".to_owned().into_bytes().into_boxed_slice(),
                 exp_operator: String::from("!"),
                 exp_right: String::from("false"),
-            }
+            },
         ];
 
         for test in tests {
@@ -301,7 +301,7 @@ mod tests {
 
     #[test]
     fn test_operator_precedence_parsing() {
-        let tests: [[&str; 2]; 17] = [
+        let tests: [[&str; 2]; 22] = [
             ["a * b + c", "((a * b) + c)"],
             ["!-a", "(!(-a))"],
             ["a + b + c", "((a + b) + c)"],
@@ -325,6 +325,11 @@ mod tests {
             ["false", "false"],
             ["3 > 5 == false", "((3 > 5) == false)"],
             ["3 < 5 == true", "((3 < 5) == true)"],
+            ["1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"],
+            ["(5 + 5) * 2", "((5 + 5) * 2)"],
+            ["2 / (5 + 5)", "(2 / (5 + 5))"],
+            ["-(5 + 5)", "(-(5 + 5))"],
+            ["!(true == true)", "(!(true == true))"],
         ];
 
         for test in tests {

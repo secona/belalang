@@ -13,6 +13,7 @@ impl super::Parser {
                 token::Token::Int(_) => self.parse_integer_literal(),
                 token::Token::Bang | token::Token::Minus => self.parse_prefix_expression(),
                 token::Token::True | token::Token::False => self.parse_boolean(),
+                token::Token::LParen => self.parse_grouped_expression(),
                 _ => None,
             },
             None => None,
@@ -59,5 +60,17 @@ impl super::Parser {
             token: self.curr_token.clone().unwrap(),
             value: self.curr_token_is(token::Token::True),
         }))
+    }
+
+    fn parse_grouped_expression(&mut self) -> Option<Box<dyn ast::Expression>> {
+        self.next_token();
+
+        let expr = self.parse_expression(Precedence::Lowest);
+
+        if !self.expect_peek(token::Token::RParen) {
+            None
+        } else {
+            expr
+        }
     }
 }
