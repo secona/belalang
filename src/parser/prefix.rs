@@ -6,33 +6,30 @@ use super::Precedence;
 
 impl super::Parser {
     pub fn prefix_fn(&mut self) -> Option<Box<dyn ast::Expression>> {
-        match &self.curr_token.clone() {
-            Some(tok) => match tok {
-                token::Token::Ident(_) => Some(self.parse_identifier()),
-                token::Token::Int(_) => self.parse_integer_literal(),
-                token::Token::Bang | token::Token::Minus => self.parse_prefix_expression(),
-                token::Token::True | token::Token::False => self.parse_boolean(),
-                token::Token::LParen => self.parse_grouped_expression(),
-                token::Token::If => self.parse_if_expression(),
-                _ => None,
-            },
-            None => None,
+        match self.curr_token {
+            token::Token::Ident(_) => Some(self.parse_identifier()),
+            token::Token::Int(_) => self.parse_integer_literal(),
+            token::Token::Bang | token::Token::Minus => self.parse_prefix_expression(),
+            token::Token::True | token::Token::False => self.parse_boolean(),
+            token::Token::LParen => self.parse_grouped_expression(),
+            token::Token::If => self.parse_if_expression(),
+            _ => None,
         }
     }
 
     fn parse_identifier(&self) -> Box<dyn ast::Expression> {
         Box::new(ast::Identifier {
-            token: self.curr_token.clone().unwrap(),
-            value: self.curr_token.clone().unwrap().to_string(),
+            token: self.curr_token.clone(),
+            value: self.curr_token.clone().to_string(),
         })
     }
 
     fn parse_integer_literal(&mut self) -> Option<Box<dyn ast::Expression>> {
-        let literal = self.curr_token.clone().unwrap().to_string();
+        let literal = self.curr_token.clone().to_string();
 
         match literal.parse::<i64>() {
             Ok(lit) => Some(Box::new(ast::IntegerLiteral {
-                token: self.curr_token.clone().unwrap(),
+                token: self.curr_token.clone(),
                 value: lit,
             })),
             Err(_) => {
@@ -44,7 +41,7 @@ impl super::Parser {
     }
 
     fn parse_prefix_expression(&mut self) -> Option<Box<dyn ast::Expression>> {
-        let prev_token = self.curr_token.clone().unwrap();
+        let prev_token = self.curr_token.clone();
 
         self.next_token();
 
@@ -57,7 +54,7 @@ impl super::Parser {
 
     fn parse_boolean(&self) -> Option<Box<dyn ast::Expression>> {
         Some(Box::new(ast::BooleanExpression {
-            token: self.curr_token.clone().unwrap(),
+            token: self.curr_token.clone(),
             value: self.curr_token_is(token::Token::True),
         }))
     }
@@ -75,7 +72,7 @@ impl super::Parser {
     }
 
     fn parse_if_expression(&mut self) -> Option<Box<dyn ast::Expression>> {
-        let token = self.curr_token.clone().unwrap();
+        let token = self.curr_token.clone();
 
         if !self.expect_peek(token::Token::LParen) {
             return None;

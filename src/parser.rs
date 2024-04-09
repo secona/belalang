@@ -28,51 +28,47 @@ impl Precedence {
 
 pub struct Parser {
     lexer: lexer::Lexer,
-    curr_token: Option<token::Token>,
-    peek_token: Option<token::Token>,
+    curr_token: token::Token,
+    peek_token: token::Token,
     errors: Vec<String>,
 }
 
 impl Parser {
-    pub fn new(lexer: lexer::Lexer) -> Parser {
-        let mut parser = Parser {
+    pub fn new(mut lexer: lexer::Lexer) -> Parser {
+        let curr_token = lexer.next_token();
+        let peek_token = lexer.next_token();
+
+        Parser {
             lexer,
-            curr_token: None,
-            peek_token: None,
+            curr_token,
+            peek_token,
             errors: Vec::new(),
-        };
-
-        parser.next_token();
-        parser.next_token();
-
-        parser
+        }
     }
 
     fn next_token(&mut self) {
         println!("{:?}", &self.curr_token);
-        if let Some(token) = &self.peek_token {
-            self.curr_token = Some(token.clone());
-        }
+        self.curr_token = self.peek_token.clone();
 
         let token = self.lexer.next_token();
-        self.peek_token = Some(token);
+        self.peek_token = token;
     }
 
     fn curr_token_is(&self, other: token::Token) -> bool {
-        matches!(&self.curr_token, Some(tok) if { *tok == other })
+        self.curr_token == other
     }
 
     fn peek_token_is(&self, other: token::Token) -> bool {
-        matches!(&self.peek_token, Some(tok) if { *tok == other })
+        self.peek_token == other
     }
 
     fn curr_precedence(&self) -> Precedence {
-        let curr = self.curr_token.clone().unwrap();
+        let curr = self.curr_token.clone();
         Precedence::from(&curr)
     }
 
     fn peek_precedence(&self) -> Precedence {
-        let peek = self.peek_token.clone().unwrap();
+        let peek = self.peek_token.clone();
         Precedence::from(&peek)
     }
 
@@ -89,9 +85,8 @@ impl Parser {
         let mut program = ast::Program::new();
 
         while !self.curr_token_is(token::Token::EOF) {
-            match self.parse_statement() {
-                Some(stmt) => program.add_stmt(stmt),
-                None => {}
+            if let Some(stmt) = self.parse_statement() {
+                program.add_stmt(stmt)
             }
             self.next_token();
         }
@@ -100,26 +95,23 @@ impl Parser {
     }
 
     fn parse_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
-        match &self.curr_token {
-            Some(tok) => match *tok {
-                token::Token::Let => self.parse_let_statement(),
-                token::Token::Return => self.parse_return_statement(),
-                _ => self.parse_expression_statement(),
-            },
-            _ => None,
+        match self.curr_token {
+            token::Token::Let => self.parse_let_statement(),
+            token::Token::Return => self.parse_return_statement(),
+            _ => self.parse_expression_statement(),
         }
     }
 
     fn parse_let_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
-        let let_token = self.curr_token.clone().unwrap();
+        let let_token = self.curr_token.clone();
 
         if !self.expect_peek(token::Token::Ident("".into())) {
             return None;
         }
 
         let name = ast::Identifier {
-            token: self.curr_token.clone().unwrap(),
-            value: self.curr_token.clone().unwrap().to_string(),
+            token: self.curr_token.clone(),
+            value: self.curr_token.clone().to_string(),
         };
 
         if !self.expect_peek(token::Token::Assign) {
@@ -145,7 +137,7 @@ impl Parser {
 
     fn parse_return_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
         let stmt = ast::ReturnStatement {
-            token: self.curr_token.clone().unwrap(),
+            token: self.curr_token.clone(),
             return_value: Box::new(ast::Identifier {
                 value: "5".to_owned(), // TODO: Change this
                 token: token::Token::Ident("5".to_owned()),
@@ -164,7 +156,7 @@ impl Parser {
 
     fn parse_expression_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
         let stmt = ast::ExpressionStatement {
-            token: self.curr_token.clone().unwrap(),
+            token: self.curr_token.clone(),
             expression: self.parse_expression(Precedence::Lowest).unwrap(),
         };
 
@@ -188,7 +180,7 @@ impl Parser {
         'l: while !self.peek_token_is(token::Token::Semicolon)
             && precedence < self.peek_precedence()
         {
-            left_expr = self.infix_fn(&self.peek_token.clone().unwrap(), left_expr.unwrap());
+            left_expr = self.infix_fn(&self.peek_token.clone(), left_expr.unwrap());
 
             if let Err(expr) = left_expr {
                 left_expr = Ok(expr);
@@ -200,9 +192,9 @@ impl Parser {
     }
 
     fn parse_block_statement(&mut self) -> ast::BlockStatement {
-        let token = self.curr_token.clone().unwrap();
+        let token = self.curr_token.clone();
         let mut statements = Vec::new();
-        
+
         self.next_token();
 
         while !self.curr_token_is(token::Token::RBrace) && !self.curr_token_is(token::Token::EOF) {

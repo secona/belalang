@@ -27,8 +27,8 @@ impl super::Parser {
     ) -> Result<Box<dyn ast::Expression>, Box<dyn ast::Expression>> {
         self.next_token();
 
-        let token = self.curr_token.clone().unwrap();
-        let operator = self.curr_token.clone().unwrap().to_string();
+        let token = self.curr_token.clone();
+        let operator = self.curr_token.clone().to_string();
         let precedence = self.curr_precedence();
 
         self.next_token();
