@@ -2,6 +2,8 @@ mod expressions;
 mod program;
 mod statements;
 
+use std::fmt::Debug;
+
 pub use expressions::*;
 pub use program::Program;
 pub use statements::*;
@@ -21,6 +23,12 @@ impl_downcast!(Statement);
 
 pub trait Expression: Node + Downcast {
     fn expression_node(&self);
+}
+
+impl Debug for dyn Expression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.to_string())
+    }
 }
 
 impl_downcast!(Expression);

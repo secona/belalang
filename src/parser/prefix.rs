@@ -48,8 +48,8 @@ impl super::Parser {
         self.next_token();
 
         Some(Box::new(ast::PrefixExpression {
+            operator: prev_token.clone().to_string(),
             token: prev_token,
-            operator: self.curr_token.clone().unwrap().to_string(),
             right: self.parse_expression(Precedence::Prefix).unwrap(),
         }))
     }

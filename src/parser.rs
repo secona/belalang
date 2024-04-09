@@ -14,6 +14,18 @@ pub enum Precedence {
     Call,
 }
 
+impl Precedence {
+    pub fn from(tok: &token::Token) -> Self {
+        match tok {
+            token::Token::Eq | token::Token::NotEq => Self::Equals,
+            token::Token::LT | token::Token::GT => Self::LessGreater,
+            token::Token::Plus | token::Token::Minus => Self::Sum,
+            token::Token::Slash | token::Token::Asterisk => Self::Product,
+            _ => Self::Lowest,
+        }
+    }
+}
+
 pub struct Parser {
     lexer: lexer::Lexer,
     curr_token: Option<token::Token>,
@@ -51,6 +63,16 @@ impl Parser {
 
     fn peek_token_is(&self, other: token::Token) -> bool {
         matches!(&self.peek_token, Some(tok) if { *tok == other })
+    }
+
+    fn curr_precedence(&self) -> Precedence {
+        let curr = self.curr_token.clone().unwrap();
+        Precedence::from(&curr)
+    }
+
+    fn peek_precedence(&self) -> Precedence {
+        let peek = self.peek_token.clone().unwrap();
+        Precedence::from(&peek)
     }
 
     fn expect_peek(&mut self, other: token::Token) -> bool {
@@ -153,12 +175,27 @@ impl Parser {
     }
 
     fn parse_expression(&mut self, precedence: Precedence) -> Option<Box<dyn ast::Expression>> {
-        // let prefix_fn = prefix::lookup(self.curr_token.clone().unwrap())?;
+        let prefix = self.prefix_fn();
 
-        // let left_exp = prefix_fn();
-        // let left_exp = self.prefix_fn(self.curr_token.clone().unwrap());
-        // Some(left_exp)
-        self.prefix_fn()
+        if prefix.is_none() {
+            return None;
+        }
+
+        let mut left_expr: Result<Box<dyn ast::Expression>, Box<dyn ast::Expression>> =
+            Ok(prefix.unwrap());
+
+        'l: while !self.peek_token_is(token::Token::Semicolon)
+            && precedence < self.peek_precedence()
+        {
+            left_expr = self.infix_fn(&self.peek_token.clone().unwrap(), left_expr.unwrap());
+
+            if let Err(expr) = left_expr {
+                left_expr = Ok(expr);
+                break 'l;
+            }
+        }
+
+        Some(left_expr.unwrap())
     }
 }
 
@@ -232,5 +269,39 @@ mod tests {
         }
 
         panic!("program.statements[0] not ast::ExpressionStatement");
+    }
+
+    #[test]
+    fn parsing() {
+        let tests: [[&str; 2]; 13] = [
+            ["a * b + c", "((a * b) + c)"],
+            ["!-a", "(!(-a))"],
+            ["a + b + c", "((a + b) + c)"],
+            ["a + b - c", "((a + b) - c)"],
+            ["a * b * c", "((a * b) * c)"],
+            ["a * b / c", "((a * b) / c)"],
+            ["a + b / c", "(a + (b / c))"],
+            ["a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"],
+            ["3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"],
+            ["5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"],
+            ["5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"],
+            [
+                "3 + 4 * 5 == 3 * 1 + 4 * 5",
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+            ],
+            [
+                "3 + 4 * 5 == 3 * 1 + 4 * 5",
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+            ],
+        ];
+
+        for test in tests {
+            let input = test[0].to_owned().into_bytes().into_boxed_slice();
+            let lexer = lexer::Lexer::new(input);
+            let mut parser = super::Parser::new(lexer);
+
+            let program = parser.parse_program();
+            assert_eq!(program.to_string(), test[1]);
+        }
     }
 }
