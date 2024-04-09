@@ -49,6 +49,7 @@ impl Parser {
     }
 
     fn next_token(&mut self) {
+        println!("{:?}", &self.curr_token);
         if let Some(token) = &self.peek_token {
             self.curr_token = Some(token.clone());
         }
@@ -197,6 +198,22 @@ impl Parser {
 
         Some(left_expr.unwrap())
     }
+
+    fn parse_block_statement(&mut self) -> ast::BlockStatement {
+        let token = self.curr_token.clone().unwrap();
+        let mut statements = Vec::new();
+        
+        self.next_token();
+
+        while !self.curr_token_is(token::Token::RBrace) && !self.curr_token_is(token::Token::EOF) {
+            if let Some(statement) = self.parse_statement() {
+                statements.push(statement);
+            }
+            self.next_token();
+        }
+
+        ast::BlockStatement { statements, token }
+    }
 }
 
 #[cfg(test)]
@@ -340,5 +357,22 @@ mod tests {
             let program = parser.parse_program();
             assert_eq!(program.to_string(), test[1]);
         }
+    }
+
+    #[test]
+    fn test_if_expression() {
+        let input = "if (x < y) { x } else { y }"
+            .to_owned()
+            .into_bytes()
+            .into_boxed_slice();
+
+        let lexer = lexer::Lexer::new(input);
+        let mut parser = super::Parser::new(lexer);
+
+        let program = parser.parse_program();
+
+        assert_eq!(program.statements.len(), 1);
+
+        // TODO: more tests
     }
 }

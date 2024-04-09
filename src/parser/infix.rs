@@ -8,7 +8,6 @@ impl super::Parser {
         tok: &token::Token,
         left: Box<dyn ast::Expression>,
     ) -> Result<Box<dyn ast::Expression>, Box<dyn ast::Expression>> {
-        println!("{:?}", tok);
         match tok {
             token::Token::Plus
             | token::Token::Minus

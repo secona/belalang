@@ -6,7 +6,6 @@ use super::Precedence;
 
 impl super::Parser {
     pub fn prefix_fn(&mut self) -> Option<Box<dyn ast::Expression>> {
-        println!("{:?}", self.curr_token);
         match &self.curr_token.clone() {
             Some(tok) => match tok {
                 token::Token::Ident(_) => Some(self.parse_identifier()),
@@ -14,6 +13,7 @@ impl super::Parser {
                 token::Token::Bang | token::Token::Minus => self.parse_prefix_expression(),
                 token::Token::True | token::Token::False => self.parse_boolean(),
                 token::Token::LParen => self.parse_grouped_expression(),
+                token::Token::If => self.parse_if_expression(),
                 _ => None,
             },
             None => None,
@@ -72,5 +72,45 @@ impl super::Parser {
         } else {
             expr
         }
+    }
+
+    fn parse_if_expression(&mut self) -> Option<Box<dyn ast::Expression>> {
+        let token = self.curr_token.clone().unwrap();
+
+        if !self.expect_peek(token::Token::LParen) {
+            return None;
+        }
+
+        self.next_token();
+        let condition = self.parse_expression(Precedence::Lowest).unwrap();
+
+        if !self.expect_peek(token::Token::RParen) {
+            return None;
+        }
+
+        if !self.expect_peek(token::Token::LBrace) {
+            return None;
+        }
+
+        let consequence = self.parse_block_statement();
+
+        let alternative = if self.peek_token_is(token::Token::Else) {
+            self.next_token();
+
+            if !self.expect_peek(token::Token::LBrace) {
+                return None;
+            }
+
+            Some(self.parse_block_statement())
+        } else {
+            None
+        };
+
+        Some(Box::new(ast::IfExpression {
+            token,
+            condition,
+            consequence,
+            alternative,
+        }))
     }
 }
