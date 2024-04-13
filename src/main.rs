@@ -6,6 +6,9 @@ pub mod parser;
 pub mod repl;
 pub mod token;
 
+#[cfg(test)]
+mod test_util;
+
 fn main() {
     Repl::start();
 }
