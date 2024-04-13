@@ -29,7 +29,7 @@ impl Statement for LetStatement {
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast, test_util, token};
+    use crate::{ast, lexer, parser, test_util, token};
 
     use super::LetStatement;
 
@@ -63,9 +63,36 @@ mod tests {
                     }),
                 },
                 exp: String::from("let myVar = anotherVar;"),
-            }
+            },
         ];
 
         tests.map(|t| t.test());
+    }
+
+    #[test]
+    fn to_struct() {
+        let input = "let x = 5;".to_owned().into_bytes().into_boxed_slice();
+
+        let lexer = lexer::Lexer::new(input);
+        let mut parser = parser::Parser::new(lexer);
+
+        let program = parser.parse_program();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let stmt = program.statements[0]
+            .downcast_ref::<ast::LetStatement>()
+            .expect("not a(n) ast::LetStatement");
+
+        assert_eq!(stmt.name.token, token::Token::Ident(String::from("x")));
+        assert_eq!(stmt.name.value, String::from("x"));
+
+        let int_lit = stmt
+            .value
+            .downcast_ref::<ast::IntegerLiteral>()
+            .expect("not a(n) ast::IntegerLiteral");
+
+        assert_eq!(int_lit.value, 5);
+        assert_eq!(int_lit.token, token::Token::Int(String::from("5")));
     }
 }

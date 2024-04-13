@@ -38,8 +38,6 @@ impl Expression for IfExpression {
 
 #[cfg(test)]
 mod tests {
-    use core::panic;
-
     use crate::{ast, lexer, parser, token};
 
     #[test]
@@ -56,26 +54,26 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        if let Some(stmt) = program.statements[0].downcast_ref::<ast::ExpressionStatement>() {
-            if let Some(if_expr) = stmt.expression.downcast_ref::<ast::IfExpression>() {
-                assert!(if_expr.alternative.is_none());
-                assert_eq!(if_expr.condition.to_string(), "(x < y)");
-                assert_eq!(if_expr.token, token::Token::If);
-                assert_eq!(if_expr.consequence.to_string(), "x");
+        let stmt = program.statements[0]
+            .downcast_ref::<ast::ExpressionStatement>()
+            .expect("not a(n) ast::ExpressionStatement");
 
-                assert_eq!(
-                    if_expr.consequence.statements[0]
-                        .downcast_ref::<ast::ExpressionStatement>()
-                        .unwrap()
-                        .to_string(),
-                    "x",
-                );
-            } else {
-                panic!("expression not ast::IfExpression");
-            }
-        } else {
-            panic!("statement not ast::ExpressionStatement");
-        }
+        let if_expr = stmt
+            .expression
+            .downcast_ref::<ast::IfExpression>()
+            .expect("not a(n) ast::IfExpression");
+
+        assert!(if_expr.alternative.is_none());
+        assert_eq!(if_expr.condition.to_string(), "(x < y)");
+        assert_eq!(if_expr.token, token::Token::If);
+
+        assert_eq!(
+            if_expr.consequence.statements[0]
+                .downcast_ref::<ast::ExpressionStatement>()
+                .expect("not a(n) ast::ExpressionStatement")
+                .to_string(),
+            "x",
+        );
     }
 
     #[test]
@@ -92,33 +90,33 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        if let Some(stmt) = program.statements[0].downcast_ref::<ast::ExpressionStatement>() {
-            if let Some(if_expr) = stmt.expression.downcast_ref::<ast::IfExpression>() {
-                assert!(if_expr.alternative.is_none());
-                assert_eq!(if_expr.condition.to_string(), "(x < y)");
-                assert_eq!(if_expr.token, token::Token::If);
-                assert_eq!(if_expr.consequence.to_string(), "x");
+        let stmt = program.statements[0]
+            .downcast_ref::<ast::ExpressionStatement>()
+            .expect("not a(n) ast::ExpressionStatement");
 
-                assert_eq!(
-                    if_expr.consequence.statements[0]
-                        .downcast_ref::<ast::LetStatement>()
-                        .unwrap()
-                        .to_string(),
-                    "let a = 10",
-                );
+        let if_expr = stmt
+            .expression
+            .downcast_ref::<ast::IfExpression>()
+            .expect("not a(n) ast::IfExpression");
 
-                assert_eq!(
-                    if_expr.consequence.statements[1]
-                        .downcast_ref::<ast::ExpressionStatement>()
-                        .unwrap()
-                        .to_string(),
-                    "x",
-                );
-            } else {
-                panic!("expression not ast::IfExpression");
-            }
-        } else {
-            panic!("statement not ast::ExpressionStatement");
-        }
+        assert!(if_expr.alternative.is_none());
+        assert_eq!(if_expr.condition.to_string(), "(x < y)");
+        assert_eq!(if_expr.token, token::Token::If);
+
+        assert_eq!(
+            if_expr.consequence.statements[0]
+                .downcast_ref::<ast::LetStatement>()
+                .expect("not a(n) ast::LetStatement")
+                .to_string(),
+            "let a = 10",
+        );
+
+        assert_eq!(
+            if_expr.consequence.statements[1]
+                .downcast_ref::<ast::ExpressionStatement>()
+                .expect("not a(n) ast::ExpressionStatement")
+                .to_string(),
+            "x",
+        );
     }
 }

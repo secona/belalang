@@ -243,18 +243,17 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        if let Some(stmt) = program.statements[0].downcast_ref::<ast::ExpressionStatement>() {
-            if let Some(literal) = stmt.expression.downcast_ref::<ast::IntegerLiteral>() {
-                assert_eq!(literal.value, 5);
-                assert_eq!(literal.token().unwrap(), &token::Token::Int("5".to_owned()));
+        let stmt = program.statements[0]
+            .downcast_ref::<ast::ExpressionStatement>()
+            .expect("not a(n) ast::ExpressionStatement");
 
-                return;
-            }
+        let literal = stmt
+            .expression
+            .downcast_ref::<ast::IntegerLiteral>()
+            .expect("not a(n) ast::IntegerLiteral");
 
-            panic!("expression not ast::IntegerLiteral");
-        }
-
-        panic!("program.statements[0] not ast::ExpressionStatement");
+        assert_eq!(literal.value, 5);
+        assert_eq!(literal.token().unwrap(), &token::Token::Int("5".to_owned()));
     }
 
     struct PrefixTest {
@@ -294,17 +293,17 @@ mod tests {
 
             let program = parser.parse_program();
 
-            if let Some(stmt) = program.statements[0].downcast_ref::<ast::ExpressionStatement>() {
-                if let Some(exp) = stmt.expression.downcast_ref::<ast::PrefixExpression>() {
-                    assert_eq!(exp.operator, test.exp_operator);
-                    assert_eq!((*exp.right).to_string(), test.exp_right);
-                    return;
-                }
+            let stmt = program.statements[0]
+                .downcast_ref::<ast::ExpressionStatement>()
+                .expect("not a(n) ast::ExpressionStatement");
 
-                panic!("expression not ast::PrefixExpression");
-            }
+            let exp = stmt
+                .expression
+                .downcast_ref::<ast::PrefixExpression>()
+                .expect("not a(n) ast::PrefixExpression");
 
-            panic!("program.statements[0] not ast::ExpressionStatement");
+            assert_eq!(exp.operator, test.exp_operator);
+            assert_eq!((*exp.right).to_string(), test.exp_right);
         }
     }
 
@@ -350,5 +349,4 @@ mod tests {
             assert_eq!(program.to_string(), test[1]);
         }
     }
-
 }
