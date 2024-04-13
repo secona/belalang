@@ -1,5 +1,5 @@
-use crate::token;
 use crate::ast::{Expression, Node, Statement};
+use crate::token;
 
 pub struct ReturnStatement {
     pub token: token::Token,
@@ -24,20 +24,35 @@ impl Statement for ReturnStatement {
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast, token};
+    use crate::{ast, test_util, token};
 
     use super::ReturnStatement;
 
     #[test]
-    fn return_statement_to_string() {
-        let stmt = ReturnStatement {
-            token: token::Token::Return,
-            return_value: Box::new(ast::Identifier {
-                token: token::Token::Int(String::from("5")),
-                value: String::from("5"),
-            }),
-        };
+    fn to_string() {
+        let tests = [
+            test_util::ToStringTest {
+                obj: ReturnStatement {
+                    token: token::Token::Return, 
+                    return_value: Box::new(ast::Identifier {
+                        token: token::Token::Ident(String::from("x")),
+                        value: String::from("x"),
+                    }),
+                },
+                exp: String::from("return x;"),
+            },
+            test_util::ToStringTest {
+                obj: ReturnStatement {
+                    token: token::Token::Return,
+                    return_value: Box::new(ast::IntegerLiteral {
+                        token: token::Token::Int(String::from("5")),
+                        value: 5,
+                    }),
+                },
+                exp: String::from("return 5;"),
+            },
+        ];
 
-        assert_eq!(stmt.to_string(), "return 5;");
+        tests.map(|t| t.test());
     }
 }
