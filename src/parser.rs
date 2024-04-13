@@ -210,8 +210,6 @@ impl Parser {
 
 #[cfg(test)]
 mod tests {
-    use core::panic;
-
     use crate::{
         ast::{self, Node},
         lexer, token,
