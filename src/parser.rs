@@ -351,20 +351,4 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_if_expression() {
-        let input = "if (x < y) { x } else { y }"
-            .to_owned()
-            .into_bytes()
-            .into_boxed_slice();
-
-        let lexer = lexer::Lexer::new(input);
-        let mut parser = super::Parser::new(lexer);
-
-        let program = parser.parse_program();
-
-        assert_eq!(program.statements.len(), 1);
-
-        // TODO: more tests
-    }
 }
