@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::{ast, token};
 
 use super::Precedence;
@@ -13,6 +11,7 @@ impl super::Parser {
             token::Token::True | token::Token::False => self.parse_boolean(),
             token::Token::LParen => self.parse_grouped_expression(),
             token::Token::If => self.parse_if_expression(),
+            token::Token::Function => self.parse_function_literal(),
             _ => None,
         }
     }
@@ -109,5 +108,58 @@ impl super::Parser {
             consequence,
             alternative,
         }))
+    }
+
+    fn parse_function_literal(&mut self) -> Option<Box<dyn ast::Expression>> {
+        let token = self.curr_token.clone();
+
+        if !self.expect_peek(token::Token::LParen) {
+            return None;
+        }
+
+        let params = self.parse_function_params()?;
+
+        if !self.expect_peek(token::Token::LBrace) {
+            return None;
+        }
+
+        let body = self.parse_block_statement();
+
+        Some(Box::new(ast::FunctionLiteral {
+            token,
+            params,
+            body,
+        }))
+    }
+
+    fn parse_function_params(&mut self) -> Option<Vec<Box<ast::Identifier>>> {
+        let mut identifiers = Vec::new();
+
+        if self.peek_token_is(token::Token::RParen) {
+            self.next_token();
+            return Some(identifiers);
+        }
+
+        self.next_token();
+        identifiers.push(Box::new(ast::Identifier {
+            token: self.curr_token.clone(),
+            value: self.curr_token.to_string(),
+        }));
+
+        while self.peek_token_is(token::Token::Comma) {
+            self.next_token();
+            self.next_token();
+
+            identifiers.push(Box::new(ast::Identifier {
+                token: self.curr_token.clone(),
+                value: self.curr_token.to_string(),
+            }));
+        }
+
+        if !self.expect_peek(token::Token::RParen) {
+            return None
+        }
+
+        Some(identifiers)
     }
 }
