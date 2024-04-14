@@ -35,8 +35,6 @@ impl Expression for FunctionLiteral {
 
 #[cfg(test)]
 mod tests {
-    use std::borrow::Borrow;
-
     use crate::{ast, lexer, parser, test_util};
 
     #[test]
@@ -66,10 +64,32 @@ mod tests {
 
         assert_eq!(function.body.statements.len(), 1);
 
-        // TODO: test_infix_expression
-        // let body_stmt = function.body.statements[0]
-        //     .downcast_ref::<ast::ExpressionStatement>()
-        //     .expect("not a(n) ast::ExpressionStatement");
+        let body_stmt = function.body.statements[0]
+            .downcast_ref::<ast::ExpressionStatement>()
+            .expect("not a(n) ast::ExpressionStatement");
+
+        let infix_expr = body_stmt
+            .expression
+            .downcast_ref::<ast::InfixExpression>()
+            .expect("not a(n) ast::InfixExpression");
+
+        test_util::test_identifier(
+            infix_expr
+                .left
+                .downcast_ref::<ast::Identifier>()
+                .expect("not a(n) ast::Identifier"),
+            "x".into(),
+        );
+
+        test_util::test_identifier(
+            infix_expr
+                .right
+                .downcast_ref::<ast::Identifier>()
+                .expect("not a(n) ast::Identifier"),
+            "y".into(),
+        );
+
+        assert_eq!(infix_expr.operator, "+".to_owned());
     }
 
     #[test]
