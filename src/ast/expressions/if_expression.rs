@@ -38,7 +38,7 @@ impl Expression for IfExpression {
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast, lexer, parser, token};
+    use crate::{ast, lexer, parser, test_util, token};
 
     #[test]
     fn works_without_else() {
@@ -146,8 +146,14 @@ mod tests {
             .downcast_ref::<ast::IfExpression>()
             .expect("not a(n) ast::IfExpression");
 
+        test_util::test_infix_expression(
+            if_expr.condition.as_ref(),
+            test_util::Expected::Ident("x"),
+            "<",
+            test_util::Expected::Ident("y"),
+        );
+
         assert!(if_expr.alternative.is_none());
-        assert_eq!(if_expr.condition.to_string(), "(x < y)");
         assert_eq!(if_expr.token, token::Token::If);
 
         assert_eq!(

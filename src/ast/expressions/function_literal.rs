@@ -59,8 +59,8 @@ mod tests {
 
         assert_eq!(function.params.len(), 2);
 
-        test_util::test_identifier(function.params[0].as_ref(), "x".into());
-        test_util::test_identifier(function.params[1].as_ref(), "y".into());
+        test_util::test_identifier(function.params[0].as_ref(), "x");
+        test_util::test_identifier(function.params[1].as_ref(), "y");
 
         assert_eq!(function.body.statements.len(), 1);
 
@@ -68,28 +68,12 @@ mod tests {
             .downcast_ref::<ast::ExpressionStatement>()
             .expect("not a(n) ast::ExpressionStatement");
 
-        let infix_expr = body_stmt
-            .expression
-            .downcast_ref::<ast::InfixExpression>()
-            .expect("not a(n) ast::InfixExpression");
-
-        test_util::test_identifier(
-            infix_expr
-                .left
-                .downcast_ref::<ast::Identifier>()
-                .expect("not a(n) ast::Identifier"),
-            "x".into(),
+        test_util::test_infix_expression(
+            body_stmt.expression.as_ref(),
+            test_util::Expected::Ident("x"),
+            "+",
+            test_util::Expected::Ident("y"),
         );
-
-        test_util::test_identifier(
-            infix_expr
-                .right
-                .downcast_ref::<ast::Identifier>()
-                .expect("not a(n) ast::Identifier"),
-            "y".into(),
-        );
-
-        assert_eq!(infix_expr.operator, "+".to_owned());
     }
 
     #[test]
@@ -117,7 +101,7 @@ mod tests {
                 .expect("not a(n) ast::FunctionLiteral");
 
             for (i, exp) in test.1.iter().enumerate() {
-                test_util::test_identifier(function.params[i].as_ref(), exp.to_string());
+                test_util::test_identifier(function.params[i].as_ref(), exp);
             }
         }
     }
