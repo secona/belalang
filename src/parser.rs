@@ -56,11 +56,11 @@ impl Parser {
     }
 
     fn curr_token_is(&self, other: token::Token) -> bool {
-        self.curr_token == other
+        std::mem::discriminant(&self.curr_token) == std::mem::discriminant(&other)
     }
 
     fn peek_token_is(&self, other: token::Token) -> bool {
-        self.peek_token == other
+        std::mem::discriminant(&self.peek_token) == std::mem::discriminant(&other)
     }
 
     fn curr_precedence(&self) -> Precedence {
@@ -104,7 +104,7 @@ impl Parser {
     }
 
     fn parse_let_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
-        let let_token = self.curr_token.clone();
+        let token = self.curr_token.clone();
 
         if !self.expect_peek(token::Token::Ident("".into())) {
             return None;
@@ -112,53 +112,43 @@ impl Parser {
 
         let name = ast::Identifier {
             token: self.curr_token.clone(),
-            value: self.curr_token.clone().to_string(),
+            value: self.curr_token.to_string(),
         };
 
         if !self.expect_peek(token::Token::Assign) {
             return None;
         }
 
-        // TODO: parse expression
-        while !self.curr_token_is(token::Token::Semicolon) {
+        self.next_token();
+        let value = self.parse_expression(Precedence::Lowest)?;
+
+        if self.peek_token_is(token::Token::Semicolon) {
             self.next_token();
         }
 
-        let stmt = ast::LetStatement {
-            name,
-            token: let_token,
-            value: Box::new(ast::Identifier {
-                value: "5".to_owned(), // TODO: Change this
-                token: token::Token::Ident("5".to_owned()),
-            }),
-        };
-
-        Some(Box::new(stmt))
+        Some(Box::new(ast::LetStatement { name, token, value }))
     }
 
     fn parse_return_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
-        let stmt = ast::ReturnStatement {
-            token: self.curr_token.clone(),
-            return_value: Box::new(ast::Identifier {
-                value: "5".to_owned(), // TODO: Change this
-                token: token::Token::Ident("5".to_owned()),
-            }),
-        };
+        let token = self.curr_token.clone();
 
         self.next_token();
+        let return_value = self.parse_expression(Precedence::Lowest)?;
 
-        // TODO: parse expression
-        while !self.curr_token_is(token::Token::Semicolon) {
+        if self.peek_token_is(token::Token::Semicolon) {
             self.next_token();
         }
 
-        Some(Box::new(stmt))
+        Some(Box::new(ast::ReturnStatement {
+            token,
+            return_value,
+        }))
     }
 
     fn parse_expression_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
         let stmt = ast::ExpressionStatement {
             token: self.curr_token.clone(),
-            expression: self.parse_expression(Precedence::Lowest).unwrap(),
+            expression: self.parse_expression(Precedence::Lowest)?,
         };
 
         if self.peek_token_is(token::Token::Semicolon) {
@@ -175,8 +165,7 @@ impl Parser {
             return None;
         }
 
-        let mut left_expr: Result<Box<dyn ast::Expression>, Box<dyn ast::Expression>> =
-            Ok(prefix.unwrap());
+        let mut left_expr: Result<Box<dyn ast::Expression>, Box<dyn ast::Expression>> = Ok(prefix?);
 
         'l: while !self.peek_token_is(token::Token::Semicolon)
             && precedence < self.peek_precedence()
@@ -215,21 +204,6 @@ mod tests {
         ast::{self, Node},
         lexer, token,
     };
-
-    #[test]
-    fn let_statements() {
-        let input = "let x = 5;".to_owned().into_bytes().into_boxed_slice();
-
-        let lexer = lexer::Lexer::new(input);
-        let mut parser = super::Parser::new(lexer);
-
-        let program = parser.parse_program();
-        let tok = program.token();
-
-        if let Some(inner) = tok {
-            assert_eq!(*inner, token::Token::Let);
-        }
-    }
 
     #[test]
     fn integer_literal_expression() {

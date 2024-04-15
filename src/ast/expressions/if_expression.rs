@@ -161,7 +161,7 @@ mod tests {
                 .downcast_ref::<ast::LetStatement>()
                 .expect("not a(n) ast::LetStatement")
                 .to_string(),
-            "let a = 10",
+            "let a = 10;",
         );
 
         assert_eq!(

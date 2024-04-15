@@ -70,7 +70,7 @@ mod tests {
     }
 
     #[test]
-    fn to_struct() {
+    fn parsing() {
         let input = "let x = 5;".to_owned().into_bytes().into_boxed_slice();
 
         let lexer = lexer::Lexer::new(input);
@@ -78,6 +78,15 @@ mod tests {
 
         let program = parser.parse_program();
 
+        println!(
+            "{}",
+            program
+                .statements
+                .iter()
+                .map(|s| s.to_string())
+                .collect::<Vec<String>>()
+                .join(", ")
+        );
         assert_eq!(program.statements.len(), 1);
 
         let stmt = program.statements[0]
@@ -87,12 +96,6 @@ mod tests {
         assert_eq!(stmt.name.token, token::Token::Ident(String::from("x")));
         assert_eq!(stmt.name.value, String::from("x"));
 
-        let int_lit = stmt
-            .value
-            .downcast_ref::<ast::IntegerLiteral>()
-            .expect("not a(n) ast::IntegerLiteral");
-
-        assert_eq!(int_lit.value, 5);
-        assert_eq!(int_lit.token, token::Token::Int(String::from("5")));
+        test_util::test_integer_literal(stmt.value.as_ref(), 5);
     }
 }
