@@ -1,4 +1,5 @@
 mod boolean_expression;
+mod call_expression;
 mod function_literal;
 mod identifier;
 mod if_expression;
@@ -7,6 +8,7 @@ mod integer_literal;
 mod prefix_expression;
 
 pub use boolean_expression::*;
+pub use call_expression::*;
 pub use function_literal::*;
 pub use identifier::*;
 pub use if_expression::*;

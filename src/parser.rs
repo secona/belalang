@@ -21,6 +21,7 @@ impl Precedence {
             token::Token::LT | token::Token::GT => Self::LessGreater,
             token::Token::Plus | token::Token::Minus => Self::Sum,
             token::Token::Slash | token::Token::Asterisk => Self::Product,
+            token::Token::LParen => Self::Call,
             _ => Self::Lowest,
         }
     }
@@ -307,7 +308,7 @@ mod tests {
 
     #[test]
     fn test_operator_precedence_parsing() {
-        let tests: [[&str; 2]; 22] = [
+        let tests: [[&str; 2]; 25] = [
             ["a * b + c", "((a * b) + c)"],
             ["!-a", "(!(-a))"],
             ["a + b + c", "((a + b) + c)"],
@@ -336,6 +337,15 @@ mod tests {
             ["2 / (5 + 5)", "(2 / (5 + 5))"],
             ["-(5 + 5)", "(-(5 + 5))"],
             ["!(true == true)", "(!(true == true))"],
+            ["a + add(b * c) + d", "((a + add((b * c))) + d)"],
+            [
+                "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+                "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+            ],
+            [
+                "add(a + b + c * d / f + g)",
+                "add((((a + b) + ((c * d) / f)) + g))",
+            ],
         ];
 
         for test in tests {
