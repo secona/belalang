@@ -10,13 +10,14 @@ pub struct BlockStatement {
 
 impl ToString for BlockStatement {
     fn to_string(&self) -> String {
-        let mut result = String::new();
-
-        for statement in &self.statements {
-            result += &statement.to_string();
-        }
-
-        result
+        format!(
+            "{{ {} }}",
+            self.statements
+                .iter()
+                .map(|s| s.to_string())
+                .collect::<Vec<String>>()
+                .join("; ")
+        )
     }
 }
 

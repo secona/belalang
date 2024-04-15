@@ -31,7 +31,7 @@ pub struct Parser {
     lexer: lexer::Lexer,
     curr_token: token::Token,
     peek_token: token::Token,
-    errors: Vec<String>,
+    pub errors: Vec<String>,
 }
 
 impl Parser {
@@ -48,7 +48,6 @@ impl Parser {
     }
 
     fn next_token(&mut self) {
-        println!("{:?}", &self.curr_token);
         self.curr_token = self.peek_token.clone();
 
         let token = self.lexer.next_token();

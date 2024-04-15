@@ -12,7 +12,7 @@ pub struct FunctionLiteral {
 impl ToString for FunctionLiteral {
     fn to_string(&self) -> String {
         format!(
-            "fn ({}) {}",
+            "fn({}) {}",
             self.params
                 .iter()
                 .map(|param| param.to_string())
