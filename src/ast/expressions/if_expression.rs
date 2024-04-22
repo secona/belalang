@@ -50,7 +50,7 @@ mod tests {
         let lexer = lexer::Lexer::new(input);
         let mut parser = parser::Parser::new(lexer);
 
-        let program = parser.parse_program();
+        let program = parser.parse_program().expect("got parser errors");
 
         assert_eq!(program.statements.len(), 1);
 
@@ -86,7 +86,7 @@ mod tests {
         let lexer = lexer::Lexer::new(input);
         let mut parser = parser::Parser::new(lexer);
 
-        let program = parser.parse_program();
+        let program = parser.parse_program().expect("got parser errors");
 
         assert_eq!(program.statements.len(), 1);
 
@@ -133,7 +133,7 @@ mod tests {
         let lexer = lexer::Lexer::new(input);
         let mut parser = parser::Parser::new(lexer);
 
-        let program = parser.parse_program();
+        let program = parser.parse_program().expect("got parser errors");
 
         assert_eq!(program.statements.len(), 1);
 

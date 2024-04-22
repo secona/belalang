@@ -17,15 +17,18 @@ impl Repl {
 
             let lexer = Lexer::new(input.into_bytes().into_boxed_slice());
             let mut parser = parser::Parser::new(lexer);
-            let program = parser.parse_program();
 
-            if parser.errors.len() > 0 {
-                for error in parser.errors {
-                    println!("{}", error);
+            match parser.parse_program() {
+                Ok(program) => {
+                    println!("{}", program.to_string());
                 }
-            }
-
-            println!("{}", program.to_string());
+                Err(errors) => {
+                    println!("parser errors:");
+                    for error in errors {
+                        println!("- {}", error);
+                    }
+                }
+            };
         }
     }
 }

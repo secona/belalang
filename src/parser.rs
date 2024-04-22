@@ -73,15 +73,26 @@ impl Parser {
     }
 
     fn expect_peek(&mut self, other: token::Token) -> bool {
-        if self.peek_token_is(other) {
+        if self.peek_token_is(other.clone()) {
             self.next_token();
-            return true;
+            true
+        } else {
+            self.peek_error(other);
+            false
         }
-
-        false
     }
 
-    pub fn parse_program(&mut self) -> ast::Program {
+    fn peek_error(&mut self, expected: token::Token) {
+        let msg = format!(
+            "expected next token to be {}, got {} instead.",
+            expected.to_string(),
+            self.peek_token.to_string()
+        );
+
+        self.errors.push(msg);
+    }
+
+    pub fn parse_program(&mut self) -> Result<ast::Program, Vec<String>> {
         let mut program = ast::Program::new();
 
         while !self.curr_token_is(token::Token::EOF) {
@@ -91,7 +102,11 @@ impl Parser {
             self.next_token();
         }
 
-        program
+        if self.errors.len() > 0 {
+            Err(self.errors.clone())
+        } else {
+            Ok(program)
+        }
     }
 
     fn parse_statement(&mut self) -> Option<Box<dyn ast::Statement>> {
@@ -211,7 +226,7 @@ mod tests {
         let lexer = lexer::Lexer::new(input);
         let mut parser = super::Parser::new(lexer);
 
-        let program = parser.parse_program();
+        let program = parser.parse_program().expect("got parser errors");
 
         assert_eq!(program.statements.len(), 1);
 
@@ -263,7 +278,7 @@ mod tests {
             let lexer = lexer::Lexer::new(test.input);
             let mut parser = super::Parser::new(lexer);
 
-            let program = parser.parse_program();
+            let program = parser.parse_program().expect("got parser errors");
 
             let stmt = program.statements[0]
                 .downcast_ref::<ast::ExpressionStatement>()
@@ -326,7 +341,7 @@ mod tests {
             let lexer = lexer::Lexer::new(input);
             let mut parser = super::Parser::new(lexer);
 
-            let program = parser.parse_program();
+            let program = parser.parse_program().expect("got parser errors");
             assert_eq!(program.to_string(), test[1]);
         }
     }

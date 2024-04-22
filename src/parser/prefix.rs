@@ -12,7 +12,13 @@ impl super::Parser {
             token::Token::LParen => self.parse_grouped_expression(),
             token::Token::If => self.parse_if_expression(),
             token::Token::Function => self.parse_function_literal(),
-            _ => None,
+            _ => {
+                self.errors.push(format!(
+                    "no prefix parse function for {} found.",
+                    self.curr_token.to_string()
+                ));
+                None
+            }
         }
     }
 
@@ -33,7 +39,7 @@ impl super::Parser {
             })),
             Err(_) => {
                 self.errors
-                    .push(format!("could not parse {} as integer", literal).to_owned());
+                    .push(format!("could not parse {} as integer.", literal));
                 None
             }
         }
@@ -157,7 +163,7 @@ impl super::Parser {
         }
 
         if !self.expect_peek(token::Token::RParen) {
-            return None
+            return None;
         }
 
         Some(identifiers)
