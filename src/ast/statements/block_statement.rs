@@ -3,7 +3,7 @@ use crate::token;
 
 pub struct BlockStatement {
     pub token: token::Token,
-    pub statements: Vec<Box<Statement>>,
+    pub statements: Vec<Statement>,
 }
 
 impl std::fmt::Display for BlockStatement {

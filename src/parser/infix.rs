@@ -1,6 +1,9 @@
 #![allow(dead_code)]
 
-use crate::{ast, token};
+use crate::{
+    ast::{self, Expression},
+    token,
+};
 
 use super::Precedence;
 
@@ -8,8 +11,8 @@ impl super::Parser {
     pub fn infix_fn(
         &mut self,
         tok: &token::Token,
-        left: Box<dyn ast::Expression>,
-    ) -> Result<Box<dyn ast::Expression>, Box<dyn ast::Expression>> {
+        left: Expression,
+    ) -> Result<Expression, Expression> {
         self.next_token();
 
         match tok {
@@ -26,32 +29,28 @@ impl super::Parser {
         }
     }
 
-    fn parse_infix_expression(
-        &mut self,
-        left: Box<dyn ast::Expression>,
-    ) -> Result<Box<dyn ast::Expression>, Box<dyn ast::Expression>> {
+    fn parse_infix_expression(&mut self, left: Expression) -> Result<Expression, Expression> {
         let token = self.curr_token.clone();
         let operator = self.curr_token.clone().to_string();
         let precedence = self.curr_precedence();
 
         self.next_token();
 
-        Ok(Box::new(ast::InfixExpression {
+        let right = self.parse_expression(precedence).unwrap();
+
+        Ok(Expression::InfixExpression(ast::InfixExpression {
             token,
-            left,
+            left: Box::new(left),
             operator,
-            right: self.parse_expression(precedence).unwrap(),
+            right: Box::new(right),
         }))
     }
 
-    fn parse_call_expression(
-        &mut self,
-        function: Box<dyn ast::Expression>,
-    ) -> Result<Box<dyn ast::Expression>, Box<dyn ast::Expression>> {
+    fn parse_call_expression(&mut self, function: Expression) -> Result<Expression, Expression> {
         if let Some(args) = self.parse_call_args() {
-            Ok(Box::new(ast::CallExpression {
+            Ok(Expression::CallExpression(ast::CallExpression {
                 token: self.curr_token.clone(),
-                function,
+                function: Box::new(function),
                 args,
             }))
         } else {
@@ -59,7 +58,7 @@ impl super::Parser {
         }
     }
 
-    fn parse_call_args(&mut self) -> Option<Vec<Box<dyn ast::Expression>>> {
+    fn parse_call_args(&mut self) -> Option<Vec<Expression>> {
         let mut args = Vec::new();
 
         if self.peek_token_is(token::Token::RParen) {

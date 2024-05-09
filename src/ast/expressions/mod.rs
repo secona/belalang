@@ -24,6 +24,7 @@ pub enum Expression {
     IfExpression(IfExpression),
     InfixExpression(InfixExpression),
     IntegerLiteral(IntegerLiteral),
+    PrefixExpression(PrefixExpression),
 }
 
 impl std::fmt::Display for Expression {
@@ -36,6 +37,7 @@ impl std::fmt::Display for Expression {
             Expression::IfExpression(v) => v.to_string(),
             Expression::InfixExpression(v) => v.to_string(),
             Expression::IntegerLiteral(v) => v.to_string(),
+            Expression::PrefixExpression(v) => v.to_string(),
         };
 
         f.write_str(&value)

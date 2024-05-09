@@ -2,7 +2,7 @@ use crate::{ast, token};
 
 pub struct FunctionLiteral {
     pub token: token::Token,
-    pub params: Vec<Box<ast::Identifier>>,
+    pub params: Vec<ast::Identifier>,
     pub body: ast::BlockStatement,
 }
 
@@ -15,8 +15,7 @@ impl std::fmt::Display for FunctionLiteral {
             .collect::<Vec<_>>()
             .join(", ");
 
-        // TODO: replace this
-        f.write_str(&format!("fn({}) {}", params, ""))
+        f.write_str(&format!("fn({}) {}", params, self.body.to_string()))
     }
 }
 
