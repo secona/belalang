@@ -1,23 +1,13 @@
+use crate::ast::expressions::Expression;
 use crate::token;
-use crate::ast::{Expression, Node, Statement};
 
 pub struct ExpressionStatement {
     pub token: token::Token,
-    pub expression: Box<dyn Expression>,
+    pub expression: Expression,
 }
 
-impl ToString for ExpressionStatement {
-    fn to_string(&self) -> String {
-        self.expression.to_string()
+impl std::fmt::Display for ExpressionStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.expression.to_string())
     }
-}
-
-impl Node for ExpressionStatement {
-    fn token(&self) -> Option<&token::Token> {
-        Some(&self.token)
-    }
-}
-
-impl Statement for ExpressionStatement {
-    fn statement_node(&self) {}
 }

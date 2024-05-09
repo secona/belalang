@@ -1,9 +1,7 @@
-use crate::token;
-
-use super::{Node, Statement};
+use super::Statement;
 
 pub struct Program {
-    pub statements: Vec<Box<dyn Statement>>,
+    pub statements: Vec<Statement>,
 }
 
 impl Program {
@@ -13,29 +11,19 @@ impl Program {
         }
     }
 
-    pub fn add_stmt(&mut self, stmt: Box<dyn Statement>) {
+    pub fn add_stmt(&mut self, stmt: Statement) {
         self.statements.push(stmt);
     }
 }
 
-impl ToString for Program {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for Program {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
         for stmt in &self.statements {
             result.push_str(&stmt.to_string());
         }
 
-        result
-    }
-}
-
-impl Node for Program {
-    fn token(&self) -> Option<&token::Token> {
-        if self.statements.len() > 0 {
-            self.statements[0].token()
-        } else {
-            None
-        }
+        f.write_str(&result)
     }
 }

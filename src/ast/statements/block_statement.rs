@@ -1,32 +1,20 @@
-use crate::{
-    ast::{self, Node, Statement},
-    token,
-};
+use super::Statement;
+use crate::token;
 
 pub struct BlockStatement {
     pub token: token::Token,
-    pub statements: Vec<Box<dyn ast::Statement>>,
+    pub statements: Vec<Box<Statement>>,
 }
 
-impl ToString for BlockStatement {
-    fn to_string(&self) -> String {
-        format!(
-            "{{ {} }}",
-            self.statements
-                .iter()
-                .map(|s| s.to_string())
-                .collect::<Vec<String>>()
-                .join("; ")
-        )
+impl std::fmt::Display for BlockStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let statements = self
+            .statements
+            .iter()
+            .map(|statement| statement.to_string())
+            .collect::<Vec<_>>()
+            .join("; ");
+
+        f.write_str(&format!("{{ {} }}", statements))
     }
-}
-
-impl Node for BlockStatement {
-    fn token(&self) -> Option<&token::Token> {
-        Some(&self.token)
-    }
-}
-
-impl Statement for BlockStatement {
-    fn statement_node(&self) {}
 }
