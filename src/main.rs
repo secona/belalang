@@ -8,7 +8,7 @@ pub mod repl;
 pub mod token;
 
 #[cfg(test)]
-mod test_util;
+mod testing;
 
 fn main() {
     Repl::start();
