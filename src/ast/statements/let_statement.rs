@@ -83,6 +83,6 @@ mod tests {
         assert_eq!(stmt.name.token, token::Token::Ident(String::from("x")));
         assert_eq!(stmt.name.value, String::from("x"));
 
-        testing::expression!(&stmt.value, ast::Expression::IntegerLiteral = 5);
+        testing::expr!(&stmt.value, ast::Expression::IntegerLiteral = 5);
     }
 }

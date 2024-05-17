@@ -34,17 +34,16 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::Statement::ExpressionStatement");
+        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
+            .expect("not a(n) ast::Statement::ExpressionStatement");
 
         let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression)
             .expect("not a(n) ast::Expression::CallExpression");
 
-        testing::expression!(&*expr.function, ast::Expression::Identifier = "add");
+        testing::expr!(&*expr.function, ast::Expression::Identifier = "add");
 
         assert_eq!(expr.args.len(), 3);
-        testing::expression!(&expr.args[0], ast::Expression::IntegerLiteral = 1);
+        testing::expr!(&expr.args[0], ast::Expression::IntegerLiteral = 1);
         testing::infix!(
             &expr.args[1],
             ast::Expression::IntegerLiteral = 2,
@@ -69,24 +68,23 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::ExpressionStatement");
+        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
+            .expect("not a(n) ast::ExpressionStatement");
 
         let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression)
             .expect("not a(n) ast::Expression::CallExpression");
 
         assert_eq!(expr.args.len(), 2);
-        testing::expression!(&expr.args[0], ast::Expression::IntegerLiteral = 2);
-        testing::expression!(&expr.args[1], ast::Expression::IntegerLiteral = 3);
+        testing::expr!(&expr.args[0], ast::Expression::IntegerLiteral = 2);
+        testing::expr!(&expr.args[1], ast::Expression::IntegerLiteral = 3);
 
         let function = testing::as_variant!(&*expr.function, ast::Expression::FunctionLiteral)
             .expect("not a(n) ast::Expression::FunctionLiteral");
 
         assert_eq!(function.params.len(), 2);
 
-        testing::identifier!(function.params[0], "x");
-        testing::identifier!(function.params[1], "y");
+        testing::ident!(function.params[0], "x");
+        testing::ident!(function.params[1], "y");
 
         assert_eq!(function.body.statements.len(), 1);
 
