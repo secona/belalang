@@ -1,41 +1,27 @@
-use crate::{
-    ast::{self, Expression, Node},
-    token,
-};
+use crate::{ast, token};
 
 pub struct FunctionLiteral {
     pub token: token::Token,
-    pub params: Vec<Box<ast::Identifier>>,
+    pub params: Vec<ast::Identifier>,
     pub body: ast::BlockStatement,
 }
 
-impl ToString for FunctionLiteral {
-    fn to_string(&self) -> String {
-        format!(
-            "fn({}) {}",
-            self.params
-                .iter()
-                .map(|param| param.to_string())
-                .collect::<Vec<String>>()
-                .join(", "),
-            self.body.to_string(),
-        )
-    }
-}
+impl std::fmt::Display for FunctionLiteral {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let params = self
+            .params
+            .iter()
+            .map(|param| param.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
 
-impl Node for FunctionLiteral {
-    fn token(&self) -> Option<&token::Token> {
-        Some(&self.token)
+        f.write_str(&format!("fn({}) {}", params, self.body.to_string()))
     }
-}
-
-impl Expression for FunctionLiteral {
-    fn expression_node(&self) {}
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast, lexer, parser, test_util};
+    use crate::{ast, lexer, parser, testing};
 
     #[test]
     fn parsing() {
@@ -48,31 +34,30 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt = program.statements[0]
-            .downcast_ref::<ast::ExpressionStatement>()
-            .expect("not a(n) ast::ExpressionStatement");
+        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
+            .expect("not a(n) ast::Statement::ExpressionStatement");
 
-        let function = stmt
-            .expression
-            .downcast_ref::<ast::FunctionLiteral>()
-            .expect("not a(n) ast::FunctionLiteral");
+        let function = testing::as_variant!(&stmt.expression, ast::Expression::FunctionLiteral)
+            .expect("not a(n) ast::Expression::FunctionLiteral");
 
         assert_eq!(function.params.len(), 2);
 
-        test_util::test_identifier(function.params[0].as_ref(), "x");
-        test_util::test_identifier(function.params[1].as_ref(), "y");
+        testing::ident!(function.params[0], "x");
+        testing::ident!(function.params[1], "y");
 
         assert_eq!(function.body.statements.len(), 1);
 
-        let body_stmt = function.body.statements[0]
-            .downcast_ref::<ast::ExpressionStatement>()
-            .expect("not a(n) ast::ExpressionStatement");
+        let body_stmt = testing::as_variant!(
+            &function.body.statements[0],
+            ast::Statement::ExpressionStatement
+        )
+        .expect("not a(n) ast::Statement::ExpressionStatement");
 
-        test_util::test_infix_expression(
-            body_stmt.expression.as_ref(),
-            test_util::Expected::Ident("x"),
+        testing::infix!(
+            &body_stmt.expression,
+            ast::Expression::Identifier = "x",
             "+",
-            test_util::Expected::Ident("y"),
+            ast::Expression::Identifier = "y"
         );
     }
 
@@ -91,17 +76,15 @@ mod tests {
 
             let program = parser.parse_program().expect("got parser errors");
 
-            let stmt = program.statements[0]
-                .downcast_ref::<ast::ExpressionStatement>()
-                .expect("not a(n) ast::ExpressionStatement");
+            let stmt =
+                testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
+                    .expect("not a(n) ast::Statement::ExpressionStatement");
 
-            let function = stmt
-                .expression
-                .downcast_ref::<ast::FunctionLiteral>()
-                .expect("not a(n) ast::FunctionLiteral");
+            let function = testing::as_variant!(&stmt.expression, ast::Expression::FunctionLiteral)
+                .expect("not a(n) ast::Expression::FunctionLiteral");
 
             for (i, exp) in test.1.iter().enumerate() {
-                test_util::test_identifier(function.params[i].as_ref(), exp);
+                testing::ident!(function.params[i], *exp);
             }
         }
     }

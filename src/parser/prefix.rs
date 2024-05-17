@@ -1,9 +1,12 @@
-use crate::{ast, token};
+use crate::{
+    ast::{self, Expression},
+    token,
+};
 
 use super::Precedence;
 
 impl super::Parser {
-    pub fn prefix_fn(&mut self) -> Option<Box<dyn ast::Expression>> {
+    pub fn prefix_fn(&mut self) -> Option<Expression> {
         match self.curr_token {
             token::Token::Ident(_) => Some(self.parse_identifier()),
             token::Token::Int(_) => self.parse_integer_literal(),
@@ -22,18 +25,18 @@ impl super::Parser {
         }
     }
 
-    fn parse_identifier(&self) -> Box<dyn ast::Expression> {
-        Box::new(ast::Identifier {
+    fn parse_identifier(&self) -> Expression {
+        Expression::Identifier(ast::Identifier {
             token: self.curr_token.clone(),
             value: self.curr_token.clone().to_string(),
         })
     }
 
-    fn parse_integer_literal(&mut self) -> Option<Box<dyn ast::Expression>> {
+    fn parse_integer_literal(&mut self) -> Option<Expression> {
         let literal = self.curr_token.clone().to_string();
 
         match literal.parse::<i64>() {
-            Ok(lit) => Some(Box::new(ast::IntegerLiteral {
+            Ok(lit) => Some(Expression::IntegerLiteral(ast::IntegerLiteral {
                 token: self.curr_token.clone(),
                 value: lit,
             })),
@@ -45,26 +48,28 @@ impl super::Parser {
         }
     }
 
-    fn parse_prefix_expression(&mut self) -> Option<Box<dyn ast::Expression>> {
+    fn parse_prefix_expression(&mut self) -> Option<Expression> {
         let prev_token = self.curr_token.clone();
 
         self.next_token();
 
-        Some(Box::new(ast::PrefixExpression {
+        let right = self.parse_expression(Precedence::Prefix).unwrap();
+
+        Some(Expression::PrefixExpression(ast::PrefixExpression {
             operator: prev_token.clone().to_string(),
             token: prev_token,
-            right: self.parse_expression(Precedence::Prefix).unwrap(),
+            right: Box::new(right),
         }))
     }
 
-    fn parse_boolean(&self) -> Option<Box<dyn ast::Expression>> {
-        Some(Box::new(ast::BooleanExpression {
+    fn parse_boolean(&self) -> Option<Expression> {
+        Some(Expression::BooleanExpression(ast::BooleanExpression {
             token: self.curr_token.clone(),
             value: self.curr_token_is(token::Token::True),
         }))
     }
 
-    fn parse_grouped_expression(&mut self) -> Option<Box<dyn ast::Expression>> {
+    fn parse_grouped_expression(&mut self) -> Option<Expression> {
         self.next_token();
 
         let expr = self.parse_expression(Precedence::Lowest);
@@ -76,7 +81,7 @@ impl super::Parser {
         }
     }
 
-    fn parse_if_expression(&mut self) -> Option<Box<dyn ast::Expression>> {
+    fn parse_if_expression(&mut self) -> Option<Expression> {
         let token = self.curr_token.clone();
 
         if !self.expect_peek(token::Token::LParen) {
@@ -108,15 +113,15 @@ impl super::Parser {
             None
         };
 
-        Some(Box::new(ast::IfExpression {
+        Some(Expression::IfExpression(ast::IfExpression {
             token,
-            condition,
+            condition: Box::new(condition),
             consequence,
             alternative,
         }))
     }
 
-    fn parse_function_literal(&mut self) -> Option<Box<dyn ast::Expression>> {
+    fn parse_function_literal(&mut self) -> Option<Expression> {
         let token = self.curr_token.clone();
 
         if !self.expect_peek(token::Token::LParen) {
@@ -131,14 +136,14 @@ impl super::Parser {
 
         let body = self.parse_block_statement();
 
-        Some(Box::new(ast::FunctionLiteral {
+        Some(Expression::FunctionLiteral(ast::FunctionLiteral {
             token,
             params,
             body,
         }))
     }
 
-    fn parse_function_params(&mut self) -> Option<Vec<Box<ast::Identifier>>> {
+    fn parse_function_params(&mut self) -> Option<Vec<ast::Identifier>> {
         let mut identifiers = Vec::new();
 
         if self.peek_token_is(token::Token::RParen) {
@@ -147,19 +152,19 @@ impl super::Parser {
         }
 
         self.next_token();
-        identifiers.push(Box::new(ast::Identifier {
+        identifiers.push(ast::Identifier {
             token: self.curr_token.clone(),
             value: self.curr_token.to_string(),
-        }));
+        });
 
         while self.peek_token_is(token::Token::Comma) {
             self.next_token();
             self.next_token();
 
-            identifiers.push(Box::new(ast::Identifier {
+            identifiers.push(ast::Identifier {
                 token: self.curr_token.clone(),
                 value: self.curr_token.to_string(),
-            }));
+            });
         }
 
         if !self.expect_peek(token::Token::RParen) {

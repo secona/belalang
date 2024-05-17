@@ -1,38 +1,28 @@
-use crate::{ast::{Expression, Node}, token};
+use super::Expression;
+use crate::token;
 
 pub struct CallExpression {
     pub token: token::Token,
-    pub function: Box<dyn Expression>,
-    pub args: Vec<Box<dyn Expression>>,
+    pub function: Box<Expression>,
+    pub args: Vec<Expression>,
 }
 
-impl ToString for CallExpression {
-    fn to_string(&self) -> String {
-        format!(
-            "{}({})",
-            self.function.to_string(),
-            self.args
-                .iter()
-                .map(|arg| arg.to_string())
-                .collect::<Vec<String>>()
-                .join(", "),
-        )
+impl std::fmt::Display for CallExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let args = self
+            .args
+            .iter()
+            .map(|arg| arg.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        f.write_str(&format!("{}({})", self.function, args))
     }
-}
-
-impl Node for CallExpression {
-    fn token(&self) -> Option<&token::Token> {
-        Some(&self.token)
-    }
-}
-
-impl Expression for CallExpression {
-    fn expression_node(&self) {}
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast, lexer, parser, test_util};
+    use crate::{ast, lexer, parser, testing};
 
     #[test]
     fn parsing() {
@@ -44,29 +34,27 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt = program.statements[0]
-            .downcast_ref::<ast::ExpressionStatement>()
-            .expect("not a(n) ast::ExpressionStatement");
+        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
+            .expect("not a(n) ast::Statement::ExpressionStatement");
 
-        let expr = stmt.expression
-            .downcast_ref::<ast::CallExpression>()
-            .expect("not a(n) ast::CallExpression");
+        let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression)
+            .expect("not a(n) ast::Expression::CallExpression");
 
-        test_util::test_identifier(expr.function.as_ref(), "add");
+        testing::expr!(&*expr.function, ast::Expression::Identifier = "add");
 
         assert_eq!(expr.args.len(), 3);
-        test_util::test_integer_literal(expr.args[0].as_ref(), 1);
-        test_util::test_infix_expression(
-            expr.args[1].as_ref(),
-            test_util::Expected::Integer(2),
+        testing::expr!(&expr.args[0], ast::Expression::IntegerLiteral = 1);
+        testing::infix!(
+            &expr.args[1],
+            ast::Expression::IntegerLiteral = 2,
             "*",
-            test_util::Expected::Integer(3),
+            ast::Expression::IntegerLiteral = 3
         );
-        test_util::test_infix_expression(
-            expr.args[2].as_ref(),
-            test_util::Expected::Integer(4),
+        testing::infix!(
+            &expr.args[2],
+            ast::Expression::IntegerLiteral = 4,
             "+",
-            test_util::Expected::Integer(5),
+            ast::Expression::IntegerLiteral = 5
         );
     }
 
@@ -80,39 +68,37 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt = program.statements[0]
-            .downcast_ref::<ast::ExpressionStatement>()
+        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
             .expect("not a(n) ast::ExpressionStatement");
 
-        let expr = stmt
-            .expression
-            .downcast_ref::<ast::CallExpression>()
-            .expect("not a(n) ast::CallExpression");
+        let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression)
+            .expect("not a(n) ast::Expression::CallExpression");
 
         assert_eq!(expr.args.len(), 2);
-        test_util::test_integer_literal(expr.args[0].as_ref(), 2);
-        test_util::test_integer_literal(expr.args[1].as_ref(), 3);
+        testing::expr!(&expr.args[0], ast::Expression::IntegerLiteral = 2);
+        testing::expr!(&expr.args[1], ast::Expression::IntegerLiteral = 3);
 
-        let function = expr.function
-            .downcast_ref::<ast::FunctionLiteral>()
-            .expect("not a(n) ast::FunctionLiteral");
+        let function = testing::as_variant!(&*expr.function, ast::Expression::FunctionLiteral)
+            .expect("not a(n) ast::Expression::FunctionLiteral");
 
         assert_eq!(function.params.len(), 2);
 
-        test_util::test_identifier(function.params[0].as_ref(), "x");
-        test_util::test_identifier(function.params[1].as_ref(), "y");
+        testing::ident!(function.params[0], "x");
+        testing::ident!(function.params[1], "y");
 
         assert_eq!(function.body.statements.len(), 1);
 
-        let body_stmt = function.body.statements[0]
-            .downcast_ref::<ast::ExpressionStatement>()
-            .expect("not a(n) ast::ExpressionStatement");
+        let body_stmt = testing::as_variant!(
+            &function.body.statements[0],
+            ast::Statement::ExpressionStatement
+        )
+        .expect("not a(n) ast::Statement::ExpressionStatement");
 
-        test_util::test_infix_expression(
-            body_stmt.expression.as_ref(),
-            test_util::Expected::Ident("x"),
+        testing::infix!(
+            &body_stmt.expression,
+            ast::Expression::Identifier = "x",
             "+",
-            test_util::Expected::Ident("y"),
+            ast::Expression::Identifier = "y"
         );
     }
 }
