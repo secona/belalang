@@ -12,37 +12,34 @@ impl std::fmt::Display for ReturnStatement {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::{ast, test_util, token};
-//
-//     use super::ReturnStatement;
-//
-//     #[test]
-//     fn to_string() {
-//         let tests = [
-//             test_util::ToStringTest {
-//                 obj: ReturnStatement {
-//                     token: token::Token::Return,
-//                     return_value: Box::new(ast::Identifier {
-//                         token: token::Token::Ident(String::from("x")),
-//                         value: String::from("x"),
-//                     }),
-//                 },
-//                 exp: String::from("return x;"),
-//             },
-//             test_util::ToStringTest {
-//                 obj: ReturnStatement {
-//                     token: token::Token::Return,
-//                     return_value: Box::new(ast::IntegerLiteral {
-//                         token: token::Token::Int(String::from("5")),
-//                         value: 5,
-//                     }),
-//                 },
-//                 exp: String::from("return 5;"),
-//             },
-//         ];
-//
-//         tests.map(|t| t.test());
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use crate::{ast, testing, token};
+
+    use super::ReturnStatement;
+
+    #[test]
+    fn to_string() {
+        testing::stringify!(
+            ReturnStatement {
+                token: token::Token::Return,
+                return_value: ast::Expression::Identifier(ast::expressions::Identifier {
+                    token: token::Token::Ident(String::from("x")),
+                    value: String::from("x"),
+                }),
+            },
+            String::from("return x;")
+        );
+
+        testing::stringify!(
+            ReturnStatement {
+                token: token::Token::Return,
+                return_value: ast::Expression::IntegerLiteral(ast::expressions::IntegerLiteral {
+                    token: token::Token::Int(String::from("5")),
+                    value: 5,
+                }),
+            },
+            String::from("return 5;")
+        );
+    }
+}

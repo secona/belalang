@@ -41,10 +41,10 @@ mod tests {
         let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression)
             .expect("not a(n) ast::Expression::CallExpression");
 
-        testing::literal!(&*expr.function, ast::Expression::Identifier = "add");
+        testing::expression!(&*expr.function, ast::Expression::Identifier = "add");
 
         assert_eq!(expr.args.len(), 3);
-        testing::literal!(&expr.args[0], ast::Expression::IntegerLiteral = 1);
+        testing::expression!(&expr.args[0], ast::Expression::IntegerLiteral = 1);
         testing::infix!(
             &expr.args[1],
             ast::Expression::IntegerLiteral = 2,
@@ -77,16 +77,16 @@ mod tests {
             .expect("not a(n) ast::Expression::CallExpression");
 
         assert_eq!(expr.args.len(), 2);
-        testing::literal!(&expr.args[0], ast::Expression::IntegerLiteral = 2);
-        testing::literal!(&expr.args[1], ast::Expression::IntegerLiteral = 3);
+        testing::expression!(&expr.args[0], ast::Expression::IntegerLiteral = 2);
+        testing::expression!(&expr.args[1], ast::Expression::IntegerLiteral = 3);
 
         let function = testing::as_variant!(&*expr.function, ast::Expression::FunctionLiteral)
             .expect("not a(n) ast::Expression::FunctionLiteral");
 
         assert_eq!(function.params.len(), 2);
 
-        testing::expression!(function.params[0], "x");
-        testing::expression!(function.params[1], "y");
+        testing::identifier!(function.params[0], "x");
+        testing::identifier!(function.params[1], "y");
 
         assert_eq!(function.body.statements.len(), 1);
 
