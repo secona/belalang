@@ -1,7 +1,10 @@
 mod infix;
 mod prefix;
 
-use crate::{ast::{self, Expression, Statement}, lexer, token};
+use crate::{
+    ast::{self, Expression, Statement},
+    lexer, token,
+};
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
@@ -140,7 +143,11 @@ impl Parser {
             self.next_token();
         }
 
-        Some(Statement::LetStatement(ast::LetStatement { name, token, value }))
+        Some(Statement::LetStatement(ast::LetStatement {
+            name,
+            token,
+            value,
+        }))
     }
 
     fn parse_return_statement(&mut self) -> Option<Statement> {
@@ -214,137 +221,128 @@ impl Parser {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::{
-//         ast::{self, Node},
-//         lexer, token,
-//     };
-//
-//     #[test]
-//     fn integer_literal_expression() {
-//         let input = "5;".to_owned().into_bytes().into_boxed_slice();
-//
-//         let lexer = lexer::Lexer::new(input);
-//         let mut parser = super::Parser::new(lexer);
-//
-//         let program = parser.parse_program().expect("got parser errors");
-//
-//         assert_eq!(program.statements.len(), 1);
-//
-//         let stmt = program.statements[0]
-//             .downcast_ref::<ast::ExpressionStatement>()
-//             .expect("not a(n) ast::ExpressionStatement");
-//
-//         let literal = stmt
-//             .expression
-//             .downcast_ref::<ast::IntegerLiteral>()
-//             .expect("not a(n) ast::IntegerLiteral");
-//
-//         assert_eq!(literal.value, 5);
-//         assert_eq!(literal.token().unwrap(), &token::Token::Int("5".to_owned()));
-//     }
-//
-//     struct PrefixTest {
-//         input: Box<[u8]>,
-//         exp_operator: String,
-//         exp_right: String,
-//     }
-//
-//     #[test]
-//     fn test_prefix_parsing() {
-//         let tests: [PrefixTest; 4] = [
-//             PrefixTest {
-//                 input: "!5;".to_owned().into_bytes().into_boxed_slice(),
-//                 exp_operator: String::from("!"),
-//                 exp_right: String::from("5"),
-//             },
-//             PrefixTest {
-//                 input: "-15;".to_owned().into_bytes().into_boxed_slice(),
-//                 exp_operator: String::from("-"),
-//                 exp_right: String::from("15"),
-//             },
-//             PrefixTest {
-//                 input: "!true;".to_owned().into_bytes().into_boxed_slice(),
-//                 exp_operator: String::from("!"),
-//                 exp_right: String::from("true"),
-//             },
-//             PrefixTest {
-//                 input: "!false;".to_owned().into_bytes().into_boxed_slice(),
-//                 exp_operator: String::from("!"),
-//                 exp_right: String::from("false"),
-//             },
-//         ];
-//
-//         for test in tests {
-//             let lexer = lexer::Lexer::new(test.input);
-//             let mut parser = super::Parser::new(lexer);
-//
-//             let program = parser.parse_program().expect("got parser errors");
-//
-//             let stmt = program.statements[0]
-//                 .downcast_ref::<ast::ExpressionStatement>()
-//                 .expect("not a(n) ast::ExpressionStatement");
-//
-//             let exp = stmt
-//                 .expression
-//                 .downcast_ref::<ast::PrefixExpression>()
-//                 .expect("not a(n) ast::PrefixExpression");
-//
-//             assert_eq!(exp.operator, test.exp_operator);
-//             assert_eq!((*exp.right).to_string(), test.exp_right);
-//         }
-//     }
-//
-//     #[test]
-//     fn test_operator_precedence_parsing() {
-//         let tests: [[&str; 2]; 25] = [
-//             ["a * b + c", "((a * b) + c)"],
-//             ["!-a", "(!(-a))"],
-//             ["a + b + c", "((a + b) + c)"],
-//             ["a + b - c", "((a + b) - c)"],
-//             ["a * b * c", "((a * b) * c)"],
-//             ["a * b / c", "((a * b) / c)"],
-//             ["a + b / c", "(a + (b / c))"],
-//             ["a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"],
-//             ["3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"],
-//             ["5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"],
-//             ["5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"],
-//             [
-//                 "3 + 4 * 5 == 3 * 1 + 4 * 5",
-//                 "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
-//             ],
-//             [
-//                 "3 + 4 * 5 == 3 * 1 + 4 * 5",
-//                 "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
-//             ],
-//             ["true", "true"],
-//             ["false", "false"],
-//             ["3 > 5 == false", "((3 > 5) == false)"],
-//             ["3 < 5 == true", "((3 < 5) == true)"],
-//             ["1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"],
-//             ["(5 + 5) * 2", "((5 + 5) * 2)"],
-//             ["2 / (5 + 5)", "(2 / (5 + 5))"],
-//             ["-(5 + 5)", "(-(5 + 5))"],
-//             ["!(true == true)", "(!(true == true))"],
-//             ["a + add(b * c) + d", "((a + add((b * c))) + d)"],
-//             [
-//                 "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
-//                 "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
-//             ],
-//             [
-//                 "add(a + b + c * d / f + g)",
-//                 "add((((a + b) + ((c * d) / f)) + g))",
-//             ],
-//         ];
-//
-//         for test in tests {
-//             let input = test[0].to_owned().into_bytes().into_boxed_slice();
-//             let lexer = lexer::Lexer::new(input);
-//             let mut parser = super::Parser::new(lexer);
-//
-//             let program = parser.parse_program().expect("got parser errors");
-//             assert_eq!(program.to_string(), test[1]);
-//         }
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use crate::{ast, lexer, testing, token};
+
+    #[test]
+    fn integer_literal_expression() {
+        let input = "5;".to_owned().into_bytes().into_boxed_slice();
+
+        let lexer = lexer::Lexer::new(input);
+        let mut parser = super::Parser::new(lexer);
+
+        let program = parser.parse_program().expect("got parser errors");
+
+        assert_eq!(program.statements.len(), 1);
+
+        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
+            .expect("not a(n) ast::ExpressionStatement");
+
+        let literal = testing::as_variant!(&stmt.expression, ast::Expression::IntegerLiteral)
+            .expect("not a(n) ast::IntegerLiteral");
+
+        assert_eq!(literal.value, 5);
+        assert_eq!(literal.token, token::Token::Int("5".to_owned()));
+    }
+
+    struct PrefixTest {
+        input: Box<[u8]>,
+        exp_operator: String,
+        exp_right: String,
+    }
+
+    #[test]
+    fn test_prefix_parsing() {
+        let tests: [PrefixTest; 4] = [
+            PrefixTest {
+                input: "!5;".to_owned().into_bytes().into_boxed_slice(),
+                exp_operator: String::from("!"),
+                exp_right: String::from("5"),
+            },
+            PrefixTest {
+                input: "-15;".to_owned().into_bytes().into_boxed_slice(),
+                exp_operator: String::from("-"),
+                exp_right: String::from("15"),
+            },
+            PrefixTest {
+                input: "!true;".to_owned().into_bytes().into_boxed_slice(),
+                exp_operator: String::from("!"),
+                exp_right: String::from("true"),
+            },
+            PrefixTest {
+                input: "!false;".to_owned().into_bytes().into_boxed_slice(),
+                exp_operator: String::from("!"),
+                exp_right: String::from("false"),
+            },
+        ];
+
+        for test in tests {
+            let lexer = lexer::Lexer::new(test.input);
+            let mut parser = super::Parser::new(lexer);
+
+            let program = parser.parse_program().expect("got parser errors");
+
+            let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
+                .expect("not a(n) ast::ExpressionStatement");
+
+            let exp = testing::as_variant!(&stmt.expression, ast::Expression::PrefixExpression)
+                .expect("not a(n) ast::PrefixExpression");
+
+            assert_eq!(exp.operator, test.exp_operator);
+            assert_eq!((*exp.right).to_string(), test.exp_right);
+        }
+    }
+
+    #[test]
+    fn test_operator_precedence_parsing() {
+        let tests: [[&str; 2]; 25] = [
+            ["a * b + c", "((a * b) + c)"],
+            ["!-a", "(!(-a))"],
+            ["a + b + c", "((a + b) + c)"],
+            ["a + b - c", "((a + b) - c)"],
+            ["a * b * c", "((a * b) * c)"],
+            ["a * b / c", "((a * b) / c)"],
+            ["a + b / c", "(a + (b / c))"],
+            ["a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"],
+            ["3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"],
+            ["5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"],
+            ["5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"],
+            [
+                "3 + 4 * 5 == 3 * 1 + 4 * 5",
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+            ],
+            [
+                "3 + 4 * 5 == 3 * 1 + 4 * 5",
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+            ],
+            ["true", "true"],
+            ["false", "false"],
+            ["3 > 5 == false", "((3 > 5) == false)"],
+            ["3 < 5 == true", "((3 < 5) == true)"],
+            ["1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"],
+            ["(5 + 5) * 2", "((5 + 5) * 2)"],
+            ["2 / (5 + 5)", "(2 / (5 + 5))"],
+            ["-(5 + 5)", "(-(5 + 5))"],
+            ["!(true == true)", "(!(true == true))"],
+            ["a + add(b * c) + d", "((a + add((b * c))) + d)"],
+            [
+                "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+                "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+            ],
+            [
+                "add(a + b + c * d / f + g)",
+                "add((((a + b) + ((c * d) / f)) + g))",
+            ],
+        ];
+
+        for test in tests {
+            let input = test[0].to_owned().into_bytes().into_boxed_slice();
+            let lexer = lexer::Lexer::new(input);
+            let mut parser = super::Parser::new(lexer);
+
+            let program = parser.parse_program().expect("got parser errors");
+            assert_eq!(program.to_string(), test[1]);
+        }
+    }
+}
