@@ -12,11 +12,29 @@ pub fn eval_program(program: ast::Program) -> object::Object {
     result
 }
 
+fn eval_prefix_expression(operator: String, right: ast::Expression) -> object::Object {
+    match operator.as_str() {
+        "!" => match right {
+            ast::Expression::BooleanExpression(bool) => {
+                object::Object::Boolean(object::Boolean { value: !bool.value })
+            }
+            _ => object::Object::Null(object::Null {  })
+        },
+        _ => object::Object::Null(object::Null {  })
+    }
+}
+
 pub fn eval(node: ast::Node) -> object::Object {
     match node {
         ast::Node::Expression(node) => match node {
             ast::Expression::IntegerLiteral(node) => {
                 object::Object::Integer(object::Integer { value: node.value })
+            }
+            ast::Expression::BooleanExpression(node) => {
+                object::Object::Boolean(object::Boolean { value: node.value })
+            }
+            ast::Expression::PrefixExpression(node) => {
+                eval_prefix_expression(node.operator, *node.right)
             }
             _ => object::Object::Null(object::Null {}),
         },
@@ -54,6 +72,36 @@ mod tests {
             object::Object::Integer(obj) => assert_eq!(obj.value, expected),
             _ => {
                 panic!("object not Integer. got={}", evaluated);
+            }
+        }
+    }
+
+    #[test]
+    fn eval_boolean_expression() {
+        let input = String::from("true");
+        let expected = true;
+
+        let evaluated = test_eval(input);
+
+        match evaluated {
+            object::Object::Boolean(obj) => assert_eq!(obj.value, expected),
+            _ => {
+                panic!("object not Boolean. got={}", evaluated);
+            }
+        }
+    }
+
+    #[test]
+    fn eval_bang_boolean_expression() {
+        let input = String::from("!true");
+        let expected = false;
+        
+        let evaluated = test_eval(input);
+
+        match evaluated {
+            object::Object::Boolean(obj) => assert_eq!(obj.value, expected),
+            _ => {
+                panic!("object not Boolean. got={}", evaluated);
             }
         }
     }
