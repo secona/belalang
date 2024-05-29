@@ -11,7 +11,7 @@ pub struct LetStatement {
 impl std::fmt::Display for LetStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&format!(
-            "let {} = {};",
+            "LetStatement(name={}, value={})",
             self.name.to_string(),
             self.value.to_string()
         ))

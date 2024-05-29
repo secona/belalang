@@ -15,7 +15,11 @@ impl std::fmt::Display for FunctionLiteral {
             .collect::<Vec<_>>()
             .join(", ");
 
-        f.write_str(&format!("fn({}) {}", params, self.body.to_string()))
+        f.write_str(&format!(
+            "FunctionLiteral(params=[{}], body=[{}])",
+            params,
+            self.body.to_string()
+        ))
     }
 }
 
@@ -34,8 +38,9 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-            .expect("not a(n) ast::Statement::ExpressionStatement");
+        let stmt =
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
+                .expect("not a(n) ast::Statement::ExpressionStatement");
 
         let function = testing::as_variant!(&stmt.expression, ast::Expression::FunctionLiteral)
             .expect("not a(n) ast::Expression::FunctionLiteral");

@@ -13,8 +13,8 @@ impl std::fmt::Display for BlockStatement {
             .iter()
             .map(|statement| statement.to_string())
             .collect::<Vec<_>>()
-            .join("; ");
+            .join(", ");
 
-        f.write_str(&format!("{{ {} }}", statements))
+        f.write_str(&format!("BlockStatement(statements=[{}])", statements))
     }
 }

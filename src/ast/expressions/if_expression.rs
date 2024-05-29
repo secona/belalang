@@ -10,17 +10,15 @@ pub struct IfExpression {
 
 impl std::fmt::Display for IfExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut result = format!(
-            "if {} {}",
+        f.write_str(&format!(
+            "IfExpression(condition={}, consequence={}, alternative={})",
             self.condition.to_string(),
-            self.consequence.to_string()
-        );
-
-        if let Some(stmt) = &self.alternative {
-            result += &format!("else {}", stmt.to_string());
-        }
-
-        f.write_str(&result)
+            self.consequence.to_string(),
+            match &self.alternative {
+                Some(alt) => alt.to_string(),
+                None => "None".into(),
+            }
+        ))
     }
 }
 

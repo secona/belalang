@@ -8,6 +8,6 @@ pub struct ExpressionStatement {
 
 impl std::fmt::Display for ExpressionStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.expression.to_string())
+        f.write_str(&format!("ExpressionStatement(value={})", &self.expression.to_string()))
     }
 }

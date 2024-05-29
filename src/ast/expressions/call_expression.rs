@@ -16,7 +16,10 @@ impl std::fmt::Display for CallExpression {
             .collect::<Vec<_>>()
             .join(", ");
 
-        f.write_str(&format!("{}({})", self.function, args))
+        f.write_str(&format!(
+            "CallExpression(function={}, args=[{}])",
+            self.function, args
+        ))
     }
 }
 
@@ -34,8 +37,9 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-            .expect("not a(n) ast::Statement::ExpressionStatement");
+        let stmt =
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
+                .expect("not a(n) ast::Statement::ExpressionStatement");
 
         let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression)
             .expect("not a(n) ast::Expression::CallExpression");
@@ -68,8 +72,9 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-            .expect("not a(n) ast::ExpressionStatement");
+        let stmt =
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
+                .expect("not a(n) ast::ExpressionStatement");
 
         let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression)
             .expect("not a(n) ast::Expression::CallExpression");

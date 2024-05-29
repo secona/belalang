@@ -11,7 +11,7 @@ pub struct InfixExpression {
 impl std::fmt::Display for InfixExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&format!(
-            "({} {} {})",
+            "InfixExpression(left={} operator={} right={})",
             self.left.to_string(),
             self.operator,
             self.right.to_string(),
