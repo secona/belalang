@@ -1,8 +1,8 @@
 pub struct Boolean {
-    value: bool,
+    pub value: bool,
 }
 
-impl super::Object for Boolean {
+impl super::ObjectTrait for Boolean {
     fn object_type(&self) -> super::ObjectType {
         super::ObjectType::Boolean
     }

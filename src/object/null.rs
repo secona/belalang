@@ -1,6 +1,6 @@
 pub struct Null {}
 
-impl super::Object for Null {
+impl super::ObjectTrait for Null {
     fn object_type(&self) -> super::ObjectType {
         super::ObjectType::Null
     }
