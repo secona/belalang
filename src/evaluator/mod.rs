@@ -12,15 +12,15 @@ pub fn eval_program(program: ast::Program) -> object::Object {
     result
 }
 
-fn eval_prefix_expression(operator: String, right: ast::Expression) -> object::Object {
+fn eval_prefix_expression(operator: String, right: object::Object) -> object::Object {
     match operator.as_str() {
         "!" => match right {
-            ast::Expression::BooleanExpression(bool) => {
+            object::Object::Boolean(bool) => {
                 object::Object::Boolean(object::Boolean { value: !bool.value })
             }
-            _ => object::Object::Null(object::Null {  })
+            _ => object::Object::Null(object::Null {}),
         },
-        _ => object::Object::Null(object::Null {  })
+        _ => object::Object::Null(object::Null {}),
     }
 }
 
@@ -34,7 +34,8 @@ pub fn eval(node: ast::Node) -> object::Object {
                 object::Object::Boolean(object::Boolean { value: node.value })
             }
             ast::Expression::PrefixExpression(node) => {
-                eval_prefix_expression(node.operator, *node.right)
+                let right = eval(ast::Node::Expression(*node.right));
+                eval_prefix_expression(node.operator, right)
             }
             _ => object::Object::Null(object::Null {}),
         },
@@ -50,59 +51,21 @@ pub fn eval(node: ast::Node) -> object::Object {
 
 #[cfg(test)]
 mod tests {
-    use crate::{lexer, object, parser};
+    use crate::{object, testing};
 
-    fn test_eval(input: String) -> object::Object {
-        let input = input.as_bytes().into();
-        let lexer = lexer::Lexer::new(input);
-        let mut parser = parser::Parser::new(lexer);
-        let program = parser.parse_program().expect("parser errors");
-
-        return super::eval_program(program);
+    #[test]
+    fn integer() {
+        testing::eval!("5", object::Object::Integer = 5);
+        testing::eval!("1209", object::Object::Integer = 1209);
     }
 
     #[test]
-    fn eval_integer_expression() {
-        let input = String::from("5");
-        let expected = 5;
-
-        let evaluated = test_eval(input);
-
-        match evaluated {
-            object::Object::Integer(obj) => assert_eq!(obj.value, expected),
-            _ => {
-                panic!("object not Integer. got={}", evaluated);
-            }
-        }
-    }
-
-    #[test]
-    fn eval_boolean_expression() {
-        let input = String::from("true");
-        let expected = true;
-
-        let evaluated = test_eval(input);
-
-        match evaluated {
-            object::Object::Boolean(obj) => assert_eq!(obj.value, expected),
-            _ => {
-                panic!("object not Boolean. got={}", evaluated);
-            }
-        }
-    }
-
-    #[test]
-    fn eval_bang_boolean_expression() {
-        let input = String::from("!true");
-        let expected = false;
-        
-        let evaluated = test_eval(input);
-
-        match evaluated {
-            object::Object::Boolean(obj) => assert_eq!(obj.value, expected),
-            _ => {
-                panic!("object not Boolean. got={}", evaluated);
-            }
-        }
+    fn boolean() {
+        testing::eval!("true", object::Object::Boolean = true);
+        testing::eval!("false", object::Object::Boolean = false);
+        testing::eval!("!true", object::Object::Boolean = false);
+        testing::eval!("!!false", object::Object::Boolean = false);
+        testing::eval!("!!!false", object::Object::Boolean = true);
+        testing::eval!("!!!!true", object::Object::Boolean = true);
     }
 }
