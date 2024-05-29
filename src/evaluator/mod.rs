@@ -20,6 +20,12 @@ fn eval_prefix_expression(operator: String, right: object::Object) -> object::Ob
             }
             _ => object::Object::Null(object::Null {}),
         },
+        "-" => match right {
+            object::Object::Integer(int) => {
+                object::Object::Integer(object::Integer { value: -int.value })
+            }
+            _ => object::Object::Null(object::Null {}),
+        },
         _ => object::Object::Null(object::Null {}),
     }
 }
@@ -57,6 +63,9 @@ mod tests {
     fn integer() {
         testing::eval!("5", object::Object::Integer = 5);
         testing::eval!("1209", object::Object::Integer = 1209);
+        testing::eval!("-123", object::Object::Integer = -123);
+        testing::eval!("--123", object::Object::Integer = 123);
+        testing::eval!("---123", object::Object::Integer = -123);
     }
 
     #[test]
