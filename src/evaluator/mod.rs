@@ -86,8 +86,8 @@ fn eval_block_statement(block_statement: ast::BlockStatement) -> object::Object 
     for statement in block_statement.statements {
         result = eval(ast::Node::Statement(statement));
 
-        if let object::Object::Return(r) = result {
-            return *r;
+        if let object::Object::Return(_) = result {
+            return result;
         }
     }
 
@@ -203,10 +203,24 @@ mod tests {
 
     #[test]
     fn return_statements() {
-        testing::eval!("if (true) { return 10; 9; }", object::Object::Integer = 10);
+        testing::eval!(
+            "if (true) { return 10; 9; } else { return 10; }",
+            object::Object::Integer = 10
+        );
         testing::eval!(
             "if (false) { 0; } else { return 1; 10; }",
-            object::Object::Integer = 10
+            object::Object::Integer = 1
+        );
+        testing::eval!(
+            "
+if (10 > 1) {
+    if (10 > 1) {
+        return true;
+    }
+
+    return false;
+}",
+            object::Object::Boolean = true
         );
     }
 }
