@@ -61,10 +61,44 @@ fn eval_infix_expression(
     }
 
     match operator.as_str() {
-        "==" => object::Object::Boolean(object::Boolean{ value: left == right }),
-        "!=" => object::Object::Boolean(object::Boolean{ value: left != right }),
-        _ => object::Object::Null(object::Null {})
+        "==" => object::Object::Boolean(object::Boolean {
+            value: left == right,
+        }),
+        "!=" => object::Object::Boolean(object::Boolean {
+            value: left != right,
+        }),
+        _ => object::Object::Null(object::Null {}),
     }
+}
+
+fn eval_if_expression(expr: ast::IfExpression) -> object::Object {
+    let condition = eval(ast::Node::Expression(*expr.condition));
+
+    if let object::Object::Boolean(b) = condition {
+        if b.value == true {
+            return eval(ast::Node::Statement(ast::Statement::BlockStatement(
+                expr.consequence,
+            )));
+        }
+    }
+    
+    if let Some(block_statement) = expr.alternative {
+        return eval(ast::Node::Statement(ast::Statement::BlockStatement(
+            block_statement,
+        )));
+    }
+
+    object::Object::Null(object::Null {})
+}
+
+fn eval_statements(statements: Vec<ast::Statement>) -> object::Object {
+    let mut res = object::Object::Null(object::Null {});
+
+    for statement in statements {
+        res = eval(ast::Node::Statement(statement));
+    }
+
+    res
 }
 
 pub fn eval(node: ast::Node) -> object::Object {
@@ -85,12 +119,14 @@ pub fn eval(node: ast::Node) -> object::Object {
                 let right = eval(ast::Node::Expression(*node.right));
                 eval_infix_expression(node.operator, left, right)
             }
+            ast::Expression::IfExpression(node) => eval_if_expression(node),
             _ => object::Object::Null(object::Null {}),
         },
         ast::Node::Statement(node) => match node {
             ast::Statement::ExpressionStatement(node) => {
                 eval(ast::Node::Expression(node.expression))
             }
+            ast::Statement::BlockStatement(node) => eval_statements(node.statements),
             _ => object::Object::Null(object::Null {}),
         },
         _ => object::Object::Null(object::Null {}),
@@ -141,5 +177,30 @@ mod tests {
         testing::eval!("true == false", object::Object::Boolean = false);
         testing::eval!("true != false", object::Object::Boolean = true);
         testing::eval!("1 < 2 == true", object::Object::Boolean = true);
+    }
+
+    #[test]
+    fn if_expressions() {
+        testing::eval!("if (true) { 1 }", object::Object::Integer = 1);
+        testing::eval!("if (false) { 1 } else { 2 }", object::Object::Integer = 2);
+
+        testing::eval!(
+            "if (1 < 2) { true } else { false }",
+            object::Object::Boolean = true
+        );
+        testing::eval!(
+            "if (1 > 2) { true } else { false }",
+            object::Object::Boolean = false
+        );
+        testing::eval!(
+            "if (1 + 2 == 3) { 1 + 2 } else { false }",
+            object::Object::Integer = 3
+        );
+        testing::eval!(
+            "if (1) { true } else { false }",
+            object::Object::Boolean = false
+        );
+
+        testing::eval!("if (false) { true }", object::Object::Null);
     }
 }

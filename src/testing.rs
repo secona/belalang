@@ -80,6 +80,14 @@ macro_rules! eval {
             _ => panic!("incorrect object type. got={}", evaluated),
         }
     };
+    ($input:expr, $variant:path) => {
+        let evaluated = testing::test_eval($input.into());
+
+        match evaluated {
+            $variant(_) => {},
+            _ => panic!("object not null. got={}", evaluated),
+        }
+    };
 }
 
 pub(crate) use eval;
