@@ -68,7 +68,9 @@ pub fn test_eval(input: String) -> Result<object::Object, evaluator::error::Eval
     let mut parser = parser::Parser::new(lexer);
     let program = parser.parse_program().expect("parser errors");
 
-    return evaluator::eval_program(program);
+    let mut env = object::Environment::new();
+
+    return evaluator::eval_program(program, &mut env);
 }
 
 macro_rules! eval {

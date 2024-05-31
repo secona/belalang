@@ -1,11 +1,13 @@
 use std::io::{self, Write};
 
-use crate::{evaluator, lexer::Lexer, parser};
+use crate::{evaluator, lexer::Lexer, object, parser};
 
 pub struct Repl {}
 
 impl Repl {
     pub fn start() {
+        let mut env = object::Environment::new();
+
         loop {
             print!(">>> ");
             let _ = io::stdout().flush();
@@ -20,7 +22,7 @@ impl Repl {
 
             match parser.parse_program() {
                 Ok(program) => {
-                    match evaluator::eval_program(program) {
+                    match evaluator::eval_program(program, &mut env) {
                         Ok(evaluated) => println!("{}", evaluated),
                         Err(err_msg) => println!("{}", err_msg),
                     }

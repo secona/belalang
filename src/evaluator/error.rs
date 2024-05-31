@@ -19,4 +19,8 @@ pub enum EvaluatorError {
         operator: String,
         right: i64,
     },
+    #[error("identifier not found: {name}")]
+    IdentifierNotFound {
+        name: String,
+    }
 }

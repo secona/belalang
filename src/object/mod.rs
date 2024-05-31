@@ -1,4 +1,8 @@
-#[derive(Debug)]
+mod environment;
+
+pub use environment::Environment;
+
+#[derive(Debug, Clone)]
 pub enum Object {
     Integer(i64),
     Boolean(bool),
