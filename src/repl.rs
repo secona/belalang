@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-use crate::{lexer::Lexer, parser};
+use crate::{evaluator, lexer::Lexer, parser};
 
 pub struct Repl {}
 
@@ -20,7 +20,7 @@ impl Repl {
 
             match parser.parse_program() {
                 Ok(program) => {
-                    println!("{}", program.to_string());
+                    println!("{}", evaluator::eval_program(program));
                 }
                 Err(errors) => {
                     println!("parser errors:");
