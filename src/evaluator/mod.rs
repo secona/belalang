@@ -21,155 +21,131 @@ pub fn eval_program(
     Ok(result)
 }
 
-fn eval_prefix_expression(
-    operator: String,
-    right: object::Object,
-) -> Result<object::Object, error::EvaluatorError> {
-    match operator.as_str() {
-        "!" => match right {
-            object::Object::Boolean(value) => Ok(object::Object::Boolean(!value)),
-            _ => Err(error::EvaluatorError::UnknownPrefixOperator { operator, right }),
-        },
-        "-" => match right {
-            object::Object::Integer(value) => Ok(object::Object::Integer(-value)),
-            _ => Err(error::EvaluatorError::UnknownPrefixOperator { operator, right }),
-        },
-        _ => Err(error::EvaluatorError::UnknownPrefixOperator { operator, right }),
-    }
-}
-
-fn eval_int_infix_expression(
-    operator: String,
-    left: i64,
-    right: i64,
-) -> Result<object::Object, error::EvaluatorError> {
-    match operator.as_str() {
-        "+" => Ok(object::Object::Integer(left + right)),
-        "-" => Ok(object::Object::Integer(left - right)),
-        "*" => Ok(object::Object::Integer(left * right)),
-        "/" => Ok(object::Object::Integer(left / right)),
-        "<" => Ok(object::Object::Boolean(left < right)),
-        ">" => Ok(object::Object::Boolean(left > right)),
-        "==" => Ok(object::Object::Boolean(left == right)),
-        "!=" => Ok(object::Object::Boolean(left != right)),
-        _ => Err(error::EvaluatorError::UnknownInfixOperatorInt {
-            left,
-            operator,
-            right,
-        }),
-    }
-}
-
-fn eval_infix_expression(
-    operator: String,
-    left: object::Object,
-    right: object::Object,
-) -> Result<object::Object, error::EvaluatorError> {
-    if let (object::Object::Integer(l), object::Object::Integer(r)) = (&left, &right) {
-        return eval_int_infix_expression(operator, *l, *r);
-    }
-
-    match operator.as_str() {
-        "==" => Ok(object::Object::Boolean(left == right)),
-        "!=" => Ok(object::Object::Boolean(left != right)),
-        _ => Err(error::EvaluatorError::UnknownInfixOperator {
-            left,
-            operator,
-            right,
-        }),
-    }
-}
-
-fn eval_if_expression(
-    expr: ast::IfExpression,
-    env: &mut object::Environment,
-) -> Result<object::Object, error::EvaluatorError> {
-    let condition = eval(ast::Node::Expression(*expr.condition), env)?;
-
-    if let object::Object::Boolean(value) = condition {
-        if value == true {
-            return eval(
-                ast::Node::Statement(ast::Statement::BlockStatement(expr.consequence)),
-                env,
-            );
-        }
-    }
-
-    if let Some(block_statement) = expr.alternative {
-        return eval(
-            ast::Node::Statement(ast::Statement::BlockStatement(block_statement)),
-            env,
-        );
-    }
-
-    Ok(object::Object::Null)
-}
-
-fn eval_block_statement(
-    block_statement: ast::BlockStatement,
-    env: &mut object::Environment,
-) -> Result<object::Object, error::EvaluatorError> {
-    let mut result = object::Object::Null;
-
-    for statement in block_statement.statements {
-        result = eval(ast::Node::Statement(statement), env)?;
-
-        if let object::Object::Return(_) = result {
-            return Ok(result);
-        }
-    }
-
-    Ok(result)
-}
-
 pub fn eval(
     node: ast::Node,
     env: &mut object::Environment,
 ) -> Result<object::Object, error::EvaluatorError> {
     match node {
-        ast::Node::Expression(node) => match node {
-            ast::Expression::IntegerLiteral(int_lit) => Ok(object::Object::Integer(int_lit.value)),
-            ast::Expression::BooleanExpression(bool_expr) => {
-                Ok(object::Object::Boolean(bool_expr.value))
+        ast::Node::Expression(expression) => eval_expression(expression, env),
+        ast::Node::Statement(statement) => eval_statement(statement, env),
+        _ => Ok(object::Object::Null),
+    }
+}
+
+fn eval_expression(
+    expression: ast::Expression,
+    env: &mut object::Environment,
+) -> Result<object::Object, error::EvaluatorError> {
+    match expression {
+        ast::Expression::IntegerLiteral(int_lit) => Ok(object::Object::Integer(int_lit.value)),
+        ast::Expression::BooleanExpression(bool_expr) => {
+            Ok(object::Object::Boolean(bool_expr.value))
+        }
+        ast::Expression::PrefixExpression(node) => {
+            let right = eval(ast::Node::Expression(*node.right), env)?;
+
+            match node.operator.as_str() {
+                "!" => match right {
+                    object::Object::Boolean(value) => Ok(object::Object::Boolean(!value)),
+                    _ => Err(error::EvaluatorError::PrefixOperator(node.operator, right)),
+                },
+                "-" => match right {
+                    object::Object::Integer(value) => Ok(object::Object::Integer(-value)),
+                    _ => Err(error::EvaluatorError::PrefixOperator(node.operator, right)),
+                },
+                _ => Err(error::EvaluatorError::PrefixOperator(node.operator, right)),
             }
-            ast::Expression::PrefixExpression(node) => {
-                let right = eval(ast::Node::Expression(*node.right), env)?;
-                eval_prefix_expression(node.operator, right)
+        }
+        ast::Expression::InfixExpression(infix_expr) => {
+            let left = eval(ast::Node::Expression(*infix_expr.left), env)?;
+            let right = eval(ast::Node::Expression(*infix_expr.right), env)?;
+
+            match (&left, &right) {
+                (object::Object::Integer(l), object::Object::Integer(r)) => {
+                    match infix_expr.operator.as_str() {
+                        "+" => Ok(object::Object::Integer(l + r)),
+                        "-" => Ok(object::Object::Integer(l - r)),
+                        "*" => Ok(object::Object::Integer(l * r)),
+                        "/" => Ok(object::Object::Integer(l / r)),
+                        "<" => Ok(object::Object::Boolean(l < r)),
+                        ">" => Ok(object::Object::Boolean(l > r)),
+                        "==" => Ok(object::Object::Boolean(l == r)),
+                        "!=" => Ok(object::Object::Boolean(l != r)),
+                        _ => Err(error::EvaluatorError::UnknownInfixOperator(
+                            left,
+                            infix_expr.operator,
+                            right,
+                        )),
+                    }
+                }
+                (_, _) => match infix_expr.operator.as_str() {
+                    "==" => Ok(object::Object::Boolean(left == right)),
+                    "!=" => Ok(object::Object::Boolean(left != right)),
+                    _ => Err(error::EvaluatorError::UnknownInfixOperator(
+                        left,
+                        infix_expr.operator,
+                        right,
+                    )),
+                },
             }
-            ast::Expression::InfixExpression(node) => {
-                let left = eval(ast::Node::Expression(*node.left), env)?;
-                let right = eval(ast::Node::Expression(*node.right), env)?;
-                eval_infix_expression(node.operator, left, right)
-            }
-            ast::Expression::IfExpression(node) => eval_if_expression(node, env),
-            ast::Expression::Identifier(node) => {
-                let value = env.get(&node.value);
-                match value {
-                    // TODO: change this clone. weird ahh implementation.
-                    Some(value) => Ok(value.clone()),
-                    None => Err(error::EvaluatorError::IdentifierNotFound { name: node.value }),
+        }
+        ast::Expression::IfExpression(expr) => {
+            let condition = eval(ast::Node::Expression(*expr.condition), env)?;
+
+            if let object::Object::Boolean(value) = condition {
+                if value == true {
+                    return eval_statement(ast::Statement::BlockStatement(expr.consequence), env);
                 }
             }
-            _ => Ok(object::Object::Null),
-        },
-        ast::Node::Statement(node) => match node {
-            ast::Statement::ExpressionStatement(node) => {
-                eval(ast::Node::Expression(node.expression), env)
+
+            if let Some(block_statement) = expr.alternative {
+                return eval_statement(ast::Statement::BlockStatement(block_statement), env);
             }
-            ast::Statement::BlockStatement(block_statement) => {
-                eval_block_statement(block_statement, env)
+
+            Ok(object::Object::Null)
+        }
+        ast::Expression::Identifier(node) => {
+            let value = env.get(&node.value);
+            match value {
+                // TODO: change this clone. weird ahh implementation.
+                Some(value) => Ok(value.clone()),
+                None => Err(error::EvaluatorError::IdentifierNotFound(node.value)),
             }
-            ast::Statement::ReturnStatement(return_statement) => {
-                let value = eval(ast::Node::Expression(return_statement.return_value), env)?;
-                Ok(object::Object::Return(Box::new(value)))
-            }
-            ast::Statement::LetStatement(let_statement) => {
-                let value = eval(ast::Node::Expression(let_statement.value), env)?;
-                env.set(&let_statement.name.value, value);
-                Ok(object::Object::Null)
-            }
-        },
+        }
         _ => Ok(object::Object::Null),
+    }
+}
+
+fn eval_statement(
+    statement: ast::Statement,
+    env: &mut object::Environment,
+) -> Result<object::Object, error::EvaluatorError> {
+    match statement {
+        ast::Statement::ExpressionStatement(node) => {
+            eval(ast::Node::Expression(node.expression), env)
+        }
+        ast::Statement::BlockStatement(block_statement) => {
+            let mut result = object::Object::Null;
+
+            for statement in block_statement.statements {
+                result = eval(ast::Node::Statement(statement), env)?;
+
+                if let object::Object::Return(_) = result {
+                    return Ok(result);
+                }
+            }
+
+            Ok(result)
+        }
+        ast::Statement::ReturnStatement(return_statement) => {
+            let value = eval(ast::Node::Expression(return_statement.return_value), env)?;
+            Ok(object::Object::Return(Box::new(value)))
+        }
+        ast::Statement::LetStatement(let_statement) => {
+            let value = eval(ast::Node::Expression(let_statement.value), env)?;
+            env.set(&let_statement.name.value, value);
+            Ok(object::Object::Null)
+        }
     }
 }
 
@@ -285,8 +261,13 @@ if (10 > 1) {
             "4; true - true; 5",
             Err => "unknown operator: true - true"
         );
+        testing::eval!(
+            "b;",
+            Err => "identifier not found: b"
+        );
     }
 
+    #[test]
     fn let_statements() {
         testing::eval!("let a = 5; a;", object::Object::Integer = 5);
         testing::eval!("let a = 5 * 10; a;", object::Object::Integer = 50);
