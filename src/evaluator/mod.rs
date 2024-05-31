@@ -1,17 +1,17 @@
 #![allow(dead_code)]
 
+pub mod error;
+
 use crate::{ast, object};
 
-pub fn eval_program(program: ast::Program) -> Result<object::Object, object::Object> {
+pub fn eval_program(program: ast::Program) -> Result<object::Object, error::EvaluatorError> {
     let mut result: object::Object = object::Object::Null;
 
     for statement in program.statements {
         result = eval(ast::Node::Statement(statement))?;
 
-        match result {
-            object::Object::Return(r) => return Ok(*r),
-            object::Object::Error(_) => return Ok(result),
-            _ => (),
+        if let object::Object::Return(r) = result {
+            return Ok(*r);
         }
     }
 
@@ -21,20 +21,17 @@ pub fn eval_program(program: ast::Program) -> Result<object::Object, object::Obj
 fn eval_prefix_expression(
     operator: String,
     right: object::Object,
-) -> Result<object::Object, object::Object> {
+) -> Result<object::Object, error::EvaluatorError> {
     match operator.as_str() {
         "!" => match right {
             object::Object::Boolean(value) => Ok(object::Object::Boolean(!value)),
-            _ => Ok(object::Object::Null),
+            _ => Err(error::EvaluatorError::UnknownPrefixOperator { operator, right }),
         },
         "-" => match right {
             object::Object::Integer(value) => Ok(object::Object::Integer(-value)),
-            _ => Ok(object::Object::Null),
+            _ => Err(error::EvaluatorError::UnknownPrefixOperator { operator, right }),
         },
-        _ => Err(object::Object::Error(format!(
-            "unknown operator: {}{}",
-            operator, right
-        ))),
+        _ => Err(error::EvaluatorError::UnknownPrefixOperator { operator, right }),
     }
 }
 
@@ -42,7 +39,7 @@ fn eval_int_infix_expression(
     operator: String,
     left: i64,
     right: i64,
-) -> Result<object::Object, object::Object> {
+) -> Result<object::Object, error::EvaluatorError> {
     match operator.as_str() {
         "+" => Ok(object::Object::Integer(left + right)),
         "-" => Ok(object::Object::Integer(left - right)),
@@ -52,10 +49,11 @@ fn eval_int_infix_expression(
         ">" => Ok(object::Object::Boolean(left > right)),
         "==" => Ok(object::Object::Boolean(left == right)),
         "!=" => Ok(object::Object::Boolean(left != right)),
-        _ => Err(object::Object::Error(format!(
-            "unknown operator: {} {} {}",
-            left, operator, right
-        ))),
+        _ => Err(error::EvaluatorError::UnknownInfixOperatorInt {
+            left,
+            operator,
+            right,
+        }),
     }
 }
 
@@ -63,7 +61,7 @@ fn eval_infix_expression(
     operator: String,
     left: object::Object,
     right: object::Object,
-) -> Result<object::Object, object::Object> {
+) -> Result<object::Object, error::EvaluatorError> {
     if let (object::Object::Integer(l), object::Object::Integer(r)) = (&left, &right) {
         return eval_int_infix_expression(operator, *l, *r);
     }
@@ -71,14 +69,15 @@ fn eval_infix_expression(
     match operator.as_str() {
         "==" => Ok(object::Object::Boolean(left == right)),
         "!=" => Ok(object::Object::Boolean(left != right)),
-        _ => Err(object::Object::Error(format!(
-            "unknown operator: {} {} {}",
-            left, operator, right
-        ))),
+        _ => Err(error::EvaluatorError::UnknownInfixOperator {
+            left,
+            operator,
+            right,
+        }),
     }
 }
 
-fn eval_if_expression(expr: ast::IfExpression) -> Result<object::Object, object::Object> {
+fn eval_if_expression(expr: ast::IfExpression) -> Result<object::Object, error::EvaluatorError> {
     let condition = eval(ast::Node::Expression(*expr.condition))?;
 
     if let object::Object::Boolean(value) = condition {
@@ -100,23 +99,21 @@ fn eval_if_expression(expr: ast::IfExpression) -> Result<object::Object, object:
 
 fn eval_block_statement(
     block_statement: ast::BlockStatement,
-) -> Result<object::Object, object::Object> {
+) -> Result<object::Object, error::EvaluatorError> {
     let mut result = object::Object::Null;
 
     for statement in block_statement.statements {
         result = eval(ast::Node::Statement(statement))?;
 
-        match result {
-            object::Object::Return(_) => return Ok(result),
-            object::Object::Error(_) => return Err(result),
-            _ => (),
+        if let object::Object::Return(_) = result {
+            return Ok(result);
         }
     }
 
     Ok(result)
 }
 
-pub fn eval(node: ast::Node) -> Result<object::Object, object::Object> {
+pub fn eval(node: ast::Node) -> Result<object::Object, error::EvaluatorError> {
     match node {
         ast::Node::Expression(node) => match node {
             ast::Expression::IntegerLiteral(int_lit) => Ok(object::Object::Integer(int_lit.value)),
@@ -250,11 +247,19 @@ if (10 > 1) {
     fn error_handling() {
         testing::eval!(
             "5 + true;",
-            Err => object::Object::Error = "unknown operator: 5 + true"
+            Err => "unknown operator: 5 + true"
         );
         testing::eval!(
             "if (1 < true) { return 10 }",
-            Err => object::Object::Error = "unknown operator: 1 < true"
+            Err => "unknown operator: 1 < true"
+        );
+        testing::eval!(
+            "true + false",
+            Err => "unknown operator: true + false"
+        );
+        testing::eval!(
+            "4; true - true; 5",
+            Err => "unknown operator: true - true"
         );
     }
 }

@@ -62,7 +62,7 @@ pub(crate) use infix;
 
 use crate::{evaluator, lexer, object, parser};
 
-pub fn test_eval(input: String) -> Result<object::Object, object::Object> {
+pub fn test_eval(input: String) -> Result<object::Object, evaluator::error::EvaluatorError> {
     let input = input.as_bytes().into();
     let lexer = lexer::Lexer::new(input);
     let mut parser = parser::Parser::new(lexer);
@@ -89,13 +89,12 @@ macro_rules! eval {
             Err(err) => panic!("got errors instead. got={}", err),
         }
     };
-    ($input:expr, Err => $variant:path = $expected:expr) => {
+    ($input:expr, Err => $expected:expr) => {
         let evaluated = testing::test_eval($input.into());
 
         match evaluated {
             Ok(unexpected) => panic!("got ok instead. got={}", unexpected),
-            Err($variant(err_msg)) => assert_eq!(err_msg, $expected),
-            Err(err) => panic!("unexpected error. got={}", err),
+            Err(err) => assert_eq!(err.to_string(), $expected),
         }
     };
 }
