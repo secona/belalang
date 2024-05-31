@@ -20,7 +20,10 @@ impl Repl {
 
             match parser.parse_program() {
                 Ok(program) => {
-                    println!("{}", evaluator::eval_program(program));
+                    match evaluator::eval_program(program) {
+                        Ok(evaluated) => println!("{}", evaluated),
+                        Err(err_msg) => println!("{}", err_msg),
+                    }
                 }
                 Err(errors) => {
                     println!("parser errors:");

@@ -3,6 +3,7 @@ pub enum Object {
     Boolean(bool),
     Null,
     Return(Box<Object>),
+    Error(String),
 }
 
 impl std::fmt::Display for Object {
@@ -12,6 +13,7 @@ impl std::fmt::Display for Object {
             Self::Boolean(b) => f.write_str(&format!("{}", b)),
             Self::Return(r) => f.write_str(&format!("{}", r)),
             Self::Null => f.write_str("null"),
+            Self::Error(msg) => f.write_str(&msg),
         }
     }
 }

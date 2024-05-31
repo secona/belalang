@@ -2,45 +2,60 @@
 
 use crate::{ast, object};
 
-pub fn eval_program(program: ast::Program) -> object::Object {
+pub fn eval_program(program: ast::Program) -> Result<object::Object, object::Object> {
     let mut result: object::Object = object::Object::Null;
 
     for statement in program.statements {
-        result = eval(ast::Node::Statement(statement));
+        result = eval(ast::Node::Statement(statement))?;
 
-        if let object::Object::Return(r) = result {
-            return *r;
+        match result {
+            object::Object::Return(r) => return Ok(*r),
+            object::Object::Error(_) => return Ok(result),
+            _ => (),
         }
     }
 
-    result
+    Ok(result)
 }
 
-fn eval_prefix_expression(operator: String, right: object::Object) -> object::Object {
+fn eval_prefix_expression(
+    operator: String,
+    right: object::Object,
+) -> Result<object::Object, object::Object> {
     match operator.as_str() {
         "!" => match right {
-            object::Object::Boolean(value) => object::Object::Boolean(!value),
-            _ => object::Object::Null,
+            object::Object::Boolean(value) => Ok(object::Object::Boolean(!value)),
+            _ => Ok(object::Object::Null),
         },
         "-" => match right {
-            object::Object::Integer(value) => object::Object::Integer(-value),
-            _ => object::Object::Null,
+            object::Object::Integer(value) => Ok(object::Object::Integer(-value)),
+            _ => Ok(object::Object::Null),
         },
-        _ => object::Object::Null,
+        _ => Err(object::Object::Error(format!(
+            "unknown operator: {}{}",
+            operator, right
+        ))),
     }
 }
 
-fn eval_int_infix_expression(operator: String, left: i64, right: i64) -> object::Object {
+fn eval_int_infix_expression(
+    operator: String,
+    left: i64,
+    right: i64,
+) -> Result<object::Object, object::Object> {
     match operator.as_str() {
-        "+" => object::Object::Integer(left + right),
-        "-" => object::Object::Integer(left - right),
-        "*" => object::Object::Integer(left * right),
-        "/" => object::Object::Integer(left / right),
-        "<" => object::Object::Boolean(left < right),
-        ">" => object::Object::Boolean(left > right),
-        "==" => object::Object::Boolean(left == right),
-        "!=" => object::Object::Boolean(left != right),
-        _ => object::Object::Null,
+        "+" => Ok(object::Object::Integer(left + right)),
+        "-" => Ok(object::Object::Integer(left - right)),
+        "*" => Ok(object::Object::Integer(left * right)),
+        "/" => Ok(object::Object::Integer(left / right)),
+        "<" => Ok(object::Object::Boolean(left < right)),
+        ">" => Ok(object::Object::Boolean(left > right)),
+        "==" => Ok(object::Object::Boolean(left == right)),
+        "!=" => Ok(object::Object::Boolean(left != right)),
+        _ => Err(object::Object::Error(format!(
+            "unknown operator: {} {} {}",
+            left, operator, right
+        ))),
     }
 }
 
@@ -48,20 +63,23 @@ fn eval_infix_expression(
     operator: String,
     left: object::Object,
     right: object::Object,
-) -> object::Object {
+) -> Result<object::Object, object::Object> {
     if let (object::Object::Integer(l), object::Object::Integer(r)) = (&left, &right) {
         return eval_int_infix_expression(operator, *l, *r);
     }
 
     match operator.as_str() {
-        "==" => object::Object::Boolean(left == right),
-        "!=" => object::Object::Boolean(left != right),
-        _ => object::Object::Null,
+        "==" => Ok(object::Object::Boolean(left == right)),
+        "!=" => Ok(object::Object::Boolean(left != right)),
+        _ => Err(object::Object::Error(format!(
+            "unknown operator: {} {} {}",
+            left, operator, right
+        ))),
     }
 }
 
-fn eval_if_expression(expr: ast::IfExpression) -> object::Object {
-    let condition = eval(ast::Node::Expression(*expr.condition));
+fn eval_if_expression(expr: ast::IfExpression) -> Result<object::Object, object::Object> {
+    let condition = eval(ast::Node::Expression(*expr.condition))?;
 
     if let object::Object::Boolean(value) = condition {
         if value == true {
@@ -77,41 +95,45 @@ fn eval_if_expression(expr: ast::IfExpression) -> object::Object {
         )));
     }
 
-    object::Object::Null
+    Ok(object::Object::Null)
 }
 
-fn eval_block_statement(block_statement: ast::BlockStatement) -> object::Object {
+fn eval_block_statement(
+    block_statement: ast::BlockStatement,
+) -> Result<object::Object, object::Object> {
     let mut result = object::Object::Null;
 
     for statement in block_statement.statements {
-        result = eval(ast::Node::Statement(statement));
+        result = eval(ast::Node::Statement(statement))?;
 
-        if let object::Object::Return(_) = result {
-            return result;
+        match result {
+            object::Object::Return(_) => return Ok(result),
+            object::Object::Error(_) => return Err(result),
+            _ => (),
         }
     }
 
-    result
+    Ok(result)
 }
 
-pub fn eval(node: ast::Node) -> object::Object {
+pub fn eval(node: ast::Node) -> Result<object::Object, object::Object> {
     match node {
         ast::Node::Expression(node) => match node {
-            ast::Expression::IntegerLiteral(int_lit) => object::Object::Integer(int_lit.value),
+            ast::Expression::IntegerLiteral(int_lit) => Ok(object::Object::Integer(int_lit.value)),
             ast::Expression::BooleanExpression(bool_expr) => {
-                object::Object::Boolean(bool_expr.value)
+                Ok(object::Object::Boolean(bool_expr.value))
             }
             ast::Expression::PrefixExpression(node) => {
-                let right = eval(ast::Node::Expression(*node.right));
+                let right = eval(ast::Node::Expression(*node.right))?;
                 eval_prefix_expression(node.operator, right)
             }
             ast::Expression::InfixExpression(node) => {
-                let left = eval(ast::Node::Expression(*node.left));
-                let right = eval(ast::Node::Expression(*node.right));
+                let left = eval(ast::Node::Expression(*node.left))?;
+                let right = eval(ast::Node::Expression(*node.right))?;
                 eval_infix_expression(node.operator, left, right)
             }
             ast::Expression::IfExpression(node) => eval_if_expression(node),
-            _ => object::Object::Null,
+            _ => Ok(object::Object::Null),
         },
         ast::Node::Statement(node) => match node {
             ast::Statement::ExpressionStatement(node) => {
@@ -121,12 +143,12 @@ pub fn eval(node: ast::Node) -> object::Object {
                 eval_block_statement(block_statement)
             }
             ast::Statement::ReturnStatement(return_statement) => {
-                let value = eval(ast::Node::Expression(return_statement.return_value));
-                object::Object::Return(Box::new(value))
+                let value = eval(ast::Node::Expression(return_statement.return_value))?;
+                Ok(object::Object::Return(Box::new(value)))
             }
-            _ => object::Object::Null,
+            _ => Ok(object::Object::Null),
         },
-        _ => object::Object::Null,
+        _ => Ok(object::Object::Null),
     }
 }
 
@@ -221,6 +243,18 @@ if (10 > 1) {
     return false;
 }",
             object::Object::Boolean = true
+        );
+    }
+
+    #[test]
+    fn error_handling() {
+        testing::eval!(
+            "5 + true;",
+            Err => object::Object::Error = "unknown operator: 5 + true"
+        );
+        testing::eval!(
+            "if (1 < true) { return 10 }",
+            Err => object::Object::Error = "unknown operator: 1 < true"
         );
     }
 }

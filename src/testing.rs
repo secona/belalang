@@ -62,7 +62,7 @@ pub(crate) use infix;
 
 use crate::{evaluator, lexer, object, parser};
 
-pub fn test_eval(input: String) -> object::Object {
+pub fn test_eval(input: String) -> Result<object::Object, object::Object> {
     let input = input.as_bytes().into();
     let lexer = lexer::Lexer::new(input);
     let mut parser = parser::Parser::new(lexer);
@@ -76,16 +76,26 @@ macro_rules! eval {
         let evaluated = testing::test_eval($input.into());
 
         match evaluated {
-            $variant(obj) => assert_eq!(obj, $expected),
-            _ => panic!("incorrect object type. got={}", evaluated),
+            Ok($variant(value)) => assert_eq!(value, $expected),
+            Ok(unexpected) => panic!("got unexpected object. got={}", unexpected),
+            Err(err) => panic!("got errors instead. got={}", err),
         }
     };
-    ($input:expr, $variant:path) => {
+    ($input:expr, $variant:pat) => {
         let evaluated = testing::test_eval($input.into());
 
         match evaluated {
-            $variant => {},
-            _ => panic!("object not null. got={}", evaluated),
+            Ok(obj) => matches!(obj, $variant),
+            Err(err) => panic!("got errors instead. got={}", err),
+        }
+    };
+    ($input:expr, Err => $variant:path = $expected:expr) => {
+        let evaluated = testing::test_eval($input.into());
+
+        match evaluated {
+            Ok(unexpected) => panic!("got ok instead. got={}", unexpected),
+            Err($variant(err_msg)) => assert_eq!(err_msg, $expected),
+            Err(err) => panic!("unexpected error. got={}", err),
         }
     };
 }
