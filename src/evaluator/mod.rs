@@ -30,6 +30,43 @@ fn eval_prefix_expression(operator: String, right: object::Object) -> object::Ob
     }
 }
 
+fn eval_int_infix_expression(
+    operator: String,
+    left: &object::Integer,
+    right: &object::Integer,
+) -> object::Object {
+    let l = left.value;
+    let r = right.value;
+
+    match operator.as_str() {
+        "+" => object::Object::Integer(object::Integer { value: l + r }),
+        "-" => object::Object::Integer(object::Integer { value: l - r }),
+        "*" => object::Object::Integer(object::Integer { value: l * r }),
+        "/" => object::Object::Integer(object::Integer { value: l / r }),
+        "<" => object::Object::Boolean(object::Boolean { value: l < r }),
+        ">" => object::Object::Boolean(object::Boolean { value: l > r }),
+        "==" => object::Object::Boolean(object::Boolean { value: l == r }),
+        "!=" => object::Object::Boolean(object::Boolean { value: l != r }),
+        _ => object::Object::Null(object::Null {}),
+    }
+}
+
+fn eval_infix_expression(
+    operator: String,
+    left: object::Object,
+    right: object::Object,
+) -> object::Object {
+    if let (object::Object::Integer(l), object::Object::Integer(r)) = (&left, &right) {
+        return eval_int_infix_expression(operator, l, r);
+    }
+
+    match operator.as_str() {
+        "==" => object::Object::Boolean(object::Boolean{ value: left == right }),
+        "!=" => object::Object::Boolean(object::Boolean{ value: left != right }),
+        _ => object::Object::Null(object::Null {})
+    }
+}
+
 pub fn eval(node: ast::Node) -> object::Object {
     match node {
         ast::Node::Expression(node) => match node {
@@ -42,6 +79,11 @@ pub fn eval(node: ast::Node) -> object::Object {
             ast::Expression::PrefixExpression(node) => {
                 let right = eval(ast::Node::Expression(*node.right));
                 eval_prefix_expression(node.operator, right)
+            }
+            ast::Expression::InfixExpression(node) => {
+                let left = eval(ast::Node::Expression(*node.left));
+                let right = eval(ast::Node::Expression(*node.right));
+                eval_infix_expression(node.operator, left, right)
             }
             _ => object::Object::Null(object::Null {}),
         },
@@ -63,18 +105,41 @@ mod tests {
     fn integer() {
         testing::eval!("5", object::Object::Integer = 5);
         testing::eval!("1209", object::Object::Integer = 1209);
+
         testing::eval!("-123", object::Object::Integer = -123);
         testing::eval!("--123", object::Object::Integer = 123);
         testing::eval!("---123", object::Object::Integer = -123);
+
+        testing::eval!("12 * 3", object::Object::Integer = 36);
+        testing::eval!("12 / 3 + 1", object::Object::Integer = 5);
+        testing::eval!("(5 + 1) / 2", object::Object::Integer = 3);
+        testing::eval!("5 * -2", object::Object::Integer = -10);
+        testing::eval!("-5 * -2", object::Object::Integer = 10);
     }
 
     #[test]
     fn boolean() {
         testing::eval!("true", object::Object::Boolean = true);
         testing::eval!("false", object::Object::Boolean = false);
+
         testing::eval!("!true", object::Object::Boolean = false);
         testing::eval!("!!false", object::Object::Boolean = false);
         testing::eval!("!!!false", object::Object::Boolean = true);
         testing::eval!("!!!!true", object::Object::Boolean = true);
+
+        testing::eval!("1 == 1", object::Object::Boolean = true);
+        testing::eval!("2 != 1", object::Object::Boolean = true);
+        testing::eval!("2 == 1", object::Object::Boolean = false);
+        testing::eval!("2 * 4 == 8", object::Object::Boolean = true);
+        testing::eval!("-1 < 1", object::Object::Boolean = true);
+        testing::eval!("1 < 1", object::Object::Boolean = false);
+        testing::eval!("1 - 2 < 1", object::Object::Boolean = true);
+        testing::eval!("1 + 2 > 1", object::Object::Boolean = true);
+
+        testing::eval!("true == true", object::Object::Boolean = true);
+        testing::eval!("false == false", object::Object::Boolean = true);
+        testing::eval!("true == false", object::Object::Boolean = false);
+        testing::eval!("true != false", object::Object::Boolean = true);
+        testing::eval!("1 < 2 == true", object::Object::Boolean = true);
     }
 }

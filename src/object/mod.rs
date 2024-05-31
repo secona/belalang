@@ -32,3 +32,21 @@ impl std::fmt::Display for Object {
         }
     }
 }
+
+impl PartialEq for Object {
+    fn eq(&self, other: &Self) -> bool {
+        if let(Self::Integer(s), Self::Integer(o)) = (self, other) {
+            return s.value == o.value;
+        }
+
+        if let(Self::Boolean(s), Self::Boolean(o)) = (self, other) {
+            return s.value == o.value;
+        }
+
+        if let(Self::Null(_), Self::Null(_)) = (self, other) {
+            return true;
+        }
+
+        false
+    }
+}
