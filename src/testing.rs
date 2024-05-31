@@ -76,7 +76,7 @@ macro_rules! eval {
         let evaluated = testing::test_eval($input.into());
 
         match evaluated {
-            $variant(obj) => assert_eq!(obj.value, $expected),
+            $variant(obj) => assert_eq!(obj, $expected),
             _ => panic!("incorrect object type. got={}", evaluated),
         }
     };
@@ -84,7 +84,7 @@ macro_rules! eval {
         let evaluated = testing::test_eval($input.into());
 
         match evaluated {
-            $variant(_) => {},
+            $variant => {},
             _ => panic!("object not null. got={}", evaluated),
         }
     };

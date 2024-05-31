@@ -3,7 +3,7 @@
 use crate::{ast, object};
 
 pub fn eval_program(program: ast::Program) -> object::Object {
-    let mut result: object::Object = object::Object::Null(object::Null {});
+    let mut result: object::Object = object::Object::Null;
 
     for statement in program.statements {
         result = eval(ast::Node::Statement(statement));
@@ -15,39 +15,36 @@ pub fn eval_program(program: ast::Program) -> object::Object {
 fn eval_prefix_expression(operator: String, right: object::Object) -> object::Object {
     match operator.as_str() {
         "!" => match right {
-            object::Object::Boolean(bool) => {
-                object::Object::Boolean(object::Boolean { value: !bool.value })
+            object::Object::Boolean(value) => {
+                object::Object::Boolean(!value)
             }
-            _ => object::Object::Null(object::Null {}),
+            _ => object::Object::Null,
         },
         "-" => match right {
-            object::Object::Integer(int) => {
-                object::Object::Integer(object::Integer { value: -int.value })
+            object::Object::Integer(value) => {
+                object::Object::Integer(-value)
             }
-            _ => object::Object::Null(object::Null {}),
+            _ => object::Object::Null,
         },
-        _ => object::Object::Null(object::Null {}),
+        _ => object::Object::Null,
     }
 }
 
 fn eval_int_infix_expression(
     operator: String,
-    left: &object::Integer,
-    right: &object::Integer,
+    left: i64,
+    right: i64,
 ) -> object::Object {
-    let l = left.value;
-    let r = right.value;
-
     match operator.as_str() {
-        "+" => object::Object::Integer(object::Integer { value: l + r }),
-        "-" => object::Object::Integer(object::Integer { value: l - r }),
-        "*" => object::Object::Integer(object::Integer { value: l * r }),
-        "/" => object::Object::Integer(object::Integer { value: l / r }),
-        "<" => object::Object::Boolean(object::Boolean { value: l < r }),
-        ">" => object::Object::Boolean(object::Boolean { value: l > r }),
-        "==" => object::Object::Boolean(object::Boolean { value: l == r }),
-        "!=" => object::Object::Boolean(object::Boolean { value: l != r }),
-        _ => object::Object::Null(object::Null {}),
+        "+" => object::Object::Integer(left + right),
+        "-" => object::Object::Integer(left - right),
+        "*" => object::Object::Integer(left * right),
+        "/" => object::Object::Integer(left / right),
+        "<" => object::Object::Boolean(left < right),
+        ">" => object::Object::Boolean(left > right),
+        "==" => object::Object::Boolean(left == right),
+        "!=" => object::Object::Boolean(left != right),
+        _ => object::Object::Null,
     }
 }
 
@@ -57,25 +54,21 @@ fn eval_infix_expression(
     right: object::Object,
 ) -> object::Object {
     if let (object::Object::Integer(l), object::Object::Integer(r)) = (&left, &right) {
-        return eval_int_infix_expression(operator, l, r);
+        return eval_int_infix_expression(operator, *l, *r);
     }
 
     match operator.as_str() {
-        "==" => object::Object::Boolean(object::Boolean {
-            value: left == right,
-        }),
-        "!=" => object::Object::Boolean(object::Boolean {
-            value: left != right,
-        }),
-        _ => object::Object::Null(object::Null {}),
+        "==" => object::Object::Boolean(left == right),
+        "!=" => object::Object::Boolean(left != right),
+        _ => object::Object::Null,
     }
 }
 
 fn eval_if_expression(expr: ast::IfExpression) -> object::Object {
     let condition = eval(ast::Node::Expression(*expr.condition));
 
-    if let object::Object::Boolean(b) = condition {
-        if b.value == true {
+    if let object::Object::Boolean(value) = condition {
+        if value == true {
             return eval(ast::Node::Statement(ast::Statement::BlockStatement(
                 expr.consequence,
             )));
@@ -88,11 +81,11 @@ fn eval_if_expression(expr: ast::IfExpression) -> object::Object {
         )));
     }
 
-    object::Object::Null(object::Null {})
+    object::Object::Null
 }
 
 fn eval_statements(statements: Vec<ast::Statement>) -> object::Object {
-    let mut res = object::Object::Null(object::Null {});
+    let mut res = object::Object::Null;
 
     for statement in statements {
         res = eval(ast::Node::Statement(statement));
@@ -104,11 +97,11 @@ fn eval_statements(statements: Vec<ast::Statement>) -> object::Object {
 pub fn eval(node: ast::Node) -> object::Object {
     match node {
         ast::Node::Expression(node) => match node {
-            ast::Expression::IntegerLiteral(node) => {
-                object::Object::Integer(object::Integer { value: node.value })
+            ast::Expression::IntegerLiteral(int_lit) => {
+                object::Object::Integer(int_lit.value)
             }
-            ast::Expression::BooleanExpression(node) => {
-                object::Object::Boolean(object::Boolean { value: node.value })
+            ast::Expression::BooleanExpression(bool_expr) => {
+                object::Object::Boolean(bool_expr.value)
             }
             ast::Expression::PrefixExpression(node) => {
                 let right = eval(ast::Node::Expression(*node.right));
@@ -120,16 +113,16 @@ pub fn eval(node: ast::Node) -> object::Object {
                 eval_infix_expression(node.operator, left, right)
             }
             ast::Expression::IfExpression(node) => eval_if_expression(node),
-            _ => object::Object::Null(object::Null {}),
+            _ => object::Object::Null,
         },
         ast::Node::Statement(node) => match node {
             ast::Statement::ExpressionStatement(node) => {
                 eval(ast::Node::Expression(node.expression))
             }
             ast::Statement::BlockStatement(node) => eval_statements(node.statements),
-            _ => object::Object::Null(object::Null {}),
+            _ => object::Object::Null,
         },
-        _ => object::Object::Null(object::Null {}),
+        _ => object::Object::Null,
     }
 }
 

@@ -1,52 +1,26 @@
-mod boolean;
-mod integer;
-mod null;
-
-pub use boolean::*;
-pub use integer::*;
-pub use null::*;
-
-pub enum ObjectType {
-    Integer,
-    Boolean,
-    Null,
-}
-
-pub trait ObjectTrait {
-    fn object_type(&self) -> ObjectType;
-    fn inspect(&self) -> String;
-}
-
 pub enum Object {
-    Integer(Integer),
-    Boolean(Boolean),
-    Null(Null),
+    Integer(i64),
+    Boolean(bool),
+    Null,
 }
 
 impl std::fmt::Display for Object {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Integer(int) => f.write_str(&format!("{}", int.value)),
-            Self::Boolean(bool) => f.write_str(&format!("{}", bool.value)),
-            Self::Null(_) => f.write_str(&format!("null")),
+            Self::Integer(i) => f.write_str(&format!("{}", i)),
+            Self::Boolean(b) => f.write_str(&format!("{}", b)),
+            Self::Null => f.write_str(&format!("null")),
         }
     }
 }
 
 impl PartialEq for Object {
     fn eq(&self, other: &Self) -> bool {
-        if let(Self::Integer(s), Self::Integer(o)) = (self, other) {
-            return s.value == o.value;
+        match (self, other) {
+            (Object::Integer(a), Object::Integer(b)) => a == b,
+            (Object::Boolean(a), Object::Boolean(b)) => a == b,
+            (Object::Null, Object::Null) => true,
+            _ => false,
         }
-
-        if let(Self::Boolean(s), Self::Boolean(o)) = (self, other) {
-            return s.value == o.value;
-        }
-
-        if let(Self::Null(_), Self::Null(_)) = (self, other) {
-            return true;
-        }
-
-        false
     }
 }
