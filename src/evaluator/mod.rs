@@ -7,6 +7,10 @@ pub fn eval_program(program: ast::Program) -> object::Object {
 
     for statement in program.statements {
         result = eval(ast::Node::Statement(statement));
+
+        if let object::Object::Return(r) = result {
+            return *r;
+        }
     }
 
     result
@@ -15,26 +19,18 @@ pub fn eval_program(program: ast::Program) -> object::Object {
 fn eval_prefix_expression(operator: String, right: object::Object) -> object::Object {
     match operator.as_str() {
         "!" => match right {
-            object::Object::Boolean(value) => {
-                object::Object::Boolean(!value)
-            }
+            object::Object::Boolean(value) => object::Object::Boolean(!value),
             _ => object::Object::Null,
         },
         "-" => match right {
-            object::Object::Integer(value) => {
-                object::Object::Integer(-value)
-            }
+            object::Object::Integer(value) => object::Object::Integer(-value),
             _ => object::Object::Null,
         },
         _ => object::Object::Null,
     }
 }
 
-fn eval_int_infix_expression(
-    operator: String,
-    left: i64,
-    right: i64,
-) -> object::Object {
+fn eval_int_infix_expression(operator: String, left: i64, right: i64) -> object::Object {
     match operator.as_str() {
         "+" => object::Object::Integer(left + right),
         "-" => object::Object::Integer(left - right),
@@ -74,7 +70,7 @@ fn eval_if_expression(expr: ast::IfExpression) -> object::Object {
             )));
         }
     }
-    
+
     if let Some(block_statement) = expr.alternative {
         return eval(ast::Node::Statement(ast::Statement::BlockStatement(
             block_statement,
@@ -84,22 +80,24 @@ fn eval_if_expression(expr: ast::IfExpression) -> object::Object {
     object::Object::Null
 }
 
-fn eval_statements(statements: Vec<ast::Statement>) -> object::Object {
-    let mut res = object::Object::Null;
+fn eval_block_statement(block_statement: ast::BlockStatement) -> object::Object {
+    let mut result = object::Object::Null;
 
-    for statement in statements {
-        res = eval(ast::Node::Statement(statement));
+    for statement in block_statement.statements {
+        result = eval(ast::Node::Statement(statement));
+
+        if let object::Object::Return(r) = result {
+            return *r;
+        }
     }
 
-    res
+    result
 }
 
 pub fn eval(node: ast::Node) -> object::Object {
     match node {
         ast::Node::Expression(node) => match node {
-            ast::Expression::IntegerLiteral(int_lit) => {
-                object::Object::Integer(int_lit.value)
-            }
+            ast::Expression::IntegerLiteral(int_lit) => object::Object::Integer(int_lit.value),
             ast::Expression::BooleanExpression(bool_expr) => {
                 object::Object::Boolean(bool_expr.value)
             }
@@ -119,7 +117,13 @@ pub fn eval(node: ast::Node) -> object::Object {
             ast::Statement::ExpressionStatement(node) => {
                 eval(ast::Node::Expression(node.expression))
             }
-            ast::Statement::BlockStatement(node) => eval_statements(node.statements),
+            ast::Statement::BlockStatement(block_statement) => {
+                eval_block_statement(block_statement)
+            }
+            ast::Statement::ReturnStatement(return_statement) => {
+                let value = eval(ast::Node::Expression(return_statement.return_value));
+                object::Object::Return(Box::new(value))
+            }
             _ => object::Object::Null,
         },
         _ => object::Object::Null,
@@ -195,5 +199,14 @@ mod tests {
         );
 
         testing::eval!("if (false) { true }", object::Object::Null);
+    }
+
+    #[test]
+    fn return_statements() {
+        testing::eval!("if (true) { return 10; 9; }", object::Object::Integer = 10);
+        testing::eval!(
+            "if (false) { 0; } else { return 1; 10; }",
+            object::Object::Integer = 10
+        );
     }
 }

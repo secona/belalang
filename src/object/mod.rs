@@ -2,6 +2,7 @@ pub enum Object {
     Integer(i64),
     Boolean(bool),
     Null,
+    Return(Box<Object>),
 }
 
 impl std::fmt::Display for Object {
@@ -9,7 +10,8 @@ impl std::fmt::Display for Object {
         match self {
             Self::Integer(i) => f.write_str(&format!("{}", i)),
             Self::Boolean(b) => f.write_str(&format!("{}", b)),
-            Self::Null => f.write_str(&format!("null")),
+            Self::Return(r) => f.write_str(&format!("{}", r)),
+            Self::Null => f.write_str("null"),
         }
     }
 }
