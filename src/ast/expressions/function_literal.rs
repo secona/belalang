@@ -1,5 +1,6 @@
 use crate::{ast, token};
 
+#[derive(Debug, Clone)]
 pub struct FunctionLiteral {
     pub token: token::Token,
     pub params: Vec<ast::Identifier>,

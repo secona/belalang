@@ -62,7 +62,9 @@ pub(crate) use infix;
 
 use crate::{evaluator, lexer, object, parser};
 
-pub fn test_eval(input: String) -> Result<object::Object, evaluator::error::EvaluatorError> {
+pub fn test_eval<'a>(
+    input: String,
+) -> Result<object::Object<'a>, evaluator::error::EvaluatorError<'a>> {
     let input = input.as_bytes().into();
     let lexer = lexer::Lexer::new(input);
     let mut parser = parser::Parser::new(lexer);

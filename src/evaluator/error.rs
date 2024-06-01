@@ -1,12 +1,12 @@
 use crate::object;
 
 #[derive(thiserror::Error, Debug)]
-pub enum EvaluatorError {
+pub enum EvaluatorError<'a> {
     #[error("unknown operator: {0}{1}")]
-    PrefixOperator(String, object::Object),
+    PrefixOperator(String, object::Object<'a>),
 
     #[error("unknown operator: {0} {1} {2}")]
-    UnknownInfixOperator(object::Object, String, object::Object),
+    UnknownInfixOperator(object::Object<'a>, String, object::Object<'a>),
 
     #[error("identifier not found: {0}")]
     IdentifierNotFound(String),

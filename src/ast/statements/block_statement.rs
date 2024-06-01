@@ -1,6 +1,7 @@
 use super::Statement;
 use crate::token;
 
+#[derive(Debug, Clone)]
 pub struct BlockStatement {
     pub token: token::Token,
     pub statements: Vec<Statement>,

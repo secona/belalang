@@ -1,6 +1,7 @@
 use super::Expression;
 use crate::token;
 
+#[derive(Debug, Clone)]
 pub struct InfixExpression {
     pub token: token::Token,
     pub left: Box<Expression>,

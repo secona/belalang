@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
+#[derive(Debug, Clone)]
 pub struct Environment<'a> {
-    store: HashMap<String, super::Object>,
+    store: HashMap<String, super::Object<'a>>,
     outer: Option<&'a Environment<'a>>,
 }
 
@@ -32,7 +33,7 @@ impl<'a> Environment<'a> {
         }
     }
 
-    pub fn set(&mut self, key: &String, value: super::Object) {
+    pub fn set(&mut self, key: &String, value: super::Object<'a>) {
         self.store.insert(key.clone(), value);
     }
 }

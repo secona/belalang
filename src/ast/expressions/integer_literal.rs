@@ -1,5 +1,6 @@
 use crate::token;
 
+#[derive(Debug, Clone)]
 pub struct IntegerLiteral {
     pub token: token::Token,
     pub value: i64,
