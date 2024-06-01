@@ -236,11 +236,10 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-            .expect("not a(n) ast::ExpressionStatement");
+        let stmt =
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-        let literal = testing::as_variant!(&stmt.expression, ast::Expression::IntegerLiteral)
-            .expect("not a(n) ast::IntegerLiteral");
+        let literal = testing::as_variant!(&stmt.expression, ast::Expression::IntegerLiteral);
 
         assert_eq!(literal.value, 5);
         assert_eq!(literal.token, token::Token::Int("5".to_owned()));
@@ -283,11 +282,10 @@ mod tests {
 
             let program = parser.parse_program().expect("got parser errors");
 
-            let stmt = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::ExpressionStatement");
+            let stmt =
+                testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-            let exp = testing::as_variant!(&stmt.expression, ast::Expression::PrefixExpression)
-                .expect("not a(n) ast::PrefixExpression");
+            let exp = testing::as_variant!(&stmt.expression, ast::Expression::PrefixExpression);
 
             assert_eq!(exp.operator, test.exp_operator);
             assert_eq!((*exp.right).to_string(), test.exp_right);

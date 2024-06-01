@@ -41,11 +41,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::ExpressionStatement");
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression)
-            .expect("not a(n) ast::Expression::IfExpression");
+        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression);
 
         assert!(if_expr.alternative.is_none());
         assert_eq!(if_expr.condition.to_string(), "(x < y)");
@@ -56,7 +54,6 @@ mod tests {
                 &if_expr.consequence.statements[0],
                 ast::Statement::ExpressionStatement
             )
-            .expect("not a(n) ast::Statement::ExpressionStatement")
             .to_string(),
             "x"
         );
@@ -77,11 +74,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::Statement::ExpressionStatement");
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression)
-            .expect("not a(n) ast::Expression::IfExpression");
+        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression);
 
         assert_eq!(if_expr.token, token::Token::If);
 
@@ -92,7 +87,6 @@ mod tests {
                 &if_expr.consequence.statements[0],
                 ast::Statement::ExpressionStatement
             )
-            .expect("not a(n) ast::Statement::ExpressionStatement")
             .to_string(),
             "x",
         );
@@ -122,11 +116,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::Statement::ExpressionStatement");
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression)
-            .expect("not a(n) ast::Statement::ExpressionStatement");
+        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression);
 
         testing::infix!(
             if_expr.condition.as_ref(),

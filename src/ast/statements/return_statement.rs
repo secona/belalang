@@ -8,7 +8,10 @@ pub struct ReturnStatement {
 
 impl std::fmt::Display for ReturnStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!("ReturnStatement(value={})", self.return_value.to_string()))
+        f.write_str(&format!(
+            "ReturnStatement(value={})",
+            self.return_value.to_string()
+        ))
     }
 }
 

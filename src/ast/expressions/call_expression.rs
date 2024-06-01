@@ -38,11 +38,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::Statement::ExpressionStatement");
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-        let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression)
-            .expect("not a(n) ast::Expression::CallExpression");
+        let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression);
 
         testing::expr!(&*expr.function, ast::Expression::Identifier = "add");
 
@@ -73,18 +71,15 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::ExpressionStatement");
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-        let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression)
-            .expect("not a(n) ast::Expression::CallExpression");
+        let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression);
 
         assert_eq!(expr.args.len(), 2);
         testing::expr!(&expr.args[0], ast::Expression::IntegerLiteral = 2);
         testing::expr!(&expr.args[1], ast::Expression::IntegerLiteral = 3);
 
-        let function = testing::as_variant!(&*expr.function, ast::Expression::FunctionLiteral)
-            .expect("not a(n) ast::Expression::FunctionLiteral");
+        let function = testing::as_variant!(&*expr.function, ast::Expression::FunctionLiteral);
 
         assert_eq!(function.params.len(), 2);
 
@@ -96,8 +91,7 @@ mod tests {
         let body_stmt = testing::as_variant!(
             &function.body.statements[0],
             ast::Statement::ExpressionStatement
-        )
-        .expect("not a(n) ast::Statement::ExpressionStatement");
+        );
 
         testing::infix!(
             &body_stmt.expression,

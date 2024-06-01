@@ -77,8 +77,7 @@ mod tests {
         );
         assert_eq!(program.statements.len(), 1);
 
-        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::LetStatement)
-            .expect("not a(n) ast::Statement::LetStatement");
+        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::LetStatement);
 
         assert_eq!(stmt.name.token, token::Token::Ident(String::from("x")));
         assert_eq!(stmt.name.value, String::from("x"));
