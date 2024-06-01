@@ -1,12 +1,12 @@
 use std::io::{self, Write};
 
-use crate::{evaluator, lexer::Lexer, object, parser};
+use crate::{evaluator, lexer::Lexer, parser};
 
 pub struct Repl {}
 
 impl Repl {
     pub fn start() {
-        let mut env = object::Environment::new();
+        let mut ev = evaluator::Evaluator::default();
 
         loop {
             print!(">>> ");
@@ -21,12 +21,10 @@ impl Repl {
             let mut parser = parser::Parser::new(lexer);
 
             match parser.parse_program() {
-                Ok(program) => {
-                    match evaluator::eval_program(program, &mut env) {
-                        Ok(evaluated) => println!("{}", evaluated),
-                        Err(err_msg) => println!("{}", err_msg),
-                    }
-                }
+                Ok(program) => match ev.evaluate_statements(program.statements) {
+                    Ok(evaluated) => println!("{}", evaluated),
+                    Err(err_msg) => println!("{}", err_msg),
+                },
                 Err(errors) => {
                     println!("parser errors:");
                     for error in errors {

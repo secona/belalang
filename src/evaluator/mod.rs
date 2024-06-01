@@ -2,149 +2,183 @@
 
 pub mod error;
 
+use std::{cell::RefCell, rc::Rc};
+
 use crate::{ast, object};
 
-pub fn eval_program(
+pub struct Evaluator {
     program: ast::Program,
-    env: &mut object::Environment,
-) -> Result<object::Object, error::EvaluatorError> {
-    let mut result: object::Object = object::Object::Null;
-
-    for statement in program.statements {
-        result = eval(ast::Node::Statement(statement), env)?;
-
-        if let object::Object::Return(r) = result {
-            return Ok(*r);
-        }
-    }
-
-    Ok(result)
+    env: Rc<RefCell<object::Environment>>,
 }
 
-pub fn eval(
-    node: ast::Node,
-    env: &mut object::Environment,
-) -> Result<object::Object, error::EvaluatorError> {
-    match node {
-        ast::Node::Expression(expression) => eval_expression(expression, env),
-        ast::Node::Statement(statement) => eval_statement(statement, env),
-        _ => Ok(object::Object::Null),
+impl Default for Evaluator {
+    fn default() -> Self {
+        Self {
+            env: Rc::new(RefCell::new(object::Environment::new())),
+            program: ast::Program {
+                statements: Vec::new(),
+            },
+        }
     }
 }
 
-fn eval_expression(
-    expression: ast::Expression,
-    env: &mut object::Environment,
-) -> Result<object::Object, error::EvaluatorError> {
-    match expression {
-        ast::Expression::IntegerLiteral(int_lit) => Ok(object::Object::Integer(int_lit.value)),
-        ast::Expression::BooleanExpression(bool_expr) => {
-            Ok(object::Object::Boolean(bool_expr.value))
+impl Evaluator {
+    pub fn new(program: ast::Program) -> Self {
+        Self {
+            program,
+            env: Rc::new(RefCell::new(object::Environment::new())),
         }
-        ast::Expression::PrefixExpression(node) => {
-            let right = eval(ast::Node::Expression(*node.right), env)?;
+    }
 
-            match node.operator.as_str() {
-                "!" => match right {
-                    object::Object::Boolean(value) => Ok(object::Object::Boolean(!value)),
-                    _ => Err(error::EvaluatorError::PrefixOperator(node.operator, right)),
-                },
-                "-" => match right {
-                    object::Object::Integer(value) => Ok(object::Object::Integer(-value)),
-                    _ => Err(error::EvaluatorError::PrefixOperator(node.operator, right)),
-                },
-                _ => Err(error::EvaluatorError::PrefixOperator(node.operator, right)),
+    pub fn evaluate(&mut self) -> Result<object::Object, error::EvaluatorError> {
+        let mut statements = Vec::with_capacity(self.program.statements.len());
+        std::mem::swap(&mut statements, &mut self.program.statements);
+
+        self.evaluate_statements(statements)
+    }
+
+    pub fn evaluate_statements(
+        &mut self,
+        statements: Vec<ast::Statement>,
+    ) -> Result<object::Object, error::EvaluatorError> {
+        let mut result: object::Object = object::Object::Null;
+
+        for statement in statements {
+            result = self.eval_statement(statement)?;
+
+            if let object::Object::Return(r) = result {
+                return Ok(*r);
             }
         }
-        ast::Expression::InfixExpression(infix_expr) => {
-            let left = eval(ast::Node::Expression(*infix_expr.left), env)?;
-            let right = eval(ast::Node::Expression(*infix_expr.right), env)?;
 
-            match (&left, &right) {
-                (object::Object::Integer(l), object::Object::Integer(r)) => {
-                    match infix_expr.operator.as_str() {
-                        "+" => Ok(object::Object::Integer(l + r)),
-                        "-" => Ok(object::Object::Integer(l - r)),
-                        "*" => Ok(object::Object::Integer(l * r)),
-                        "/" => Ok(object::Object::Integer(l / r)),
-                        "<" => Ok(object::Object::Boolean(l < r)),
-                        ">" => Ok(object::Object::Boolean(l > r)),
-                        "==" => Ok(object::Object::Boolean(l == r)),
-                        "!=" => Ok(object::Object::Boolean(l != r)),
+        Ok(result)
+    }
+
+    fn eval(&mut self, node: ast::Node) -> Result<object::Object, error::EvaluatorError> {
+        match node {
+            ast::Node::Expression(expression) => self.eval_expression(expression),
+            ast::Node::Statement(statement) => self.eval_statement(statement),
+            _ => Ok(object::Object::Null),
+        }
+    }
+
+    fn eval_expression(
+        &mut self,
+        expression: ast::Expression,
+    ) -> Result<object::Object, error::EvaluatorError> {
+        match expression {
+            ast::Expression::IntegerLiteral(int_lit) => Ok(object::Object::Integer(int_lit.value)),
+            ast::Expression::BooleanExpression(bool_expr) => {
+                Ok(object::Object::Boolean(bool_expr.value))
+            }
+            ast::Expression::PrefixExpression(node) => {
+                let right = self.eval(ast::Node::Expression(*node.right))?;
+
+                match node.operator.as_str() {
+                    "!" => match right {
+                        object::Object::Boolean(value) => Ok(object::Object::Boolean(!value)),
+                        _ => Err(error::EvaluatorError::PrefixOperator(node.operator, right)),
+                    },
+                    "-" => match right {
+                        object::Object::Integer(value) => Ok(object::Object::Integer(-value)),
+                        _ => Err(error::EvaluatorError::PrefixOperator(node.operator, right)),
+                    },
+                    _ => Err(error::EvaluatorError::PrefixOperator(node.operator, right)),
+                }
+            }
+            ast::Expression::InfixExpression(infix_expr) => {
+                let left = self.eval(ast::Node::Expression(*infix_expr.left))?;
+                let right = self.eval(ast::Node::Expression(*infix_expr.right))?;
+
+                match (&left, &right) {
+                    (object::Object::Integer(l), object::Object::Integer(r)) => {
+                        match infix_expr.operator.as_str() {
+                            "+" => Ok(object::Object::Integer(l + r)),
+                            "-" => Ok(object::Object::Integer(l - r)),
+                            "*" => Ok(object::Object::Integer(l * r)),
+                            "/" => Ok(object::Object::Integer(l / r)),
+                            "<" => Ok(object::Object::Boolean(l < r)),
+                            ">" => Ok(object::Object::Boolean(l > r)),
+                            "==" => Ok(object::Object::Boolean(l == r)),
+                            "!=" => Ok(object::Object::Boolean(l != r)),
+                            _ => Err(error::EvaluatorError::UnknownInfixOperator(
+                                left,
+                                infix_expr.operator,
+                                right,
+                            )),
+                        }
+                    }
+                    (_, _) => match infix_expr.operator.as_str() {
+                        "==" => Ok(object::Object::Boolean(left == right)),
+                        "!=" => Ok(object::Object::Boolean(left != right)),
                         _ => Err(error::EvaluatorError::UnknownInfixOperator(
                             left,
                             infix_expr.operator,
                             right,
                         )),
+                    },
+                }
+            }
+            ast::Expression::IfExpression(expr) => {
+                let condition = self.eval(ast::Node::Expression(*expr.condition))?;
+
+                if let object::Object::Boolean(value) = condition {
+                    if value == true {
+                        return self
+                            .eval_statement(ast::Statement::BlockStatement(expr.consequence));
                     }
                 }
-                (_, _) => match infix_expr.operator.as_str() {
-                    "==" => Ok(object::Object::Boolean(left == right)),
-                    "!=" => Ok(object::Object::Boolean(left != right)),
-                    _ => Err(error::EvaluatorError::UnknownInfixOperator(
-                        left,
-                        infix_expr.operator,
-                        right,
-                    )),
-                },
-            }
-        }
-        ast::Expression::IfExpression(expr) => {
-            let condition = eval(ast::Node::Expression(*expr.condition), env)?;
 
-            if let object::Object::Boolean(value) = condition {
-                if value == true {
-                    return eval_statement(ast::Statement::BlockStatement(expr.consequence), env);
+                if let Some(block_statement) = expr.alternative {
+                    return self.eval_statement(ast::Statement::BlockStatement(block_statement));
+                }
+
+                Ok(object::Object::Null)
+            }
+            ast::Expression::Identifier(node) => {
+                let env = self.env.borrow();
+                let value = env.get(&node.value);
+                match value {
+                    // TODO: change this clone. weird ahh implementation.
+                    Some(value) => Ok(value.clone()),
+                    None => Err(error::EvaluatorError::IdentifierNotFound(node.value)),
                 }
             }
-
-            if let Some(block_statement) = expr.alternative {
-                return eval_statement(ast::Statement::BlockStatement(block_statement), env);
-            }
-
-            Ok(object::Object::Null)
+            _ => Ok(object::Object::Null),
         }
-        ast::Expression::Identifier(node) => {
-            let value = env.get(&node.value);
-            match value {
-                // TODO: change this clone. weird ahh implementation.
-                Some(value) => Ok(value.clone()),
-                None => Err(error::EvaluatorError::IdentifierNotFound(node.value)),
-            }
-        }
-        _ => Ok(object::Object::Null),
     }
-}
 
-fn eval_statement(
-    statement: ast::Statement,
-    env: &mut object::Environment,
-) -> Result<object::Object, error::EvaluatorError> {
-    match statement {
-        ast::Statement::ExpressionStatement(node) => {
-            eval(ast::Node::Expression(node.expression), env)
-        }
-        ast::Statement::BlockStatement(block_statement) => {
-            let mut result = object::Object::Null;
-
-            for statement in block_statement.statements {
-                result = eval(ast::Node::Statement(statement), env)?;
-
-                if let object::Object::Return(_) = result {
-                    return Ok(result);
-                }
+    fn eval_statement(
+        &mut self,
+        statement: ast::Statement,
+    ) -> Result<object::Object, error::EvaluatorError> {
+        match statement {
+            ast::Statement::ExpressionStatement(node) => {
+                self.eval(ast::Node::Expression(node.expression))
             }
+            ast::Statement::BlockStatement(block_statement) => {
+                let mut result = object::Object::Null;
 
-            Ok(result)
-        }
-        ast::Statement::ReturnStatement(return_statement) => {
-            let value = eval(ast::Node::Expression(return_statement.return_value), env)?;
-            Ok(object::Object::Return(Box::new(value)))
-        }
-        ast::Statement::LetStatement(let_statement) => {
-            let value = eval(ast::Node::Expression(let_statement.value), env)?;
-            env.set(&let_statement.name.value, value);
-            Ok(object::Object::Null)
+                for statement in block_statement.statements {
+                    result = self.eval(ast::Node::Statement(statement))?;
+
+                    if let object::Object::Return(_) = result {
+                        return Ok(result);
+                    }
+                }
+
+                Ok(result)
+            }
+            ast::Statement::ReturnStatement(return_statement) => {
+                let value = self.eval(ast::Node::Expression(return_statement.return_value))?;
+                Ok(object::Object::Return(Box::new(value)))
+            }
+            ast::Statement::LetStatement(let_statement) => {
+                let value = self.eval(ast::Node::Expression(let_statement.value))?;
+
+                self.env.borrow_mut().set(&let_statement.name.value, value);
+                Ok(object::Object::Null)
+            }
         }
     }
 }
