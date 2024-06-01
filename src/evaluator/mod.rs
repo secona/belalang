@@ -6,15 +6,15 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{ast, object};
 
-pub struct Evaluator {
+pub struct Evaluator<'a> {
     program: ast::Program,
-    env: Rc<RefCell<object::Environment>>,
+    env: Rc<RefCell<object::Environment<'a>>>,
 }
 
-impl Default for Evaluator {
+impl Default for Evaluator<'_> {
     fn default() -> Self {
         Self {
-            env: Rc::new(RefCell::new(object::Environment::new())),
+            env: Rc::new(RefCell::new(object::Environment::default())),
             program: ast::Program {
                 statements: Vec::new(),
             },
@@ -22,11 +22,11 @@ impl Default for Evaluator {
     }
 }
 
-impl Evaluator {
+impl Evaluator<'_> {
     pub fn new(program: ast::Program) -> Self {
         Self {
             program,
-            env: Rc::new(RefCell::new(object::Environment::new())),
+            env: Rc::new(RefCell::new(object::Environment::default())),
         }
     }
 
