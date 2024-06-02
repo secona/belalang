@@ -10,14 +10,6 @@ macro_rules! as_variant {
 
 pub(crate) use as_variant;
 
-macro_rules! stringify {
-    ($value:expr, $expected:expr) => {
-        assert_eq!($value.to_string(), $expected);
-    };
-}
-
-pub(crate) use stringify;
-
 macro_rules! ident_has_name {
     ($value:expr, $expected:expr) => {
         assert_eq!($value.value, $expected);

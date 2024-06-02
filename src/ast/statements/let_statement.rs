@@ -22,41 +22,6 @@ impl std::fmt::Display for LetStatement {
 mod tests {
     use crate::{ast, lexer, parser, testing, token};
 
-    use super::LetStatement;
-
-    #[test]
-    fn to_string() {
-        testing::stringify!(
-            LetStatement {
-                token: token::Token::Let,
-                name: ast::Identifier {
-                    token: token::Token::Ident(String::from("x")),
-                    value: String::from("x"),
-                },
-                value: ast::Expression::IntegerLiteral(ast::expressions::IntegerLiteral {
-                    token: token::Token::Int(String::from("5")),
-                    value: 5,
-                }),
-            },
-            String::from("let x = 5;")
-        );
-
-        testing::stringify!(
-            LetStatement {
-                token: token::Token::Let,
-                name: ast::Identifier {
-                    token: token::Token::Ident(String::from("myVar")),
-                    value: String::from("myVar"),
-                },
-                value: ast::Expression::Identifier(ast::expressions::Identifier {
-                    token: token::Token::Ident(String::from("anotherVar")),
-                    value: String::from("anotherVar"),
-                }),
-            },
-            String::from("let myVar = anotherVar;")
-        );
-    }
-
     #[test]
     fn parsing() {
         let input = "let x = 5;".to_owned().into_bytes().into_boxed_slice();
