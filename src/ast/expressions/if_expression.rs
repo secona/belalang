@@ -91,14 +91,13 @@ mod tests {
             "x",
         );
 
+        // testing the alternative block
         let alt = if_expr.alternative.as_ref().expect("alternative is None");
 
         assert_eq!(alt.token, token::Token::LBrace);
 
-        testing::stmt!(
-            &alt.statements[0],
-            ast::Statement::ExpressionStatement = "y"
-        );
+        let stmt_0 = testing::as_variant!(&alt.statements[0], ast::Statement::ExpressionStatement);
+        testing::expr!(&stmt_0.expression, ast::Expression::Identifier = "y");
     }
 
     #[test]
@@ -130,14 +129,18 @@ mod tests {
         assert!(if_expr.alternative.is_none());
         assert_eq!(if_expr.token, token::Token::If);
 
-        testing::stmt!(
+        // testing consequence block
+        let stmt_0 = testing::as_variant!(
             &if_expr.consequence.statements[0],
-            ast::Statement::LetStatement = "let a = 10;"
+            ast::Statement::LetStatement
         );
+        testing::ident!(stmt_0.name, "a");
+        testing::expr!(&stmt_0.value, ast::Expression::IntegerLiteral = 10);
 
-        testing::stmt!(
+        let stmt_1 = testing::as_variant!(
             &if_expr.consequence.statements[1],
-            ast::Statement::ExpressionStatement = "x"
+            ast::Statement::ExpressionStatement
         );
+        testing::expr!(&stmt_1.expression, ast::Expression::Identifier = "x");
     }
 }

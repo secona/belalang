@@ -38,16 +38,6 @@ macro_rules! expr {
 
 pub(crate) use expr;
 
-macro_rules! stmt {
-    ($value:expr, $variant:path = $expected:expr) => {
-        let v = testing::as_variant!($value, $variant);
-
-        assert_eq!(v.to_string(), $expected);
-    };
-}
-
-pub(crate) use stmt;
-
 macro_rules! infix {
     ($value:expr, $left_variant:path = $left:expr, $op:expr, $right_variant:path = $right:expr) => {
         let v = testing::as_variant!($value, ast::Expression::InfixExpression);
