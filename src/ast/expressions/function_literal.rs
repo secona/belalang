@@ -45,8 +45,8 @@ mod tests {
 
         assert_eq!(function.params.len(), 2);
 
-        testing::ident!(function.params[0], "x");
-        testing::ident!(function.params[1], "y");
+        testing::ident_has_name!(function.params[0], "x");
+        testing::ident_has_name!(function.params[1], "y");
 
         assert_eq!(function.body.statements.len(), 1);
 
@@ -55,11 +55,12 @@ mod tests {
             ast::Statement::ExpressionStatement
         );
 
-        testing::infix!(
-            &body_stmt.expression,
-            ast::Expression::Identifier = "x",
-            "+",
-            ast::Expression::Identifier = "y"
+        testing::expr_variant!(
+            &body_stmt.expression, Infix => (
+                ast::Expression::Identifier = "x",
+                "+",
+                ast::Expression::Identifier = "y"
+            )
         );
     }
 
@@ -84,7 +85,7 @@ mod tests {
             let function = testing::as_variant!(&stmt.expression, ast::Expression::FunctionLiteral);
 
             for (i, exp) in test.1.iter().enumerate() {
-                testing::ident!(function.params[i], *exp);
+                testing::ident_has_name!(function.params[i], *exp);
             }
         }
     }

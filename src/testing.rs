@@ -18,37 +18,32 @@ macro_rules! stringify {
 
 pub(crate) use stringify;
 
-macro_rules! ident {
+macro_rules! ident_has_name {
     ($value:expr, $expected:expr) => {
         assert_eq!($value.value, $expected);
         assert_eq!($value.token.to_string(), $expected.to_string());
     };
 }
 
-pub(crate) use ident;
+pub(crate) use ident_has_name;
 
-macro_rules! expr {
+macro_rules! expr_variant {
     ($value:expr, $variant:path = $expected:expr) => {
         let v = testing::as_variant!($value, $variant);
 
         assert_eq!(v.value, $expected);
         assert_eq!(v.token.to_string(), $expected.to_string());
     };
-}
-
-pub(crate) use expr;
-
-macro_rules! infix {
-    ($value:expr, $left_variant:path = $left:expr, $op:expr, $right_variant:path = $right:expr) => {
+    ($value:expr, Infix => ($left_variant:path = $left:expr, $op:expr, $right_variant:path = $right:expr)) => {
         let v = testing::as_variant!($value, ast::Expression::InfixExpression);
 
-        testing::expr!(&*v.left, $left_variant = $left);
-        testing::expr!(&*v.right, $right_variant = $right);
+        testing::expr_variant!(&*v.left, $left_variant = $left);
+        testing::expr_variant!(&*v.right, $right_variant = $right);
         assert_eq!(v.operator, $op.to_string());
     };
 }
 
-pub(crate) use infix;
+pub(crate) use expr_variant;
 
 use crate::{evaluator, lexer, object, parser};
 
