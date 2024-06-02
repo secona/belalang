@@ -16,6 +16,7 @@ pub use infix_expression::*;
 pub use integer_literal::*;
 pub use prefix_expression::*;
 
+#[derive(Debug, Clone)]
 pub enum Expression {
     BooleanExpression(BooleanExpression),
     CallExpression(CallExpression),

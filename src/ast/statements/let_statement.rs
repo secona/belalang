@@ -2,6 +2,7 @@ use crate::ast::expressions::Expression;
 use crate::ast::Identifier;
 use crate::token;
 
+#[derive(Debug, Clone)]
 pub struct LetStatement {
     pub token: token::Token,
     pub name: Identifier,

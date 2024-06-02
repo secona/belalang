@@ -1,6 +1,7 @@
 use super::Expression;
 use crate::token;
 
+#[derive(Debug, Clone)]
 pub struct PrefixExpression {
     pub token: token::Token,
     pub operator: String,

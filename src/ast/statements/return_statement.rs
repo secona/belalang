@@ -1,6 +1,7 @@
 use crate::ast::expressions::Expression;
 use crate::token;
 
+#[derive(Debug, Clone)]
 pub struct ReturnStatement {
     pub token: token::Token,
     pub return_value: Expression,

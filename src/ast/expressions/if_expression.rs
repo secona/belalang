@@ -1,6 +1,7 @@
 use super::Expression;
 use crate::{ast::BlockStatement, token};
 
+#[derive(Debug, Clone)]
 pub struct IfExpression {
     pub token: token::Token,
     pub condition: Box<Expression>,

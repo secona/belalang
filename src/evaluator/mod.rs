@@ -1,20 +1,16 @@
-#![allow(dead_code)]
-
 pub mod error;
-
-use std::{cell::RefCell, rc::Rc};
 
 use crate::{ast, object};
 
 pub struct Evaluator<'a> {
     program: ast::Program,
-    env: Rc<RefCell<object::Environment<'a>>>,
+    env: object::Environment<'a>,
 }
 
 impl Default for Evaluator<'_> {
     fn default() -> Self {
         Self {
-            env: Rc::new(RefCell::new(object::Environment::default())),
+            env: object::Environment::default(),
             program: ast::Program {
                 statements: Vec::new(),
             },
@@ -22,15 +18,17 @@ impl Default for Evaluator<'_> {
     }
 }
 
-impl Evaluator<'_> {
+impl<'a> Evaluator<'a> {
     pub fn new(program: ast::Program) -> Self {
         Self {
             program,
-            env: Rc::new(RefCell::new(object::Environment::default())),
+            env: object::Environment::default(),
         }
     }
 
-    pub fn evaluate(&mut self) -> Result<object::Object, error::EvaluatorError> {
+    pub fn evaluate(
+        &mut self,
+    ) -> Result<object::Object<'a>, error::EvaluatorError<'a>> {
         let mut statements = Vec::with_capacity(self.program.statements.len());
         std::mem::swap(&mut statements, &mut self.program.statements);
 
@@ -40,7 +38,7 @@ impl Evaluator<'_> {
     pub fn evaluate_statements(
         &mut self,
         statements: Vec<ast::Statement>,
-    ) -> Result<object::Object, error::EvaluatorError> {
+    ) -> Result<object::Object<'a>, error::EvaluatorError<'a>> {
         let mut result: object::Object = object::Object::Null;
 
         for statement in statements {
@@ -54,7 +52,7 @@ impl Evaluator<'_> {
         Ok(result)
     }
 
-    fn eval(&mut self, node: ast::Node) -> Result<object::Object, error::EvaluatorError> {
+    fn eval(&mut self, node: ast::Node) -> Result<object::Object<'a>, error::EvaluatorError<'a>> {
         match node {
             ast::Node::Expression(expression) => self.eval_expression(expression),
             ast::Node::Statement(statement) => self.eval_statement(statement),
@@ -65,7 +63,7 @@ impl Evaluator<'_> {
     fn eval_expression(
         &mut self,
         expression: ast::Expression,
-    ) -> Result<object::Object, error::EvaluatorError> {
+    ) -> Result<object::Object<'a>, error::EvaluatorError<'a>> {
         match expression {
             ast::Expression::IntegerLiteral(int_lit) => Ok(object::Object::Integer(int_lit.value)),
             ast::Expression::BooleanExpression(bool_expr) => {
@@ -136,11 +134,9 @@ impl Evaluator<'_> {
                 Ok(object::Object::Null)
             }
             ast::Expression::Identifier(node) => {
-                let env = self.env.borrow();
-                let value = env.get(&node.value);
-                match value {
+                match self.env.get(&node.value) {
                     // TODO: change this clone. weird ahh implementation.
-                    Some(value) => Ok(value.clone()),
+                    Some(value) => Ok(value),
                     None => Err(error::EvaluatorError::IdentifierNotFound(node.value)),
                 }
             }
@@ -151,7 +147,7 @@ impl Evaluator<'_> {
     fn eval_statement(
         &mut self,
         statement: ast::Statement,
-    ) -> Result<object::Object, error::EvaluatorError> {
+    ) -> Result<object::Object<'a>, error::EvaluatorError<'a>> {
         match statement {
             ast::Statement::ExpressionStatement(node) => {
                 self.eval(ast::Node::Expression(node.expression))
@@ -176,7 +172,7 @@ impl Evaluator<'_> {
             ast::Statement::LetStatement(let_statement) => {
                 let value = self.eval(ast::Node::Expression(let_statement.value))?;
 
-                self.env.borrow_mut().set(&let_statement.name.value, value);
+                self.env.set(&let_statement.name.value, value);
                 Ok(object::Object::Null)
             }
         }

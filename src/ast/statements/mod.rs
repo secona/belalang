@@ -8,6 +8,7 @@ pub use expression_statement::*;
 pub use let_statement::*;
 pub use return_statement::*;
 
+#[derive(Debug, Clone)]
 pub enum Statement {
     BlockStatement(BlockStatement),
     ExpressionStatement(ExpressionStatement),
