@@ -28,7 +28,7 @@ mod tests {
     use crate::{ast, lexer, parser, testing, token};
 
     #[test]
-    fn works_without_else() {
+    fn without_else() {
         let input = "if (x < y) { x }"
             .to_owned()
             .into_bytes()
@@ -42,29 +42,34 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::ExpressionStatement");
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression)
-            .expect("not a(n) ast::Expression::IfExpression");
+        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression);
 
-        assert!(if_expr.alternative.is_none());
-        assert_eq!(if_expr.condition.to_string(), "(x < y)");
         assert_eq!(if_expr.token, token::Token::If);
 
-        assert_eq!(
-            testing::as_variant!(
-                &if_expr.consequence.statements[0],
-                ast::Statement::ExpressionStatement
+        // testing the condition
+        testing::expr_variant!(
+            &*if_expr.condition, Infix => (
+                ast::Expression::Identifier = "x",
+                "<",
+                ast::Expression::Identifier = "y"
             )
-            .expect("not a(n) ast::Statement::ExpressionStatement")
-            .to_string(),
-            "x"
         );
+
+        // testing the consequence block
+        let stmt_1 = testing::as_variant!(
+            &if_expr.consequence.statements[0],
+            ast::Statement::ExpressionStatement
+        );
+        testing::expr_variant!(&stmt_1.expression, ast::Expression::Identifier = "x");
+
+        // testing the alternative block
+        assert!(if_expr.alternative.is_none());
     }
 
     #[test]
-    fn works_with_else() {
+    fn with_else() {
         let input = "if (x < y) { x } else { y }"
             .to_owned()
             .into_bytes()
@@ -74,42 +79,41 @@ mod tests {
         let mut parser = parser::Parser::new(lexer);
 
         let program = parser.parse_program().expect("got parser errors");
-
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::Statement::ExpressionStatement");
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression)
-            .expect("not a(n) ast::Expression::IfExpression");
+        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression);
 
         assert_eq!(if_expr.token, token::Token::If);
 
-        assert_eq!(if_expr.condition.to_string(), "(x < y)");
-
-        assert_eq!(
-            testing::as_variant!(
-                &if_expr.consequence.statements[0],
-                ast::Statement::ExpressionStatement
+        // testing the condition
+        testing::expr_variant!(
+            &*if_expr.condition, Infix => (
+                ast::Expression::Identifier = "x",
+                "<",
+                ast::Expression::Identifier = "y"
             )
-            .expect("not a(n) ast::Statement::ExpressionStatement")
-            .to_string(),
-            "x",
         );
 
-        let alt = if_expr.alternative.as_ref().expect("alternative is None");
+        // testing the consequence block
+        let stmt_0 = testing::as_variant!(
+            &if_expr.consequence.statements[0],
+            ast::Statement::ExpressionStatement
+        );
+        testing::expr_variant!(&stmt_0.expression, ast::Expression::Identifier = "x");
 
+        // testing the alternative block
+        let alt = if_expr.alternative.as_ref().expect("alternative is None");
         assert_eq!(alt.token, token::Token::LBrace);
 
-        testing::stmt!(
-            &alt.statements[0],
-            ast::Statement::ExpressionStatement = "y"
-        );
+        let stmt_0 = testing::as_variant!(&alt.statements[0], ast::Statement::ExpressionStatement);
+        testing::expr_variant!(&stmt_0.expression, ast::Expression::Identifier = "y");
     }
 
     #[test]
-    fn works_multiple_statements() {
+    fn multiple_statements() {
         let input = "if (x < y) { let a = 10; x }"
             .to_owned()
             .into_bytes()
@@ -123,30 +127,33 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::Statement::ExpressionStatement");
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression)
-            .expect("not a(n) ast::Statement::ExpressionStatement");
+        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression);
 
-        testing::infix!(
-            if_expr.condition.as_ref(),
-            ast::Expression::Identifier = "x",
-            "<",
-            ast::Expression::Identifier = "y"
+        testing::expr_variant!(
+            if_expr.condition.as_ref(), Infix => (
+                ast::Expression::Identifier = "x",
+                "<",
+                ast::Expression::Identifier = "y"
+            )
         );
 
         assert!(if_expr.alternative.is_none());
         assert_eq!(if_expr.token, token::Token::If);
 
-        testing::stmt!(
+        // testing consequence block
+        let stmt_0 = testing::as_variant!(
             &if_expr.consequence.statements[0],
-            ast::Statement::LetStatement = "let a = 10;"
+            ast::Statement::LetStatement
         );
+        testing::ident_has_name!(stmt_0.name, "a");
+        testing::expr_variant!(&stmt_0.value, ast::Expression::IntegerLiteral = 10);
 
-        testing::stmt!(
+        let stmt_1 = testing::as_variant!(
             &if_expr.consequence.statements[1],
-            ast::Statement::ExpressionStatement = "x"
+            ast::Statement::ExpressionStatement
         );
+        testing::expr_variant!(&stmt_1.expression, ast::Expression::Identifier = "x");
     }
 }

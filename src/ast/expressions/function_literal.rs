@@ -40,30 +40,28 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                .expect("not a(n) ast::Statement::ExpressionStatement");
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-        let function = testing::as_variant!(&stmt.expression, ast::Expression::FunctionLiteral)
-            .expect("not a(n) ast::Expression::FunctionLiteral");
+        let function = testing::as_variant!(&stmt.expression, ast::Expression::FunctionLiteral);
 
         assert_eq!(function.params.len(), 2);
 
-        testing::ident!(function.params[0], "x");
-        testing::ident!(function.params[1], "y");
+        testing::ident_has_name!(function.params[0], "x");
+        testing::ident_has_name!(function.params[1], "y");
 
         assert_eq!(function.body.statements.len(), 1);
 
         let body_stmt = testing::as_variant!(
             &function.body.statements[0],
             ast::Statement::ExpressionStatement
-        )
-        .expect("not a(n) ast::Statement::ExpressionStatement");
+        );
 
-        testing::infix!(
-            &body_stmt.expression,
-            ast::Expression::Identifier = "x",
-            "+",
-            ast::Expression::Identifier = "y"
+        testing::expr_variant!(
+            &body_stmt.expression, Infix => (
+                ast::Expression::Identifier = "x",
+                "+",
+                ast::Expression::Identifier = "y"
+            )
         );
     }
 
@@ -83,14 +81,12 @@ mod tests {
             let program = parser.parse_program().expect("got parser errors");
 
             let stmt =
-                testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement)
-                    .expect("not a(n) ast::Statement::ExpressionStatement");
+                testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
 
-            let function = testing::as_variant!(&stmt.expression, ast::Expression::FunctionLiteral)
-                .expect("not a(n) ast::Expression::FunctionLiteral");
+            let function = testing::as_variant!(&stmt.expression, ast::Expression::FunctionLiteral);
 
             for (i, exp) in test.1.iter().enumerate() {
-                testing::ident!(function.params[i], *exp);
+                testing::ident_has_name!(function.params[i], *exp);
             }
         }
     }
