@@ -1,0 +1,10 @@
+[package]
+name = "belalang_cli"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+belalang = { path = ".." }
+rustyline = "14.0.0"

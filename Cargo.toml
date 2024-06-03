@@ -1,3 +1,5 @@
+workspace = { members = ["cli"] }
+
 [package]
 name = "belalang"
 version = "0.1.0"
