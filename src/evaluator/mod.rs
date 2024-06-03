@@ -1,23 +1,25 @@
 #![allow(dead_code)]
 
+pub mod environment;
 pub mod error;
+pub mod object;
 
 use crate::{
     ast::{self, Expression, Node, Statement},
-    object::{self, Object},
+    evaluator::environment::Environment,
+    evaluator::object::Object,
+    evaluator::error::EvaluatorError,
 };
-
-use self::error::EvaluatorError;
 
 pub struct Evaluator {
     program: ast::Program,
-    env: object::Environment,
+    env: Environment,
 }
 
 impl Default for Evaluator {
     fn default() -> Self {
         Self {
-            env: object::Environment::default(),
+            env: Environment::default(),
             program: ast::Program {
                 statements: Vec::new(),
             },
@@ -29,7 +31,7 @@ impl Evaluator {
     pub fn new(program: ast::Program) -> Self {
         Self {
             program,
-            env: object::Environment::default(),
+            env: Environment::default(),
         }
     }
 
@@ -132,7 +134,12 @@ impl Evaluator {
                 let function = self.eval_expression(*call_expr.function)?;
                 let args = self.eval_expressions(call_expr.args)?;
 
-                if let Object::Function { params, body, mut env } = function {
+                if let Object::Function {
+                    params,
+                    body,
+                    mut env,
+                } = function
+                {
                     for (param, arg) in params.iter().zip(args) {
                         env.set(&param.value, arg);
                     }
@@ -144,7 +151,7 @@ impl Evaluator {
                 } else {
                     Err(EvaluatorError::NotAFunction())
                 }
-            },
+            }
             Expression::FunctionLiteral(fn_lit) => Ok(Object::Function {
                 params: fn_lit.params,
                 body: fn_lit.body,
@@ -199,7 +206,8 @@ impl Evaluator {
 
 #[cfg(test)]
 mod tests {
-    use crate::{object, testing};
+    use crate::testing;
+    use crate::evaluator::object;
 
     #[test]
     fn integer() {

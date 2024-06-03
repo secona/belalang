@@ -37,11 +37,12 @@ macro_rules! expr_variant {
 
 pub(crate) use expr_variant;
 
-use crate::{evaluator, lexer, object, parser};
+use crate::{
+    evaluator::{self, object},
+    lexer, parser,
+};
 
-pub fn test_eval(
-    input: String,
-) -> Result<object::Object, evaluator::error::EvaluatorError> {
+pub fn test_eval(input: String) -> Result<object::Object, evaluator::error::EvaluatorError> {
     let input = input.as_bytes().into();
     let lexer = lexer::Lexer::new(input);
     let mut parser = parser::Parser::new(lexer);

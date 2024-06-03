@@ -62,8 +62,7 @@ impl Environment {
 
 #[cfg(test)]
 mod tests {
-    use crate::object::Object;
-
+    use crate::evaluator::Object;
     use super::Environment;
 
     #[test]

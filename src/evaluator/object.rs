@@ -1,8 +1,5 @@
-mod environment;
-
-pub use environment::Environment;
-
 use crate::ast;
+use crate::evaluator::Environment;
 
 #[derive(Debug, Clone)]
 pub enum Object {
