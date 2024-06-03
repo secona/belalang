@@ -118,8 +118,7 @@ impl Evaluator {
 
                 if let Object::Boolean(value) = condition {
                     if value == true {
-                        return self
-                            .eval_statement(Statement::BlockStatement(expr.consequence));
+                        return self.eval_statement(Statement::BlockStatement(expr.consequence));
                     }
                 }
 
@@ -131,16 +130,39 @@ impl Evaluator {
             }
             Expression::CallExpression(_) => todo!(),
             Expression::FunctionLiteral(_) => todo!(),
-            Expression::Identifier(_) => todo!(),
+            Expression::Identifier(ident) => match self.env.get(&ident.value) {
+                Some(value) => Ok(value.clone()),
+                None => Ok(Object::Null),
+            },
         }
     }
 
     fn eval_statement(&mut self, statement: Statement) -> Result<Object, EvaluatorError> {
         match statement {
             Statement::ExpressionStatement(node) => self.eval_expression(node.expression),
-            Statement::BlockStatement(_) => todo!(),
-            Statement::LetStatement(_) => todo!(),
-            Statement::ReturnStatement(_) => todo!(),
+            Statement::BlockStatement(block_stmt) => {
+                let mut result = Object::Null;
+
+                for statement in block_stmt.statements {
+                    if let Statement::ReturnStatement(_) = &statement {
+                        result = self.eval_statement(statement)?;
+                        return Ok(result);
+                    }
+
+                    result = self.eval_statement(statement)?;
+                }
+
+                Ok(result)
+            },
+            Statement::LetStatement(let_stmt) => {
+                let value = self.eval_expression(let_stmt.value)?;
+                self.env.set(&let_stmt.name.value, value);
+                Ok(Object::Null)
+            }
+            Statement::ReturnStatement(return_stmt) => {
+                let value = self.eval_expression(return_stmt.return_value)?;
+                Ok(value)
+            },
         }
     }
 }
