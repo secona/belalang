@@ -128,13 +128,43 @@ impl Evaluator {
 
                 Ok(Object::Null)
             }
-            Expression::CallExpression(_) => todo!(),
-            Expression::FunctionLiteral(_) => todo!(),
+            Expression::CallExpression(call_expr) => {
+                let function = self.eval_expression(*call_expr.function)?;
+                let args = self.eval_expressions(call_expr.args)?;
+
+                if let Object::Function { params, body, mut env } = function {
+                    for (param, arg) in params.iter().zip(args) {
+                        env.set(&param.value, arg);
+                    }
+
+                    let mut ev = Evaluator::default();
+                    ev.env = env;
+
+                    ev.eval_statement(Statement::BlockStatement(body))
+                } else {
+                    Err(EvaluatorError::NotAFunction())
+                }
+            },
+            Expression::FunctionLiteral(fn_lit) => Ok(Object::Function {
+                params: fn_lit.params,
+                body: fn_lit.body,
+                env: self.env.capture(),
+            }),
             Expression::Identifier(ident) => match self.env.get(&ident.value) {
                 Some(value) => Ok(value.clone()),
                 None => Ok(Object::Null),
             },
         }
+    }
+
+    fn eval_expressions(&mut self, exprs: Vec<Expression>) -> Result<Vec<Object>, EvaluatorError> {
+        let mut result = Vec::with_capacity(exprs.len());
+
+        for expr in exprs {
+            result.push(self.eval_expression(expr)?);
+        }
+
+        Ok(result)
     }
 
     fn eval_statement(&mut self, statement: Statement) -> Result<Object, EvaluatorError> {
@@ -153,7 +183,7 @@ impl Evaluator {
                 }
 
                 Ok(result)
-            },
+            }
             Statement::LetStatement(let_stmt) => {
                 let value = self.eval_expression(let_stmt.value)?;
                 self.env.set(&let_stmt.name.value, value);
@@ -162,7 +192,7 @@ impl Evaluator {
             Statement::ReturnStatement(return_stmt) => {
                 let value = self.eval_expression(return_stmt.return_value)?;
                 Ok(value)
-            },
+            }
         }
     }
 }

@@ -2,13 +2,19 @@ mod environment;
 
 pub use environment::Environment;
 
-// use crate::ast;
+use crate::ast;
 
 #[derive(Debug, Clone)]
 pub enum Object {
     Null,
     Integer(i64),
     Boolean(bool),
+
+    Function {
+        params: Vec<ast::Identifier>,
+        body: ast::BlockStatement,
+        env: Environment,
+    }
 }
 
 impl std::fmt::Display for Object {
@@ -17,6 +23,7 @@ impl std::fmt::Display for Object {
             Self::Null => f.write_str("null"),
             Self::Integer(i) => f.write_str(&format!("{}", i)),
             Self::Boolean(b) => f.write_str(&format!("{}", b)),
+            Self::Function { .. } => f.write_str(""),
         }
     }
 }

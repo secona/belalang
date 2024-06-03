@@ -10,4 +10,7 @@ pub enum EvaluatorError {
 
     #[error("identifier not found: {0}")]
     IdentifierNotFound(String),
+
+    #[error("not a function")]
+    NotAFunction(),
 }
