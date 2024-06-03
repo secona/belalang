@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 belalang = { path = ".." }
+clap = { version = "4.5.4", features = ["derive"] }
 rustyline = "14.0.0"
