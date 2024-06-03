@@ -1,40 +1,62 @@
-use std::collections::HashMap;
+use std::{
+    cell::{Ref, RefCell},
+    collections::HashMap,
+    rc::Rc,
+};
 
 #[derive(Debug, Clone)]
-pub struct Environment<'a> {
-    store: HashMap<String, super::Object<'a>>,
-    outer: Option<&'a Environment<'a>>,
+pub struct Environment {
+    stores: Vec<Rc<RefCell<HashMap<String, super::Object>>>>,
 }
 
-impl Default for Environment<'_> {
+impl Default for Environment {
     fn default() -> Self {
-        Self {
-            store: HashMap::new(),
-            outer: None,
-        }
+        let mut stores = Vec::new();
+        stores.push(Rc::new(RefCell::new(HashMap::new())));
+
+        Self { stores }
     }
 }
 
-impl<'a> Environment<'a> {
-    pub fn subenv(outer: &'a Environment<'a>) -> Self {
-        Self {
-            store: HashMap::new(),
-            outer: Some(outer),
+impl Environment {
+    pub fn capture(&self) -> Environment {
+        let mut stores = Vec::with_capacity(self.stores.len());
+
+        for store in &self.stores {
+            stores.push(Rc::clone(store));
         }
+
+        stores.push(Rc::new(RefCell::new(HashMap::new())));
+
+        Environment { stores }
     }
 
-    pub fn get(&self, key: &String) -> Option<&super::Object> {
-        match self.store.get(key) {
-            Some(value) => Some(value),
-            None => match self.outer {
-                Some(outer) => outer.get(key),
-                None => None,
-            },
-        }
+    pub fn push_new(&mut self) {
+        let new_store = Rc::new(RefCell::new(HashMap::new()));
+        self.stores.push(new_store);
     }
 
-    pub fn set(&mut self, key: &String, value: super::Object<'a>) {
-        self.store.insert(key.clone(), value);
+    pub fn pop(&mut self) {
+        let new_len = self.stores.len() - 1;
+        self.stores.truncate(new_len);
+    }
+
+    pub fn get<'a>(&'a self, key: &String) -> Option<Ref<'a, super::Object>> {
+        for store in self.stores.iter().rev() {
+            let value = Ref::filter_map(store.borrow(), |v| v.get(key)).ok();
+
+            if let Some(v) = value {
+                return Some(v);
+            }
+        }
+
+        None
+    }
+
+    pub fn set(&mut self, key: &String, value: super::Object) {
+        if let Some(store) = self.stores.last_mut() {
+            store.borrow_mut().insert(key.clone(), value);
+        }
     }
 }
 
@@ -47,53 +69,33 @@ mod tests {
     #[test]
     fn set() {
         let mut env = Environment::default();
-
         env.set(&String::from("name"), Object::Integer(10));
 
-        assert_eq!(env.store.len(), 1);
-        assert_eq!(*env.store.get("name").unwrap(), Object::Integer(10));
+        assert_eq!(env.stores.len(), 1);
+        let last_store = env.stores.last().unwrap().borrow();
+        assert_eq!(*last_store.get("name").unwrap(), Object::Integer(10));
     }
 
     #[test]
     fn get() {
         let mut env = Environment::default();
-
-        env.set(&String::from("name"), Object::Integer(10));
+        env.set(&"name".into(), Object::Integer(10));
 
         let value = env.get(&String::from("name")).unwrap();
-
         assert_eq!(*value, Object::Integer(10));
     }
 
     #[test]
-    fn set_with_outer() {
-        let mut outer = Environment::default();
-        outer.set(&String::from("outer"), Object::Integer(1));
-
-        let mut env = Environment::subenv(&outer);
-
+    fn capture() {
+        let mut env = Environment::default();
         env.set(&String::from("name"), Object::Integer(10));
-        let outer = env.outer.unwrap();
 
-        assert_eq!(env.store.len(), 1);
-        assert_eq!(outer.store.len(), 1);
+        let captured_env = env.capture();
+        env.set(&String::from("name"), Object::Integer(1));
 
-        assert_eq!(*env.store.get("name").unwrap(), Object::Integer(10));
-        assert_eq!(*outer.store.get("outer").unwrap(), Object::Integer(1));
-    }
-
-    #[test]
-    fn get_with_outer() {
-        let mut outer = Environment::default();
-        outer.set(&String::from("outer"), Object::Integer(1));
-
-        let mut env = Environment::subenv(&outer);
-
-        env.set(&String::from("name"), Object::Integer(10));
-        let env_value = env.get(&String::from("name")).unwrap();
-        let outer_value = outer.get(&String::from("outer")).unwrap();
-
-        assert_eq!(*env_value, Object::Integer(10));
-        assert_eq!(*outer_value, Object::Integer(1));
+        assert_eq!(
+            *env.get(&"name".into()).unwrap(),
+            *captured_env.get(&"name".into()).unwrap()
+        );
     }
 }
