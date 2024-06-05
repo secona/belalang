@@ -31,14 +31,22 @@ impl Environment {
         Environment { stores }
     }
 
-    pub fn push_new(&mut self) {
-        let new_store = Rc::new(RefCell::new(HashMap::new()));
-        self.stores.push(new_store);
+    pub fn has(&self, key: &String) -> bool {
+        for store in self.stores.iter().rev() {
+            if store.borrow().contains_key(key) {
+                return true;
+            }
+        }
+
+        false
     }
 
-    pub fn pop(&mut self) {
-        let new_len = self.stores.len() - 1;
-        self.stores.truncate(new_len);
+    pub fn has_here(&self, key: &String) -> bool {
+        if let Some(store) = self.stores.last() {
+            return store.borrow().contains_key(key);
+        }
+
+        false
     }
 
     pub fn get<'a>(&'a self, key: &String) -> Option<Ref<'a, super::Object>> {

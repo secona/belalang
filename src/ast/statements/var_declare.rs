@@ -1,17 +1,18 @@
-use crate::ast::expressions::Expression;
-use crate::ast::Identifier;
-use crate::token;
+use crate::{
+    ast::{Expression, Identifier},
+    token,
+};
 
 #[derive(Debug, Clone)]
-pub struct LetStatement {
+pub struct VarDeclare {
     pub token: token::Token,
     pub name: Identifier,
     pub value: Expression,
 }
 
-impl std::fmt::Display for LetStatement {
+impl std::fmt::Display for VarDeclare {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "let {} = {};", self.name, self.value)
+        write!(f, "{} := {};", self.name, self.value)
     }
 }
 
@@ -21,13 +22,13 @@ mod tests {
 
     #[test]
     fn parsing() {
-        let program = testing::test_parse("let x = 5;");
+        let program = testing::test_parse("x := 5;");
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::LetStatement);
+        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::VarDeclare);
 
-        assert_eq!(stmt.token, token::Token::Let);
+        assert_eq!(stmt.token, token::Token::Walrus);
         assert_eq!(stmt.name.token, token::Token::Ident(String::from("x")));
         assert_eq!(stmt.name.value, String::from("x"));
 

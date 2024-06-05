@@ -115,7 +115,7 @@ mod tests {
 
     #[test]
     fn parsing_with_multiple_statements() {
-        let input = "if (x < y) { let a = 10; x }"
+        let input = "if (x < y) { a := 10; x }"
             .to_owned()
             .into_bytes()
             .into_boxed_slice();
@@ -146,7 +146,7 @@ mod tests {
         // testing consequence block
         let stmt_0 = testing::as_variant!(
             &if_expr.consequence.statements[0],
-            ast::Statement::LetStatement
+            ast::Statement::VarDeclare
         );
         testing::ident_has_name!(stmt_0.name, "a");
         testing::expr_variant!(&stmt_0.value, ast::Expression::IntegerLiteral = 10);

@@ -16,5 +16,8 @@ pub enum EvaluatorError {
     NotAFunction(),
 
     #[error("overwriting builtin: {0}")]
-    OverwriteBuiltin(String)
+    OverwriteBuiltin(String),
+
+    #[error("variable redeclaration: {0}")]
+    VariableRedeclaration(String),
 }

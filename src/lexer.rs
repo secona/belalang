@@ -82,6 +82,13 @@ impl Lexer {
                     }
                     _ => tok = Token::Bang,
                 },
+                b':' => match self.peek_char() {
+                    Some(pk) if *pk == b'=' => {
+                        tok = Token::Walrus;
+                        self.read_char();
+                    }
+                    _ => tok = Token::Illegal(" ".into())
+                }
                 b'*' => tok = Token::Asterisk,
                 b'/' => tok = Token::Slash,
                 b'>' => tok = Token::GT,
@@ -150,12 +157,12 @@ mod tests {
 
     #[test]
     fn tokens() {
-        let input = "=+(){},;!-/*5;5 < 10 > 5;"
+        let input = "=+(){},;!-/*5;5 < 10 > 5;:="
             .to_owned()
             .into_bytes()
             .into_boxed_slice();
 
-        let expected: [Token; 20] = [
+        let expected: [Token; 21] = [
             Token::Assign,
             Token::Plus,
             Token::LParen,
@@ -176,6 +183,7 @@ mod tests {
             Token::GT,
             Token::Int(String::from("5")),
             Token::Semicolon,
+            Token::Walrus,
         ];
 
         let mut lexer = Lexer::new(input);

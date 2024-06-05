@@ -190,19 +190,34 @@ impl Evaluator {
 
                 Ok(result)
             }
-            Statement::LetStatement(let_stmt) => {
-                let name = &let_stmt.name.value;
+            Statement::ReturnStatement(return_stmt) => {
+                let value = self.eval_expression(return_stmt.return_value)?;
+                Ok(value)
+            }
+            Statement::VarAssign(var_assign) => {
+                let name = &var_assign.name.value;
 
                 if self.builtins.has_fn(name) {
                     return Err(EvaluatorError::OverwriteBuiltin(name.to_string()))
                 }
 
-                let value = self.eval_expression(let_stmt.value)?;
-                self.env.set(&let_stmt.name.value, value);
-                Ok(Object::Null)
+                let value = self.eval_expression(var_assign.value)?;
+                self.env.set(&var_assign.name.value, value.clone());
+                Ok(value)
             }
-            Statement::ReturnStatement(return_stmt) => {
-                let value = self.eval_expression(return_stmt.return_value)?;
+            Statement::VarDeclare(var_declare) => {
+                let name = &var_declare.name.value;
+
+                if self.env.has_here(name) {
+                    return Err(EvaluatorError::VariableRedeclaration(name.clone()));
+                }
+
+                if self.builtins.has_fn(name) {
+                    return Err(EvaluatorError::OverwriteBuiltin(name.to_string()))
+                }
+
+                let value = self.eval_expression(var_declare.value)?;
+                self.env.set(&var_declare.name.value, value.clone());
                 Ok(value)
             }
         }
@@ -329,13 +344,13 @@ if (10 > 1) {
     }
 
     #[test]
-    fn let_statements() {
-        testing::eval!("let a = 5; a;", object::Object::Integer = 5);
-        testing::eval!("let a = 5 * 10; a;", object::Object::Integer = 50);
-        testing::eval!("let a = 10; let b = a; b;", object::Object::Integer = 10);
+    fn variable_declaration() {
+        testing::eval!("a := 5; a;", object::Object::Integer = 5);
+        testing::eval!("a := 5 * 10; a;", object::Object::Integer = 50);
+        testing::eval!("a := 10; b := a; b;", object::Object::Integer = 10);
 
         testing::eval!(
-            "let a = 1; let b = 1; let c = a + b * 2; c;",
+            "a := 1; b := 1; c := a + b * 2; c;",
             object::Object::Integer = 3
         );
     }

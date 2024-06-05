@@ -114,40 +114,10 @@ impl Parser {
 
     fn parse_statement(&mut self) -> Option<Statement> {
         match self.curr_token {
-            token::Token::Let => self.parse_let_statement(),
             token::Token::Return => self.parse_return_statement(),
+            token::Token::Ident(_) => self.parse_ident(),
             _ => self.parse_expression_statement(),
         }
-    }
-
-    fn parse_let_statement(&mut self) -> Option<Statement> {
-        let token = self.curr_token.clone();
-
-        if !self.expect_peek(token::Token::Ident("".into())) {
-            return None;
-        }
-
-        let name = ast::Identifier {
-            token: self.curr_token.clone(),
-            value: self.curr_token.to_string(),
-        };
-
-        if !self.expect_peek(token::Token::Assign) {
-            return None;
-        }
-
-        self.next_token();
-        let value = self.parse_expression(Precedence::Lowest)?;
-
-        if self.peek_token_is(token::Token::Semicolon) {
-            self.next_token();
-        }
-
-        Some(Statement::LetStatement(ast::LetStatement {
-            name,
-            token,
-            value,
-        }))
     }
 
     fn parse_return_statement(&mut self) -> Option<Statement> {
@@ -164,6 +134,64 @@ impl Parser {
             token,
             return_value,
         }))
+    }
+
+    fn parse_ident(&mut self) -> Option<Statement> {
+        match self.peek_token {
+            token::Token::Walrus => {
+                if let token::Token::Ident(_) = &self.curr_token {
+                    let name = ast::Identifier {
+                        token: self.curr_token.clone(),
+                        value: self.curr_token.to_string(),
+                    };
+
+                    self.next_token();
+                    let token = self.curr_token.clone();
+
+                    self.next_token();
+                    let value = self.parse_expression(Precedence::Lowest)?;
+
+                    if self.peek_token_is(token::Token::Semicolon) {
+                        self.next_token();
+                    }
+
+                    Some(Statement::VarDeclare(ast::VarDeclare {
+                        token,
+                        name,
+                        value,
+                    }))
+                } else {
+                    None
+                }
+            }
+            token::Token::Assign => {
+                if let token::Token::Ident(_) = &self.curr_token {
+                    let name = ast::Identifier {
+                        token: self.curr_token.clone(),
+                        value: self.curr_token.to_string(),
+                    };
+
+                    self.next_token();
+                    let token = self.curr_token.clone();
+
+                    self.next_token();
+                    let value = self.parse_expression(Precedence::Lowest)?;
+
+                    if self.peek_token_is(token::Token::Semicolon) {
+                        self.next_token();
+                    }
+
+                    Some(Statement::VarAssign(ast::VarAssign {
+                        token,
+                        name,
+                        value,
+                    }))
+                } else {
+                    None
+                }
+            }
+            _ => self.parse_expression_statement(),
+        }
     }
 
     fn parse_expression_statement(&mut self) -> Option<Statement> {
