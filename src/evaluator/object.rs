@@ -6,6 +6,7 @@ pub enum Object {
     Null,
     Integer(i64),
     Boolean(bool),
+    Builtin(String),
 
     Function {
         params: Vec<ast::Identifier>,
@@ -20,7 +21,7 @@ impl std::fmt::Display for Object {
             Self::Null => f.write_str("null"),
             Self::Integer(i) => f.write_str(&format!("{}", i)),
             Self::Boolean(b) => f.write_str(&format!("{}", b)),
-            Self::Function { .. } => f.write_str(""),
+            _ => f.write_str(""),
         }
     }
 }

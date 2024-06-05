@@ -1,24 +1,27 @@
-#![allow(dead_code)]
-
+pub mod builtins;
 pub mod environment;
 pub mod error;
 pub mod object;
 
 use crate::{
-    ast::{self, Expression, Node, Statement},
+    ast::{self, Expression, Statement},
     evaluator::{environment::Environment, error::EvaluatorError, object::Object},
     token::Token,
 };
 
+use self::builtins::Builtins;
+
 pub struct Evaluator {
     program: ast::Program,
     env: Environment,
+    builtins: Builtins,
 }
 
 impl Default for Evaluator {
     fn default() -> Self {
         Self {
             env: Environment::default(),
+            builtins: Builtins::default(),
             program: ast::Program {
                 statements: Vec::new(),
             },
@@ -27,9 +30,10 @@ impl Default for Evaluator {
 }
 
 impl Evaluator {
-    pub fn new(program: ast::Program) -> Self {
+    pub fn new(program: ast::Program, builtins: Builtins) -> Self {
         Self {
             program,
+            builtins,
             env: Environment::default(),
         }
     }
@@ -52,14 +56,6 @@ impl Evaluator {
         }
 
         Ok(result)
-    }
-
-    fn eval(&mut self, node: Node) -> Result<Object, EvaluatorError> {
-        match node {
-            Node::Expression(expression) => self.eval_expression(expression),
-            Node::Statement(statement) => self.eval_statement(statement),
-            _ => Ok(Object::Null),
-        }
     }
 
     fn eval_expression(&mut self, expression: Expression) -> Result<Object, EvaluatorError> {
@@ -131,22 +127,25 @@ impl Evaluator {
                 let function = self.eval_expression(*call_expr.function)?;
                 let args = self.eval_expressions(call_expr.args)?;
 
-                if let Object::Function {
-                    params,
-                    body,
-                    mut env,
-                } = function
-                {
-                    for (param, arg) in params.iter().zip(args) {
-                        env.set(&param.value, arg);
+                match function {
+                    Object::Function {
+                        params,
+                        body,
+                        mut env,
+                    } => {
+                        for (param, arg) in params.iter().zip(args) {
+                            env.set(&param.value, arg);
+                        }
+
+                        let mut ev = Evaluator::default();
+                        ev.env = env;
+
+                        ev.eval_statement(Statement::BlockStatement(body))
                     }
-
-                    let mut ev = Evaluator::default();
-                    ev.env = env;
-
-                    ev.eval_statement(Statement::BlockStatement(body))
-                } else {
-                    Err(EvaluatorError::NotAFunction())
+                    Object::Builtin(name) => {
+                        Ok(self.builtins.call(name, args))
+                    }
+                    _ => Err(EvaluatorError::NotAFunction()),
                 }
             }
             Expression::FunctionLiteral(fn_lit) => Ok(Object::Function {
@@ -156,7 +155,10 @@ impl Evaluator {
             }),
             Expression::Identifier(ident) => match self.env.get(&ident.value) {
                 Some(value) => Ok(value.clone()),
-                None => Ok(Object::Null),
+                None => match self.builtins.has_fn(&ident.value) {
+                    true => Ok(Object::Builtin(ident.value)),
+                    false => Ok(Object::Null),
+                },
             },
         }
     }
@@ -189,6 +191,12 @@ impl Evaluator {
                 Ok(result)
             }
             Statement::LetStatement(let_stmt) => {
+                let name = &let_stmt.name.value;
+
+                if self.builtins.has_fn(name) {
+                    return Err(EvaluatorError::OverwriteBuiltin(name.to_string()))
+                }
+
                 let value = self.eval_expression(let_stmt.value)?;
                 self.env.set(&let_stmt.name.value, value);
                 Ok(Object::Null)

@@ -1,4 +1,4 @@
-use crate::{ast, evaluator, lexer, parser};
+use crate::{ast, evaluator::{self, builtins::Builtins}, lexer, parser};
 
 pub fn test_parse(input: &str) -> ast::Program {
     let input = input.as_bytes().into();
@@ -16,7 +16,7 @@ pub fn test_eval(
     let mut parser = parser::Parser::new(lexer);
     let program = parser.parse_program().expect("parser errors");
 
-    let mut ev = evaluator::Evaluator::new(program);
+    let mut ev = evaluator::Evaluator::new(program, Builtins::default());
     return ev.evaluate();
 }
 
