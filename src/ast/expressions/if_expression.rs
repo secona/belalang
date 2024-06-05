@@ -53,7 +53,7 @@ mod tests {
         testing::expr_variant!(
             &*if_expr.condition, Infix => (
                 ast::Expression::Identifier = "x",
-                "<",
+                token::Token::LT,
                 ast::Expression::Identifier = "y"
             )
         );
@@ -93,7 +93,7 @@ mod tests {
         testing::expr_variant!(
             &*if_expr.condition, Infix => (
                 ast::Expression::Identifier = "x",
-                "<",
+                token::Token::LT,
                 ast::Expression::Identifier = "y"
             )
         );
@@ -135,7 +135,7 @@ mod tests {
         testing::expr_variant!(
             if_expr.condition.as_ref(), Infix => (
                 ast::Expression::Identifier = "x",
-                "<",
+                token::Token::LT,
                 ast::Expression::Identifier = "y"
             )
         );

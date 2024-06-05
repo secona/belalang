@@ -23,7 +23,7 @@ impl std::fmt::Display for CallExpression {
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast, testing};
+    use crate::{ast, testing, token};
 
     #[test]
     fn parsing() {
@@ -43,14 +43,14 @@ mod tests {
         testing::expr_variant!(
             &expr.args[1], Infix => (
                 ast::Expression::IntegerLiteral = 2,
-                "*",
+                token::Token::Asterisk,
                 ast::Expression::IntegerLiteral = 3
             )
         );
         testing::expr_variant!(
             &expr.args[2], Infix => (
                 ast::Expression::IntegerLiteral = 4,
-                "+",
+                token::Token::Plus,
                 ast::Expression::IntegerLiteral = 5
             )
         );
@@ -88,7 +88,7 @@ mod tests {
         testing::expr_variant!(
             &body_stmt.expression, Infix => (
                 ast::Expression::Identifier = "x",
-                "+",
+                token::Token::Plus,
                 ast::Expression::Identifier = "y"
             )
         );

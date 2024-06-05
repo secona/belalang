@@ -4,7 +4,7 @@ use crate::token;
 #[derive(Debug, Clone)]
 pub struct PrefixExpression {
     pub token: token::Token,
-    pub operator: String,
+    pub operator: token::Token,
     pub right: Box<Expression>,
 }
 
@@ -30,7 +30,7 @@ mod tests {
         let prefix = testing::as_variant!(&expr.expression, ast::Expression::PrefixExpression);
 
         assert_eq!(prefix.token, token::Token::Minus);
-        assert_eq!(prefix.operator, "-");
+        assert_eq!(prefix.operator, token::Token::Minus);
 
         let right = testing::as_variant!(&*prefix.right, ast::Expression::IntegerLiteral);
 

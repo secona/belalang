@@ -56,7 +56,7 @@ impl super::Parser {
         let right = self.parse_expression(Precedence::Prefix).unwrap();
 
         Some(Expression::PrefixExpression(ast::PrefixExpression {
-            operator: prev_token.clone().to_string(),
+            operator: prev_token.clone(),
             token: prev_token,
             right: Box::new(right),
         }))

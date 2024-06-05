@@ -1,12 +1,13 @@
 use super::object::Object;
+use crate::token::Token;
 
 #[derive(thiserror::Error, Debug)]
 pub enum EvaluatorError {
     #[error("unknown operator: {0}{1}")]
-    PrefixOperator(String, Object),
+    PrefixOperator(Token, Object),
 
     #[error("unknown operator: {0} {1} {2}")]
-    UnknownInfixOperator(Object, String, Object),
+    UnknownInfixOperator(Object, Token, Object),
 
     #[error("identifier not found: {0}")]
     IdentifierNotFound(String),

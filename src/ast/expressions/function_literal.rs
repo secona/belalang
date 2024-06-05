@@ -22,7 +22,7 @@ impl std::fmt::Display for FunctionLiteral {
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast, testing};
+    use crate::{ast, testing, token};
 
     #[test]
     fn parsing() {
@@ -50,7 +50,7 @@ mod tests {
         testing::expr_variant!(
             &body_stmt.expression, Infix => (
                 ast::Expression::Identifier = "x",
-                "+",
+                token::Token::Plus,
                 ast::Expression::Identifier = "y"
             )
         );

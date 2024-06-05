@@ -5,7 +5,7 @@ use crate::token;
 pub struct InfixExpression {
     pub token: token::Token,
     pub left: Box<Expression>,
-    pub operator: String,
+    pub operator: token::Token,
     pub right: Box<Expression>,
 }
 
@@ -23,7 +23,7 @@ impl std::fmt::Display for InfixExpression {
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast, testing};
+    use crate::{ast, testing, token};
 
     #[test]
     fn parsing() {
@@ -35,7 +35,7 @@ mod tests {
 
         testing::expr_variant!(&expr.expression, Infix => (
             ast::Expression::IntegerLiteral = 1,
-            "+",
+            token::Token::Plus,
             ast::Expression::IntegerLiteral = 2
         ));
     }

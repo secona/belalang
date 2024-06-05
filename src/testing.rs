@@ -53,7 +53,7 @@ macro_rules! expr_variant {
 
         testing::expr_variant!(&*v.left, $left_variant = $left);
         testing::expr_variant!(&*v.right, $right_variant = $right);
-        assert_eq!(v.operator, $op.to_string());
+        assert_eq!(v.operator, $op);
     };
 }
 

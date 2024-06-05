@@ -6,9 +6,8 @@ pub mod object;
 
 use crate::{
     ast::{self, Expression, Node, Statement},
-    evaluator::environment::Environment,
-    evaluator::object::Object,
-    evaluator::error::EvaluatorError,
+    evaluator::{environment::Environment, error::EvaluatorError, object::Object},
+    token::Token,
 };
 
 pub struct Evaluator {
@@ -70,12 +69,12 @@ impl Evaluator {
             Expression::PrefixExpression(node) => {
                 let right = self.eval_expression(*node.right)?;
 
-                match node.operator.as_str() {
-                    "!" => match right {
+                match node.operator {
+                    Token::Bang => match right {
                         Object::Boolean(value) => Ok(Object::Boolean(!value)),
                         _ => Err(EvaluatorError::PrefixOperator(node.operator, right)),
                     },
-                    "-" => match right {
+                    Token::Minus => match right {
                         Object::Integer(value) => Ok(Object::Integer(-value)),
                         _ => Err(EvaluatorError::PrefixOperator(node.operator, right)),
                     },
@@ -87,26 +86,24 @@ impl Evaluator {
                 let right = self.eval_expression(*infix_expr.right)?;
 
                 match (&left, &right) {
-                    (Object::Integer(l), Object::Integer(r)) => {
-                        match infix_expr.operator.as_str() {
-                            "+" => Ok(Object::Integer(l + r)),
-                            "-" => Ok(Object::Integer(l - r)),
-                            "*" => Ok(Object::Integer(l * r)),
-                            "/" => Ok(Object::Integer(l / r)),
-                            "<" => Ok(Object::Boolean(l < r)),
-                            ">" => Ok(Object::Boolean(l > r)),
-                            "==" => Ok(Object::Boolean(l == r)),
-                            "!=" => Ok(Object::Boolean(l != r)),
-                            _ => Err(EvaluatorError::UnknownInfixOperator(
-                                left,
-                                infix_expr.operator,
-                                right,
-                            )),
-                        }
-                    }
-                    (_, _) => match infix_expr.operator.as_str() {
-                        "==" => Ok(Object::Boolean(left == right)),
-                        "!=" => Ok(Object::Boolean(left != right)),
+                    (Object::Integer(l), Object::Integer(r)) => match infix_expr.operator {
+                        Token::Plus => Ok(Object::Integer(l + r)),
+                        Token::Minus => Ok(Object::Integer(l - r)),
+                        Token::Asterisk => Ok(Object::Integer(l * r)),
+                        Token::Slash => Ok(Object::Integer(l / r)),
+                        Token::LT => Ok(Object::Boolean(l < r)),
+                        Token::GT => Ok(Object::Boolean(l > r)),
+                        Token::Eq => Ok(Object::Boolean(l == r)),
+                        Token::NotEq => Ok(Object::Boolean(l != r)),
+                        _ => Err(EvaluatorError::UnknownInfixOperator(
+                            left,
+                            infix_expr.operator,
+                            right,
+                        )),
+                    },
+                    (_, _) => match infix_expr.operator {
+                        Token::Eq => Ok(Object::Boolean(left == right)),
+                        Token::NotEq => Ok(Object::Boolean(left != right)),
                         _ => Err(EvaluatorError::UnknownInfixOperator(
                             left,
                             infix_expr.operator,
@@ -206,8 +203,8 @@ impl Evaluator {
 
 #[cfg(test)]
 mod tests {
-    use crate::testing;
     use crate::evaluator::object;
+    use crate::testing;
 
     #[test]
     fn integer() {

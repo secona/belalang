@@ -61,7 +61,7 @@ mod tests {
 
         testing::expr_variant!(&expr_2.expression, Infix => (
             ast::Expression::IntegerLiteral = 1,
-            "+",
+            token::Token::Plus,
             ast::Expression::IntegerLiteral = 2
         ));
     }

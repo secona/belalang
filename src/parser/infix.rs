@@ -31,7 +31,7 @@ impl super::Parser {
 
     fn parse_infix_expression(&mut self, left: Expression) -> Result<Expression, Expression> {
         let token = self.curr_token.clone();
-        let operator = self.curr_token.clone().to_string();
+        let operator = self.curr_token.clone();
         let precedence = self.curr_precedence();
 
         self.next_token();
