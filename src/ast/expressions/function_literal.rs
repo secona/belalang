@@ -16,26 +16,17 @@ impl std::fmt::Display for FunctionLiteral {
             .collect::<Vec<_>>()
             .join(", ");
 
-        f.write_str(&format!(
-            "FunctionLiteral(params=[{}], body=[{}])",
-            params,
-            self.body.to_string()
-        ))
+        write!(f, "fn({}) {}", params, self.body)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast, lexer, parser, testing};
+    use crate::{ast, testing};
 
     #[test]
     fn parsing() {
-        let input: Box<[u8]> = "fn(x, y) { x + y; }".as_bytes().into();
-
-        let lexer = lexer::Lexer::new(input);
-        let mut parser = parser::Parser::new(lexer);
-
-        let program = parser.parse_program().expect("got parser errors");
+        let program = testing::test_parse("fn(x, y) { x + y; }");
 
         assert_eq!(program.statements.len(), 1);
 
@@ -66,19 +57,16 @@ mod tests {
     }
 
     #[test]
-    fn parameter_parsing() {
-        let tests: [(Box<[u8]>, Vec<&str>); 4] = [
-            ("fn() {}".as_bytes().into(), [].into()),
-            ("fn(x) {};".as_bytes().into(), ["x"].into()),
-            ("fn(x, y) {};".as_bytes().into(), ["x", "y"].into()),
-            ("fn(x, y, z) {};".as_bytes().into(), ["x", "y", "z"].into()),
+    fn parsing_parameters() {
+        let tests: [(&str, Vec<&str>); 4] = [
+            ("fn() {}", [].into()),
+            ("fn(x) {};", ["x"].into()),
+            ("fn(x, y) {};", ["x", "y"].into()),
+            ("fn(x, y, z) {};", ["x", "y", "z"].into()),
         ];
 
         for test in tests {
-            let lexer = lexer::Lexer::new(test.0);
-            let mut parser = parser::Parser::new(lexer);
-
-            let program = parser.parse_program().expect("got parser errors");
+            let program = testing::test_parse(test.0);
 
             let stmt =
                 testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);

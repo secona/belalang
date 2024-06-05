@@ -8,9 +8,41 @@ pub struct BooleanExpression {
 
 impl std::fmt::Display for BooleanExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!(
-            "BooleanExpression(value={})",
-            &self.value.to_string()
-        ))
+        write!(f, "{}", self.value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{ast, testing, token};
+
+    #[test]
+    fn parsing_true() {
+        let program = testing::test_parse("true;");
+
+        assert_eq!(program.statements.len(), 1);
+
+        let expr =
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+
+        let bool_expr = testing::as_variant!(&expr.expression, ast::Expression::BooleanExpression);
+
+        assert_eq!(bool_expr.value, true);
+        assert_eq!(bool_expr.token, token::Token::True);
+    }
+
+    #[test]
+    fn parsing_false() {
+        let program = testing::test_parse("false;");
+
+        assert_eq!(program.statements.len(), 1);
+
+        let expr =
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+
+        let bool_expr = testing::as_variant!(&expr.expression, ast::Expression::BooleanExpression);
+
+        assert_eq!(bool_expr.value, false);
+        assert_eq!(bool_expr.token, token::Token::False);
     }
 }

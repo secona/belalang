@@ -1,3 +1,25 @@
+use crate::{ast, evaluator, lexer, parser};
+
+pub fn test_parse(input: &str) -> ast::Program {
+    let input = input.as_bytes().into();
+    let lexer = lexer::Lexer::new(input);
+    let mut parser = parser::Parser::new(lexer);
+
+    parser.parse_program().expect("parser errors")
+}
+
+pub fn test_eval(
+    input: String,
+) -> Result<evaluator::object::Object, evaluator::error::EvaluatorError> {
+    let input = input.as_bytes().into();
+    let lexer = lexer::Lexer::new(input);
+    let mut parser = parser::Parser::new(lexer);
+    let program = parser.parse_program().expect("parser errors");
+
+    let mut ev = evaluator::Evaluator::new(program);
+    return ev.evaluate();
+}
+
 macro_rules! as_variant {
     ($value:expr, $variant:path) => {
         if let $variant(x) = $value {
@@ -36,21 +58,6 @@ macro_rules! expr_variant {
 }
 
 pub(crate) use expr_variant;
-
-use crate::{
-    evaluator::{self, object},
-    lexer, parser,
-};
-
-pub fn test_eval(input: String) -> Result<object::Object, evaluator::error::EvaluatorError> {
-    let input = input.as_bytes().into();
-    let lexer = lexer::Lexer::new(input);
-    let mut parser = parser::Parser::new(lexer);
-    let program = parser.parse_program().expect("parser errors");
-
-    let mut ev = evaluator::Evaluator::new(program);
-    return ev.evaluate();
-}
 
 macro_rules! eval {
     ($input:expr, $variant:path = $expected:expr) => {

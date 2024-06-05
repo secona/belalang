@@ -11,11 +11,32 @@ pub struct InfixExpression {
 
 impl std::fmt::Display for InfixExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!(
-            "InfixExpression(left={} operator={} right={})",
+        write!(
+            f,
+            "{} {} {}",
             self.left.to_string(),
             self.operator,
             self.right.to_string(),
-        ))
+        )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{ast, testing};
+
+    #[test]
+    fn parsing() {
+        let program = testing::test_parse("1 + 2;");
+
+        assert_eq!(program.statements.len(), 1);
+
+        let expr = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+
+        testing::expr_variant!(&expr.expression, Infix => (
+            ast::Expression::IntegerLiteral = 1,
+            "+",
+            ast::Expression::IntegerLiteral = 2
+        ));
     }
 }

@@ -11,15 +11,16 @@ pub struct IfExpression {
 
 impl std::fmt::Display for IfExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!(
-            "IfExpression(condition={}, consequence={}, alternative={})",
-            self.condition.to_string(),
-            self.consequence.to_string(),
+        write!(
+            f,
+            "if ({}) {} else {}",
+            self.condition,
+            self.consequence,
             match &self.alternative {
                 Some(alt) => alt.to_string(),
-                None => "None".into(),
+                None => "{}".into(),
             }
-        ))
+        )
     }
 }
 
@@ -28,7 +29,7 @@ mod tests {
     use crate::{ast, lexer, parser, testing, token};
 
     #[test]
-    fn without_else() {
+    fn parsing_without_else() {
         let input = "if (x < y) { x }"
             .to_owned()
             .into_bytes()
@@ -113,7 +114,7 @@ mod tests {
     }
 
     #[test]
-    fn multiple_statements() {
+    fn parsing_with_multiple_statements() {
         let input = "if (x < y) { let a = 10; x }"
             .to_owned()
             .into_bytes()

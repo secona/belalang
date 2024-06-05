@@ -8,6 +8,25 @@ pub struct Identifier {
 
 impl std::fmt::Display for Identifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!("Identifier(value={})", &self.value))
+        write!(f, "{}", &self.value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{ast, testing};
+
+    #[test]
+    fn parsing() {
+        let program = testing::test_parse("name;");
+
+        assert_eq!(program.statements.len(), 1);
+
+        let expr =
+            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+
+        let ident = testing::as_variant!(&expr.expression, ast::Expression::Identifier);
+
+        testing::ident_has_name!(ident, "name");
     }
 }

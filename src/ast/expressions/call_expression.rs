@@ -17,24 +17,17 @@ impl std::fmt::Display for CallExpression {
             .collect::<Vec<_>>()
             .join(", ");
 
-        f.write_str(&format!(
-            "CallExpression(function={}, args=[{}])",
-            self.function, args
-        ))
+        write!(f, "{}({})", self.function, args)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast, lexer, parser, testing};
+    use crate::{ast, testing};
 
     #[test]
     fn parsing() {
-        let input = "add(1, 2 * 3, 4 + 5)".as_bytes().into();
-
-        let lexer = lexer::Lexer::new(input);
-        let mut parser = parser::Parser::new(lexer);
-        let program = parser.parse_program().expect("got parser errors");
+        let program = testing::test_parse("add(1, 2 * 3, 4 + 5)");
 
         assert_eq!(program.statements.len(), 1);
 
@@ -64,12 +57,8 @@ mod tests {
     }
 
     #[test]
-    fn parsing_function_literal() {
-        let input = "fn(x, y) { x + y }(2, 3)".as_bytes().into();
-
-        let lexer = lexer::Lexer::new(input);
-        let mut parser = parser::Parser::new(lexer);
-        let program = parser.parse_program().expect("got parser errors");
+    fn parsing_with_function_literal() {
+        let program = testing::test_parse("fn(x, y) { x + y }(2, 3)");
 
         assert_eq!(program.statements.len(), 1);
 
