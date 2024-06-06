@@ -121,10 +121,8 @@ impl Evaluator {
             Expression::IfExpression(expr) => {
                 let condition = self.eval_expression(*expr.condition)?;
 
-                if let Object::Boolean(value) = condition {
-                    if value == true {
-                        return self.eval_statement(Statement::BlockStatement(expr.consequence));
-                    }
+                if let Object::Boolean(true) = condition {
+                    return self.eval_statement(Statement::BlockStatement(expr.consequence));
                 }
 
                 if let Some(block_statement) = expr.alternative {
@@ -150,7 +148,11 @@ impl Evaluator {
                         let mut ev = Evaluator::default();
                         ev.env = env;
 
-                        ev.eval_statement(Statement::BlockStatement(body))
+                        match ev.eval_statement(Statement::BlockStatement(body)) {
+                            Ok(v) => Ok(v),
+                            Err(EvaluatorError::ReturningValue(v)) => Ok(v),
+                            Err(e) => Err(e),
+                        }
                     }
                     Object::Builtin(name) => Ok(self.builtins.call(name, args)),
                     _ => Err(EvaluatorError::NotAFunction()),
@@ -188,11 +190,6 @@ impl Evaluator {
                 let mut result = Object::Null;
 
                 for statement in block_stmt.statements {
-                    if let Statement::ReturnStatement(_) = &statement {
-                        result = self.eval_statement(statement)?;
-                        return Ok(result);
-                    }
-
                     result = self.eval_statement(statement)?;
                 }
 
@@ -200,7 +197,7 @@ impl Evaluator {
             }
             Statement::ReturnStatement(return_stmt) => {
                 let value = self.eval_expression(return_stmt.return_value)?;
-                Ok(value)
+                Err(EvaluatorError::ReturningValue(value))
             }
             Statement::VarAssign(var_assign) => {
                 let name = &var_assign.name.value;

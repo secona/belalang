@@ -1,0 +1,25 @@
+fizzbuzz := fn(max, n) {
+	if (n == max) {
+		return 1;
+	}
+
+	if (n % 15 == 0) {
+		println("Fizzbuzz");
+		return fizzbuzz(max, n + 1);
+	}
+
+	if (n % 3 == 0) {
+		println("Fizz");
+		return fizzbuzz(max, n + 1);
+	}
+
+	if (n % 5 == 0) {
+		println("Buzz");
+		return fizzbuzz(max, n + 1);
+	}
+
+	println(n);
+	fizzbuzz(max, n + 1);
+}
+
+fizzbuzz(100, 1);

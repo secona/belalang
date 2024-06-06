@@ -20,4 +20,7 @@ pub enum EvaluatorError {
 
     #[error("variable redeclaration: {0}")]
     VariableRedeclaration(String),
+
+    #[error("illegal returning value: {0}")]
+    ReturningValue(Object),
 }
