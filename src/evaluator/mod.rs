@@ -87,6 +87,7 @@ impl Evaluator {
                         Token::Minus => Ok(Object::Integer(l - r)),
                         Token::Asterisk => Ok(Object::Integer(l * r)),
                         Token::Slash => Ok(Object::Integer(l / r)),
+                        Token::Percent => Ok(Object::Integer(l % r)),
                         Token::LT => Ok(Object::Boolean(l < r)),
                         Token::GT => Ok(Object::Boolean(l > r)),
                         Token::Eq => Ok(Object::Boolean(l == r)),
@@ -243,6 +244,7 @@ mod tests {
         testing::eval!("(5 + 1) / 2", object::Object::Integer = 3);
         testing::eval!("5 * -2", object::Object::Integer = -10);
         testing::eval!("-5 * -2", object::Object::Integer = 10);
+        testing::eval!("5 % 2", object::Object::Integer = 1);
     }
 
     #[test]

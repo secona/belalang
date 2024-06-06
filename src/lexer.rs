@@ -63,11 +63,25 @@ impl Lexer {
             None => tok = Token::EOF,
             Some(ch) => match ch {
                 b'=' => match self.peek_char() {
-                    Some(pk) if *pk == b'=' => {
+                    Some(b'=') => {
                         tok = Token::Eq;
                         self.read_char();
                     }
                     _ => tok = Token::Assign,
+                },
+                b'!' => match self.peek_char() {
+                    Some(b'=') => {
+                        tok = Token::NotEq;
+                        self.read_char();
+                    }
+                    _ => tok = Token::Bang,
+                },
+                b':' => match self.peek_char() {
+                    Some(b'=') => {
+                        tok = Token::Walrus;
+                        self.read_char();
+                    }
+                    _ => tok = Token::Illegal(" ".into()),
                 },
                 b';' => tok = Token::Semicolon,
                 b'(' => tok = Token::LParen,
@@ -75,22 +89,9 @@ impl Lexer {
                 b',' => tok = Token::Comma,
                 b'+' => tok = Token::Plus,
                 b'-' => tok = Token::Minus,
-                b'!' => match self.peek_char() {
-                    Some(pk) if *pk == b'=' => {
-                        tok = Token::NotEq;
-                        self.read_char();
-                    }
-                    _ => tok = Token::Bang,
-                },
-                b':' => match self.peek_char() {
-                    Some(pk) if *pk == b'=' => {
-                        tok = Token::Walrus;
-                        self.read_char();
-                    }
-                    _ => tok = Token::Illegal(" ".into())
-                }
                 b'*' => tok = Token::Asterisk,
                 b'/' => tok = Token::Slash,
+                b'%' => tok = Token::Percent,
                 b'>' => tok = Token::GT,
                 b'<' => tok = Token::LT,
                 b'{' => tok = Token::LBrace,

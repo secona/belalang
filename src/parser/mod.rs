@@ -17,13 +17,13 @@ pub enum Precedence {
     Call,
 }
 
-impl Precedence {
-    pub fn from(tok: &token::Token) -> Self {
-        match tok {
+impl From<&token::Token> for Precedence {
+    fn from(value: &token::Token) -> Self {
+        match value {
             token::Token::Eq | token::Token::NotEq => Self::Equals,
             token::Token::LT | token::Token::GT => Self::LessGreater,
             token::Token::Plus | token::Token::Minus => Self::Sum,
-            token::Token::Slash | token::Token::Asterisk => Self::Product,
+            token::Token::Slash | token::Token::Asterisk | token::Token::Percent => Self::Product,
             token::Token::LParen => Self::Call,
             _ => Self::Lowest,
         }
@@ -181,11 +181,7 @@ impl Parser {
                         self.next_token();
                     }
 
-                    Some(Statement::VarAssign(ast::VarAssign {
-                        token,
-                        name,
-                        value,
-                    }))
+                    Some(Statement::VarAssign(ast::VarAssign { token, name, value }))
                 } else {
                     None
                 }

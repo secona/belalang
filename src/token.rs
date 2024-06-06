@@ -9,11 +9,13 @@ pub enum Token {
 
     Walrus,
     Assign,
+
     Plus,
     Minus,
     Bang,
     Asterisk,
     Slash,
+    Percent,
 
     LT,
     GT,
@@ -84,6 +86,7 @@ impl std::fmt::Display for Token {
             Token::Else => "else",
             Token::Return => "return",
             Token::Walrus => ":=",
+            Token::Percent => "%",
         })
     }
 }

@@ -20,6 +20,7 @@ impl super::Parser {
             | token::Token::Minus
             | token::Token::Slash
             | token::Token::Asterisk
+            | token::Token::Percent
             | token::Token::Eq
             | token::Token::NotEq
             | token::Token::GT
