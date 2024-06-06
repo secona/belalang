@@ -40,6 +40,20 @@ impl Lexer {
         }
     }
 
+    pub fn read_string(&mut self) -> &[u8] {
+        let position = self.position + 1;
+
+        loop {
+            self.read_char();
+            match self.ch {
+                Some(b'"') | Some(0) => break,
+                _ => (),
+            }
+        };
+
+        &self.input[position..self.position]
+    }
+
     pub fn skip_whitespace(&mut self) {
         'l: loop {
             match self.ch {
@@ -96,6 +110,10 @@ impl Lexer {
                 b'<' => tok = Token::LT,
                 b'{' => tok = Token::LBrace,
                 b'}' => tok = Token::RBrace,
+                b'"' => {
+                    let literal = self.read_string();
+                    tok = Token::String(String::from_utf8(literal.to_vec()).unwrap());
+                },
                 _ => {
                     if self.is_letter() {
                         tok = self.read_identifier();
@@ -205,12 +223,14 @@ let add = fn(x, y) {
     x + y;
 };
 
-let result = add(five, ten);"
+let result = add(five, ten);
+
+\"Hello, World!\""
             .to_owned()
             .into_bytes()
             .into_boxed_slice();
 
-        let expected: [Token; 37] = [
+        let expected: [Token; 38] = [
             Token::Let,
             Token::Ident(String::from("five")),
             Token::Assign,
@@ -247,6 +267,7 @@ let result = add(five, ten);"
             Token::Ident(String::from("ten")),
             Token::RParen,
             Token::Semicolon,
+            Token::String(String::from("Hello, World!")),
             Token::EOF,
         ];
 

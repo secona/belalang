@@ -15,6 +15,7 @@ impl super::Parser {
             token::Token::LParen => self.parse_grouped_expression(),
             token::Token::If => self.parse_if_expression(),
             token::Token::Function => self.parse_function_literal(),
+            token::Token::String(_) => self.parse_string_literal(),
             _ => {
                 self.errors.push(format!(
                     "no prefix parse function for {} found.",
@@ -140,6 +141,13 @@ impl super::Parser {
             token,
             params,
             body,
+        }))
+    }
+
+    fn parse_string_literal(&mut self) -> Option<Expression> {
+        Some(Expression::StringLiteral(ast::StringLiteral {
+            token: self.curr_token.clone(),
+            value: self.curr_token.to_string(),
         }))
     }
 

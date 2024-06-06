@@ -62,6 +62,7 @@ impl Evaluator {
         match expression {
             Expression::IntegerLiteral(int_lit) => Ok(Object::Integer(int_lit.value)),
             Expression::BooleanExpression(bool_expr) => Ok(Object::Boolean(bool_expr.value)),
+            Expression::StringLiteral(s) => Ok(Object::String(s.value)),
             Expression::PrefixExpression(node) => {
                 let right = self.eval_expression(*node.right)?;
 
@@ -92,6 +93,14 @@ impl Evaluator {
                         Token::GT => Ok(Object::Boolean(l > r)),
                         Token::Eq => Ok(Object::Boolean(l == r)),
                         Token::NotEq => Ok(Object::Boolean(l != r)),
+                        _ => Err(EvaluatorError::UnknownInfixOperator(
+                            left,
+                            infix_expr.operator,
+                            right,
+                        )),
+                    },
+                    (Object::String(l), Object::String(r)) => match infix_expr.operator {
+                        Token::Plus => Ok(Object::String(format!("{} {}", l, r))),
                         _ => Err(EvaluatorError::UnknownInfixOperator(
                             left,
                             infix_expr.operator,
@@ -143,9 +152,7 @@ impl Evaluator {
 
                         ev.eval_statement(Statement::BlockStatement(body))
                     }
-                    Object::Builtin(name) => {
-                        Ok(self.builtins.call(name, args))
-                    }
+                    Object::Builtin(name) => Ok(self.builtins.call(name, args)),
                     _ => Err(EvaluatorError::NotAFunction()),
                 }
             }
@@ -199,7 +206,7 @@ impl Evaluator {
                 let name = &var_assign.name.value;
 
                 if self.builtins.has_fn(name) {
-                    return Err(EvaluatorError::OverwriteBuiltin(name.to_string()))
+                    return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
                 }
 
                 let value = self.eval_expression(var_assign.value)?;
@@ -214,7 +221,7 @@ impl Evaluator {
                 }
 
                 if self.builtins.has_fn(name) {
-                    return Err(EvaluatorError::OverwriteBuiltin(name.to_string()))
+                    return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
                 }
 
                 let value = self.eval_expression(var_declare.value)?;

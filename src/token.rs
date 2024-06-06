@@ -6,6 +6,7 @@ pub enum Token {
     Ident(String),
     Int(String),
     Illegal(String),
+    String(String),
 
     Walrus,
     Assign,
@@ -62,6 +63,7 @@ impl std::fmt::Display for Token {
             Token::Ident(s) => s,
             Token::Int(s) => s,
             Token::Illegal(s) => s,
+            Token::String(s) => s,
             Token::Assign => "=",
             Token::Plus => "+",
             Token::Minus => "-",

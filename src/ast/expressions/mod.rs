@@ -6,6 +6,7 @@ mod if_expression;
 mod infix_expression;
 mod integer_literal;
 mod prefix_expression;
+mod string_literal;
 
 pub use boolean_expression::*;
 pub use call_expression::*;
@@ -15,6 +16,7 @@ pub use if_expression::*;
 pub use infix_expression::*;
 pub use integer_literal::*;
 pub use prefix_expression::*;
+pub use string_literal::*;
 
 #[derive(Debug, Clone)]
 pub enum Expression {
@@ -26,6 +28,7 @@ pub enum Expression {
     InfixExpression(InfixExpression),
     IntegerLiteral(IntegerLiteral),
     PrefixExpression(PrefixExpression),
+    StringLiteral(StringLiteral),
 }
 
 impl std::fmt::Display for Expression {
@@ -39,6 +42,7 @@ impl std::fmt::Display for Expression {
             Expression::InfixExpression(v) => v.to_string(),
             Expression::IntegerLiteral(v) => v.to_string(),
             Expression::PrefixExpression(v) => v.to_string(),
+            Expression::StringLiteral(v) => v.to_string(),
         };
 
         f.write_str(&value)
