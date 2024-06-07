@@ -30,10 +30,7 @@ mod tests {
 
     #[test]
     fn parsing_without_else() {
-        let input = "if (x < y) { x }"
-            .to_owned()
-            .into_bytes()
-            .into_boxed_slice();
+        let input = b"if (x < y) { x }";
 
         let lexer = lexer::Lexer::new(input);
         let mut parser = parser::Parser::new(lexer);
@@ -71,10 +68,7 @@ mod tests {
 
     #[test]
     fn with_else() {
-        let input = "if (x < y) { x } else { y }"
-            .to_owned()
-            .into_bytes()
-            .into_boxed_slice();
+        let input = b"if (x < y) { x } else { y }";
 
         let lexer = lexer::Lexer::new(input);
         let mut parser = parser::Parser::new(lexer);
@@ -115,10 +109,7 @@ mod tests {
 
     #[test]
     fn parsing_with_multiple_statements() {
-        let input = "if (x < y) { a := 10; x }"
-            .to_owned()
-            .into_bytes()
-            .into_boxed_slice();
+        let input = b"if (x < y) { a := 10; x }";
 
         let lexer = lexer::Lexer::new(input);
         let mut parser = parser::Parser::new(lexer);

@@ -1,14 +1,14 @@
 use crate::token::Token;
 
-pub struct Lexer {
-    input: Box<[u8]>,
+pub struct Lexer<'a> {
+    input: &'a [u8],
     position: usize,
     read_position: usize,
-    ch: Option<u8>,
+    ch: Option<&'a u8>,
 }
 
-impl Lexer {
-    pub fn new(input: Box<[u8]>) -> Lexer {
+impl<'a> Lexer<'a> {
+    pub fn new(input: &'a [u8]) -> Lexer {
         let mut lexer = Lexer {
             input,
             position: 0,
@@ -18,55 +18,6 @@ impl Lexer {
 
         lexer.read_char();
         lexer
-    }
-
-    pub fn read_char(&mut self) -> Option<u8> {
-        if self.read_position >= self.input.len() {
-            self.ch = None;
-        } else {
-            self.ch = Some(self.input[self.read_position]);
-        }
-
-        self.position = self.read_position;
-        self.read_position += 1;
-        self.ch
-    }
-
-    pub fn peek_char(&self) -> Option<&u8> {
-        if self.read_position >= self.input.len() {
-            None
-        } else {
-            Some(&self.input[self.read_position])
-        }
-    }
-
-    pub fn read_string(&mut self) -> &[u8] {
-        let position = self.position + 1;
-
-        loop {
-            self.read_char();
-            match self.ch {
-                Some(b'"') | Some(0) => break,
-                _ => (),
-            }
-        };
-
-        &self.input[position..self.position]
-    }
-
-    pub fn skip_whitespace(&mut self) {
-        'l: loop {
-            match self.ch {
-                Some(ch) => {
-                    if ch == b' ' || ch == b'\t' || ch == b'\n' || ch == b'\r' {
-                        self.read_char();
-                    } else {
-                        break 'l;
-                    }
-                }
-                None => break 'l,
-            }
-        }
     }
 
     pub fn next_token(&mut self) -> Token {
@@ -113,7 +64,7 @@ impl Lexer {
                 b'"' => {
                     let literal = self.read_string();
                     tok = Token::String(String::from_utf8(literal.to_vec()).unwrap());
-                },
+                }
                 _ => {
                     if self.is_letter() {
                         tok = self.read_identifier();
@@ -132,6 +83,49 @@ impl Lexer {
         tok
     }
 
+    pub fn read_char(&mut self) -> Option<&'a u8> {
+        if self.read_position >= self.input.len() {
+            self.ch = None;
+        } else {
+            self.ch = Some(&self.input[self.read_position]);
+        }
+
+        self.position = self.read_position;
+        self.read_position += 1;
+        self.ch
+    }
+
+    pub fn peek_char(&self) -> Option<&'a u8> {
+        if self.read_position >= self.input.len() {
+            None
+        } else {
+            Some(&self.input[self.read_position])
+        }
+    }
+
+    pub fn skip_whitespace(&mut self) {
+        loop {
+            match self.ch {
+                Some(b' ' | b'\t' | b'\n' | b'\r') => self.read_char(),
+                _ => break,
+            };
+        }
+    }
+
+    pub fn read_string(&mut self) -> &'a [u8] {
+        let position = self.position + 1;
+
+        loop {
+            self.read_char();
+            match self.ch {
+                Some(b'"') | Some(0) => break,
+                _ => (),
+            }
+        }
+
+        &self.input[position..self.position]
+    }
+
     pub fn read_identifier(&mut self) -> Token {
         let position = self.position;
 
@@ -143,9 +137,10 @@ impl Lexer {
     }
 
     pub fn is_letter(&self) -> bool {
-        match self.ch {
-            Some(ch) => ch >= b'a' && ch <= b'z' || ch >= b'A' && ch <= b'Z' || ch == b'_',
-            None => false,
+        if let Some(ch) = self.ch {
+            *ch >= b'a' && *ch <= b'z' || *ch >= b'A' && *ch <= b'Z' || *ch == b'_'
+        } else {
+            false
         }
     }
 
@@ -163,7 +158,7 @@ impl Lexer {
 
     pub fn is_digit(&self) -> bool {
         match self.ch {
-            Some(ch) => ch >= b'0' && ch <= b'9',
+            Some(ch) => *ch >= b'0' && *ch <= b'9',
             None => false,
         }
     }
@@ -176,10 +171,7 @@ mod tests {
 
     #[test]
     fn tokens() {
-        let input = "=+(){},;!-/*5;5 < 10 > 5;:="
-            .to_owned()
-            .into_bytes()
-            .into_boxed_slice();
+        let input = b"=+(){},;!-/*5;5 < 10 > 5;:=";
 
         let expected: [Token; 21] = [
             Token::Assign,
@@ -216,7 +208,7 @@ mod tests {
 
     #[test]
     fn multichar_token() {
-        let input = "let five = 5;
+        let input = b"let five = 5;
 let ten = 10;
 
 let add = fn(x, y) {
@@ -225,10 +217,7 @@ let add = fn(x, y) {
 
 let result = add(five, ten);
 
-\"Hello, World!\""
-            .to_owned()
-            .into_bytes()
-            .into_boxed_slice();
+\"Hello, World!\"";
 
         let expected: [Token; 38] = [
             Token::Let,
@@ -282,14 +271,11 @@ let result = add(five, ten);
 
     #[test]
     fn if_else() {
-        let input = "if (5 < 10) {
+        let input = b"if (5 < 10) {
     return true;
 } else {
     return false;
-}"
-        .to_owned()
-        .into_bytes()
-        .into_boxed_slice();
+}";
 
         let expected: [Token; 18] = [
             Token::If,
@@ -322,10 +308,7 @@ let result = add(five, ten);
     }
     #[test]
     fn equality() {
-        let input = "10 == 10;\n9 != 10;"
-            .to_owned()
-            .into_bytes()
-            .into_boxed_slice();
+        let input = b"10 == 10;\n9 != 10;";
 
         let expected: [Token; 8] = [
             Token::Int(String::from("10")),

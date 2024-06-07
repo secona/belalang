@@ -7,7 +7,7 @@ use crate::{
 
 use super::Precedence;
 
-impl super::Parser {
+impl super::Parser<'_> {
     pub fn infix_fn(
         &mut self,
         tok: &token::Token,

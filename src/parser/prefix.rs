@@ -5,7 +5,7 @@ use crate::{
 
 use super::Precedence;
 
-impl super::Parser {
+impl super::Parser<'_> {
     pub fn prefix_fn(&mut self) -> Option<Expression> {
         match self.curr_token {
             token::Token::Ident(_) => Some(self.parse_identifier()),

@@ -12,7 +12,7 @@ fn main() {
             .read_line(&mut input)
             .expect("Error reading from STDIN");
 
-        let mut lexer = Lexer::new(input.into_bytes().into_boxed_slice());
+        let mut lexer = Lexer::new(input.as_bytes());
 
         loop {
             let token = lexer.next_token();

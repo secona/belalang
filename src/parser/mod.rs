@@ -30,15 +30,15 @@ impl From<&token::Token> for Precedence {
     }
 }
 
-pub struct Parser {
-    lexer: lexer::Lexer,
+pub struct Parser<'a> {
+    lexer: lexer::Lexer<'a>,
     curr_token: token::Token,
     peek_token: token::Token,
     pub errors: Vec<String>,
 }
 
-impl Parser {
-    pub fn new(mut lexer: lexer::Lexer) -> Parser {
+impl Parser<'_> {
+    pub fn new(mut lexer: lexer::Lexer<'_>) -> Parser {
         let curr_token = lexer.next_token();
         let peek_token = lexer.next_token();
 
@@ -51,10 +51,8 @@ impl Parser {
     }
 
     fn next_token(&mut self) {
-        self.curr_token = self.peek_token.clone();
-
-        let token = self.lexer.next_token();
-        self.peek_token = token;
+        std::mem::swap(&mut self.curr_token, &mut self.peek_token);
+        self.peek_token = self.lexer.next_token();
     }
 
     fn curr_token_is(&self, other: token::Token) -> bool {
@@ -66,13 +64,11 @@ impl Parser {
     }
 
     fn curr_precedence(&self) -> Precedence {
-        let curr = self.curr_token.clone();
-        Precedence::from(&curr)
+        Precedence::from(&self.curr_token)
     }
 
     fn peek_precedence(&self) -> Precedence {
-        let peek = self.peek_token.clone();
-        Precedence::from(&peek)
+        Precedence::from(&self.peek_token)
     }
 
     fn expect_peek(&mut self, other: token::Token) -> bool {
@@ -251,7 +247,7 @@ mod tests {
 
     #[test]
     fn integer_literal_expression() {
-        let input = "5;".to_owned().into_bytes().into_boxed_slice();
+        let input = b"5;";
 
         let lexer = lexer::Lexer::new(input);
         let mut parser = super::Parser::new(lexer);

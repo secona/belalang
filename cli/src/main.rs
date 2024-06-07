@@ -29,7 +29,7 @@ fn main() -> Result<(), ()> {
 fn run_file(filename: PathBuf) -> Result<(), Box<dyn Error>> {
     let file = fs::read(filename).expect("Unable to read file!");
 
-    let lexer = Lexer::new(file.into());
+    let lexer = Lexer::new(file.as_slice());
     let mut parser = BelalangParser::new(lexer);
     let builtins = Builtins::default();
 
