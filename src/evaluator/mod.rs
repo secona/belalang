@@ -225,6 +225,14 @@ impl Evaluator {
                 self.env.set(&var_declare.name.value, value.clone());
                 Ok(value)
             }
+            Statement::WhileStatement(stmt) => {
+                while let Object::Boolean(true) = self.eval_expression(*stmt.condition.clone())? {
+                    self.eval_statement(Statement::BlockStatement(stmt.block.clone()))?;
+                }
+
+                Ok(Object::Null)
+            }
+            // _ => Ok(Object::Null),
         }
     }
 }

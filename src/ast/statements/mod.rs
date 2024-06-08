@@ -3,12 +3,14 @@ mod expression_statement;
 mod return_statement;
 mod var_assign;
 mod var_declare;
+mod while_statement;
 
 pub use block_statement::*;
 pub use expression_statement::*;
 pub use return_statement::*;
 pub use var_assign::*;
 pub use var_declare::*;
+pub use while_statement::*;
 
 #[derive(Debug, Clone)]
 pub enum Statement {
@@ -17,6 +19,7 @@ pub enum Statement {
     ReturnStatement(ReturnStatement),
     VarAssign(VarAssign),
     VarDeclare(VarDeclare),
+    WhileStatement(WhileStatement),
 }
 
 impl std::fmt::Display for Statement {
@@ -27,6 +30,7 @@ impl std::fmt::Display for Statement {
             Statement::ReturnStatement(v) => v.to_string(),
             Statement::VarAssign(v) => v.to_string(),
             Statement::VarDeclare(v) => v.to_string(),
+            Statement::WhileStatement(v) => v.to_string(),
         };
 
         f.write_str(&value)

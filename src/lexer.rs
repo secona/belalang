@@ -133,7 +133,7 @@ impl<'a> Lexer<'a> {
             self.read_char();
         }
 
-        Token::lookup_ident(&self.input[position..self.position])
+        Token::from(&self.input[position..self.position])
     }
 
     pub fn is_letter(&self) -> bool {
@@ -208,31 +208,28 @@ mod tests {
 
     #[test]
     fn multichar_token() {
-        let input = b"let five = 5;
-let ten = 10;
+        let input = b"five := 5;
+ten := 10;
 
-let add = fn(x, y) {
+add := fn(x, y) {
     x + y;
 };
 
-let result = add(five, ten);
+result := add(five, ten);
 
 \"Hello, World!\"";
 
-        let expected: [Token; 38] = [
-            Token::Let,
+        let expected: [Token; 34] = [
             Token::Ident(String::from("five")),
-            Token::Assign,
+            Token::Walrus,
             Token::Int(String::from("5")),
             Token::Semicolon,
-            Token::Let,
             Token::Ident(String::from("ten")),
-            Token::Assign,
+            Token::Walrus,
             Token::Int(String::from("10")),
             Token::Semicolon,
-            Token::Let,
             Token::Ident(String::from("add")),
-            Token::Assign,
+            Token::Walrus,
             Token::Function,
             Token::LParen,
             Token::Ident(String::from("x")),
@@ -246,9 +243,8 @@ let result = add(five, ten);
             Token::Semicolon,
             Token::RBrace,
             Token::Semicolon,
-            Token::Let,
             Token::Ident(String::from("result")),
-            Token::Assign,
+            Token::Walrus,
             Token::Ident(String::from("add")),
             Token::LParen,
             Token::Ident(String::from("five")),

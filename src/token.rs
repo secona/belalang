@@ -1,7 +1,8 @@
-#[derive(PartialEq, Eq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub enum Token {
-    Empty,
+    #[default]
     EOF,
+    Empty,
 
     Ident(String),
     Int(String),
@@ -32,7 +33,8 @@ pub enum Token {
     RBrace,
 
     Function,
-    Let,
+    While,
+
     True,
     False,
     If,
@@ -40,17 +42,17 @@ pub enum Token {
     Return,
 }
 
-impl Token {
-    pub fn lookup_ident(ident: &[u8]) -> Token {
-        match ident {
-            b"let" => Token::Let,
+impl From<&[u8]> for Token {
+    fn from(value: &[u8]) -> Self {
+        match value {
             b"fn" => Token::Function,
+            b"while" => Token::While,
             b"true" => Token::True,
             b"false" => Token::False,
             b"if" => Token::If,
             b"else" => Token::Else,
             b"return" => Token::Return,
-            _ => Token::Ident(String::from_utf8(ident.to_vec()).unwrap()),
+            _ => Token::Ident(String::from_utf8(value.to_vec()).unwrap()),
         }
     }
 }
@@ -81,7 +83,6 @@ impl std::fmt::Display for Token {
             Token::LBrace => "{",
             Token::RBrace => "}",
             Token::Function => "fn",
-            Token::Let => "let",
             Token::True => "true",
             Token::False => "false",
             Token::If => "if",
@@ -89,6 +90,7 @@ impl std::fmt::Display for Token {
             Token::Return => "return",
             Token::Walrus => ":=",
             Token::Percent => "%",
+            Token::While => "while",
         })
     }
 }

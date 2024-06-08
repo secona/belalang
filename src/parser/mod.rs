@@ -51,7 +51,7 @@ impl Parser<'_> {
     }
 
     fn next_token(&mut self) {
-        std::mem::swap(&mut self.curr_token, &mut self.peek_token);
+        self.curr_token = std::mem::take(&mut self.peek_token);
         self.peek_token = self.lexer.next_token();
     }
 
@@ -112,6 +112,7 @@ impl Parser<'_> {
         match self.curr_token {
             token::Token::Return => self.parse_return_statement(),
             token::Token::Ident(_) => self.parse_ident(),
+            token::Token::While => self.parse_while_statement(),
             _ => self.parse_expression_statement(),
         }
     }
@@ -129,6 +130,33 @@ impl Parser<'_> {
         Some(Statement::ReturnStatement(ast::ReturnStatement {
             token,
             return_value,
+        }))
+    }
+
+    fn parse_while_statement(&mut self) -> Option<Statement> {
+        let token = self.curr_token.clone();
+
+        if !self.expect_peek(token::Token::LParen) {
+            return None;
+        }
+
+        self.next_token();
+        let condition = self.parse_expression(Precedence::Lowest).unwrap();
+
+        if !self.expect_peek(token::Token::RParen) {
+            return None;
+        }
+
+        if !self.expect_peek(token::Token::LBrace) {
+            return None;
+        }
+
+        let block = self.parse_block_statement();
+
+        Some(Statement::WhileStatement(ast::WhileStatement {
+            token,
+            condition: Box::new(condition),
+            block,
         }))
     }
 
