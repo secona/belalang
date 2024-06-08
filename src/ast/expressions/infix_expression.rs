@@ -13,7 +13,7 @@ impl std::fmt::Display for InfixExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{} {} {}",
+            "({} {} {})",
             self.left.to_string(),
             self.operator,
             self.right.to_string(),

@@ -1,11 +1,10 @@
 #![allow(dead_code)]
 
 use crate::{
-    ast::{self, Expression},
-    token,
+    ast::{self, Expression}, expect_peek, token
 };
 
-use super::Precedence;
+use super::{error::ParserError, Precedence};
 
 impl super::Parser<'_> {
     pub fn infix_fn(
@@ -48,7 +47,7 @@ impl super::Parser<'_> {
     }
 
     fn parse_call_expression(&mut self, function: Expression) -> Result<Expression, Expression> {
-        if let Some(args) = self.parse_call_args() {
+        if let Ok(args) = self.parse_call_args() {
             Ok(Expression::CallExpression(ast::CallExpression {
                 token: self.curr_token.clone(),
                 function: Box::new(function),
@@ -59,28 +58,26 @@ impl super::Parser<'_> {
         }
     }
 
-    fn parse_call_args(&mut self) -> Option<Vec<Expression>> {
+    fn parse_call_args(&mut self) -> Result<Vec<Expression>, ParserError> {
         let mut args = Vec::new();
 
-        if self.peek_token_is(token::Token::RParen) {
+        if matches!(self.peek_token, token::Token::RParen) {
             self.next_token();
-            return Some(args);
+            return Ok(args);
         }
 
         self.next_token();
         args.push(self.parse_expression(Precedence::Lowest)?);
 
-        while self.peek_token_is(token::Token::Comma) {
+        while matches!(self.peek_token, token::Token::Comma) {
             self.next_token();
             self.next_token();
 
             args.push(self.parse_expression(Precedence::Lowest)?);
         }
 
-        if !self.expect_peek(token::Token::RParen) {
-            return None;
-        }
+        expect_peek!(self, token::Token::RParen);
 
-        Some(args)
+        Ok(args)
     }
 }

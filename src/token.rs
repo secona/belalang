@@ -60,8 +60,8 @@ impl From<&[u8]> for Token {
 impl std::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
-            Token::Empty => "",
-            Token::EOF => "",
+            Token::Empty => "<empty>",
+            Token::EOF => "EOF",
             Token::Ident(s) => s,
             Token::Int(s) => s,
             Token::Illegal(s) => s,
