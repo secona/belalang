@@ -1,45 +1,34 @@
-use std::io::{self, Write};
-
 use super::object::Object;
+use std::collections::HashMap;
+
+mod println;
+
+pub trait BuiltinFunction {
+    fn call(&self, args: Vec<Object>) -> Object;
+}
 
 pub struct Builtins {
-    pub out: Box<dyn Write>,
+    builtins: HashMap<String, Box<dyn BuiltinFunction>>,
 }
 
 impl Default for Builtins {
     fn default() -> Self {
-        Self {
-            out: Box::new(io::stdout()),
-        }
+        let mut builtins = HashMap::<String, Box<dyn BuiltinFunction>>::new();
+        builtins.insert("println".into(), Box::new(println::Println));
+
+        Self { builtins }
     }
 }
 
 impl Builtins {
-    pub fn new(out: Box<dyn Write>) -> Self {
-        Self { out }
-    }
-
     pub fn has_fn(&self, name: &String) -> bool {
-        name == "println"
+        self.builtins.contains_key(name)
     }
-    
+
     pub fn call(&mut self, name: String, args: Vec<Object>) -> Object {
-        match name.as_str() {
-            "println" => self.println(args),
-            _ => Object::Null,
+        match self.builtins.get(&name) {
+            Some(f) => f.call(args),
+            None => Object::Null,
         }
-    }
-
-    pub fn println(&mut self, args: Vec<Object>) -> Object {
-        let _ = write!(
-            self.out,
-            "{}\n",
-            args.iter()
-                .map(|arg| arg.to_string())
-                .collect::<Vec<_>>()
-                .join(" ")
-        );
-
-        Object::Null
     }
 }
