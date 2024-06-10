@@ -31,4 +31,10 @@ impl Builtins {
             None => Object::Null,
         }
     }
+
+    pub fn override_builtin(&mut self, name: String, f: Box<dyn BuiltinFunction>) {
+        if self.has_fn(&name) {
+            self.builtins.insert(name, f);
+        }
+    }
 }
