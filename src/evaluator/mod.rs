@@ -167,7 +167,7 @@ impl Evaluator {
                 Some(value) => Ok(value.clone()),
                 None => match self.builtins.has_fn(&ident.value) {
                     true => Ok(Object::Builtin(ident.value)),
-                    false => Ok(Object::Null),
+                    false => Err(EvaluatorError::UnknownVariable(ident.value)),
                 },
             },
         }
@@ -199,32 +199,35 @@ impl Evaluator {
                 let value = self.eval_expression(return_stmt.return_value)?;
                 Err(EvaluatorError::ReturningValue(value))
             }
-            Statement::VarAssign(var_assign) => {
-                let name = &var_assign.name.value;
+            Statement::Var(var) => match var.token {
+                Token::Walrus => {
+                    let name = &var.name.value;
 
-                if self.builtins.has_fn(name) {
-                    return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
+                    if self.env.has_here(name) {
+                        return Err(EvaluatorError::VariableRedeclaration(name.clone()));
+                    }
+
+                    if self.builtins.has_fn(name) {
+                        return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
+                    }
+
+                    let value = self.eval_expression(var.value)?;
+                    self.env.set(&var.name.value, value.clone());
+                    Ok(value)
                 }
+                Token::Assign => {
+                    let name = &var.name.value;
 
-                let value = self.eval_expression(var_assign.value)?;
-                self.env.set(&var_assign.name.value, value.clone());
-                Ok(value)
-            }
-            Statement::VarDeclare(var_declare) => {
-                let name = &var_declare.name.value;
+                    if self.builtins.has_fn(name) {
+                        return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
+                    }
 
-                if self.env.has_here(name) {
-                    return Err(EvaluatorError::VariableRedeclaration(name.clone()));
+                    let value = self.eval_expression(var.value)?;
+                    self.env.set(&var.name.value, value.clone());
+                    Ok(value)
                 }
-
-                if self.builtins.has_fn(name) {
-                    return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
-                }
-
-                let value = self.eval_expression(var_declare.value)?;
-                self.env.set(&var_declare.name.value, value.clone());
-                Ok(value)
-            }
+                _ => Err(EvaluatorError::NotAFunction()),
+            },
             Statement::WhileStatement(stmt) => {
                 while let Object::Boolean(true) = self.eval_expression(*stmt.condition.clone())? {
                     self.eval_statement(Statement::BlockStatement(stmt.block.clone()))?;
@@ -232,7 +235,6 @@ impl Evaluator {
 
                 Ok(Object::Null)
             }
-            // _ => Ok(Object::Null),
         }
     }
 }

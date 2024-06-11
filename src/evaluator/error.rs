@@ -9,8 +9,8 @@ pub enum EvaluatorError {
     #[error("unknown operator: {0} {1} {2}")]
     UnknownInfixOperator(Object, Token, Object),
 
-    #[error("identifier not found: {0}")]
-    IdentifierNotFound(String),
+    #[error("unknown variable: {0}")]
+    UnknownVariable(String),
 
     #[error("not a function")]
     NotAFunction(),
@@ -23,4 +23,7 @@ pub enum EvaluatorError {
 
     #[error("illegal returning value: {0}")]
     ReturningValue(Object),
+
+    #[error("unexpected token: {0}")]
+    UnexpectedToken(Token)
 }

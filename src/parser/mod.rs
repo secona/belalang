@@ -143,7 +143,7 @@ impl Parser<'_> {
 
     fn parse_ident(&mut self) -> Result<Statement, ParserError> {
         match self.peek_token {
-            token::Token::Walrus => {
+            token::Token::Walrus | token::Token::Assign => {
                 let name = ast::Identifier {
                     token: self.curr_token.clone(),
                     value: self.curr_token.to_string(),
@@ -159,29 +159,11 @@ impl Parser<'_> {
                     self.next_token();
                 }
 
-                Ok(Statement::VarDeclare(ast::VarDeclare {
+                Ok(Statement::Var(ast::Var {
                     token,
                     name,
                     value,
                 }))
-            }
-            token::Token::Assign => {
-                let name = ast::Identifier {
-                    token: self.curr_token.clone(),
-                    value: self.curr_token.to_string(),
-                };
-
-                self.next_token();
-                let token = self.curr_token.clone();
-
-                self.next_token();
-                let value = self.parse_expression(Precedence::Lowest)?;
-
-                if matches!(self.peek_token, token::Token::Semicolon) {
-                    self.next_token();
-                }
-
-                Ok(Statement::VarAssign(ast::VarAssign { token, name, value }))
             }
             _ => self.parse_expression_statement(),
         }

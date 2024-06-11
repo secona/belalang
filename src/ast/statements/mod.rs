@@ -1,15 +1,13 @@
 mod block_statement;
 mod expression_statement;
 mod return_statement;
-mod var_assign;
-mod var_declare;
+mod var;
 mod while_statement;
 
 pub use block_statement::*;
 pub use expression_statement::*;
 pub use return_statement::*;
-pub use var_assign::*;
-pub use var_declare::*;
+pub use var::*;
 pub use while_statement::*;
 
 #[derive(Debug, Clone)]
@@ -17,8 +15,7 @@ pub enum Statement {
     BlockStatement(BlockStatement),
     ExpressionStatement(ExpressionStatement),
     ReturnStatement(ReturnStatement),
-    VarAssign(VarAssign),
-    VarDeclare(VarDeclare),
+    Var(Var),
     WhileStatement(WhileStatement),
 }
 
@@ -28,8 +25,7 @@ impl std::fmt::Display for Statement {
             Statement::BlockStatement(v) => v.to_string(),
             Statement::ExpressionStatement(v) => v.to_string(),
             Statement::ReturnStatement(v) => v.to_string(),
-            Statement::VarAssign(v) => v.to_string(),
-            Statement::VarDeclare(v) => v.to_string(),
+            Statement::Var(v) => v.to_string(),
             Statement::WhileStatement(v) => v.to_string(),
         };
 

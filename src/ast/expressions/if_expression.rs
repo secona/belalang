@@ -137,7 +137,7 @@ mod tests {
         // testing consequence block
         let stmt_0 = testing::as_variant!(
             &if_expr.consequence.statements[0],
-            ast::Statement::VarDeclare
+            ast::Statement::Var
         );
         testing::ident_has_name!(stmt_0.name, "a");
         testing::expr_variant!(&stmt_0.value, ast::Expression::IntegerLiteral = 10);
