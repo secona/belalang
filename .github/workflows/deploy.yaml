@@ -1,0 +1,48 @@
+on:
+  push:
+    paths:
+      - web/**
+
+defaults:
+  run:
+     working-directory: web 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+        
+      - name: install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: build wasm
+        run: wasm-pack build --release
+        
+      - name: install pnpm
+        uses: pnpm/actions-setup@v4
+        with:
+          version: 9
+          run_install: false
+          
+      - name: install dependencies
+        run: pnpm install
+
+      - name: build project
+        run: pnpm build
+
+      - name: publish to cloudflare pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: ${{ secrets.CF_PROJECT_NAME }}
+          directory: dist
+          workingDirectory: web
