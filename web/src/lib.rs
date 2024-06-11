@@ -50,6 +50,6 @@ pub fn run_code(input: String) {
     let mut builtins = Builtins::default();
     builtins.override_builtin("println".into(), Box::new(Println::new()));
 
-    let mut ev = Evaluator::new(program, builtins);
-    let _ = ev.evaluate();
+    let mut ev = Evaluator::new(builtins);
+    let _ = ev.eval_program(program);
 }

@@ -4,7 +4,7 @@ pub mod error;
 pub mod object;
 
 use crate::{
-    ast::{self, Expression, Statement},
+    ast::{Expression, Node, Program, Statement},
     evaluator::{environment::Environment, error::EvaluatorError, object::Object},
     token::Token,
 };
@@ -12,7 +12,6 @@ use crate::{
 use self::builtins::Builtins;
 
 pub struct Evaluator {
-    program: ast::Program,
     env: Environment,
     builtins: Builtins,
 }
@@ -22,43 +21,37 @@ impl Default for Evaluator {
         Self {
             env: Environment::default(),
             builtins: Builtins::default(),
-            program: ast::Program {
-                statements: Vec::new(),
-            },
         }
     }
 }
 
 impl Evaluator {
-    pub fn new(program: ast::Program, builtins: Builtins) -> Self {
+    pub fn new(builtins: Builtins) -> Self {
         Self {
-            program,
             builtins,
             env: Environment::default(),
         }
     }
 
-    pub fn evaluate(&mut self) -> Result<Object, EvaluatorError> {
-        let mut statements = Vec::with_capacity(self.program.statements.len());
-        std::mem::swap(&mut statements, &mut self.program.statements);
-
-        self.evaluate_statements(statements)
+    pub fn eval(&mut self, node: Node) -> Result<Object, EvaluatorError> {
+        match node {
+            Node::Expression(expr) => self.eval_expression(expr),
+            Node::Statement(stmt) => self.eval_statement(stmt),
+            Node::Program(prog) => self.eval_program(prog),
+        }
     }
 
-    pub fn evaluate_statements(
-        &mut self,
-        statements: Vec<Statement>,
-    ) -> Result<Object, EvaluatorError> {
+    pub fn eval_program(&mut self, program: Program) -> Result<Object, EvaluatorError> {
         let mut result: Object = Object::Null;
 
-        for statement in statements {
+        for statement in program.statements {
             result = self.eval_statement(statement)?;
         }
 
         Ok(result)
     }
 
-    fn eval_expression(&mut self, expression: Expression) -> Result<Object, EvaluatorError> {
+    pub fn eval_expression(&mut self, expression: Expression) -> Result<Object, EvaluatorError> {
         match expression {
             Expression::Integer(int_lit) => Ok(Object::Integer(int_lit.value)),
             Expression::Boolean(bool_expr) => Ok(Object::Boolean(bool_expr.value)),
@@ -133,7 +126,11 @@ impl Evaluator {
             }
             Expression::Call(call_expr) => {
                 let function = self.eval_expression(*call_expr.function)?;
-                let args = self.eval_expressions(call_expr.args)?;
+                let args = call_expr
+                    .args
+                    .into_iter()
+                    .map(|arg| self.eval_expression(arg))
+                    .collect::<Result<Vec<_>, _>>()?;
 
                 match function {
                     Object::Function {
@@ -173,17 +170,7 @@ impl Evaluator {
         }
     }
 
-    fn eval_expressions(&mut self, exprs: Vec<Expression>) -> Result<Vec<Object>, EvaluatorError> {
-        let mut result = Vec::with_capacity(exprs.len());
-
-        for expr in exprs {
-            result.push(self.eval_expression(expr)?);
-        }
-
-        Ok(result)
-    }
-
-    fn eval_statement(&mut self, statement: Statement) -> Result<Object, EvaluatorError> {
+    pub fn eval_statement(&mut self, statement: Statement) -> Result<Object, EvaluatorError> {
         match statement {
             Statement::Expression(node) => self.eval_expression(node.expression),
             Statement::Block(block_stmt) => {

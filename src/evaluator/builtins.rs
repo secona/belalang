@@ -25,7 +25,7 @@ impl Builtins {
         self.builtins.contains_key(name)
     }
 
-    pub fn call(&mut self, name: String, args: Vec<Object>) -> Object {
+    pub fn call(&self, name: String, args: Vec<Object>) -> Object {
         match self.builtins.get(&name) {
             Some(f) => f.call(args),
             None => Object::Null,

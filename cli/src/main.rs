@@ -2,7 +2,6 @@ use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 
-use belalang::evaluator::builtins::Builtins;
 use belalang::evaluator::Evaluator;
 use belalang::lexer::Lexer;
 use belalang::parser::Parser as BelalangParser;
@@ -31,12 +30,11 @@ fn run_file(filename: PathBuf) -> Result<(), Box<dyn Error>> {
 
     let lexer = Lexer::new(file.as_slice());
     let mut parser = BelalangParser::new(lexer);
-    let builtins = Builtins::default();
+    let mut ev = Evaluator::default();
 
     match parser.parse_program() {
         Ok(program) => {
-            let mut ev = Evaluator::new(program, builtins);
-            println!("{:?}", ev.evaluate());
+            println!("{:?}", ev.eval_program(program));
         }
         Err(errors) => {
             println!("parser errors:");
@@ -64,7 +62,7 @@ fn repl() -> Result<(), Box<dyn Error>> {
                 let mut parser = BelalangParser::new(lexer);
 
                 match parser.parse_program() {
-                    Ok(program) => match ev.evaluate_statements(program.statements) {
+                    Ok(program) => match ev.eval_program(program) {
                         Ok(evaluated) => println!("{}", evaluated),
                         Err(msg) => println!("{}", msg),
                     },
