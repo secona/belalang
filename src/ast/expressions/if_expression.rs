@@ -40,9 +40,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression);
+        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::If);
 
         assert_eq!(if_expr.token, token::Token::If);
 
@@ -58,7 +58,7 @@ mod tests {
         // testing the consequence block
         let stmt_1 = testing::as_variant!(
             &if_expr.consequence.statements[0],
-            ast::Statement::ExpressionStatement
+            ast::Statement::Expression
         );
         testing::expr_variant!(&stmt_1.expression, ast::Expression::Identifier = "x");
 
@@ -77,9 +77,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression);
+        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::If);
 
         assert_eq!(if_expr.token, token::Token::If);
 
@@ -95,7 +95,7 @@ mod tests {
         // testing the consequence block
         let stmt_0 = testing::as_variant!(
             &if_expr.consequence.statements[0],
-            ast::Statement::ExpressionStatement
+            ast::Statement::Expression
         );
         testing::expr_variant!(&stmt_0.expression, ast::Expression::Identifier = "x");
 
@@ -103,7 +103,7 @@ mod tests {
         let alt = if_expr.alternative.as_ref().expect("alternative is None");
         assert_eq!(alt.token, token::Token::LBrace);
 
-        let stmt_0 = testing::as_variant!(&alt.statements[0], ast::Statement::ExpressionStatement);
+        let stmt_0 = testing::as_variant!(&alt.statements[0], ast::Statement::Expression);
         testing::expr_variant!(&stmt_0.expression, ast::Expression::Identifier = "y");
     }
 
@@ -119,9 +119,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::IfExpression);
+        let if_expr = testing::as_variant!(&stmt.expression, ast::Expression::If);
 
         testing::expr_variant!(
             if_expr.condition.as_ref(), Infix => (
@@ -140,11 +140,11 @@ mod tests {
             ast::Statement::Var
         );
         testing::ident_has_name!(stmt_0.name, "a");
-        testing::expr_variant!(&stmt_0.value, ast::Expression::IntegerLiteral = 10);
+        testing::expr_variant!(&stmt_0.value, ast::Expression::Integer = 10);
 
         let stmt_1 = testing::as_variant!(
             &if_expr.consequence.statements[1],
-            ast::Statement::ExpressionStatement
+            ast::Statement::Expression
         );
         testing::expr_variant!(&stmt_1.expression, ast::Expression::Identifier = "x");
     }

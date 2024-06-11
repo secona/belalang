@@ -23,9 +23,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let expr =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let bool_expr = testing::as_variant!(&expr.expression, ast::Expression::BooleanExpression);
+        let bool_expr = testing::as_variant!(&expr.expression, ast::Expression::Boolean);
 
         assert_eq!(bool_expr.value, true);
         assert_eq!(bool_expr.token, token::Token::True);
@@ -38,9 +38,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let expr =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let bool_expr = testing::as_variant!(&expr.expression, ast::Expression::BooleanExpression);
+        let bool_expr = testing::as_variant!(&expr.expression, ast::Expression::Boolean);
 
         assert_eq!(bool_expr.value, false);
         assert_eq!(bool_expr.token, token::Token::False);

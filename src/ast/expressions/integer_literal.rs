@@ -23,9 +23,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let expr =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let int = testing::as_variant!(&expr.expression, ast::Expression::IntegerLiteral);
+        let int = testing::as_variant!(&expr.expression, ast::Expression::Integer);
 
         assert_eq!(int.token, token::Token::Int("12".into()));
         assert_eq!(int.value, 12);

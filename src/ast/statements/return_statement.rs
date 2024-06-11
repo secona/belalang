@@ -23,11 +23,11 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let ret = testing::as_variant!(&program.statements[0], ast::Statement::ReturnStatement);
+        let ret = testing::as_variant!(&program.statements[0], ast::Statement::Return);
 
         assert_eq!(ret.token, token::Token::Return);
 
-        let val = testing::as_variant!(&ret.return_value, ast::Expression::IntegerLiteral);
+        let val = testing::as_variant!(&ret.return_value, ast::Expression::Integer);
 
         assert_eq!(val.token, token::Token::Int("12".into()));
         assert_eq!(val.value, 12);

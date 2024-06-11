@@ -31,7 +31,7 @@ impl super::Parser<'_> {
         let literal = self.curr_token.clone().to_string();
 
         match literal.parse::<i64>() {
-            Ok(lit) => Ok(Expression::IntegerLiteral(ast::IntegerLiteral {
+            Ok(lit) => Ok(Expression::Integer(ast::IntegerLiteral {
                 token: self.curr_token.clone(),
                 value: lit,
             })),
@@ -46,7 +46,7 @@ impl super::Parser<'_> {
 
         let right = self.parse_expression(Precedence::Prefix).unwrap();
 
-        Ok(Expression::PrefixExpression(ast::PrefixExpression {
+        Ok(Expression::Prefix(ast::PrefixExpression {
             operator: prev_token.clone(),
             token: prev_token,
             right: Box::new(right),
@@ -54,7 +54,7 @@ impl super::Parser<'_> {
     }
 
     fn parse_boolean(&self) -> Result<Expression, ParserError> {
-        Ok(Expression::BooleanExpression(ast::BooleanExpression {
+        Ok(Expression::Boolean(ast::BooleanExpression {
             token: self.curr_token.clone(),
             value: matches!(self.curr_token, token::Token::True),
         }))
@@ -94,7 +94,7 @@ impl super::Parser<'_> {
             None
         };
 
-        Ok(Expression::IfExpression(ast::IfExpression {
+        Ok(Expression::If(ast::IfExpression {
             token,
             condition: Box::new(condition),
             consequence,
@@ -113,7 +113,7 @@ impl super::Parser<'_> {
 
         let body = self.parse_block_statement();
 
-        Ok(Expression::FunctionLiteral(ast::FunctionLiteral {
+        Ok(Expression::Function(ast::FunctionLiteral {
             token,
             params,
             body,
@@ -121,7 +121,7 @@ impl super::Parser<'_> {
     }
 
     fn parse_string_literal(&mut self) -> Result<Expression, ParserError> {
-        Ok(Expression::StringLiteral(ast::StringLiteral {
+        Ok(Expression::String(ast::StringLiteral {
             token: self.curr_token.clone(),
             value: self.curr_token.to_string(),
         }))

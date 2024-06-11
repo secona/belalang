@@ -38,7 +38,7 @@ impl super::Parser<'_> {
 
         let right = self.parse_expression(precedence).unwrap();
 
-        Ok(Expression::InfixExpression(ast::InfixExpression {
+        Ok(Expression::Infix(ast::InfixExpression {
             token,
             left: Box::new(left),
             operator,
@@ -48,7 +48,7 @@ impl super::Parser<'_> {
 
     fn parse_call_expression(&mut self, function: Expression) -> Result<Expression, Expression> {
         if let Ok(args) = self.parse_call_args() {
-            Ok(Expression::CallExpression(ast::CallExpression {
+            Ok(Expression::Call(ast::CallExpression {
                 token: self.curr_token.clone(),
                 function: Box::new(function),
                 args,

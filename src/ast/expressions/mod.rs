@@ -20,29 +20,29 @@ pub use string_literal::*;
 
 #[derive(Debug, Clone)]
 pub enum Expression {
-    BooleanExpression(BooleanExpression),
-    CallExpression(CallExpression),
-    FunctionLiteral(FunctionLiteral),
+    Boolean(BooleanExpression),
+    Call(CallExpression),
+    Function(FunctionLiteral),
     Identifier(Identifier),
-    IfExpression(IfExpression),
-    InfixExpression(InfixExpression),
-    IntegerLiteral(IntegerLiteral),
-    PrefixExpression(PrefixExpression),
-    StringLiteral(StringLiteral),
+    If(IfExpression),
+    Infix(InfixExpression),
+    Integer(IntegerLiteral),
+    Prefix(PrefixExpression),
+    String(StringLiteral),
 }
 
 impl std::fmt::Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value = match self {
-            Expression::BooleanExpression(v) => v.to_string(),
-            Expression::CallExpression(v) => v.to_string(),
-            Expression::FunctionLiteral(v) => v.to_string(),
+            Expression::Boolean(v) => v.to_string(),
+            Expression::Call(v) => v.to_string(),
+            Expression::Function(v) => v.to_string(),
             Expression::Identifier(v) => v.to_string(),
-            Expression::IfExpression(v) => v.to_string(),
-            Expression::InfixExpression(v) => v.to_string(),
-            Expression::IntegerLiteral(v) => v.to_string(),
-            Expression::PrefixExpression(v) => v.to_string(),
-            Expression::StringLiteral(v) => v.to_string(),
+            Expression::If(v) => v.to_string(),
+            Expression::Infix(v) => v.to_string(),
+            Expression::Integer(v) => v.to_string(),
+            Expression::Prefix(v) => v.to_string(),
+            Expression::String(v) => v.to_string(),
         };
 
         f.write_str(&value)

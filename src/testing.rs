@@ -49,7 +49,7 @@ macro_rules! expr_variant {
         assert_eq!(v.token.to_string(), $expected.to_string());
     };
     ($value:expr, Infix => ($left_variant:path = $left:expr, $op:expr, $right_variant:path = $right:expr)) => {
-        let v = testing::as_variant!($value, ast::Expression::InfixExpression);
+        let v = testing::as_variant!($value, ast::Expression::Infix);
 
         testing::expr_variant!(&*v.left, $left_variant = $left);
         testing::expr_variant!(&*v.right, $right_variant = $right);

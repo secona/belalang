@@ -12,21 +12,21 @@ pub use while_statement::*;
 
 #[derive(Debug, Clone)]
 pub enum Statement {
-    BlockStatement(BlockStatement),
-    ExpressionStatement(ExpressionStatement),
-    ReturnStatement(ReturnStatement),
+    Block(BlockStatement),
+    Expression(ExpressionStatement),
+    Return(ReturnStatement),
     Var(Var),
-    WhileStatement(WhileStatement),
+    While(WhileStatement),
 }
 
 impl std::fmt::Display for Statement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value = match self {
-            Statement::BlockStatement(v) => v.to_string(),
-            Statement::ExpressionStatement(v) => v.to_string(),
-            Statement::ReturnStatement(v) => v.to_string(),
+            Statement::Block(v) => v.to_string(),
+            Statement::Expression(v) => v.to_string(),
+            Statement::Return(v) => v.to_string(),
             Statement::Var(v) => v.to_string(),
-            Statement::WhileStatement(v) => v.to_string(),
+            Statement::While(v) => v.to_string(),
         };
 
         f.write_str(&value)

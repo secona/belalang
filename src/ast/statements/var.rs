@@ -31,7 +31,7 @@ mod tests {
         assert_eq!(stmt.token, token::Token::Walrus);
         testing::ident_has_name!(stmt.name, "x");
 
-        testing::expr_variant!(&stmt.value, ast::Expression::IntegerLiteral = 5);
+        testing::expr_variant!(&stmt.value, ast::Expression::Integer = 5);
     }
 
     #[test]
@@ -45,6 +45,6 @@ mod tests {
         assert_eq!(stmt.token, token::Token::Assign);
         testing::ident_has_name!(stmt.name, "x");
 
-        testing::expr_variant!(&stmt.value, ast::Expression::IntegerLiteral = 5);
+        testing::expr_variant!(&stmt.value, ast::Expression::Integer = 5);
     }
 }

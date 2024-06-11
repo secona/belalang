@@ -31,12 +31,12 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let expr = testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+        let expr = testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
         testing::expr_variant!(&expr.expression, Infix => (
-            ast::Expression::IntegerLiteral = 1,
+            ast::Expression::Integer = 1,
             token::Token::Plus,
-            ast::Expression::IntegerLiteral = 2
+            ast::Expression::Integer = 2
         ));
     }
 }

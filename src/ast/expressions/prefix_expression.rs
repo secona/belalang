@@ -25,14 +25,14 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let expr =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let prefix = testing::as_variant!(&expr.expression, ast::Expression::PrefixExpression);
+        let prefix = testing::as_variant!(&expr.expression, ast::Expression::Prefix);
 
         assert_eq!(prefix.token, token::Token::Minus);
         assert_eq!(prefix.operator, token::Token::Minus);
 
-        let right = testing::as_variant!(&*prefix.right, ast::Expression::IntegerLiteral);
+        let right = testing::as_variant!(&*prefix.right, ast::Expression::Integer);
 
         assert_eq!(right.token, token::Token::Int("12".into()));
         assert_eq!(right.value, 12);

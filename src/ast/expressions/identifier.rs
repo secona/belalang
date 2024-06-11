@@ -23,7 +23,7 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let expr =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
         let ident = testing::as_variant!(&expr.expression, ast::Expression::Identifier);
 

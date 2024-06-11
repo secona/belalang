@@ -32,26 +32,26 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression);
+        let expr = testing::as_variant!(&stmt.expression, ast::Expression::Call);
 
         testing::expr_variant!(&*expr.function, ast::Expression::Identifier = "add");
 
         assert_eq!(expr.args.len(), 3);
-        testing::expr_variant!(&expr.args[0], ast::Expression::IntegerLiteral = 1);
+        testing::expr_variant!(&expr.args[0], ast::Expression::Integer = 1);
         testing::expr_variant!(
             &expr.args[1], Infix => (
-                ast::Expression::IntegerLiteral = 2,
+                ast::Expression::Integer = 2,
                 token::Token::Asterisk,
-                ast::Expression::IntegerLiteral = 3
+                ast::Expression::Integer = 3
             )
         );
         testing::expr_variant!(
             &expr.args[2], Infix => (
-                ast::Expression::IntegerLiteral = 4,
+                ast::Expression::Integer = 4,
                 token::Token::Plus,
-                ast::Expression::IntegerLiteral = 5
+                ast::Expression::Integer = 5
             )
         );
     }
@@ -63,15 +63,15 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let expr = testing::as_variant!(&stmt.expression, ast::Expression::CallExpression);
+        let expr = testing::as_variant!(&stmt.expression, ast::Expression::Call);
 
         assert_eq!(expr.args.len(), 2);
-        testing::expr_variant!(&expr.args[0], ast::Expression::IntegerLiteral = 2);
-        testing::expr_variant!(&expr.args[1], ast::Expression::IntegerLiteral = 3);
+        testing::expr_variant!(&expr.args[0], ast::Expression::Integer = 2);
+        testing::expr_variant!(&expr.args[1], ast::Expression::Integer = 3);
 
-        let function = testing::as_variant!(&*expr.function, ast::Expression::FunctionLiteral);
+        let function = testing::as_variant!(&*expr.function, ast::Expression::Function);
 
         assert_eq!(function.params.len(), 2);
 
@@ -82,7 +82,7 @@ mod tests {
 
         let body_stmt = testing::as_variant!(
             &function.body.statements[0],
-            ast::Statement::ExpressionStatement
+            ast::Statement::Expression
         );
 
         testing::expr_variant!(

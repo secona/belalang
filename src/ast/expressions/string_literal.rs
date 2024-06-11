@@ -23,9 +23,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let expr =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let s = testing::as_variant!(&expr.expression, ast::Expression::StringLiteral);
+        let s = testing::as_variant!(&expr.expression, ast::Expression::String);
 
         assert_eq!(s.token, token::Token::String("Hello, World!".into()));
         assert_eq!(s.value, "Hello, World!");

@@ -31,9 +31,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let function = testing::as_variant!(&stmt.expression, ast::Expression::FunctionLiteral);
+        let function = testing::as_variant!(&stmt.expression, ast::Expression::Function);
 
         assert_eq!(function.params.len(), 2);
 
@@ -44,7 +44,7 @@ mod tests {
 
         let body_stmt = testing::as_variant!(
             &function.body.statements[0],
-            ast::Statement::ExpressionStatement
+            ast::Statement::Expression
         );
 
         testing::expr_variant!(
@@ -69,9 +69,9 @@ mod tests {
             let program = testing::test_parse(test.0);
 
             let stmt =
-                testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+                testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-            let function = testing::as_variant!(&stmt.expression, ast::Expression::FunctionLiteral);
+            let function = testing::as_variant!(&stmt.expression, ast::Expression::Function);
 
             for (i, exp) in test.1.iter().enumerate() {
                 testing::ident_has_name!(function.params[i], *exp);

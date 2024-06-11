@@ -114,7 +114,7 @@ impl Parser<'_> {
             self.next_token();
         }
 
-        Ok(Statement::ReturnStatement(ast::ReturnStatement {
+        Ok(Statement::Return(ast::ReturnStatement {
             token,
             return_value,
         }))
@@ -134,7 +134,7 @@ impl Parser<'_> {
 
         let block = self.parse_block_statement();
 
-        Ok(Statement::WhileStatement(ast::WhileStatement {
+        Ok(Statement::While(ast::WhileStatement {
             token,
             condition: Box::new(condition),
             block,
@@ -179,7 +179,7 @@ impl Parser<'_> {
             self.next_token();
         }
 
-        Ok(Statement::ExpressionStatement(stmt))
+        Ok(Statement::Expression(stmt))
     }
 
     fn parse_expression(&mut self, precedence: Precedence) -> Result<Expression, ParserError> {
@@ -239,9 +239,9 @@ mod tests {
         assert_eq!(program.statements.len(), 1);
 
         let stmt =
-            testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+            testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let literal = testing::as_variant!(&stmt.expression, ast::Expression::IntegerLiteral);
+        let literal = testing::as_variant!(&stmt.expression, ast::Expression::Integer);
 
         assert_eq!(literal.value, 5);
         assert_eq!(literal.token, token::Token::Int("5".to_owned()));
@@ -285,9 +285,9 @@ mod tests {
             let program = parser.parse_program().expect("got parser errors");
 
             let stmt =
-                testing::as_variant!(&program.statements[0], ast::Statement::ExpressionStatement);
+                testing::as_variant!(&program.statements[0], ast::Statement::Expression);
 
-            let exp = testing::as_variant!(&stmt.expression, ast::Expression::PrefixExpression);
+            let exp = testing::as_variant!(&stmt.expression, ast::Expression::Prefix);
 
             assert_eq!(exp.operator, test.exp_operator);
             assert_eq!((*exp.right).to_string(), test.exp_right);

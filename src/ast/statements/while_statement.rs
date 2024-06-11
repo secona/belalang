@@ -25,17 +25,17 @@ mod tests {
 
         assert_eq!(program.statements.len(), 1);
 
-        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::WhileStatement);
+        let stmt = testing::as_variant!(&program.statements[0], ast::Statement::While);
 
-        testing::expr_variant!(&*stmt.condition, ast::Expression::BooleanExpression = true);
+        testing::expr_variant!(&*stmt.condition, ast::Expression::Boolean = true);
 
         assert_eq!(stmt.block.statements.len(), 1);
 
         let expr_0 = testing::as_variant!(
             &stmt.block.statements[0],
-            ast::Statement::ExpressionStatement
+            ast::Statement::Expression
         );
 
-        testing::expr_variant!(&expr_0.expression, ast::Expression::IntegerLiteral = 12);
+        testing::expr_variant!(&expr_0.expression, ast::Expression::Integer = 12);
     }
 }
