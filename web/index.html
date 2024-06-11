@@ -6,9 +6,23 @@
     <title>Belalang</title>
   </head>
   <body>
-    <h1 id="title">Hello, Belalang!</h1>
-    <div id="editor"></div>
-    <div id="out"></div>
+    <nav>
+      <h1>belalang</h1>
+      <button onclick="runCode()">run</button>
+      <button onclick="clearConsole()">clear</button>
+    </nav>
+    <main>
+      <div id="editor"></div>
+      <div id="handle"></div>
+      <div id="out-wrapper">
+        <div id="out"></div>
+      </div>
+    </main>
+    <footer>
+      <a href="https://secona.dev" target="_blank" rel="noopener noreferrer">
+        secona.dev
+      </a>
+    </footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
