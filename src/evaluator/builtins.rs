@@ -1,40 +1,50 @@
 use super::object::Object;
-use std::collections::HashMap;
+use lazy_static::lazy_static;
+use std::{collections::HashMap, sync::Mutex};
 
-mod println;
+pub type BuiltinFn = Box<dyn Fn(Vec<Object>) -> Object + Sync + Send>;
 
-pub trait BuiltinFunction {
-    fn call(&self, args: Vec<Object>) -> Object;
+lazy_static! {
+    pub static ref BUILTIN_FUNCTIONS: Mutex<HashMap<String, BuiltinFn>> = {
+        let mut m = HashMap::<String, BuiltinFn>::new();
+
+        m.insert(
+            "println".into(),
+            Box::new(|args| {
+                println!(
+                    "{}",
+                    args.iter()
+                        .map(|arg| arg.to_string())
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                );
+                Object::Null
+            }),
+        );
+
+        Mutex::new(m)
+    };
 }
 
-pub struct Builtins {
-    builtins: HashMap<String, Box<dyn BuiltinFunction>>,
-}
+pub struct Builtins;
 
 impl Default for Builtins {
     fn default() -> Self {
-        let mut builtins = HashMap::<String, Box<dyn BuiltinFunction>>::new();
-        builtins.insert("println".into(), Box::new(println::Println));
-
-        Self { builtins }
+        Self
     }
 }
 
 impl Builtins {
     pub fn has_fn(&self, name: &String) -> bool {
-        self.builtins.contains_key(name)
+        let fns = BUILTIN_FUNCTIONS.lock().unwrap();
+        fns.contains_key(name)
     }
 
     pub fn call(&self, name: String, args: Vec<Object>) -> Object {
-        match self.builtins.get(&name) {
-            Some(f) => f.call(args),
+        let fns = BUILTIN_FUNCTIONS.lock().unwrap();
+        match fns.get(&name) {
+            Some(f) => f(args),
             None => Object::Null,
-        }
-    }
-
-    pub fn override_builtin(&mut self, name: String, f: Box<dyn BuiltinFunction>) {
-        if self.has_fn(&name) {
-            self.builtins.insert(name, f);
         }
     }
 }

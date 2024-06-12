@@ -1,6 +1,6 @@
 use belalang::{
     evaluator::{
-        builtins::{BuiltinFunction, Builtins},
+        builtins::{self, Builtins},
         object::Object,
         Evaluator,
     },
@@ -9,36 +9,31 @@ use belalang::{
 };
 use wasm_bindgen::prelude::*;
 
-pub struct Println {
-    document: web_sys::Document,
-    parent: web_sys::Element,
-}
+#[wasm_bindgen(start)]
+pub fn start() {
+    let mut fns = builtins::BUILTIN_FUNCTIONS.lock().unwrap();
 
-impl Println {
-    pub fn new() -> Self {
-        let document = web_sys::window().and_then(|win| win.document()).unwrap();
-        let parent = document.get_element_by_id("out").expect("should have out");
+    fns.insert(
+        "println".into(),
+        Box::new(|args| {
+            let document = web_sys::window().and_then(|win| win.document()).unwrap();
+            let parent = document.get_element_by_id("out").expect("should have out");
 
-        Self { document, parent }
-    }
-}
+            let p = document.create_element("p").unwrap();
 
-impl BuiltinFunction for Println {
-    fn call(&self, args: Vec<Object>) -> Object {
-        let p = self.document.create_element("p").unwrap();
+            p.set_text_content(Some(&format!(
+                "{}",
+                args.iter()
+                    .map(|arg| arg.to_string())
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            )));
 
-        p.set_text_content(Some(&format!(
-            "{}",
-            args.iter()
-                .map(|arg| arg.to_string())
-                .collect::<Vec<_>>()
-                .join(" ")
-        )));
+            let _ = parent.append_child(&p);
 
-        let _ = self.parent.append_child(&p);
-
-        Object::Null
-    }
+            Object::Null
+        }),
+    );
 }
 
 #[wasm_bindgen]
@@ -47,9 +42,7 @@ pub fn run_code(input: String) {
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program().unwrap();
 
-    let mut builtins = Builtins::default();
-    builtins.override_builtin("println".into(), Box::new(Println::new()));
-
+    let builtins = Builtins::default();
     let mut ev = Evaluator::new(builtins);
     let _ = ev.eval_program(program);
 }
