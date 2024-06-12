@@ -4,7 +4,7 @@ pub mod error;
 pub mod object;
 
 use crate::{
-    ast::{Expression, Node, Program, Statement},
+    ast::{BlockStatement, Expression, Node, Program, Statement},
     evaluator::{environment::Environment, error::EvaluatorError, object::Object},
     token::Token,
 };
@@ -133,19 +133,13 @@ impl Evaluator {
                     .collect::<Result<Vec<_>, _>>()?;
 
                 match function {
-                    Object::Function {
-                        params,
-                        body,
-                        mut env,
-                    } => {
+                    Object::Function { params, body, env } => {
+                        let mut env = env.capture();
                         for (param, arg) in params.iter().zip(args) {
                             env.set(&param.value, arg);
                         }
 
-                        let mut ev = Evaluator::default();
-                        ev.env = env;
-
-                        match ev.eval_statement(Statement::Block(body)) {
+                        match self.eval_block(body, env) {
                             Ok(v) => Ok(v),
                             Err(EvaluatorError::ReturningValue(v)) => Ok(v),
                             Err(e) => Err(e),
@@ -158,7 +152,7 @@ impl Evaluator {
             Expression::Function(fn_lit) => Ok(Object::Function {
                 params: fn_lit.params,
                 body: fn_lit.body,
-                env: self.env.capture(),
+                env: self.env.clone(),
             }),
             Expression::Identifier(ident) => match self.env.get(&ident.value) {
                 Some(value) => Ok(value.clone()),
@@ -173,15 +167,7 @@ impl Evaluator {
     pub fn eval_statement(&mut self, statement: Statement) -> Result<Object, EvaluatorError> {
         match statement {
             Statement::Expression(node) => self.eval_expression(node.expression),
-            Statement::Block(block_stmt) => {
-                let mut result = Object::Null;
-
-                for statement in block_stmt.statements {
-                    result = self.eval_statement(statement)?;
-                }
-
-                Ok(result)
-            }
+            Statement::Block(block) => self.eval_block(block, self.env.capture()),
             Statement::Return(return_stmt) => {
                 let value = self.eval_expression(return_stmt.return_value)?;
                 Err(EvaluatorError::ReturningValue(value))
@@ -209,6 +195,10 @@ impl Evaluator {
                         return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
                     }
 
+                    if !self.env.has(name) {
+                        return Err(EvaluatorError::UnknownVariable(name.clone()));
+                    }
+
                     let value = self.eval_expression(var.value)?;
                     self.env.set(&var.name.value, value.clone());
                     Ok(value)
@@ -223,6 +213,22 @@ impl Evaluator {
                 Ok(Object::Null)
             }
         }
+    }
+
+    pub fn eval_block(
+        &self,
+        block: BlockStatement,
+        env: Environment,
+    ) -> Result<Object, EvaluatorError> {
+        let mut result = Object::Null;
+        let mut ev = Evaluator::default();
+        ev.env = env;
+
+        for statement in block.statements {
+            result = ev.eval_statement(statement)?;
+        }
+
+        Ok(result)
     }
 }
 

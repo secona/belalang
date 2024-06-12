@@ -62,6 +62,14 @@ impl Environment {
     }
 
     pub fn set(&mut self, key: &String, value: super::Object) {
+        for store in self.stores.iter().rev() {
+            let mut store = store.borrow_mut();
+            if store.contains_key(key) {
+                store.insert(key.clone(), value);
+                return;
+            }
+        }
+
         if let Some(store) = self.stores.last_mut() {
             store.borrow_mut().insert(key.clone(), value);
         }
