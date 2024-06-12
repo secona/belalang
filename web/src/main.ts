@@ -50,6 +50,23 @@ function clearConsole() {
 }
 (window as any).clearConsole = clearConsole;
 
+function exampleSelector() {
+  const selector = document.getElementById("example-selector")! as HTMLSelectElement;
+
+  editorView.dispatch(editorView.state.update({
+    changes: {
+      from: 0,
+      to: editorView.state.doc.length,
+      insert: examples[selector.value],
+    }
+  }));
+
+  editorView.focus();
+
+  selector.selectedIndex = 0;
+}
+(window as any).exampleSelector = exampleSelector;
+
 const editorView = new EditorView({
   parent: document.getElementById("editor")!,
   state: EditorState.create({
@@ -73,4 +90,62 @@ const editorView = new EditorView({
   }),
 });
 
+const examples: Record<string, string> = {
+  "Variable Declaration": `x := 10;
+println("the value of x is", x);`,
 
+  "Variable Assignment": `x := 10;
+println("the value of x is", x);
+
+x = 5;
+println("the value of x is", x);`,
+
+  "If-else": `if (true) {
+  println("Hello, World");
+} else {
+  println("dlroW, olleH");
+}`,
+
+  "Functions": `add := fn(x, y) {
+  return x + y;
+}
+
+println("1 + 2 =", add(1, 2));`,
+
+  "Closures": `adder := fn() {
+  sum := 0;
+  return fn(n) {
+    sum = sum + n;
+    return sum;
+  }
+}
+
+f := adder();
+g := adder();
+
+x := 1;
+while (x < 10) {
+  println("f =", f(1), "| g =", g(2));
+  x = x + 1;
+}`,
+
+  "Factorial": `fact := fn(n) {
+  if (n < 2) {
+    return 1;
+  } else {
+    return n * fact(n - 1);
+  }
+}
+
+println(fact(5));`
+}
+
+const exampleSelectorEl = document.getElementById("example-selector")! as HTMLSelectElement;
+
+for (const key in examples) {
+  const option = document.createElement("option");
+  option.value = key;
+  option.append(key);
+
+  exampleSelectorEl.appendChild(option);
+}
