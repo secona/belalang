@@ -96,9 +96,7 @@ impl Parser<'_> {
                 self.next_token();
                 let return_value = self.parse_expression(Precedence::Lowest)?;
 
-                if matches!(self.peek_token, token::Token::Semicolon) {
-                    self.next_token();
-                }
+                expect_peek!(self, token::Token::Semicolon);
 
                 Ok(Statement::Return(ast::ReturnStatement {
                     token,
@@ -142,9 +140,7 @@ impl Parser<'_> {
                     self.next_token();
                     let value = self.parse_expression(Precedence::Lowest)?;
 
-                    if matches!(self.peek_token, token::Token::Semicolon) {
-                        self.next_token();
-                    }
+                    expect_peek!(self, token::Token::Semicolon);
 
                     Ok(Statement::Var(ast::Var { token, name, value }))
                 }
@@ -160,9 +156,7 @@ impl Parser<'_> {
             expression: self.parse_expression(Precedence::Lowest)?,
         };
 
-        if matches!(self.peek_token, token::Token::Semicolon) {
-            self.next_token();
-        }
+        expect_peek!(self, token::Token::Semicolon);
 
         Ok(Statement::Expression(stmt))
     }

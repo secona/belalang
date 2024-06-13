@@ -1,4 +1,4 @@
-n := 1
+n := 1;
 
 while (n < 101) {
 	if (n % 15 == 0) {
@@ -10,7 +10,7 @@ while (n < 101) {
 			if (n % 3 == 0) {
 				println("Fizz");
 			} else {
-				println(n)
+				println(n);
 			}
 		}
 	}

@@ -104,11 +104,11 @@ println("the value of x is", x);`,
   println("Hello, World");
 } else {
   println("dlroW, olleH");
-}`,
+};`,
 
   "Functions": `add := fn(x, y) {
   return x + y;
-}
+};
 
 println("1 + 2 =", add(1, 2));`,
 
@@ -117,8 +117,8 @@ println("1 + 2 =", add(1, 2));`,
   return fn(n) {
     sum = sum + n;
     return sum;
-  }
-}
+  };
+};
 
 f := adder();
 g := adder();
@@ -134,8 +134,8 @@ while (x < 10) {
     return 1;
   } else {
     return n * fact(n - 1);
-  }
-}
+  };
+};
 
 println(fact(5));`
 }

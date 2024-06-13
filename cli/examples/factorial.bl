@@ -1,9 +1,9 @@
-let factorial = fn(n) {
+factorial := fn(n) {
 	if (n < 2) {
 		return 1;
 	} else {
 		return n * factorial(n - 1);
 	}
-}
+};
 
 println(factorial(6));
