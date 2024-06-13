@@ -16,11 +16,11 @@ fn main() {
 
         loop {
             let token = lexer.next_token();
+            println!("{:?}", token);
+
             if let Token::EOF = token {
                 break;
             }
-
-            println!("{:?}", token);
         }
     }
 }
