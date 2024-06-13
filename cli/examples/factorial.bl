@@ -6,4 +6,4 @@ let factorial = fn(n) {
 	}
 }
 
-factorial(6);
+println(factorial(6));
