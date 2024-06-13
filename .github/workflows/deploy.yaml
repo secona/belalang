@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - web/**
+      - '!cli/**'
 
 defaults:
   run:
