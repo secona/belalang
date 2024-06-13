@@ -48,6 +48,7 @@ pub struct Parser<'a> {
     lexer: lexer::Lexer<'a>,
     curr_token: token::Token,
     peek_token: token::Token,
+    depth: i32,
 }
 
 impl Parser<'_> {
@@ -59,6 +60,7 @@ impl Parser<'_> {
             lexer,
             curr_token,
             peek_token,
+            depth: 0,
         }
     }
 
@@ -117,7 +119,7 @@ impl Parser<'_> {
 
                 expect_peek!(self, token::Token::LBrace);
 
-                let block = self.parse_block_statement();
+                let block = self.parse_block_statement()?;
 
                 Ok(Statement::While(ast::WhileStatement {
                     token,
@@ -156,7 +158,9 @@ impl Parser<'_> {
             expression: self.parse_expression(Precedence::Lowest)?,
         };
 
-        expect_peek!(self, token::Token::Semicolon);
+        if self.depth == 0 {
+            expect_peek!(self, token::Token::Semicolon);
+        }
 
         Ok(Statement::Expression(stmt))
     }
@@ -185,20 +189,46 @@ impl Parser<'_> {
         }
     }
 
-    fn parse_block_statement(&mut self) -> ast::BlockStatement {
+    fn parse_block_statement(&mut self) -> Result<ast::BlockStatement, ParserError> {
         let token = self.curr_token.clone();
         let mut statements = Vec::new();
 
         self.next_token();
 
-        while !matches!(self.curr_token, token::Token::RBrace | token::Token::EOF) {
-            if let Ok(statement) = self.parse_statement() {
-                statements.push(statement);
-            }
-            self.next_token();
-        }
+        self.depth += 1;
+        loop {
+            let statement = self.parse_statement()?;
+            statements.push(statement.clone());
 
-        ast::BlockStatement { statements, token }
+            let has_semicolon = if matches!(self.peek_token, token::Token::Semicolon) {
+                self.next_token();
+                true
+            } else {
+                false
+            };
+
+            self.next_token();
+
+            if matches!(self.curr_token, token::Token::RBrace | token::Token::EOF) {
+                if let Statement::Expression(_) = statement {
+                    if !has_semicolon {
+                        break;
+                    }
+                }
+
+                statements.push(Statement::Expression(ast::ExpressionStatement {
+                    token: self.curr_token.clone(),
+                    expression: Expression::Null(ast::NullLiteral {
+                        token: self.curr_token.clone(),
+                    }),
+                }));
+
+                break;
+            }
+        }
+        self.depth -= 1;
+
+        Ok(ast::BlockStatement { statements, token })
     }
 }
 

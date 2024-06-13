@@ -56,6 +56,7 @@ impl Evaluator {
             Expression::Integer(int_lit) => Ok(Object::Integer(int_lit.value)),
             Expression::Boolean(bool_expr) => Ok(Object::Boolean(bool_expr.value)),
             Expression::String(s) => Ok(Object::String(s.value)),
+            Expression::Null(_) => Ok(Object::Null),
             Expression::Prefix(node) => {
                 let right = self.eval_expression(*node.right)?;
 

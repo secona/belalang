@@ -14,8 +14,13 @@ fn main() {
 
         let lexer = Lexer::new(input.as_bytes());
         let mut parser = Parser::new(lexer);
-        let program = parser.parse_program().expect("parsing errors");
 
-        println!("{:#?}", program.statements);
+        match parser.parse_program() {
+            Ok(program) => println!("{:#?}", program.statements),
+            Err(err) => println!(
+                "{:?}",
+                err.iter().map(|e| e.to_string()).collect::<Vec<_>>()
+            ),
+        }
     }
 }

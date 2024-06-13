@@ -5,6 +5,7 @@ mod identifier;
 mod if_expression;
 mod infix_expression;
 mod integer_literal;
+mod null_literal;
 mod prefix_expression;
 mod string_literal;
 
@@ -15,6 +16,7 @@ pub use identifier::*;
 pub use if_expression::*;
 pub use infix_expression::*;
 pub use integer_literal::*;
+pub use null_literal::*;
 pub use prefix_expression::*;
 pub use string_literal::*;
 
@@ -27,6 +29,7 @@ pub enum Expression {
     If(IfExpression),
     Infix(InfixExpression),
     Integer(IntegerLiteral),
+    Null(NullLiteral),
     Prefix(PrefixExpression),
     String(StringLiteral),
 }
@@ -41,6 +44,7 @@ impl std::fmt::Display for Expression {
             Expression::If(v) => v.to_string(),
             Expression::Infix(v) => v.to_string(),
             Expression::Integer(v) => v.to_string(),
+            Expression::Null(v) => v.to_string(),
             Expression::Prefix(v) => v.to_string(),
             Expression::String(v) => v.to_string(),
         };

@@ -76,14 +76,14 @@ impl super::Parser<'_> {
 
                 expect_peek!(self, token::Token::LBrace);
 
-                let consequence = self.parse_block_statement();
+                let consequence = self.parse_block_statement()?;
 
                 let alternative = if matches!(self.peek_token, token::Token::Else) {
                     self.next_token();
 
                     expect_peek!(self, token::Token::LBrace);
 
-                    Some(self.parse_block_statement())
+                    Some(self.parse_block_statement()?)
                 } else {
                     None
                 };
@@ -106,7 +106,7 @@ impl super::Parser<'_> {
 
                 expect_peek!(self, token::Token::LBrace);
 
-                let body = self.parse_block_statement();
+                let body = self.parse_block_statement()?;
 
                 Ok(Expression::Function(ast::FunctionLiteral {
                     token,
