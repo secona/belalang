@@ -1,5 +1,6 @@
-use crate::ast::BlockStatement;
 use crate::token;
+
+use super::Statement;
 
 #[derive(Debug, Clone)]
 pub struct BooleanExpression {
@@ -72,7 +73,7 @@ impl std::fmt::Display for CallExpression {
 pub struct FunctionLiteral {
     pub token: token::Token,
     pub params: Vec<Identifier>,
-    pub body: BlockStatement,
+    pub body: BlockExpression,
 }
 
 impl std::fmt::Display for FunctionLiteral {
@@ -104,8 +105,8 @@ impl std::fmt::Display for Identifier {
 pub struct IfExpression {
     pub token: token::Token,
     pub condition: Box<Expression>,
-    pub consequence: BlockStatement,
-    pub alternative: Option<BlockStatement>,
+    pub consequence: BlockExpression,
+    pub alternative: Option<BlockExpression>,
 }
 
 impl std::fmt::Display for IfExpression {
@@ -157,6 +158,25 @@ impl std::fmt::Display for PrefixExpression {
 }
 
 #[derive(Debug, Clone)]
+pub struct BlockExpression {
+    pub token: token::Token,
+    pub statements: Vec<Statement>,
+}
+
+impl std::fmt::Display for BlockExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let statements = self
+            .statements
+            .iter()
+            .map(|statement| statement.to_string())
+            .collect::<Vec<_>>()
+            .join(" ");
+
+        write!(f, "{{ {} }}", statements)
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum Expression {
     Boolean(BooleanExpression),
     Integer(IntegerLiteral),
@@ -168,11 +188,12 @@ pub enum Expression {
     If(IfExpression),
     Infix(InfixExpression),
     Prefix(PrefixExpression),
+    Block(BlockExpression),
 }
 
 impl std::fmt::Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let value = match self {
+        f.write_str(&match self {
             Expression::Boolean(v) => v.to_string(),
             Expression::Integer(v) => v.to_string(),
             Expression::String(v) => v.to_string(),
@@ -183,8 +204,7 @@ impl std::fmt::Display for Expression {
             Expression::If(v) => v.to_string(),
             Expression::Infix(v) => v.to_string(),
             Expression::Prefix(v) => v.to_string(),
-        };
-
-        f.write_str(&value)
+            Expression::Block(v) => v.to_string(),
+        })
     }
 }

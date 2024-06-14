@@ -136,7 +136,7 @@ impl Parser<'_> {
 
                 expect_peek!(self, token::Token::LBrace);
 
-                let block = self.parse_block_statement()?;
+                let block = self.parse_block()?;
 
                 self.has_semicolon = optional_peek!(self, token::Token::Semicolon);
 
@@ -223,7 +223,7 @@ impl Parser<'_> {
         }
     }
 
-    fn parse_block_statement(&mut self) -> Result<ast::BlockStatement, ParserError> {
+    fn parse_block(&mut self) -> Result<ast::BlockExpression, ParserError> {
         let token = self.curr_token.clone();
         let mut statements = Vec::new();
 
@@ -255,7 +255,7 @@ impl Parser<'_> {
         }
         self.depth -= 1;
 
-        Ok(ast::BlockStatement { statements, token })
+        Ok(ast::BlockExpression { statements, token })
     }
 
     fn parse_if(&mut self) -> Result<Expression, ParserError> {
@@ -270,14 +270,14 @@ impl Parser<'_> {
 
         expect_peek!(self, token::Token::LBrace);
 
-        let consequence = self.parse_block_statement()?;
+        let consequence = self.parse_block()?;
 
         let alternative = if matches!(self.peek_token, token::Token::Else) {
             self.next_token();
 
             expect_peek!(self, token::Token::LBrace);
 
-            Some(self.parse_block_statement()?)
+            Some(self.parse_block()?)
         } else {
             None
         };

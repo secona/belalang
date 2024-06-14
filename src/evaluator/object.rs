@@ -11,7 +11,7 @@ pub enum Object {
 
     Function {
         params: Vec<ast::Identifier>,
-        body: ast::BlockStatement,
+        body: ast::BlockExpression,
         env: Environment,
     }
 }

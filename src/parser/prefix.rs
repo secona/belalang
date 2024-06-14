@@ -55,12 +55,18 @@ impl super::Parser<'_> {
             // parse_grouped: parse grouped expression
             token::Token::LParen => {
                 self.next_token();
-
                 let expr = self.parse_expression(Precedence::Lowest);
 
                 expect_peek!(self, token::Token::RParen);
 
                 expr
+            }
+
+            // parse_block
+            token::Token::LBrace => {
+                let block = self.parse_block()?;
+
+                Ok(Expression::Block(block))
             }
 
             // parse_if: parse current if expression
@@ -76,7 +82,7 @@ impl super::Parser<'_> {
 
                 expect_peek!(self, token::Token::LBrace);
 
-                let body = self.parse_block_statement()?;
+                let body = self.parse_block()?;
 
                 Ok(Expression::Function(ast::FunctionLiteral {
                     token,

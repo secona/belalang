@@ -4,7 +4,7 @@ pub mod error;
 pub mod object;
 
 use crate::{
-    ast::{BlockStatement, Expression, Node, Program, Statement},
+    ast::{BlockExpression, Expression, Node, Program, Statement},
     evaluator::{environment::Environment, error::EvaluatorError, object::Object},
     token::Token,
 };
@@ -116,11 +116,11 @@ impl Evaluator {
                 let condition = self.eval_expression(*expr.condition)?;
 
                 if let Object::Boolean(true) = condition {
-                    return self.eval_statement(Statement::Block(expr.consequence));
+                    return self.eval_block(expr.consequence, self.env.capture());
                 }
 
                 if let Some(block_statement) = expr.alternative {
-                    return self.eval_statement(Statement::Block(block_statement));
+                    return self.eval_block(block_statement, self.env.capture());
                 }
 
                 Ok(Object::Null)
@@ -162,13 +162,13 @@ impl Evaluator {
                     false => Err(EvaluatorError::UnknownVariable(ident.value)),
                 },
             },
+            Expression::Block(block) => self.eval_block(block, self.env.capture()),
         }
     }
 
     pub fn eval_statement(&mut self, statement: Statement) -> Result<Object, EvaluatorError> {
         match statement {
             Statement::Expression(node) => self.eval_expression(node.expression),
-            Statement::Block(block) => self.eval_block(block, self.env.capture()),
             Statement::Return(return_stmt) => {
                 let value = self.eval_expression(return_stmt.return_value)?;
                 Err(EvaluatorError::ReturningValue(value))
@@ -208,7 +208,7 @@ impl Evaluator {
             },
             Statement::While(stmt) => {
                 while let Object::Boolean(true) = self.eval_expression(*stmt.condition.clone())? {
-                    self.eval_statement(Statement::Block(stmt.block.clone()))?;
+                    self.eval_block(stmt.block.clone(), self.env.capture())?;
                 }
 
                 Ok(Object::Null)
@@ -218,7 +218,7 @@ impl Evaluator {
 
     pub fn eval_block(
         &self,
-        block: BlockStatement,
+        block: BlockExpression,
         env: Environment,
     ) -> Result<Object, EvaluatorError> {
         let mut result = Object::Null;

@@ -1,25 +1,6 @@
 use crate::token;
 
-use super::{Expression, Identifier};
-
-#[derive(Debug, Clone)]
-pub struct BlockStatement {
-    pub token: token::Token,
-    pub statements: Vec<Statement>,
-}
-
-impl std::fmt::Display for BlockStatement {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let statements = self
-            .statements
-            .iter()
-            .map(|statement| statement.to_string())
-            .collect::<Vec<_>>()
-            .join(" ");
-
-        write!(f, "{{ {} }}", statements)
-    }
-}
+use super::{BlockExpression, Expression, Identifier};
 
 #[derive(Debug, Clone)]
 pub struct ExpressionStatement {
@@ -62,7 +43,7 @@ impl std::fmt::Display for Var {
 pub struct WhileStatement {
     pub token: token::Token,
     pub condition: Box<Expression>,
-    pub block: BlockStatement,
+    pub block: BlockExpression,
 }
 
 impl std::fmt::Display for WhileStatement {
@@ -73,7 +54,6 @@ impl std::fmt::Display for WhileStatement {
 
 #[derive(Debug, Clone)]
 pub enum Statement {
-    Block(BlockStatement),
     Expression(ExpressionStatement),
     Return(ReturnStatement),
     Var(Var),
@@ -83,7 +63,6 @@ pub enum Statement {
 impl std::fmt::Display for Statement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value = match self {
-            Statement::Block(v) => v.to_string(),
             Statement::Expression(v) => v.to_string(),
             Statement::Return(v) => v.to_string(),
             Statement::Var(v) => v.to_string(),
