@@ -119,8 +119,8 @@ impl Evaluator {
                     return self.eval_block(expr.consequence, self.env.capture());
                 }
 
-                if let Some(block_statement) = expr.alternative {
-                    return self.eval_block(block_statement, self.env.capture());
+                if let Some(expr) = expr.alternative {
+                    return self.eval_expression(*expr);
                 }
 
                 Ok(Object::Null)

@@ -272,12 +272,15 @@ impl Parser<'_> {
 
         let consequence = self.parse_block()?;
 
-        let alternative = if matches!(self.peek_token, token::Token::Else) {
+        let alternative: Option<Box<Expression>> = if matches!(self.peek_token, token::Token::Else) {
+            self.next_token();
             self.next_token();
 
-            expect_peek!(self, token::Token::LBrace);
-
-            Some(self.parse_block()?)
+            Some(Box::new(match self.curr_token {
+                token::Token::If => self.parse_if()?,
+                token::Token::LBrace => Expression::Block(self.parse_block()?),
+                _ => return Err(ParserError::UnexpectedToken(self.curr_token.clone())),
+            }))
         } else {
             None
         };

@@ -106,7 +106,7 @@ pub struct IfExpression {
     pub token: token::Token,
     pub condition: Box<Expression>,
     pub consequence: BlockExpression,
-    pub alternative: Option<BlockExpression>,
+    pub alternative: Option<Box<Expression>>,
 }
 
 impl std::fmt::Display for IfExpression {
