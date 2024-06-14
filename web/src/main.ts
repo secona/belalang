@@ -50,6 +50,16 @@ function clearConsole() {
 }
 (window as any).clearConsole = clearConsole;
 
+function println(value: string) {
+  let parent = document.getElementById("out")!;
+
+  let p = document.createElement("p");
+  p.textContent = value;
+
+  parent.appendChild(p);
+}
+(window as any).println = println;
+
 function exampleSelector() {
   const selector = document.getElementById("example-selector")! as HTMLSelectElement;
 
