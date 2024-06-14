@@ -21,8 +21,7 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn next_token(&mut self) -> Token {
-        self.skip_whitespace();
-        self.skip_comment();
+        self.skip_whitespace_and_comments();
         let tok: Token;
 
         match self.ch {
@@ -104,10 +103,13 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn skip_whitespace(&mut self) {
+    pub fn skip_whitespace_and_comments(&mut self) {
         loop {
             match self.ch {
-                Some(b' ' | b'\t' | b'\n' | b'\r') => self.read_char(),
+                Some(b'#') => self.skip_comment(),
+                Some(b' ' | b'\t' | b'\n' | b'\r') => {
+                    self.read_char();
+                }
                 _ => break,
             };
         }
