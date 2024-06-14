@@ -38,8 +38,21 @@ macro_rules! expect_peek {
     ($self:expr, $token:pat) => {
         if matches!($self.peek_token, $token) {
             $self.next_token();
+            true
         } else {
             return Err(ParserError::UnexpectedToken($self.peek_token.clone()));
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! optional_peek {
+    ($self:expr, $token:pat) => {
+        if matches!($self.peek_token, $token) {
+            $self.next_token();
+            true
+        } else {
+            false
         }
     };
 }
@@ -48,7 +61,9 @@ pub struct Parser<'a> {
     lexer: lexer::Lexer<'a>,
     curr_token: token::Token,
     peek_token: token::Token,
+
     depth: i32,
+    has_semicolon: bool,
 }
 
 impl Parser<'_> {
@@ -60,7 +75,9 @@ impl Parser<'_> {
             lexer,
             curr_token,
             peek_token,
+
             depth: 0,
+            has_semicolon: false,
         }
     }
 
@@ -98,7 +115,7 @@ impl Parser<'_> {
                 self.next_token();
                 let return_value = self.parse_expression(Precedence::Lowest)?;
 
-                expect_peek!(self, token::Token::Semicolon);
+                self.has_semicolon = expect_peek!(self, token::Token::Semicolon);
 
                 Ok(Statement::Return(ast::ReturnStatement {
                     token,
@@ -121,6 +138,8 @@ impl Parser<'_> {
 
                 let block = self.parse_block_statement()?;
 
+                self.has_semicolon = optional_peek!(self, token::Token::Semicolon);
+
                 Ok(Statement::While(ast::WhileStatement {
                     token,
                     condition: Box::new(condition),
@@ -142,12 +161,25 @@ impl Parser<'_> {
                     self.next_token();
                     let value = self.parse_expression(Precedence::Lowest)?;
 
-                    expect_peek!(self, token::Token::Semicolon);
+                    self.has_semicolon = expect_peek!(self, token::Token::Semicolon);
 
                     Ok(Statement::Var(ast::Var { token, name, value }))
                 }
                 _ => self.parse_expression_statement(),
             },
+
+            // parse_if: parse if expression as statement
+            token::Token::If => {
+                let expression = self.parse_if()?;
+
+                self.has_semicolon = optional_peek!(self, token::Token::Semicolon);
+
+                Ok(Statement::Expression(ast::ExpressionStatement {
+                    token: token::Token::If,
+                    expression,
+                }))
+            }
+
             _ => self.parse_expression_statement(),
         }
     }
@@ -158,9 +190,11 @@ impl Parser<'_> {
             expression: self.parse_expression(Precedence::Lowest)?,
         };
 
-        if self.depth == 0 {
-            expect_peek!(self, token::Token::Semicolon);
-        }
+        self.has_semicolon = if self.depth == 0 {
+            expect_peek!(self, token::Token::Semicolon)
+        } else {
+            optional_peek!(self, token::Token::Semicolon)
+        };
 
         Ok(Statement::Expression(stmt))
     }
@@ -200,18 +234,11 @@ impl Parser<'_> {
             let statement = self.parse_statement()?;
             statements.push(statement.clone());
 
-            let has_semicolon = if matches!(self.peek_token, token::Token::Semicolon) {
-                self.next_token();
-                true
-            } else {
-                false
-            };
-
             self.next_token();
 
             if matches!(self.curr_token, token::Token::RBrace | token::Token::EOF) {
                 if let Statement::Expression(_) = statement {
-                    if !has_semicolon {
+                    if !self.has_semicolon {
                         break;
                     }
                 }
@@ -229,6 +256,38 @@ impl Parser<'_> {
         self.depth -= 1;
 
         Ok(ast::BlockStatement { statements, token })
+    }
+
+    fn parse_if(&mut self) -> Result<Expression, ParserError> {
+        let token = self.curr_token.clone();
+
+        expect_peek!(self, token::Token::LParen);
+
+        self.next_token();
+        let condition = self.parse_expression(Precedence::Lowest)?;
+
+        expect_peek!(self, token::Token::RParen);
+
+        expect_peek!(self, token::Token::LBrace);
+
+        let consequence = self.parse_block_statement()?;
+
+        let alternative = if matches!(self.peek_token, token::Token::Else) {
+            self.next_token();
+
+            expect_peek!(self, token::Token::LBrace);
+
+            Some(self.parse_block_statement()?)
+        } else {
+            None
+        };
+
+        Ok(Expression::If(ast::IfExpression {
+            token,
+            condition: Box::new(condition),
+            consequence,
+            alternative,
+        }))
     }
 }
 

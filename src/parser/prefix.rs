@@ -64,37 +64,7 @@ impl super::Parser<'_> {
             }
 
             // parse_if: parse current if expression
-            token::Token::If => {
-                let token = self.curr_token.clone();
-
-                expect_peek!(self, token::Token::LParen);
-
-                self.next_token();
-                let condition = self.parse_expression(Precedence::Lowest)?;
-
-                expect_peek!(self, token::Token::RParen);
-
-                expect_peek!(self, token::Token::LBrace);
-
-                let consequence = self.parse_block_statement()?;
-
-                let alternative = if matches!(self.peek_token, token::Token::Else) {
-                    self.next_token();
-
-                    expect_peek!(self, token::Token::LBrace);
-
-                    Some(self.parse_block_statement()?)
-                } else {
-                    None
-                };
-
-                Ok(Expression::If(ast::IfExpression {
-                    token,
-                    condition: Box::new(condition),
-                    consequence,
-                    alternative,
-                }))
-            }
+            token::Token::If => self.parse_if(),
 
             // parse_function: parse current expression as function
             token::Token::Function => {
