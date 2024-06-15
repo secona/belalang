@@ -218,7 +218,8 @@ fn if_with_else() {
     expr_variant!(&stmt_0.expression, ast::Expression::Identifier = "x");
 
     // testing the alternative block
-    let alt = if_expr.alternative.as_ref().expect("alternative is None");
+    let alt = if_expr.alternative.clone().unwrap();
+    let alt = as_variant!(*alt, ast::Expression::Block);
     assert_eq!(alt.token, token::Token::LBrace);
 
     let stmt_0 = as_variant!(&alt.statements[0], ast::Statement::Expression);
