@@ -3,6 +3,7 @@ mod common;
 
 use belalang::{ast, token};
 use common::test_parse;
+use common::test_parse_to_string;
 
 #[test]
 fn boolean_true() {
@@ -289,34 +290,98 @@ fn integer() {
 }
 
 #[test]
-fn prefix() {
-    let program = test_parse("-12");
+fn prefix_minus_number() {
+    let program = test_parse("-12;");
 
     assert_eq!(program.statements.len(), 1);
 
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
-    let prefix = as_variant!(&expr.expression, ast::Expression::Prefix);
+    expr_variant!(&expr.expression, Prefix => (
+        token::Token::Minus,
+        ast::Expression::Integer = 12
+    ));
+}
 
-    assert_eq!(prefix.token, token::Token::Minus);
-    assert_eq!(prefix.operator, token::Token::Minus);
+#[test]
+fn prefix_bang_number() {
+    let program = test_parse("!12;");
 
-    let right = as_variant!(&*prefix.right, ast::Expression::Integer);
+    assert_eq!(program.statements.len(), 1);
 
-    assert_eq!(right.token, token::Token::Int("12".into()));
-    assert_eq!(right.value, 12);
+    let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
+
+    expr_variant!(&expr.expression, Prefix => (
+        token::Token::Bang,
+        ast::Expression::Integer = 12
+    ));
+}
+
+#[test]
+fn prefix_minus_boolean() {
+    let program = test_parse("-true;");
+
+    assert_eq!(program.statements.len(), 1);
+
+    let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
+
+    expr_variant!(&expr.expression, Prefix => (
+        token::Token::Minus,
+        ast::Expression::Boolean = true
+    ));
+}
+
+#[test]
+fn prefix_bang_boolean() {
+    let program = test_parse("!true;");
+
+    assert_eq!(program.statements.len(), 1);
+
+    let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
+
+    expr_variant!(&expr.expression, Prefix => (
+        token::Token::Bang,
+        ast::Expression::Boolean = true
+    ));
 }
 
 #[test]
 fn string() {
-    let program = test_parse("\"Hello, World!\"");
+    let program = test_parse("\"Hello, World!\";");
 
     assert_eq!(program.statements.len(), 1);
 
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
-    let s = as_variant!(&expr.expression, ast::Expression::String);
+    expr_variant!(&expr.expression, ast::Expression::String = "Hello, World!");
+}
 
-    assert_eq!(s.token, token::Token::String("Hello, World!".into()));
-    assert_eq!(s.value, "Hello, World!");
+#[test]
+#[rustfmt::skip]
+fn operator_precedence() {
+    test_parse_to_string("a * b + c;", "((a * b) + c);");
+    test_parse_to_string("!-a;", "(!(-a));");
+    test_parse_to_string("a + b + c;", "((a + b) + c);");
+    test_parse_to_string("a + b - c;", "((a + b) - c);");
+    test_parse_to_string("a * b * c;", "((a * b) * c);");
+    test_parse_to_string("a * b / c;", "((a * b) / c);");
+    test_parse_to_string("a + b / c;", "(a + (b / c));");
+    test_parse_to_string("a + b * c + d / e - f;", "(((a + (b * c)) + (d / e)) - f);");
+    test_parse_to_string("3 + 4; -5 * 5;", "(3 + 4);((-5) * 5);");
+    test_parse_to_string("5 > 4 == 3 < 4;", "((5 > 4) == (3 < 4));");
+    test_parse_to_string("5 < 4 != 3 > 4;", "((5 < 4) != (3 > 4));");
+    test_parse_to_string("3 + 4 * 5 == 3 * 1 + 4 * 5;", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)));");
+    test_parse_to_string("3 + 4 * 5 == 3 * 1 + 4 * 5;", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)));");
+    test_parse_to_string("true;", "true;");
+    test_parse_to_string("false;", "false;");
+    test_parse_to_string("3 > 5 == false;", "((3 > 5) == false);");
+    test_parse_to_string("3 < 5 == true;", "((3 < 5) == true);");
+    test_parse_to_string("1 + (2 + 3) + 4;", "((1 + (2 + 3)) + 4);");
+    test_parse_to_string("(5 + 5) * 2;", "((5 + 5) * 2);");
+    test_parse_to_string("2 / (5 + 5);", "(2 / (5 + 5));");
+    test_parse_to_string("-(5 + 5);", "(-(5 + 5));");
+    test_parse_to_string("!(true == true);", "(!(true == true));");
+    test_parse_to_string("a + add(b * c) + d;", "((a + add((b * c))) + d);");
+    test_parse_to_string("add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8));", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)));");
+    test_parse_to_string("add(a + b + c * d / f + g);", "add((((a + b) + ((c * d) / f)) + g));");
 }

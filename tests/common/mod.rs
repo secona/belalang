@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use belalang::{ast, evaluator, lexer, parser};
+use belalang::{ast, evaluator, lexer::{self, Lexer}, parser, token::Token};
 
 pub fn test_parse(input: &str) -> ast::Program {
     let input = input.as_bytes().into();
@@ -8,6 +8,11 @@ pub fn test_parse(input: &str) -> ast::Program {
     let mut parser = parser::Parser::new(lexer);
 
     parser.parse_program().expect("parser errors")
+}
+
+pub fn test_parse_to_string(input: &str, expected: &str) {
+    let program = test_parse(input);
+    assert_eq!(program.to_string(), expected);
 }
 
 pub fn test_eval(
@@ -20,6 +25,15 @@ pub fn test_eval(
 
     let mut ev = evaluator::Evaluator::default();
     return ev.eval_program(program);
+}
+
+pub fn test_tokens(input: &str, tokens: Vec<Token>) {
+    let mut lexer = Lexer::new(input.as_bytes());
+
+    for expected in tokens {
+        let tok = lexer.next_token();
+        assert_eq!(tok, expected);
+    }
 }
 
 #[macro_export]
@@ -56,12 +70,18 @@ macro_rules! expr_variant {
         expr_variant!(&*v.right, $right_variant = $right);
         assert_eq!(v.operator, $op);
     };
+    ($value: expr, Prefix => ($op:expr, $right_variant:path = $right:expr)) => {
+        let v = as_variant!($value, ast::Expression::Prefix);
+
+        expr_variant!(&*v.right, $right_variant = $right);
+        assert_eq!(v.operator, $op);
+    };
 }
 
 #[macro_export]
 macro_rules! eval {
     ($input:expr, $variant:path = $expected:expr) => {
-        let evaluated = testing::test_eval($input.into());
+        let evaluated = common::test_eval($input.into());
 
         match evaluated {
             Ok($variant(value)) => assert_eq!(value, $expected),
@@ -70,7 +90,7 @@ macro_rules! eval {
         }
     };
     ($input:expr, $variant:pat) => {
-        let evaluated = testing::test_eval($input.into());
+        let evaluated = common::test_eval($input.into());
 
         match evaluated {
             Ok(obj) => matches!(obj, $variant),
@@ -78,7 +98,7 @@ macro_rules! eval {
         }
     };
     ($input:expr, Err => $expected:expr) => {
-        let evaluated = testing::test_eval($input.into());
+        let evaluated = common::test_eval($input.into());
 
         match evaluated {
             Ok(unexpected) => panic!("got ok instead. got={}", unexpected),
