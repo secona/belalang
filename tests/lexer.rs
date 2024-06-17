@@ -44,6 +44,6 @@ fn strings_idents_nums() {
             Token::Int("1230".into()),
             Token::Semicolon,
             Token::Ident("x".into()),
-        ]
+        ],
     );
 }

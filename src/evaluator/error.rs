@@ -25,5 +25,5 @@ pub enum EvaluatorError {
     ReturningValue(Object),
 
     #[error("unexpected token: {0}")]
-    UnexpectedToken(Token)
+    UnexpectedToken(Token),
 }

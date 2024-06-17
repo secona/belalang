@@ -9,5 +9,5 @@ pub enum ParserError {
     PrefixOperator(Token),
 
     #[error("error parsing integer: could not parse {0} as integer")]
-    ParsingInteger(String)
+    ParsingInteger(String),
 }

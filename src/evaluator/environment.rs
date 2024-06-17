@@ -78,8 +78,8 @@ impl Environment {
 
 #[cfg(test)]
 mod tests {
-    use crate::evaluator::Object;
     use super::Environment;
+    use crate::evaluator::Object;
 
     #[test]
     fn set() {

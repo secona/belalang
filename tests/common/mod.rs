@@ -1,6 +1,11 @@
 #![allow(dead_code)]
 
-use belalang::{ast, evaluator, lexer::{self, Lexer}, parser, token::Token};
+use belalang::{
+    ast, evaluator,
+    lexer::{self, Lexer},
+    parser,
+    token::Token,
+};
 
 pub fn test_parse(input: &str) -> ast::Program {
     let input = input.as_bytes().into();

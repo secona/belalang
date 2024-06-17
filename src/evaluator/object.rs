@@ -13,7 +13,7 @@ pub enum Object {
         params: Vec<ast::Identifier>,
         body: ast::BlockExpression,
         env: Environment,
-    }
+    },
 }
 
 impl std::fmt::Display for Object {

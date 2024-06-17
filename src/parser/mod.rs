@@ -270,7 +270,8 @@ impl Parser<'_> {
 
         let consequence = self.parse_block()?;
 
-        let alternative: Option<Box<Expression>> = if matches!(self.peek_token, token::Token::Else) {
+        let alternative: Option<Box<Expression>> = if matches!(self.peek_token, token::Token::Else)
+        {
             self.next_token();
             self.next_token();
 

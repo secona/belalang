@@ -7,4 +7,3 @@ fn examples_work() {
         belalang_cli::run_file(filename).unwrap();
     }
 }
-
