@@ -6,7 +6,7 @@ use common::test_parse;
 
 #[test]
 fn block() {
-    let program = test_parse("fn() { 12; 14; 1 + 2; }");
+    let program = test_parse("fn() { 12; 14; 1 + 2; };");
 
     assert_eq!(program.statements.len(), 1);
 
@@ -14,7 +14,8 @@ fn block() {
 
     let f = as_variant!(&expr.expression, ast::Expression::Function);
 
-    assert_eq!(f.body.statements.len(), 3);
+    // +1 from implicit null expression at the end.
+    assert_eq!(f.body.statements.len(), 4);
 
     // first statement
     let expr_0 = as_variant!(&f.body.statements[0], ast::Statement::Expression);
@@ -96,7 +97,8 @@ fn r#while() {
 
     expr_variant!(&*stmt.condition, ast::Expression::Boolean = true);
 
-    assert_eq!(stmt.block.statements.len(), 1);
+    // +1 from implicit null expression at the end.
+    assert_eq!(stmt.block.statements.len(), 2);
 
     let expr_0 = as_variant!(&stmt.block.statements[0], ast::Statement::Expression);
 

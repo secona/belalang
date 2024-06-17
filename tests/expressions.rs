@@ -65,7 +65,7 @@ fn call() {
 
 #[test]
 fn call_with_function_literal() {
-    let program = test_parse("fn(x, y) { x + y }(2, 3)");
+    let program = test_parse("fn(x, y) { x + y }(2, 3);");
 
     assert_eq!(program.statements.len(), 1);
 
@@ -98,7 +98,7 @@ fn call_with_function_literal() {
 
 #[test]
 fn function() {
-    let program = test_parse("fn(x, y) { x + y; }");
+    let program = test_parse("fn(x, y) { x + y; };");
 
     assert_eq!(program.statements.len(), 1);
 
@@ -111,7 +111,8 @@ fn function() {
     ident_has_name!(function.params[0], "x");
     ident_has_name!(function.params[1], "y");
 
-    assert_eq!(function.body.statements.len(), 1);
+    // +1 from implicit null expression at the end.
+    assert_eq!(function.body.statements.len(), 2);
 
     let body_stmt = as_variant!(&function.body.statements[0], ast::Statement::Expression);
 
@@ -126,7 +127,7 @@ fn function() {
 #[test]
 fn function_params() {
     let tests: [(&str, Vec<&str>); 4] = [
-        ("fn() {}", [].into()),
+        ("fn() {};", [].into()),
         ("fn(x) {};", ["x"].into()),
         ("fn(x, y) {};", ["x", "y"].into()),
         ("fn(x, y, z) {};", ["x", "y", "z"].into()),

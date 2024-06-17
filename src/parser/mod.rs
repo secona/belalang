@@ -231,13 +231,8 @@ impl Parser<'_> {
 
         self.depth += 1;
         loop {
-            let statement = self.parse_statement()?;
-            statements.push(statement.clone());
-
-            self.next_token();
-
             if matches!(self.curr_token, token::Token::RBrace | token::Token::EOF) {
-                if let Statement::Expression(_) = statement {
+                if let Some(Statement::Expression(_)) = statements.last() {
                     if !self.has_semicolon {
                         break;
                     }
@@ -252,6 +247,9 @@ impl Parser<'_> {
 
                 break;
             }
+
+            statements.push(self.parse_statement()?);
+            self.next_token();
         }
         self.depth -= 1;
 
