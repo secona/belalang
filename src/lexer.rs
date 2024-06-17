@@ -22,58 +22,52 @@ impl<'a> Lexer<'a> {
 
     pub fn next_token(&mut self) -> Token {
         self.skip_whitespace_and_comments();
-        let tok: Token;
 
-        match self.ch {
-            None => tok = Token::EOF,
+        let tok: Token = match self.ch {
+            None => Token::EOF,
             Some(ch) => match ch {
                 b'=' => match self.peek_char() {
                     Some(b'=') => {
-                        tok = Token::Eq;
                         self.read_char();
+                        Token::Eq
                     }
-                    _ => tok = Token::Assign,
+                    _ => Token::Assign,
                 },
                 b'!' => match self.peek_char() {
                     Some(b'=') => {
-                        tok = Token::NotEq;
                         self.read_char();
+                        Token::NotEq
                     }
-                    _ => tok = Token::Bang,
+                    _ => Token::Bang,
                 },
                 b':' => match self.peek_char() {
                     Some(b'=') => {
-                        tok = Token::Walrus;
                         self.read_char();
+                        Token::Walrus
                     }
-                    _ => tok = Token::Illegal(" ".into()),
+                    _ => Token::Illegal(" ".into()),
                 },
-                b';' => tok = Token::Semicolon,
-                b'(' => tok = Token::LParen,
-                b')' => tok = Token::RParen,
-                b',' => tok = Token::Comma,
-                b'+' => tok = Token::Plus,
-                b'-' => tok = Token::Minus,
-                b'*' => tok = Token::Asterisk,
-                b'/' => tok = Token::Slash,
-                b'%' => tok = Token::Percent,
-                b'>' => tok = Token::GT,
-                b'<' => tok = Token::LT,
-                b'{' => tok = Token::LBrace,
-                b'}' => tok = Token::RBrace,
-                b'"' => {
-                    let literal = self.read_string();
-                    tok = Token::String(String::from_utf8(literal.to_vec()).unwrap());
-                }
+                b';' => Token::Semicolon,
+                b'(' => Token::LParen,
+                b')' => Token::RParen,
+                b',' => Token::Comma,
+                b'+' => Token::Plus,
+                b'-' => Token::Minus,
+                b'*' => Token::Asterisk,
+                b'/' => Token::Slash,
+                b'%' => Token::Percent,
+                b'>' => Token::GT,
+                b'<' => Token::LT,
+                b'{' => Token::LBrace,
+                b'}' => Token::RBrace,
+                b'"' => self.read_string(),
                 _ => {
                     if self.is_letter() {
-                        tok = self.read_identifier();
-                        return tok;
+                        return self.read_identifier();
                     } else if self.is_digit() {
-                        tok = self.read_number();
-                        return tok;
+                        return self.read_number();
                     } else {
-                        tok = Token::Illegal(" ".into())
+                        Token::Illegal(" ".into())
                     }
                 }
             },
@@ -129,7 +123,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn read_string(&mut self) -> &'a [u8] {
+    pub fn read_string(&mut self) -> Token {
         let position = self.position + 1;
 
         loop {
@@ -140,7 +134,9 @@ impl<'a> Lexer<'a> {
             }
         }
 
-        &self.input[position..self.position]
+        let s = &self.input[position..self.position];
+        let s = std::str::from_utf8(s).unwrap();
+        Token::String(String::from(s))
     }
 
     pub fn read_identifier(&mut self) -> Token {
@@ -153,14 +149,6 @@ impl<'a> Lexer<'a> {
         Token::from(&self.input[position..self.position])
     }
 
-    pub fn is_letter(&self) -> bool {
-        if let Some(ch) = self.ch {
-            *ch >= b'a' && *ch <= b'z' || *ch >= b'A' && *ch <= b'Z' || *ch == b'_'
-        } else {
-            false
-        }
-    }
-
     pub fn read_number(&mut self) -> Token {
         let position = self.position;
 
@@ -171,6 +159,14 @@ impl<'a> Lexer<'a> {
         let num = &self.input[position..self.position];
         let num = std::str::from_utf8(num).unwrap();
         Token::Int(String::from(num))
+    }
+
+    pub fn is_letter(&self) -> bool {
+        if let Some(ch) = self.ch {
+            *ch >= b'a' && *ch <= b'z' || *ch >= b'A' && *ch <= b'Z' || *ch == b'_'
+        } else {
+            false
+        }
     }
 
     pub fn is_digit(&self) -> bool {
