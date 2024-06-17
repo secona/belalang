@@ -23,7 +23,9 @@ impl super::Parser<'_> {
             | token::Token::Eq
             | token::Token::Ne
             | token::Token::Gt
-            | token::Token::Lt => {
+            | token::Token::Ge
+            | token::Token::Lt
+            | token::Token::Le => {
                 let token = self.curr_token.clone();
                 let operator = self.curr_token.clone();
                 let precedence = Precedence::from(&self.curr_token);

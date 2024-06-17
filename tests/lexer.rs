@@ -7,7 +7,7 @@ use common::test_tokens;
 #[test]
 fn tokens() {
     test_tokens(
-        "=+(){},;!-/*5;5 < 10 > 5;:=",
+        "=+(){},;!-/*5;5 < 10 > 5;:= >= <=",
         vec![
             Token::Assign,
             Token::Add,
@@ -30,6 +30,8 @@ fn tokens() {
             Token::Int("5".into()),
             Token::Semicolon,
             Token::ColonAssign,
+            Token::Ge,
+            Token::Le,
         ],
     );
 }

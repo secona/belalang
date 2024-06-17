@@ -47,6 +47,20 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Token::Illegal(" ".into()),
                 },
+                b'<' => match self.peek_char() {
+                    Some(b'=') => {
+                        self.read_char();
+                        Token::Le
+                    },
+                    _ => Token::Lt,
+                },
+                b'>' => match self.peek_char() {
+                    Some(b'=') => {
+                        self.read_char();
+                        Token::Ge
+                    },
+                    _ => Token::Gt,
+                },
                 b';' => Token::Semicolon,
                 b'(' => Token::LeftParen,
                 b')' => Token::RightParen,
@@ -56,8 +70,6 @@ impl<'a> Lexer<'a> {
                 b'*' => Token::Mul,
                 b'/' => Token::Div,
                 b'%' => Token::Mod,
-                b'>' => Token::Gt,
-                b'<' => Token::Lt,
                 b'{' => Token::LeftBrace,
                 b'}' => Token::RightBrace,
                 b'"' => self.read_string(),

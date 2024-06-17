@@ -27,7 +27,9 @@ pub enum Token {
     Eq, // ==
     Ne, // !=
     Lt, // <
+    Le, // <=
     Gt, // >
+    Ge, // >=
 
     // Parenthesis and Braces
     LeftParen,  // (
@@ -80,7 +82,9 @@ impl std::fmt::Display for Token {
             Token::Mul => "*",
             Token::Div => "/",
             Token::Lt => "<",
+            Token::Le => "<=",
             Token::Gt => ">",
+            Token::Ge => ">=",
             Token::Eq => "==",
             Token::Ne => "!=",
             Token::Comma => ",",

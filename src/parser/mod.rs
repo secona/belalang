@@ -24,7 +24,9 @@ impl From<&token::Token> for Precedence {
     fn from(value: &token::Token) -> Self {
         match value {
             token::Token::Eq | token::Token::Ne => Self::Equals,
-            token::Token::Lt | token::Token::Gt => Self::LessGreater,
+            token::Token::Lt | token::Token::Le | token::Token::Gt | token::Token::Ge => {
+                Self::LessGreater
+            }
             token::Token::Add | token::Token::Sub => Self::Sum,
             token::Token::Div | token::Token::Mul | token::Token::Mod => Self::Product,
             token::Token::LeftParen => Self::Call,
@@ -231,7 +233,10 @@ impl Parser<'_> {
 
         self.depth += 1;
         loop {
-            if matches!(self.curr_token, token::Token::RightBrace | token::Token::EOF) {
+            if matches!(
+                self.curr_token,
+                token::Token::RightBrace | token::Token::EOF
+            ) {
                 if let Some(Statement::Expression(_)) = statements.last() {
                     if !self.has_semicolon {
                         break;

@@ -44,6 +44,14 @@ fn boolean() {
     eval!("true == false;", object::Object::Boolean = false);
     eval!("true != false;", object::Object::Boolean = true);
     eval!("1 < 2 == true;", object::Object::Boolean = true);
+
+    eval!("2 <= 1;", object::Object::Boolean = false);
+    eval!("2 <= 2;", object::Object::Boolean = true);
+    eval!("2 <= 3;", object::Object::Boolean = true);
+
+    eval!("2 >= 1;", object::Object::Boolean = true);
+    eval!("2 >= 2;", object::Object::Boolean = true);
+    eval!("2 >= 3;", object::Object::Boolean = false);
 }
 
 #[test]

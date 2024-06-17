@@ -84,7 +84,9 @@ impl Evaluator {
                         Token::Div => Ok(Object::Integer(l / r)),
                         Token::Mod => Ok(Object::Integer(l % r)),
                         Token::Lt => Ok(Object::Boolean(l < r)),
+                        Token::Le => Ok(Object::Boolean(l <= r)),
                         Token::Gt => Ok(Object::Boolean(l > r)),
+                        Token::Ge => Ok(Object::Boolean(l >= r)),
                         Token::Eq => Ok(Object::Boolean(l == r)),
                         Token::Ne => Ok(Object::Boolean(l != r)),
                         _ => Err(EvaluatorError::UnknownInfixOperator(
