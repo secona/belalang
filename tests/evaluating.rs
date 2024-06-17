@@ -114,3 +114,12 @@ fn variables() {
         object::Object::Integer = 3
     );
 }
+
+#[test]
+fn assignment_ops() {
+    eval!("a := 10; a += 1; a;", object::Object::Integer = 11);
+    eval!("a := 10; a -= 1; a;", object::Object::Integer = 9);
+    eval!("a := 10; a *= 2; a;", object::Object::Integer = 20);
+    eval!("a := 10; a /= 2; a;", object::Object::Integer = 5);
+    eval!("a := 10; a %= 3; a;", object::Object::Integer = 1);
+}

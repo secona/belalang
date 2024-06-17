@@ -12,6 +12,11 @@ pub enum Token {
     // Assignment operators
     Assign,      // =
     ColonAssign, // :=
+    AddAssign,   // +=
+    SubAssign,   // -=
+    MulAssign,   // *=
+    DivAssign,   // /=
+    ModAssign,   // %=
 
     // Arithmetic operators
     Add, // +
@@ -76,6 +81,12 @@ impl std::fmt::Display for Token {
             Token::Illegal(s) => s,
             Token::String(s) => s,
             Token::Assign => "=",
+            Token::ColonAssign => ":=",
+            Token::AddAssign => "+=",
+            Token::SubAssign => "-=",
+            Token::MulAssign => "*=",
+            Token::DivAssign => "/=",
+            Token::ModAssign => "%=",
             Token::Add => "+",
             Token::Sub => "-",
             Token::Not => "!",
@@ -99,7 +110,6 @@ impl std::fmt::Display for Token {
             Token::If => "if",
             Token::Else => "else",
             Token::Return => "return",
-            Token::ColonAssign => ":=",
             Token::Mod => "%",
             Token::While => "while",
         })

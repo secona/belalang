@@ -167,6 +167,43 @@ impl Parser<'_> {
 
                     Ok(Statement::Var(ast::Var { token, name, value }))
                 }
+                token::Token::AddAssign
+                | token::Token::SubAssign
+                | token::Token::MulAssign
+                | token::Token::DivAssign
+                | token::Token::ModAssign => {
+                    let name = ast::Identifier {
+                        token: self.curr_token.clone(),
+                        value: self.curr_token.to_string(),
+                    };
+
+                    self.next_token();
+                    let token = self.curr_token.clone();
+
+                    self.next_token();
+                    let value = self.parse_expression(Precedence::Lowest)?;
+
+                    self.has_semicolon = expect_peek!(self, token::Token::Semicolon);
+
+                    // probably need to change this monstrosity.
+                    Ok(Statement::Var(ast::Var {
+                        token: token::Token::Assign,
+                        name: name.clone(),
+                        value: Expression::Infix(ast::InfixExpression {
+                            left: Box::new(Expression::Identifier(name)),
+                            operator: match &token {
+                                token::Token::AddAssign => token::Token::Add,
+                                token::Token::SubAssign => token::Token::Sub,
+                                token::Token::MulAssign => token::Token::Mul,
+                                token::Token::DivAssign => token::Token::Div,
+                                token::Token::ModAssign => token::Token::Mod,
+                                _ => unreachable!(),
+                            },
+                            token,
+                            right: Box::new(value),
+                        }),
+                    }))
+                },
                 _ => self.parse_expression_statement(),
             },
 

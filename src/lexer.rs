@@ -61,15 +61,45 @@ impl<'a> Lexer<'a> {
                     },
                     _ => Token::Gt,
                 },
+                b'+' => match self.peek_char() {
+                    Some(b'=') => {
+                        self.read_char();
+                        Token::AddAssign
+                    }
+                    _ => Token::Add,
+                },
+                b'-' => match self.peek_char() {
+                    Some(b'=') => {
+                        self.read_char();
+                        Token::SubAssign
+                    }
+                    _ => Token::Sub,
+                },
+                b'*' => match self.peek_char() {
+                    Some(b'=') => {
+                        self.read_char();
+                        Token::MulAssign
+                    }
+                    _ => Token::Mul,
+                },
+                b'/' => match self.peek_char() {
+                    Some(b'=') => {
+                        self.read_char();
+                        Token::DivAssign
+                    }
+                    _ => Token::Div,
+                },
+                b'%' => match self.peek_char() {
+                    Some(b'=') => {
+                        self.read_char();
+                        Token::ModAssign
+                    }
+                    _ => Token::Mod,
+                },
                 b';' => Token::Semicolon,
                 b'(' => Token::LeftParen,
                 b')' => Token::RightParen,
                 b',' => Token::Comma,
-                b'+' => Token::Add,
-                b'-' => Token::Sub,
-                b'*' => Token::Mul,
-                b'/' => Token::Div,
-                b'%' => Token::Mod,
                 b'{' => Token::LeftBrace,
                 b'}' => Token::RightBrace,
                 b'"' => self.read_string(),
