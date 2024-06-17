@@ -61,11 +61,11 @@ impl Evaluator {
                 let right = self.eval_expression(*node.right)?;
 
                 match node.operator {
-                    Token::Bang => match right {
+                    Token::Not => match right {
                         Object::Boolean(value) => Ok(Object::Boolean(!value)),
                         _ => Err(EvaluatorError::PrefixOperator(node.operator, right)),
                     },
-                    Token::Minus => match right {
+                    Token::Sub => match right {
                         Object::Integer(value) => Ok(Object::Integer(-value)),
                         _ => Err(EvaluatorError::PrefixOperator(node.operator, right)),
                     },
@@ -78,15 +78,15 @@ impl Evaluator {
 
                 match (&left, &right) {
                     (Object::Integer(l), Object::Integer(r)) => match infix_expr.operator {
-                        Token::Plus => Ok(Object::Integer(l + r)),
-                        Token::Minus => Ok(Object::Integer(l - r)),
-                        Token::Asterisk => Ok(Object::Integer(l * r)),
-                        Token::Slash => Ok(Object::Integer(l / r)),
-                        Token::Percent => Ok(Object::Integer(l % r)),
-                        Token::LT => Ok(Object::Boolean(l < r)),
-                        Token::GT => Ok(Object::Boolean(l > r)),
+                        Token::Add => Ok(Object::Integer(l + r)),
+                        Token::Sub => Ok(Object::Integer(l - r)),
+                        Token::Mul => Ok(Object::Integer(l * r)),
+                        Token::Div => Ok(Object::Integer(l / r)),
+                        Token::Mod => Ok(Object::Integer(l % r)),
+                        Token::Lt => Ok(Object::Boolean(l < r)),
+                        Token::Gt => Ok(Object::Boolean(l > r)),
                         Token::Eq => Ok(Object::Boolean(l == r)),
-                        Token::NotEq => Ok(Object::Boolean(l != r)),
+                        Token::Ne => Ok(Object::Boolean(l != r)),
                         _ => Err(EvaluatorError::UnknownInfixOperator(
                             left,
                             infix_expr.operator,
@@ -94,7 +94,7 @@ impl Evaluator {
                         )),
                     },
                     (Object::String(l), Object::String(r)) => match infix_expr.operator {
-                        Token::Plus => Ok(Object::String(format!("{} {}", l, r))),
+                        Token::Add => Ok(Object::String(format!("{} {}", l, r))),
                         _ => Err(EvaluatorError::UnknownInfixOperator(
                             left,
                             infix_expr.operator,
@@ -103,7 +103,7 @@ impl Evaluator {
                     },
                     (_, _) => match infix_expr.operator {
                         Token::Eq => Ok(Object::Boolean(left == right)),
-                        Token::NotEq => Ok(Object::Boolean(left != right)),
+                        Token::Ne => Ok(Object::Boolean(left != right)),
                         _ => Err(EvaluatorError::UnknownInfixOperator(
                             left,
                             infix_expr.operator,
@@ -174,7 +174,7 @@ impl Evaluator {
                 Err(EvaluatorError::ReturningValue(value))
             }
             Statement::Var(var) => match var.token {
-                Token::Walrus => {
+                Token::ColonAssign => {
                     let name = &var.name.value;
 
                     if self.env.has_here(name) {

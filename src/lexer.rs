@@ -36,30 +36,30 @@ impl<'a> Lexer<'a> {
                 b'!' => match self.peek_char() {
                     Some(b'=') => {
                         self.read_char();
-                        Token::NotEq
+                        Token::Ne
                     }
-                    _ => Token::Bang,
+                    _ => Token::Not,
                 },
                 b':' => match self.peek_char() {
                     Some(b'=') => {
                         self.read_char();
-                        Token::Walrus
+                        Token::ColonAssign
                     }
                     _ => Token::Illegal(" ".into()),
                 },
                 b';' => Token::Semicolon,
-                b'(' => Token::LParen,
-                b')' => Token::RParen,
+                b'(' => Token::LeftParen,
+                b')' => Token::RightParen,
                 b',' => Token::Comma,
-                b'+' => Token::Plus,
-                b'-' => Token::Minus,
-                b'*' => Token::Asterisk,
-                b'/' => Token::Slash,
-                b'%' => Token::Percent,
-                b'>' => Token::GT,
-                b'<' => Token::LT,
-                b'{' => Token::LBrace,
-                b'}' => Token::RBrace,
+                b'+' => Token::Add,
+                b'-' => Token::Sub,
+                b'*' => Token::Mul,
+                b'/' => Token::Div,
+                b'%' => Token::Mod,
+                b'>' => Token::Gt,
+                b'<' => Token::Lt,
+                b'{' => Token::LeftBrace,
+                b'}' => Token::RightBrace,
                 b'"' => self.read_string(),
                 _ => {
                     if self.is_letter() {

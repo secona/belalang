@@ -15,15 +15,15 @@ impl super::Parser<'_> {
 
         match tok {
             // parse_infix: parse infix expression
-            token::Token::Plus
-            | token::Token::Minus
-            | token::Token::Slash
-            | token::Token::Asterisk
-            | token::Token::Percent
+            token::Token::Add
+            | token::Token::Sub
+            | token::Token::Div
+            | token::Token::Mul
+            | token::Token::Mod
             | token::Token::Eq
-            | token::Token::NotEq
-            | token::Token::GT
-            | token::Token::LT => {
+            | token::Token::Ne
+            | token::Token::Gt
+            | token::Token::Lt => {
                 let token = self.curr_token.clone();
                 let operator = self.curr_token.clone();
                 let precedence = Precedence::from(&self.curr_token);
@@ -41,7 +41,7 @@ impl super::Parser<'_> {
             }
 
             // parse_call: parse call expression
-            token::Token::LParen => {
+            token::Token::LeftParen => {
                 if let Ok(args) = self.parse_call_args() {
                     Ok(Expression::Call(ast::CallExpression {
                         token: self.curr_token.clone(),
@@ -59,7 +59,7 @@ impl super::Parser<'_> {
     fn parse_call_args(&mut self) -> Result<Vec<Expression>, ParserError> {
         let mut args = Vec::new();
 
-        if matches!(self.peek_token, token::Token::RParen) {
+        if matches!(self.peek_token, token::Token::RightParen) {
             self.next_token();
             return Ok(args);
         }
@@ -74,7 +74,7 @@ impl super::Parser<'_> {
             args.push(self.parse_expression(Precedence::Lowest)?);
         }
 
-        expect_peek!(self, token::Token::RParen);
+        expect_peek!(self, token::Token::RightParen);
 
         Ok(args)
     }

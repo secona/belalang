@@ -38,7 +38,7 @@ impl super::Parser<'_> {
             })),
 
             // parse_prefix: parse current expression with prefix
-            token::Token::Bang | token::Token::Minus => {
+            token::Token::Not | token::Token::Sub => {
                 let prev_token = self.curr_token.clone();
 
                 self.next_token();
@@ -53,17 +53,17 @@ impl super::Parser<'_> {
             }
 
             // parse_grouped: parse grouped expression
-            token::Token::LParen => {
+            token::Token::LeftParen => {
                 self.next_token();
                 let expr = self.parse_expression(Precedence::Lowest);
 
-                expect_peek!(self, token::Token::RParen);
+                expect_peek!(self, token::Token::RightParen);
 
                 expr
             }
 
             // parse_block
-            token::Token::LBrace => {
+            token::Token::LeftBrace => {
                 let block = self.parse_block()?;
 
                 Ok(Expression::Block(block))
@@ -76,11 +76,11 @@ impl super::Parser<'_> {
             token::Token::Function => {
                 let token = self.curr_token.clone();
 
-                expect_peek!(self, token::Token::LParen);
+                expect_peek!(self, token::Token::LeftParen);
 
                 let params = self.parse_function_params()?;
 
-                expect_peek!(self, token::Token::LBrace);
+                expect_peek!(self, token::Token::LeftBrace);
 
                 let body = self.parse_block()?;
 
@@ -98,7 +98,7 @@ impl super::Parser<'_> {
     fn parse_function_params(&mut self) -> Result<Vec<ast::Identifier>, ParserError> {
         let mut identifiers = Vec::new();
 
-        if matches!(self.peek_token, token::Token::RParen) {
+        if matches!(self.peek_token, token::Token::RightParen) {
             self.next_token();
             return Ok(identifiers);
         }
@@ -119,7 +119,7 @@ impl super::Parser<'_> {
             });
         }
 
-        expect_peek!(self, token::Token::RParen);
+        expect_peek!(self, token::Token::RightParen);
 
         Ok(identifiers)
     }

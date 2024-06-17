@@ -23,11 +23,11 @@ pub enum Precedence {
 impl From<&token::Token> for Precedence {
     fn from(value: &token::Token) -> Self {
         match value {
-            token::Token::Eq | token::Token::NotEq => Self::Equals,
-            token::Token::LT | token::Token::GT => Self::LessGreater,
-            token::Token::Plus | token::Token::Minus => Self::Sum,
-            token::Token::Slash | token::Token::Asterisk | token::Token::Percent => Self::Product,
-            token::Token::LParen => Self::Call,
+            token::Token::Eq | token::Token::Ne => Self::Equals,
+            token::Token::Lt | token::Token::Gt => Self::LessGreater,
+            token::Token::Add | token::Token::Sub => Self::Sum,
+            token::Token::Div | token::Token::Mul | token::Token::Mod => Self::Product,
+            token::Token::LeftParen => Self::Call,
             _ => Self::Lowest,
         }
     }
@@ -127,14 +127,14 @@ impl Parser<'_> {
             token::Token::While => {
                 let token = self.curr_token.clone();
 
-                expect_peek!(self, token::Token::LParen);
+                expect_peek!(self, token::Token::LeftParen);
 
                 self.next_token();
                 let condition = self.parse_expression(Precedence::Lowest).unwrap();
 
-                expect_peek!(self, token::Token::RParen);
+                expect_peek!(self, token::Token::RightParen);
 
-                expect_peek!(self, token::Token::LBrace);
+                expect_peek!(self, token::Token::LeftBrace);
 
                 let block = self.parse_block()?;
 
@@ -149,7 +149,7 @@ impl Parser<'_> {
 
             // parse_ident
             token::Token::Ident(_) => match self.peek_token {
-                token::Token::Walrus | token::Token::Assign => {
+                token::Token::ColonAssign | token::Token::Assign => {
                     let name = ast::Identifier {
                         token: self.curr_token.clone(),
                         value: self.curr_token.to_string(),
@@ -231,7 +231,7 @@ impl Parser<'_> {
 
         self.depth += 1;
         loop {
-            if matches!(self.curr_token, token::Token::RBrace | token::Token::EOF) {
+            if matches!(self.curr_token, token::Token::RightBrace | token::Token::EOF) {
                 if let Some(Statement::Expression(_)) = statements.last() {
                     if !self.has_semicolon {
                         break;
@@ -259,14 +259,14 @@ impl Parser<'_> {
     fn parse_if(&mut self) -> Result<Expression, ParserError> {
         let token = self.curr_token.clone();
 
-        expect_peek!(self, token::Token::LParen);
+        expect_peek!(self, token::Token::LeftParen);
 
         self.next_token();
         let condition = self.parse_expression(Precedence::Lowest)?;
 
-        expect_peek!(self, token::Token::RParen);
+        expect_peek!(self, token::Token::RightParen);
 
-        expect_peek!(self, token::Token::LBrace);
+        expect_peek!(self, token::Token::LeftBrace);
 
         let consequence = self.parse_block()?;
 
@@ -277,7 +277,7 @@ impl Parser<'_> {
 
             Some(Box::new(match self.curr_token {
                 token::Token::If => self.parse_if()?,
-                token::Token::LBrace => Expression::Block(self.parse_block()?),
+                token::Token::LeftBrace => Expression::Block(self.parse_block()?),
                 _ => return Err(ParserError::UnexpectedToken(self.curr_token.clone())),
             }))
         } else {

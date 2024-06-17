@@ -50,14 +50,14 @@ fn call() {
     expr_variant!(
         &expr.args[1], Infix => (
             ast::Expression::Integer = 2,
-            token::Token::Asterisk,
+            token::Token::Mul,
             ast::Expression::Integer = 3
         )
     );
     expr_variant!(
         &expr.args[2], Infix => (
             ast::Expression::Integer = 4,
-            token::Token::Plus,
+            token::Token::Add,
             ast::Expression::Integer = 5
         )
     );
@@ -90,7 +90,7 @@ fn call_with_function_literal() {
     expr_variant!(
         &body_stmt.expression, Infix => (
             ast::Expression::Identifier = "x",
-            token::Token::Plus,
+            token::Token::Add,
             ast::Expression::Identifier = "y"
         )
     );
@@ -119,7 +119,7 @@ fn function() {
     expr_variant!(
         &body_stmt.expression, Infix => (
             ast::Expression::Identifier = "x",
-            token::Token::Plus,
+            token::Token::Add,
             ast::Expression::Identifier = "y"
         )
     );
@@ -175,7 +175,7 @@ fn if_without_else() {
     expr_variant!(
         &*if_expr.condition, Infix => (
             ast::Expression::Identifier = "x",
-            token::Token::LT,
+            token::Token::Lt,
             ast::Expression::Identifier = "y"
         )
     );
@@ -207,7 +207,7 @@ fn if_with_else() {
     expr_variant!(
         &*if_expr.condition, Infix => (
             ast::Expression::Identifier = "x",
-            token::Token::LT,
+            token::Token::Lt,
             ast::Expression::Identifier = "y"
         )
     );
@@ -222,7 +222,7 @@ fn if_with_else() {
     // testing the alternative block
     let alt = if_expr.alternative.clone().unwrap();
     let alt = as_variant!(*alt, ast::Expression::Block);
-    assert_eq!(alt.token, token::Token::LBrace);
+    assert_eq!(alt.token, token::Token::LeftBrace);
 
     let stmt_0 = as_variant!(&alt.statements[0], ast::Statement::Expression);
     expr_variant!(&stmt_0.expression, ast::Expression::Identifier = "y");
@@ -241,7 +241,7 @@ fn if_with_multiple_statements() {
     expr_variant!(
         if_expr.condition.as_ref(), Infix => (
             ast::Expression::Identifier = "x",
-            token::Token::LT,
+            token::Token::Lt,
             ast::Expression::Identifier = "y"
         )
     );
@@ -271,7 +271,7 @@ fn infix() {
 
     expr_variant!(&expr.expression, Infix => (
         ast::Expression::Integer = 1,
-        token::Token::Plus,
+        token::Token::Add,
         ast::Expression::Integer = 2
     ));
 }
@@ -299,7 +299,7 @@ fn prefix_minus_number() {
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
     expr_variant!(&expr.expression, Prefix => (
-        token::Token::Minus,
+        token::Token::Sub,
         ast::Expression::Integer = 12
     ));
 }
@@ -313,7 +313,7 @@ fn prefix_bang_number() {
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
     expr_variant!(&expr.expression, Prefix => (
-        token::Token::Bang,
+        token::Token::Not,
         ast::Expression::Integer = 12
     ));
 }
@@ -327,7 +327,7 @@ fn prefix_minus_boolean() {
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
     expr_variant!(&expr.expression, Prefix => (
-        token::Token::Minus,
+        token::Token::Sub,
         ast::Expression::Boolean = true
     ));
 }
@@ -341,7 +341,7 @@ fn prefix_bang_boolean() {
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
     expr_variant!(&expr.expression, Prefix => (
-        token::Token::Bang,
+        token::Token::Not,
         ast::Expression::Boolean = true
     ));
 }

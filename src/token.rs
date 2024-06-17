@@ -9,37 +9,44 @@ pub enum Token {
     Illegal(String),
     String(String),
 
-    Walrus,
-    Assign,
+    // Assignment operators
+    Assign,      // =
+    ColonAssign, // :=
 
-    Plus,
-    Minus,
-    Bang,
-    Asterisk,
-    Slash,
-    Percent,
+    // Arithmetic operators
+    Add, // +
+    Sub, // -
+    Mul, // *
+    Div, // /
+    Mod, // %
 
-    LT,
-    GT,
-    Eq,
-    NotEq,
+    // Logical operators
+    Not, // !
 
-    Comma,
-    Semicolon,
+    // Comparison operators
+    Eq, // ==
+    Ne, // !=
+    Lt, // <
+    Gt, // >
 
-    LParen,
-    RParen,
-    LBrace,
-    RBrace,
+    // Parenthesis and Braces
+    LeftParen,  // (
+    RightParen, // )
+    LeftBrace,  // {
+    RightBrace, // }
 
-    Function,
-    While,
+    // Keywords
+    Function, // fn
+    While,    // while
+    If,       // if
+    Else,     // else
+    Return,   // return
+    True,     // true
+    False,    // false
 
-    True,
-    False,
-    If,
-    Else,
-    Return,
+    // Other tokens
+    Comma,     // ,
+    Semicolon, // ;
 }
 
 impl From<&[u8]> for Token {
@@ -67,29 +74,29 @@ impl std::fmt::Display for Token {
             Token::Illegal(s) => s,
             Token::String(s) => s,
             Token::Assign => "=",
-            Token::Plus => "+",
-            Token::Minus => "-",
-            Token::Bang => "!",
-            Token::Asterisk => "*",
-            Token::Slash => "/",
-            Token::LT => "<",
-            Token::GT => ">",
+            Token::Add => "+",
+            Token::Sub => "-",
+            Token::Not => "!",
+            Token::Mul => "*",
+            Token::Div => "/",
+            Token::Lt => "<",
+            Token::Gt => ">",
             Token::Eq => "==",
-            Token::NotEq => "!=",
+            Token::Ne => "!=",
             Token::Comma => ",",
             Token::Semicolon => ";",
-            Token::LParen => "(",
-            Token::RParen => ")",
-            Token::LBrace => "{",
-            Token::RBrace => "}",
+            Token::LeftParen => "(",
+            Token::RightParen => ")",
+            Token::LeftBrace => "{",
+            Token::RightBrace => "}",
             Token::Function => "fn",
             Token::True => "true",
             Token::False => "false",
             Token::If => "if",
             Token::Else => "else",
             Token::Return => "return",
-            Token::Walrus => ":=",
-            Token::Percent => "%",
+            Token::ColonAssign => ":=",
+            Token::Mod => "%",
             Token::While => "while",
         })
     }

@@ -38,7 +38,7 @@ fn block() {
 
     expr_variant!(&expr_2.expression, Infix => (
         ast::Expression::Integer = 1,
-        token::Token::Plus,
+        token::Token::Add,
         ast::Expression::Integer = 2
     ));
 }
@@ -67,7 +67,7 @@ fn var_declare() {
 
     let stmt = as_variant!(&program.statements[0], ast::Statement::Var);
 
-    assert_eq!(stmt.token, token::Token::Walrus);
+    assert_eq!(stmt.token, token::Token::ColonAssign);
     ident_has_name!(stmt.name, "x");
 
     expr_variant!(&stmt.value, ast::Expression::Integer = 5);
