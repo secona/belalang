@@ -237,27 +237,18 @@ impl Parser<'_> {
     }
 
     fn parse_expression(&mut self, precedence: Precedence) -> Result<Expression, ParserError> {
-        let prefix = self.prefix_fn()?;
-
-        let mut left_expr: Result<Expression, Expression> = Ok(prefix);
+        let mut left_expr = self.parse_prefix()?;
 
         while !matches!(self.peek_token, token::Token::Semicolon)
             && precedence < Precedence::from(&self.peek_token)
         {
-            if let Ok(expr) = left_expr {
-                left_expr = self.infix_fn(&self.peek_token.clone(), expr);
-            }
-
-            if let Err(expr) = left_expr {
-                left_expr = Ok(expr);
-                break;
-            }
+            match self.parse_infix(&self.peek_token.clone(), &left_expr)? {
+                Some(expr) => left_expr = expr,
+                None => return Ok(left_expr),
+            };
         }
 
-        match left_expr {
-            Ok(expr) => Ok(expr),
-            Err(_) => Err(ParserError::PrefixOperator(token::Token::Function)),
-        }
+        Ok(left_expr)
     }
 
     fn parse_block(&mut self) -> Result<ast::BlockExpression, ParserError> {

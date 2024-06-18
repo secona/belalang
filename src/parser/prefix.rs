@@ -7,7 +7,7 @@ use crate::{
 use super::Precedence;
 
 impl super::Parser<'_> {
-    pub fn prefix_fn(&mut self) -> Result<Expression, ParserError> {
+    pub fn parse_prefix(&mut self) -> Result<Expression, ParserError> {
         match self.curr_token {
             // parse_identifier: parse current token as identifier
             token::Token::Ident(_) => Ok(Expression::Identifier(ast::Identifier {

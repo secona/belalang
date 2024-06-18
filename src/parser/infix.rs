@@ -1,5 +1,7 @@
 use crate::{
+    arithmetic_tokens,
     ast::{self, Expression},
+    comparison_tokens,
     error::ParserError,
     expect_peek, token,
 };
@@ -7,55 +9,46 @@ use crate::{
 use super::Precedence;
 
 impl super::Parser<'_> {
-    pub fn infix_fn(
+    pub fn parse_infix(
         &mut self,
         tok: &token::Token,
-        left: Expression,
-    ) -> Result<Expression, Expression> {
-        self.next_token();
-
+        left: &Expression,
+    ) -> Result<Option<Expression>, ParserError> {
         match tok {
             // parse_infix: parse infix expression
-            token::Token::Add
-            | token::Token::Sub
-            | token::Token::Div
-            | token::Token::Mul
-            | token::Token::Mod
-            | token::Token::Eq
-            | token::Token::Ne
-            | token::Token::Gt
-            | token::Token::Ge
-            | token::Token::Lt
-            | token::Token::Le => {
+            arithmetic_tokens!() | comparison_tokens!() => {
+                self.next_token();
+
                 let token = self.curr_token.clone();
                 let operator = self.curr_token.clone();
                 let precedence = Precedence::from(&self.curr_token);
 
                 self.next_token();
 
-                let right = self.parse_expression(precedence).unwrap();
+                let right = self.parse_expression(precedence)?;
 
-                Ok(Expression::Infix(ast::InfixExpression {
+                Ok(Some(Expression::Infix(ast::InfixExpression {
                     token,
-                    left: Box::new(left),
+                    left: Box::new(left.clone()),
                     operator,
                     right: Box::new(right),
-                }))
+                })))
             }
 
             // parse_call: parse call expression
             token::Token::LeftParen => {
-                if let Ok(args) = self.parse_call_args() {
-                    Ok(Expression::Call(ast::CallExpression {
-                        token: self.curr_token.clone(),
-                        function: Box::new(left),
-                        args,
-                    }))
-                } else {
-                    Err(left)
-                }
+                self.next_token();
+
+                let args = self.parse_call_args()?;
+
+                Ok(Some(Expression::Call(ast::CallExpression {
+                    token: self.curr_token.clone(),
+                    function: Box::new(left.clone()),
+                    args,
+                })))
             }
-            _ => Err(left),
+
+            _ => Ok(None),
         }
     }
 

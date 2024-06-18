@@ -1,3 +1,26 @@
+#[macro_export]
+macro_rules! arithmetic_tokens {
+    () => {
+        crate::token::Token::Add
+            | crate::token::Token::Sub
+            | crate::token::Token::Mul
+            | crate::token::Token::Div
+            | crate::token::Token::Mod
+    };
+}
+
+#[macro_export]
+macro_rules! comparison_tokens {
+    () => {
+        crate::token::Token::Eq
+            | crate::token::Token::Ne
+            | crate::token::Token::Gt
+            | crate::token::Token::Ge
+            | crate::token::Token::Lt
+            | crate::token::Token::Le
+    };
+}
+
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub enum Token {
     #[default]
