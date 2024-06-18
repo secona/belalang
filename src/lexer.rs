@@ -1,4 +1,4 @@
-use crate::token::Token;
+use crate::{error::ParserError, token::Token};
 
 pub struct Lexer<'a> {
     input: &'a [u8],
@@ -20,7 +20,7 @@ impl<'a> Lexer<'a> {
         lexer
     }
 
-    pub fn next_token(&mut self) -> Token {
+    pub fn next_token(&mut self) -> Result<Token, ParserError> {
         self.skip_whitespace_and_comments();
 
         let tok: Token = match self.ch {
@@ -45,20 +45,24 @@ impl<'a> Lexer<'a> {
                         self.read_char();
                         Token::ColonAssign
                     }
-                    _ => Token::Illegal(" ".into()),
+                    _ => {
+                        return Err(ParserError::IllegalToken(
+                            String::from_utf8(vec![*ch]).unwrap(),
+                        ));
+                    }
                 },
                 b'<' => match self.peek_char() {
                     Some(b'=') => {
                         self.read_char();
                         Token::Le
-                    },
+                    }
                     _ => Token::Lt,
                 },
                 b'>' => match self.peek_char() {
                     Some(b'=') => {
                         self.read_char();
                         Token::Ge
-                    },
+                    }
                     _ => Token::Gt,
                 },
                 b'+' => match self.peek_char() {
@@ -105,18 +109,20 @@ impl<'a> Lexer<'a> {
                 b'"' => self.read_string(),
                 _ => {
                     if self.is_letter() {
-                        return self.read_identifier();
+                        return Ok(self.read_identifier());
                     } else if self.is_digit() {
-                        return self.read_number();
+                        return Ok(self.read_number());
                     } else {
-                        Token::Illegal(" ".into())
+                        return Err(ParserError::IllegalToken(
+                            String::from_utf8(vec![*ch]).unwrap(),
+                        ));
                     }
                 }
             },
         };
 
         self.read_char();
-        tok
+        Ok(tok)
     }
 
     pub fn read_char(&mut self) -> Option<&'a u8> {

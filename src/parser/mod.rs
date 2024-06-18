@@ -37,7 +37,7 @@ impl From<&token::Token> for Precedence {
 macro_rules! expect_peek {
     ($self:expr, $token:pat) => {
         if matches!($self.peek_token, $token) {
-            $self.next_token();
+            $self.next_token()?;
             true
         } else {
             return Err(ParserError::UnexpectedToken($self.peek_token.clone()));
@@ -49,7 +49,7 @@ macro_rules! expect_peek {
 macro_rules! optional_peek {
     ($self:expr, $token:pat) => {
         if matches!($self.peek_token, $token) {
-            $self.next_token();
+            $self.next_token()?;
             true
         } else {
             false
@@ -68,8 +68,9 @@ pub struct Parser<'a> {
 
 impl Parser<'_> {
     pub fn new(mut lexer: lexer::Lexer<'_>) -> Parser {
-        let curr_token = lexer.next_token();
-        let peek_token = lexer.next_token();
+        // TODO: remove these unwraps
+        let curr_token = lexer.next_token().unwrap();
+        let peek_token = lexer.next_token().unwrap();
 
         Parser {
             lexer,
@@ -81,29 +82,22 @@ impl Parser<'_> {
         }
     }
 
-    fn next_token(&mut self) {
+    fn next_token(&mut self) -> Result<(), ParserError> {
         self.curr_token = std::mem::take(&mut self.peek_token);
-        self.peek_token = self.lexer.next_token();
+        self.peek_token = self.lexer.next_token()?;
+
+        Ok(())
     }
 
-    pub fn parse_program(&mut self) -> Result<ast::Program, Vec<ParserError>> {
+    pub fn parse_program(&mut self) -> Result<ast::Program, ParserError> {
         let mut program = ast::Program::new();
-        let mut errors = Vec::<ParserError>::new();
 
         while !matches!(self.curr_token, token::Token::EOF) {
-            match self.parse_statement() {
-                Ok(stmt) => program.add_stmt(stmt),
-                Err(err) => errors.push(err),
-            }
-
-            self.next_token();
+            program.add_stmt(self.parse_statement()?);
+            self.next_token()?;
         }
 
-        if errors.len() > 0 {
-            Err(errors)
-        } else {
-            Ok(program)
-        }
+        Ok(program)
     }
 
     fn parse_statement(&mut self) -> Result<Statement, ParserError> {
@@ -112,7 +106,7 @@ impl Parser<'_> {
             token::Token::Return => {
                 let token = self.curr_token.clone();
 
-                self.next_token();
+                self.next_token()?;
                 let return_value = self.parse_expression(Precedence::Lowest)?;
 
                 self.has_semicolon = expect_peek!(self, token::Token::Semicolon);
@@ -129,8 +123,8 @@ impl Parser<'_> {
 
                 expect_peek!(self, token::Token::LeftParen);
 
-                self.next_token();
-                let condition = self.parse_expression(Precedence::Lowest).unwrap();
+                self.next_token()?;
+                let condition = self.parse_expression(Precedence::Lowest)?;
 
                 expect_peek!(self, token::Token::RightParen);
 
@@ -155,10 +149,10 @@ impl Parser<'_> {
                         value: self.curr_token.to_string(),
                     };
 
-                    self.next_token();
+                    self.next_token()?;
                     let token = self.curr_token.clone();
 
-                    self.next_token();
+                    self.next_token()?;
                     let value = self.parse_expression(Precedence::Lowest)?;
 
                     self.has_semicolon = expect_peek!(self, token::Token::Semicolon);
@@ -175,10 +169,10 @@ impl Parser<'_> {
                         value: self.curr_token.to_string(),
                     };
 
-                    self.next_token();
+                    self.next_token()?;
                     let token = self.curr_token.clone();
 
-                    self.next_token();
+                    self.next_token()?;
                     let value = self.parse_expression(Precedence::Lowest)?;
 
                     self.has_semicolon = expect_peek!(self, token::Token::Semicolon);
@@ -255,7 +249,7 @@ impl Parser<'_> {
         let token = self.curr_token.clone();
         let mut statements = Vec::new();
 
-        self.next_token();
+        self.next_token()?;
 
         self.depth += 1;
         loop {
@@ -280,7 +274,7 @@ impl Parser<'_> {
             }
 
             statements.push(self.parse_statement()?);
-            self.next_token();
+            self.next_token()?;
         }
         self.depth -= 1;
 
@@ -292,7 +286,7 @@ impl Parser<'_> {
 
         expect_peek!(self, token::Token::LeftParen);
 
-        self.next_token();
+        self.next_token()?;
         let condition = self.parse_expression(Precedence::Lowest)?;
 
         expect_peek!(self, token::Token::RightParen);
@@ -303,8 +297,8 @@ impl Parser<'_> {
 
         let alternative: Option<Box<Expression>> = if matches!(self.peek_token, token::Token::Else)
         {
-            self.next_token();
-            self.next_token();
+            self.next_token()?;
+            self.next_token()?;
 
             Some(Box::new(match self.curr_token {
                 token::Token::If => self.parse_if()?,

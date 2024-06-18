@@ -42,7 +42,7 @@ impl super::Parser<'_> {
             token::Token::Not | token::Token::Sub => {
                 let prev_token = self.curr_token.clone();
 
-                self.next_token();
+                self.next_token()?;
 
                 let right = self.parse_expression(Precedence::Prefix).unwrap();
 
@@ -55,7 +55,7 @@ impl super::Parser<'_> {
 
             // parse_grouped: parse grouped expression
             token::Token::LeftParen => {
-                self.next_token();
+                self.next_token()?;
                 let expr = self.parse_expression(Precedence::Lowest);
 
                 expect_peek!(self, token::Token::RightParen);
@@ -100,19 +100,19 @@ impl super::Parser<'_> {
         let mut identifiers = Vec::new();
 
         if matches!(self.peek_token, token::Token::RightParen) {
-            self.next_token();
+            self.next_token()?;
             return Ok(identifiers);
         }
 
-        self.next_token();
+        self.next_token()?;
         identifiers.push(ast::Identifier {
             token: self.curr_token.clone(),
             value: self.curr_token.to_string(),
         });
 
         while matches!(self.peek_token, token::Token::Comma) {
-            self.next_token();
-            self.next_token();
+            self.next_token()?;
+            self.next_token()?;
 
             identifiers.push(ast::Identifier {
                 token: self.curr_token.clone(),

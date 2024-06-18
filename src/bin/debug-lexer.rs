@@ -1,8 +1,8 @@
-use std::io::{self, Write};
+use std::{error::Error, io::{self, Write}};
 
 use belalang::{lexer::Lexer, token::Token};
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     loop {
         print!(">> ");
         let _ = io::stdout().flush();
@@ -15,7 +15,7 @@ fn main() {
         let mut lexer = Lexer::new(input.as_bytes());
 
         loop {
-            let token = lexer.next_token();
+            let token = lexer.next_token()?;
             println!("{:?}", token);
 
             if let Token::EOF = token {

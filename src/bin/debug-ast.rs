@@ -17,10 +17,7 @@ fn main() {
 
         match parser.parse_program() {
             Ok(program) => println!("{:#?}", program.statements),
-            Err(err) => println!(
-                "{:?}",
-                err.iter().map(|e| e.to_string()).collect::<Vec<_>>()
-            ),
+            Err(err) => println!("{:?}", err),
         }
     }
 }

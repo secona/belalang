@@ -10,14 +10,7 @@ pub fn run_file(filename: PathBuf) -> Result<(), Box<dyn Error>> {
     let mut parser = Parser::new(lexer);
     let mut ev = Evaluator::default();
 
-    let program = match parser.parse_program() {
-        Ok(program) => Ok(program),
-        Err(err) => Err(err
-            .iter()
-            .map(|e| e.to_string())
-            .collect::<Vec<_>>()
-            .join("\n ")),
-    }?;
+    let program = parser.parse_program()?;
 
     ev.eval_program(program)?;
     Ok(())
@@ -42,11 +35,8 @@ pub fn repl() -> Result<(), Box<dyn Error>> {
                         Ok(evaluated) => println!("{}", evaluated),
                         Err(msg) => println!("{}", msg),
                     },
-                    Err(errors) => {
-                        println!("parser errors:");
-                        for error in errors {
-                            println!("- {}", error);
-                        }
+                    Err(err) => {
+                        println!("{}", err);
                     }
                 };
             }

@@ -49,12 +49,7 @@ pub fn run_code(input: String) {
             }
         }
         Err(err) => {
-            println(
-                &err.iter()
-                    .map(|arg| arg.to_string())
-                    .collect::<Vec<_>>()
-                    .join("\n"),
-            );
+            println(&err.to_string());
             return;
         }
     }

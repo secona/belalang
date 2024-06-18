@@ -11,6 +11,9 @@ pub enum ParserError {
 
     #[error("error parsing integer: could not parse {0} as integer")]
     ParsingInteger(String),
+
+    #[error("illegal token: {0}")]
+    IllegalToken(String)
 }
 
 #[derive(thiserror::Error, Debug)]

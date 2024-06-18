@@ -17,13 +17,13 @@ impl super::Parser<'_> {
         match tok {
             // parse_infix: parse infix expression
             arithmetic_tokens!() | comparison_tokens!() => {
-                self.next_token();
+                self.next_token()?;
 
                 let token = self.curr_token.clone();
                 let operator = self.curr_token.clone();
                 let precedence = Precedence::from(&self.curr_token);
 
-                self.next_token();
+                self.next_token()?;
 
                 let right = self.parse_expression(precedence)?;
 
@@ -37,7 +37,7 @@ impl super::Parser<'_> {
 
             // parse_call: parse call expression
             token::Token::LeftParen => {
-                self.next_token();
+                self.next_token()?;
 
                 let args = self.parse_call_args()?;
 
@@ -56,16 +56,16 @@ impl super::Parser<'_> {
         let mut args = Vec::new();
 
         if matches!(self.peek_token, token::Token::RightParen) {
-            self.next_token();
+            self.next_token()?;
             return Ok(args);
         }
 
-        self.next_token();
+        self.next_token()?;
         args.push(self.parse_expression(Precedence::Lowest)?);
 
         while matches!(self.peek_token, token::Token::Comma) {
-            self.next_token();
-            self.next_token();
+            self.next_token()?;
+            self.next_token()?;
 
             args.push(self.parse_expression(Precedence::Lowest)?);
         }

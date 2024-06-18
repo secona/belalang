@@ -29,7 +29,6 @@ pub enum Token {
 
     Ident(String),
     Int(String),
-    Illegal(String),
     String(String),
 
     // Assignment operators
@@ -101,7 +100,6 @@ impl std::fmt::Display for Token {
             Token::EOF => "EOF",
             Token::Ident(s) => s,
             Token::Int(s) => s,
-            Token::Illegal(s) => s,
             Token::String(s) => s,
             Token::Assign => "=",
             Token::ColonAssign => ":=",

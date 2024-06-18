@@ -36,7 +36,7 @@ pub fn test_tokens(input: &str, tokens: Vec<Token>) {
     let mut lexer = Lexer::new(input.as_bytes());
 
     for expected in tokens {
-        let tok = lexer.next_token();
+        let tok = lexer.next_token().unwrap();
         assert_eq!(tok, expected);
     }
 }
