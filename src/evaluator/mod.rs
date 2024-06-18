@@ -5,7 +5,8 @@ pub mod object;
 
 use crate::{
     ast::{BlockExpression, Expression, Node, Program, Statement},
-    evaluator::{environment::Environment, error::EvaluatorError, object::Object},
+    error::EvaluatorError,
+    evaluator::{environment::Environment, object::Object},
     token::Token,
 };
 

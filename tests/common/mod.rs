@@ -1,7 +1,9 @@
 #![allow(dead_code)]
 
 use belalang::{
-    ast, evaluator,
+    ast,
+    error::EvaluatorError,
+    evaluator::{self, object::Object},
     lexer::{self, Lexer},
     parser,
     token::Token,
@@ -20,9 +22,7 @@ pub fn test_parse_to_string(input: &str, expected: &str) {
     assert_eq!(program.to_string(), expected);
 }
 
-pub fn test_eval(
-    input: String,
-) -> Result<evaluator::object::Object, evaluator::error::EvaluatorError> {
+pub fn test_eval(input: String) -> Result<Object, EvaluatorError> {
     let input = input.as_bytes().into();
     let lexer = lexer::Lexer::new(input);
     let mut parser = parser::Parser::new(lexer);

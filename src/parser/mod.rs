@@ -1,13 +1,11 @@
-mod error;
 mod infix;
 mod prefix;
 
 use crate::{
     ast::{self, Expression, Statement},
+    error::ParserError,
     lexer, token,
 };
-
-use self::error::ParserError;
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
@@ -203,7 +201,7 @@ impl Parser<'_> {
                             right: Box::new(value),
                         }),
                     }))
-                },
+                }
                 _ => self.parse_expression_statement(),
             },
 
