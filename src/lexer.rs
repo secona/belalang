@@ -1,10 +1,15 @@
-use crate::{error::ParserError, token::Token, unwrap_or_return, utils::hex_byte_to_u8};
+use crate::{
+    error::ParserError,
+    token::Token,
+    unwrap_or_return,
+    utils::hex_byte_to_u8,
+};
 
 pub struct Lexer<'a> {
     input: &'a [u8],
     position: usize,
     read_position: usize,
-    ch: Option<&'a u8>,
+    ch: u8,
 }
 
 impl<'a> Lexer<'a> {
@@ -13,147 +18,145 @@ impl<'a> Lexer<'a> {
             input,
             position: 0,
             read_position: 0,
-            ch: None,
+            ch: 0,
         }
     }
 
     pub fn next_token(&mut self) -> Result<Token, ParserError> {
-        self.skip_whitespace_and_comments();
+        if self.skip_whitespace_and_comments().is_err() {
+            return Ok(Token::EOF);
+        }
 
         let tok: Token = match self.ch {
-            None => Token::EOF,
-            Some(ch) => match ch {
-                b'=' => match self.peek_char() {
-                    Some(b'=') => {
-                        self.read_char();
-                        Token::Eq
-                    }
-                    _ => Token::Assign,
-                },
-                b'!' => match self.peek_char() {
-                    Some(b'=') => {
-                        self.read_char();
-                        Token::Ne
-                    }
-                    _ => Token::Not,
-                },
-                b':' => match self.peek_char() {
-                    Some(b'=') => {
-                        self.read_char();
-                        Token::ColonAssign
-                    }
-                    _ => {
-                        return Err(ParserError::UnknownToken(
-                            String::from_utf8(vec![*ch]).unwrap(),
-                        ));
-                    }
-                },
-                b'<' => match self.peek_char() {
-                    Some(b'=') => {
-                        self.read_char();
-                        Token::Le
-                    }
-                    _ => Token::Lt,
-                },
-                b'>' => match self.peek_char() {
-                    Some(b'=') => {
-                        self.read_char();
-                        Token::Ge
-                    }
-                    _ => Token::Gt,
-                },
-                b'+' => match self.peek_char() {
-                    Some(b'=') => {
-                        self.read_char();
-                        Token::AddAssign
-                    }
-                    _ => Token::Add,
-                },
-                b'-' => match self.peek_char() {
-                    Some(b'=') => {
-                        self.read_char();
-                        Token::SubAssign
-                    }
-                    _ => Token::Sub,
-                },
-                b'*' => match self.peek_char() {
-                    Some(b'=') => {
-                        self.read_char();
-                        Token::MulAssign
-                    }
-                    _ => Token::Mul,
-                },
-                b'/' => match self.peek_char() {
-                    Some(b'=') => {
-                        self.read_char();
-                        Token::DivAssign
-                    }
-                    _ => Token::Div,
-                },
-                b'%' => match self.peek_char() {
-                    Some(b'=') => {
-                        self.read_char();
-                        Token::ModAssign
-                    }
-                    _ => Token::Mod,
-                },
-                b'(' => Token::LeftParen,
-                b')' => Token::RightParen,
-                b'{' => Token::LeftBrace,
-                b'}' => Token::RightBrace,
-                b';' => Token::Semicolon,
-                b',' => Token::Comma,
-                b'\\' => Token::Backslash,
-                b'"' => self.read_string()?,
+            b'=' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Token::Eq
+                }
+                _ => Token::Assign,
+            },
+            b'!' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Token::Ne
+                }
+                _ => Token::Not,
+            },
+            b':' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Token::ColonAssign
+                }
                 _ => {
-                    if self.is_letter() {
-                        self.read_identifier()
-                    } else if self.is_digit() {
-                        self.read_number()
-                    } else {
-                        return Err(ParserError::UnknownToken(
-                            String::from_utf8(vec![*ch]).unwrap(),
-                        ));
-                    }
+                    return Err(ParserError::UnknownToken(
+                        String::from_utf8(vec![self.ch]).unwrap(),
+                    ));
                 }
             },
+            b'<' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Token::Le
+                }
+                _ => Token::Lt,
+            },
+            b'>' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Token::Ge
+                }
+                _ => Token::Gt,
+            },
+            b'+' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Token::AddAssign
+                }
+                _ => Token::Add,
+            },
+            b'-' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Token::SubAssign
+                }
+                _ => Token::Sub,
+            },
+            b'*' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Token::MulAssign
+                }
+                _ => Token::Mul,
+            },
+            b'/' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Token::DivAssign
+                }
+                _ => Token::Div,
+            },
+            b'%' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Token::ModAssign
+                }
+                _ => Token::Mod,
+            },
+            b'(' => Token::LeftParen,
+            b')' => Token::RightParen,
+            b'{' => Token::LeftBrace,
+            b'}' => Token::RightBrace,
+            b';' => Token::Semicolon,
+            b',' => Token::Comma,
+            b'\\' => Token::Backslash,
+            b'"' => self.read_string()?,
+            _ => {
+                if self.is_letter() {
+                    self.read_identifier()
+                } else if self.is_digit() {
+                    self.read_number()
+                } else {
+                    return Err(ParserError::UnknownToken(
+                        String::from_utf8(vec![self.ch]).unwrap(),
+                    ));
+                }
+            }
         };
 
         Ok(tok)
     }
 
-    pub fn read_char(&mut self) -> Option<&'a u8> {
-        self.ch = self.peek_char();
+    pub fn read_char(&mut self) -> Option<u8> {
+        self.ch = self.peek_char()?;
 
         self.position = self.read_position;
         self.read_position += 1;
 
-        println!("self.ch = {:?}", self.ch);
-
-        self.ch
+        Some(self.ch)
     }
 
-    pub fn peek_char(&self) -> Option<&'a u8> {
-        self.input.get(self.read_position)
+    pub fn peek_char(&self) -> Option<u8> {
+        self.input.get(self.read_position).copied()
     }
 
-    pub fn skip_whitespace_and_comments(&mut self) {
+    /// Return error if encounters the EOF.
+    pub fn skip_whitespace_and_comments(&mut self) -> Result<(), ()> {
         loop {
             match self.read_char() {
-                Some(b'#') => self.skip_comment(),
                 Some(b' ' | b'\t' | b'\n' | b'\r') => (),
-                _ => break,
+                Some(b'#') => self.skip_comment(),
+                None => return Err(()),
+                _ => return Ok(()),
             };
         }
     }
 
     pub fn skip_comment(&mut self) {
-        while let Some(b'#') = self.ch {
-            loop {
-                match self.read_char() {
-                    Some(b'\n') | None => break,
-                    _ => (),
-                };
+        while let b'#' = self.ch {
+            while let Some(ch) = self.read_char() {
+                if ch == b'\n' {
+                    break;
+                }
             }
         }
     }
@@ -162,8 +165,7 @@ impl<'a> Lexer<'a> {
         let mut result = Vec::<u8>::new();
 
         loop {
-            self.read_char();
-            match self.ch {
+            match self.read_char() {
                 Some(b'\\') => match self.peek_char() {
                     Some(b'n') => {
                         self.read_char();
@@ -194,16 +196,16 @@ impl<'a> Lexer<'a> {
                             unwrap_or_return!(self.read_char(), Err(ParserError::UnexpectedEOF));
 
                         let hi = unwrap_or_return!(
-                            hex_byte_to_u8(*hi_c),
+                            hex_byte_to_u8(hi_c),
                             Err(ParserError::UnknownEscapeString(
-                                String::from_utf8(vec![b'x', *hi_c, *lo_c]).unwrap(),
+                                String::from_utf8(vec![b'x', hi_c, lo_c]).unwrap(),
                             ))
                         );
 
                         let lo = unwrap_or_return!(
-                            hex_byte_to_u8(*lo_c),
+                            hex_byte_to_u8(lo_c),
                             Err(ParserError::UnknownEscapeString(
-                                String::from_utf8(vec![b'x', *hi_c, *lo_c]).unwrap(),
+                                String::from_utf8(vec![b'x', hi_c, lo_c]).unwrap(),
                             ))
                         );
 
@@ -211,13 +213,13 @@ impl<'a> Lexer<'a> {
                     }
                     Some(c) => {
                         return Err(ParserError::UnknownEscapeString(
-                            String::from_utf8(vec![*c]).unwrap(),
+                            String::from_utf8(vec![c]).unwrap(),
                         ))
                     }
                     None => return Err(ParserError::UnclosedString()),
                 },
                 Some(b'"') => break,
-                Some(c) => result.push(*c),
+                Some(c) => result.push(c),
                 None => return Err(ParserError::UnclosedString()),
             }
         }
@@ -249,7 +251,7 @@ impl<'a> Lexer<'a> {
 
     pub fn is_letter(&self) -> bool {
         match self.ch {
-            Some(b'a'..=b'z' | b'A'..=b'Z' | b'_') => true,
+            b'a'..=b'z' | b'A'..=b'Z' | b'_' => true,
             _ => false,
         }
     }
@@ -263,7 +265,7 @@ impl<'a> Lexer<'a> {
 
     pub fn is_digit(&self) -> bool {
         match self.ch {
-            Some(b'0'..=b'9') => true,
+            b'0'..=b'9' => true,
             _ => false,
         }
     }
