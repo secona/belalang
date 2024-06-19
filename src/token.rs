@@ -76,6 +76,7 @@ pub enum Token {
     // Other tokens
     Comma,     // ,
     Semicolon, // ;
+    Backslash, // \
 }
 
 impl From<&[u8]> for Token {
@@ -120,6 +121,7 @@ impl std::fmt::Display for Token {
             Token::Eq => "==",
             Token::Ne => "!=",
             Token::Comma => ",",
+            Token::Backslash => r"\",
             Token::Semicolon => ";",
             Token::LeftParen => "(",
             Token::RightParen => ")",

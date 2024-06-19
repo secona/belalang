@@ -100,12 +100,13 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Token::Mod,
                 },
-                b';' => Token::Semicolon,
                 b'(' => Token::LeftParen,
                 b')' => Token::RightParen,
-                b',' => Token::Comma,
                 b'{' => Token::LeftBrace,
                 b'}' => Token::RightBrace,
+                b';' => Token::Semicolon,
+                b',' => Token::Comma,
+                b'\\' => Token::Backslash,
                 b'"' => self.read_string(),
                 _ => {
                     if self.is_letter() {
@@ -172,19 +173,36 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn read_string(&mut self) -> Token {
-        let position = self.position + 1;
+        let mut result = Vec::<u8>::new();
 
         loop {
             self.read_char();
             match self.ch {
-                Some(b'"') | Some(0) => break,
-                _ => (),
+                Some(b'\\') => match self.peek_char() {
+                    Some(b'n') => {
+                        self.read_char();
+                        result.push(b'\n');
+                    }
+                    Some(b'r') => {
+                        self.read_char();
+                        result.push(b'\r');
+                    }
+                    Some(b't') => {
+                        self.read_char();
+                        result.push(b'\t');
+                    }
+                    Some(b'"') => {
+                        self.read_char();
+                        result.push(b'"');
+                    }
+                    _ => result.push(b'\\'),
+                }
+                Some(b'"' | 0) | None => break,
+                Some(c) => result.push(*c),
             }
         }
 
-        let s = &self.input[position..self.position];
-        let s = std::str::from_utf8(s).unwrap();
-        Token::String(String::from(s))
+        Token::String(String::from_utf8(result).unwrap())
     }
 
     pub fn read_identifier(&mut self) -> Token {

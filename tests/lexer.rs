@@ -54,3 +54,11 @@ fn strings_idents_nums() {
         ],
     );
 }
+
+#[test]
+fn escape_strings() {
+    test_tokens(r#""\n""#, vec![Token::String("\n".into())]);
+    test_tokens(r#""\r""#, vec![Token::String("\r".into())]);
+    test_tokens(r#""\t""#, vec![Token::String("\t".into())]);
+    test_tokens(r#""\"""#, vec![Token::String("\"".into())]);
+}
