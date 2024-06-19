@@ -69,15 +69,11 @@ pub struct Parser<'a> {
 }
 
 impl Parser<'_> {
-    pub fn new(mut lexer: lexer::Lexer<'_>) -> Parser {
-        // TODO: remove these unwraps
-        let curr_token = lexer.next_token().unwrap();
-        let peek_token = lexer.next_token().unwrap();
-
+    pub fn new(lexer: lexer::Lexer<'_>) -> Parser {
         Parser {
             lexer,
-            curr_token,
-            peek_token,
+            curr_token: token::Token::default(),
+            peek_token: token::Token::default(),
 
             depth: 0,
             has_semicolon: false,
@@ -92,6 +88,9 @@ impl Parser<'_> {
     }
 
     pub fn parse_program(&mut self) -> Result<ast::Program, ParserError> {
+        self.curr_token = self.lexer.next_token()?;
+        self.peek_token = self.lexer.next_token()?;
+
         let mut program = ast::Program::new();
 
         while !matches!(self.curr_token, token::Token::EOF) {
