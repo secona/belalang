@@ -127,23 +127,16 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn read_char(&mut self) -> Option<&'a u8> {
-        if self.read_position >= self.input.len() {
-            self.ch = None;
-        } else {
-            self.ch = Some(&self.input[self.read_position]);
-        }
+        self.ch = self.peek_char();
 
         self.position = self.read_position;
         self.read_position += 1;
+
         self.ch
     }
 
     pub fn peek_char(&self) -> Option<&'a u8> {
-        if self.read_position >= self.input.len() {
-            None
-        } else {
-            Some(&self.input[self.read_position])
-        }
+        self.input.get(self.read_position)
     }
 
     pub fn skip_whitespace_and_comments(&mut self) {
