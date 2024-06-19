@@ -63,13 +63,13 @@ impl Evaluator {
                 match node.operator {
                     Token::Not => match right {
                         Object::Boolean(value) => Ok(Object::Boolean(!value)),
-                        _ => Err(EvaluatorError::PrefixOperator(node.operator, right)),
+                        _ => Err(EvaluatorError::UnknownPrefixOperator(node.operator, right)),
                     },
                     Token::Sub => match right {
                         Object::Integer(value) => Ok(Object::Integer(-value)),
-                        _ => Err(EvaluatorError::PrefixOperator(node.operator, right)),
+                        _ => Err(EvaluatorError::UnknownPrefixOperator(node.operator, right)),
                     },
-                    _ => Err(EvaluatorError::PrefixOperator(node.operator, right)),
+                    _ => Err(EvaluatorError::UnknownPrefixOperator(node.operator, right)),
                 }
             }
             Expression::Infix(infix_expr) => {
@@ -149,7 +149,7 @@ impl Evaluator {
                         }
                     }
                     Object::Builtin(name) => Ok(self.builtins.call(name, args)),
-                    _ => Err(EvaluatorError::NotAFunction()),
+                    _ => Err(EvaluatorError::NotAFunction),
                 }
             }
             Expression::Function(fn_lit) => Ok(Object::Function {
@@ -206,7 +206,7 @@ impl Evaluator {
                     self.env.set(&var.name.value, value.clone());
                     Ok(value)
                 }
-                _ => Err(EvaluatorError::NotAFunction()),
+                _ => unreachable!(),
             },
             Statement::While(stmt) => {
                 while let Object::Boolean(true) = self.eval_expression(*stmt.condition.clone())? {

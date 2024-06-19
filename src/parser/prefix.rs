@@ -92,7 +92,7 @@ impl super::Parser<'_> {
                 }))
             }
 
-            _ => Err(ParserError::PrefixOperator(self.curr_token.clone())),
+            _ => Err(ParserError::UnknownPrefixOperator(self.curr_token.clone())),
         }
     }
 

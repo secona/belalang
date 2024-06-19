@@ -46,7 +46,7 @@ impl<'a> Lexer<'a> {
                         Token::ColonAssign
                     }
                     _ => {
-                        return Err(ParserError::IllegalToken(
+                        return Err(ParserError::UnknownToken(
                             String::from_utf8(vec![*ch]).unwrap(),
                         ));
                     }
@@ -114,7 +114,7 @@ impl<'a> Lexer<'a> {
                     } else if self.is_digit() {
                         return Ok(self.read_number());
                     } else {
-                        return Err(ParserError::IllegalToken(
+                        return Err(ParserError::UnknownToken(
                             String::from_utf8(vec![*ch]).unwrap(),
                         ));
                     }
@@ -203,20 +203,20 @@ impl<'a> Lexer<'a> {
                         self.read_char(); // consume the 'x'
 
                         let hi_c =
-                            unwrap_or_return!(self.read_char(), Err(ParserError::UnexpectedEOF()));
+                            unwrap_or_return!(self.read_char(), Err(ParserError::UnexpectedEOF));
                         let lo_c =
-                            unwrap_or_return!(self.read_char(), Err(ParserError::UnexpectedEOF()));
+                            unwrap_or_return!(self.read_char(), Err(ParserError::UnexpectedEOF));
 
                         let hi = unwrap_or_return!(
                             hex_byte_to_u8(*hi_c),
-                            Err(ParserError::EscapeString(
+                            Err(ParserError::UnknownEscapeString(
                                 String::from_utf8(vec![b'x', *hi_c, *lo_c]).unwrap(),
                             ))
                         );
 
                         let lo = unwrap_or_return!(
                             hex_byte_to_u8(*lo_c),
-                            Err(ParserError::EscapeString(
+                            Err(ParserError::UnknownEscapeString(
                                 String::from_utf8(vec![b'x', *hi_c, *lo_c]).unwrap(),
                             ))
                         );
@@ -224,7 +224,7 @@ impl<'a> Lexer<'a> {
                         result.push((hi << 4) | lo);
                     }
                     Some(c) => {
-                        return Err(ParserError::EscapeString(
+                        return Err(ParserError::UnknownEscapeString(
                             String::from_utf8(vec![*c]).unwrap(),
                         ))
                     }

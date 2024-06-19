@@ -1,34 +1,34 @@
-use crate::token::Token;
 use crate::evaluator::object::Object;
+use crate::token::Token;
 
 #[derive(thiserror::Error, Debug)]
 pub enum ParserError {
     #[error("unexpected token: {0}")]
     UnexpectedToken(Token),
 
+    #[error("unexpected EOF")]
+    UnexpectedEOF,
+
+    #[error(r"unknown escape string: \{0}")]
+    UnknownEscapeString(String),
+
     #[error("unknown prefix operator: {0}")]
-    PrefixOperator(Token),
+    UnknownPrefixOperator(Token),
+
+    #[error("unknown token: {0}")]
+    UnknownToken(String),
 
     #[error("error parsing integer: could not parse {0} as integer")]
     ParsingInteger(String),
 
-    #[error("illegal token: {0}")]
-    IllegalToken(String),
-
-    #[error(r"unknown escape string: \{0}")]
-    EscapeString(String),
-
     #[error("unclosed string")]
     UnclosedString(),
-
-    #[error("unexpected EOF")]
-    UnexpectedEOF(),
 }
 
 #[derive(thiserror::Error, Debug)]
 pub enum EvaluatorError {
     #[error("unknown operator: {0}{1}")]
-    PrefixOperator(Token, Object),
+    UnknownPrefixOperator(Token, Object),
 
     #[error("unknown operator: {0} {1} {2}")]
     UnknownInfixOperator(Object, Token, Object),
@@ -37,7 +37,7 @@ pub enum EvaluatorError {
     UnknownVariable(String),
 
     #[error("not a function")]
-    NotAFunction(),
+    NotAFunction,
 
     #[error("overwriting builtin: {0}")]
     OverwriteBuiltin(String),
@@ -47,7 +47,4 @@ pub enum EvaluatorError {
 
     #[error("illegal returning value: {0}")]
     ReturningValue(Object),
-
-    #[error("unexpected token: {0}")]
-    UnexpectedToken(Token),
 }
