@@ -1,4 +1,4 @@
-use crate::{error::ParserError, token::Token};
+use crate::{error::ParserError, token::Token, unwrap_or_return, utils::hex_byte_to_u8};
 
 pub struct Lexer<'a> {
     input: &'a [u8],
@@ -107,7 +107,7 @@ impl<'a> Lexer<'a> {
                 b';' => Token::Semicolon,
                 b',' => Token::Comma,
                 b'\\' => Token::Backslash,
-                b'"' => self.read_string(),
+                b'"' => self.read_string()?,
                 _ => {
                     if self.is_letter() {
                         return Ok(self.read_identifier());
@@ -172,7 +172,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn read_string(&mut self) -> Token {
+    pub fn read_string(&mut self) -> Result<Token, ParserError> {
         let mut result = Vec::<u8>::new();
 
         loop {
@@ -195,14 +195,48 @@ impl<'a> Lexer<'a> {
                         self.read_char();
                         result.push(b'"');
                     }
-                    _ => result.push(b'\\'),
-                }
-                Some(b'"' | 0) | None => break,
+                    Some(b'\\') => {
+                        self.read_char();
+                        result.push(b'\\');
+                    }
+                    Some(b'x') => {
+                        self.read_char(); // consume the 'x'
+
+                        let hi_c =
+                            unwrap_or_return!(self.read_char(), Err(ParserError::UnexpectedEOF()));
+                        let lo_c =
+                            unwrap_or_return!(self.read_char(), Err(ParserError::UnexpectedEOF()));
+
+                        let hi = unwrap_or_return!(
+                            hex_byte_to_u8(*hi_c),
+                            Err(ParserError::EscapeString(
+                                String::from_utf8(vec![b'x', *hi_c, *lo_c]).unwrap(),
+                            ))
+                        );
+
+                        let lo = unwrap_or_return!(
+                            hex_byte_to_u8(*lo_c),
+                            Err(ParserError::EscapeString(
+                                String::from_utf8(vec![b'x', *hi_c, *lo_c]).unwrap(),
+                            ))
+                        );
+
+                        result.push((hi << 4) | lo);
+                    }
+                    Some(c) => {
+                        return Err(ParserError::EscapeString(
+                            String::from_utf8(vec![*c]).unwrap(),
+                        ))
+                    }
+                    None => return Err(ParserError::UnclosedString()),
+                },
+                Some(b'"') => break,
                 Some(c) => result.push(*c),
+                None => return Err(ParserError::UnclosedString()),
             }
         }
 
-        Token::String(String::from_utf8(result).unwrap())
+        Ok(Token::String(String::from_utf8(result).unwrap()))
     }
 
     pub fn read_identifier(&mut self) -> Token {

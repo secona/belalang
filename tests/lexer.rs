@@ -61,4 +61,7 @@ fn escape_strings() {
     test_tokens(r#""\r""#, vec![Token::String("\r".into())]);
     test_tokens(r#""\t""#, vec![Token::String("\t".into())]);
     test_tokens(r#""\"""#, vec![Token::String("\"".into())]);
+
+    test_tokens(r#""\x0A""#, vec![Token::String("\n".into())]);
+    test_tokens(r#""\x41""#, vec![Token::String("A".into())]);
 }

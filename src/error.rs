@@ -13,7 +13,16 @@ pub enum ParserError {
     ParsingInteger(String),
 
     #[error("illegal token: {0}")]
-    IllegalToken(String)
+    IllegalToken(String),
+
+    #[error(r"unknown escape string: \{0}")]
+    EscapeString(String),
+
+    #[error("unclosed string")]
+    UnclosedString(),
+
+    #[error("unexpected EOF")]
+    UnexpectedEOF(),
 }
 
 #[derive(thiserror::Error, Debug)]
