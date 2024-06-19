@@ -9,15 +9,12 @@ pub struct Lexer<'a> {
 
 impl<'a> Lexer<'a> {
     pub fn new(input: &'a [u8]) -> Lexer {
-        let mut lexer = Lexer {
+        Lexer {
             input,
             position: 0,
             read_position: 0,
             ch: None,
-        };
-
-        lexer.read_char();
-        lexer
+        }
     }
 
     pub fn next_token(&mut self) -> Result<Token, ParserError> {
@@ -110,9 +107,9 @@ impl<'a> Lexer<'a> {
                 b'"' => self.read_string()?,
                 _ => {
                     if self.is_letter() {
-                        return Ok(self.read_identifier());
+                        self.read_identifier()
                     } else if self.is_digit() {
-                        return Ok(self.read_number());
+                        self.read_number()
                     } else {
                         return Err(ParserError::UnknownToken(
                             String::from_utf8(vec![*ch]).unwrap(),
@@ -122,7 +119,6 @@ impl<'a> Lexer<'a> {
             },
         };
 
-        self.read_char();
         Ok(tok)
     }
 
@@ -131,6 +127,8 @@ impl<'a> Lexer<'a> {
 
         self.position = self.read_position;
         self.read_position += 1;
+
+        println!("self.ch = {:?}", self.ch);
 
         self.ch
     }
@@ -141,11 +139,9 @@ impl<'a> Lexer<'a> {
 
     pub fn skip_whitespace_and_comments(&mut self) {
         loop {
-            match self.ch {
+            match self.read_char() {
                 Some(b'#') => self.skip_comment(),
-                Some(b' ' | b'\t' | b'\n' | b'\r') => {
-                    self.read_char();
-                }
+                Some(b' ' | b'\t' | b'\n' | b'\r') => (),
                 _ => break,
             };
         }
@@ -154,12 +150,9 @@ impl<'a> Lexer<'a> {
     pub fn skip_comment(&mut self) {
         while let Some(b'#') = self.ch {
             loop {
-                match self.ch {
-                    Some(b'\n') | None => {
-                        self.read_char();
-                        break;
-                    }
-                    _ => self.read_char(),
+                match self.read_char() {
+                    Some(b'\n') | None => break,
+                    _ => (),
                 };
             }
         }
@@ -235,37 +228,50 @@ impl<'a> Lexer<'a> {
     pub fn read_identifier(&mut self) -> Token {
         let position = self.position;
 
-        while self.is_letter() {
+        while self.peek_is_letter() {
             self.read_char();
         }
 
-        Token::from(&self.input[position..self.position])
+        Token::from(&self.input[position..self.read_position])
     }
 
     pub fn read_number(&mut self) -> Token {
         let position = self.position;
 
-        while self.is_digit() {
+        while self.peek_is_digit() {
             self.read_char();
         }
 
-        let num = &self.input[position..self.position];
+        let num = &self.input[position..self.read_position];
         let num = std::str::from_utf8(num).unwrap();
         Token::Int(String::from(num))
     }
 
     pub fn is_letter(&self) -> bool {
-        if let Some(ch) = self.ch {
-            *ch >= b'a' && *ch <= b'z' || *ch >= b'A' && *ch <= b'Z' || *ch == b'_'
-        } else {
-            false
+        match self.ch {
+            Some(b'a'..=b'z' | b'A'..=b'Z' | b'_') => true,
+            _ => false,
+        }
+    }
+
+    pub fn peek_is_letter(&self) -> bool {
+        match self.peek_char() {
+            Some(b'a'..=b'z' | b'A'..=b'Z' | b'_') => true,
+            _ => false,
         }
     }
 
     pub fn is_digit(&self) -> bool {
         match self.ch {
-            Some(ch) => *ch >= b'0' && *ch <= b'9',
-            None => false,
+            Some(b'0'..=b'9') => true,
+            _ => false,
+        }
+    }
+
+    pub fn peek_is_digit(&self) -> bool {
+        match self.peek_char() {
+            Some(b'0'..=b'9') => true,
+            _ => false,
         }
     }
 }
