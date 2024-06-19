@@ -1,17 +1,15 @@
 use crate::{
-    arithmetic_tokens,
     ast::{self, Expression},
-    comparison_tokens,
     error::ParserError,
-    expect_peek, token,
+    token::{arithmetic_tokens, comparison_tokens, Token},
 };
 
-use super::Precedence;
+use super::{expect_peek, Precedence};
 
 impl super::Parser<'_> {
     pub fn parse_infix(
         &mut self,
-        tok: &token::Token,
+        tok: &Token,
         left: &Expression,
     ) -> Result<Option<Expression>, ParserError> {
         match tok {
@@ -36,7 +34,7 @@ impl super::Parser<'_> {
             }
 
             // parse_call: parse call expression
-            token::Token::LeftParen => {
+            Token::LeftParen => {
                 self.next_token()?;
 
                 let args = self.parse_call_args()?;
@@ -55,7 +53,7 @@ impl super::Parser<'_> {
     fn parse_call_args(&mut self) -> Result<Vec<Expression>, ParserError> {
         let mut args = Vec::new();
 
-        if matches!(self.peek_token, token::Token::RightParen) {
+        if matches!(self.peek_token, Token::RightParen) {
             self.next_token()?;
             return Ok(args);
         }
@@ -63,14 +61,14 @@ impl super::Parser<'_> {
         self.next_token()?;
         args.push(self.parse_expression(Precedence::Lowest)?);
 
-        while matches!(self.peek_token, token::Token::Comma) {
+        while matches!(self.peek_token, Token::Comma) {
             self.next_token()?;
             self.next_token()?;
 
             args.push(self.parse_expression(Precedence::Lowest)?);
         }
 
-        expect_peek!(self, token::Token::RightParen);
+        expect_peek!(self, Token::RightParen);
 
         Ok(args)
     }

@@ -1,4 +1,3 @@
-#[macro_export]
 macro_rules! unwrap_or_return {
     ($expr:expr, $ret:expr) => {
         match $expr {
@@ -7,3 +6,21 @@ macro_rules! unwrap_or_return {
         }
     };
 }
+
+pub(super) use unwrap_or_return;
+
+macro_rules! letters {
+    () => {
+        b'a'..=b'z' | b'A'..=b'Z' | b'_'
+    };
+}
+
+pub(super) use letters;
+
+macro_rules! digits {
+    () => {
+        b'0'..=b'9'
+    };
+}
+
+pub(super) use digits;

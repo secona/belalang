@@ -1,10 +1,10 @@
 use crate::{
     ast::{self, Expression},
     error::ParserError,
-    expect_peek, token,
+    token,
 };
 
-use super::Precedence;
+use super::{expect_peek, Precedence};
 
 impl super::Parser<'_> {
     pub fn parse_prefix(&mut self) -> Result<Expression, ParserError> {

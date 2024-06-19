@@ -33,7 +33,6 @@ impl From<&token::Token> for Precedence {
     }
 }
 
-#[macro_export]
 macro_rules! expect_peek {
     ($self:expr, $token:pat) => {
         if matches!($self.peek_token, $token) {
@@ -45,7 +44,8 @@ macro_rules! expect_peek {
     };
 }
 
-#[macro_export]
+pub(super) use expect_peek;
+
 macro_rules! optional_peek {
     ($self:expr, $token:pat) => {
         if matches!($self.peek_token, $token) {
@@ -56,6 +56,8 @@ macro_rules! optional_peek {
         }
     };
 }
+
+pub(super) use optional_peek;
 
 pub struct Parser<'a> {
     lexer: lexer::Lexer<'a>,

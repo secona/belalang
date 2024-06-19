@@ -1,7 +1,7 @@
 use crate::{
     error::ParserError,
+    macros::{digits, letters, unwrap_or_return},
     token::Token,
-    unwrap_or_return,
     utils::hex_byte_to_u8,
 };
 
@@ -27,103 +27,93 @@ impl<'a> Lexer<'a> {
             return Ok(Token::EOF);
         }
 
-        let tok: Token = match self.ch {
+        match self.ch {
             b'=' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Token::Eq
+                    Ok(Token::Eq)
                 }
-                _ => Token::Assign,
+                _ => Ok(Token::Assign),
             },
             b'!' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Token::Ne
+                    Ok(Token::Ne)
                 }
-                _ => Token::Not,
+                _ => Ok(Token::Not),
             },
             b':' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Token::ColonAssign
+                    Ok(Token::ColonAssign)
                 }
-                _ => {
-                    return Err(ParserError::UnknownToken(
-                        String::from_utf8(vec![self.ch]).unwrap(),
-                    ));
-                }
+                _ => Err(ParserError::UnknownToken(
+                    String::from_utf8(vec![self.ch]).unwrap(),
+                )),
             },
             b'<' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Token::Le
+                    Ok(Token::Le)
                 }
-                _ => Token::Lt,
+                _ => Ok(Token::Lt),
             },
             b'>' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Token::Ge
+                    Ok(Token::Ge)
                 }
-                _ => Token::Gt,
+                _ => Ok(Token::Gt),
             },
             b'+' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Token::AddAssign
+                    Ok(Token::AddAssign)
                 }
-                _ => Token::Add,
+                _ => Ok(Token::Add),
             },
             b'-' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Token::SubAssign
+                    Ok(Token::SubAssign)
                 }
-                _ => Token::Sub,
+                _ => Ok(Token::Sub),
             },
             b'*' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Token::MulAssign
+                    Ok(Token::MulAssign)
                 }
-                _ => Token::Mul,
+                _ => Ok(Token::Mul),
             },
             b'/' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Token::DivAssign
+                    Ok(Token::DivAssign)
                 }
-                _ => Token::Div,
+                _ => Ok(Token::Div),
             },
             b'%' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Token::ModAssign
+                    Ok(Token::ModAssign)
                 }
-                _ => Token::Mod,
+                _ => Ok(Token::Mod),
             },
-            b'(' => Token::LeftParen,
-            b')' => Token::RightParen,
-            b'{' => Token::LeftBrace,
-            b'}' => Token::RightBrace,
-            b';' => Token::Semicolon,
-            b',' => Token::Comma,
-            b'\\' => Token::Backslash,
-            b'"' => self.read_string()?,
-            _ => {
-                if self.is_letter() {
-                    self.read_identifier()
-                } else if self.is_digit() {
-                    self.read_number()
-                } else {
-                    return Err(ParserError::UnknownToken(
-                        String::from_utf8(vec![self.ch]).unwrap(),
-                    ));
-                }
-            }
-        };
-
-        Ok(tok)
+            b'(' => Ok(Token::LeftParen),
+            b')' => Ok(Token::RightParen),
+            b'{' => Ok(Token::LeftBrace),
+            b'}' => Ok(Token::RightBrace),
+            b';' => Ok(Token::Semicolon),
+            b',' => Ok(Token::Comma),
+            b'\\' => Ok(Token::Backslash),
+            b'"' => self.read_string(),
+            letters!() => Ok(self.read_identifier()),
+            digits!() => Ok(self.read_number()),
+            _ => Err(ParserError::UnknownToken(
+                String::from_utf8(vec![self.ch]).unwrap(),
+            )),
+        }
     }
 
     pub fn read_char(&mut self) -> Option<u8> {
@@ -230,7 +220,7 @@ impl<'a> Lexer<'a> {
     pub fn read_identifier(&mut self) -> Token {
         let position = self.position;
 
-        while self.peek_is_letter() {
+        while matches!(self.peek_char(), Some(letters!())) {
             self.read_char();
         }
 
@@ -240,40 +230,12 @@ impl<'a> Lexer<'a> {
     pub fn read_number(&mut self) -> Token {
         let position = self.position;
 
-        while self.peek_is_digit() {
+        while matches!(self.peek_char(), Some(digits!())) {
             self.read_char();
         }
 
         let num = &self.input[position..self.read_position];
         let num = std::str::from_utf8(num).unwrap();
         Token::Int(String::from(num))
-    }
-
-    pub fn is_letter(&self) -> bool {
-        match self.ch {
-            b'a'..=b'z' | b'A'..=b'Z' | b'_' => true,
-            _ => false,
-        }
-    }
-
-    pub fn peek_is_letter(&self) -> bool {
-        match self.peek_char() {
-            Some(b'a'..=b'z' | b'A'..=b'Z' | b'_') => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_digit(&self) -> bool {
-        match self.ch {
-            b'0'..=b'9' => true,
-            _ => false,
-        }
-    }
-
-    pub fn peek_is_digit(&self) -> bool {
-        match self.peek_char() {
-            Some(b'0'..=b'9') => true,
-            _ => false,
-        }
     }
 }

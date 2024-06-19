@@ -1,4 +1,3 @@
-#[macro_export]
 macro_rules! arithmetic_tokens {
     () => {
         crate::token::Token::Add
@@ -9,7 +8,8 @@ macro_rules! arithmetic_tokens {
     };
 }
 
-#[macro_export]
+pub(super) use arithmetic_tokens;
+
 macro_rules! comparison_tokens {
     () => {
         crate::token::Token::Eq
@@ -20,6 +20,8 @@ macro_rules! comparison_tokens {
             | crate::token::Token::Le
     };
 }
+
+pub(super) use comparison_tokens;
 
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub enum Token {
