@@ -4,30 +4,29 @@ mod prefix;
 use crate::{
     ast::{self, Expression, Statement},
     error::ParserError,
-    lexer, token,
+    lexer,
+    token::Token,
 };
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
     Lowest,
-    Equals,
-    LessGreater,
-    Sum,
-    Product,
+    Equality,
+    Relational,
+    Additive,
+    Multiplicative,
     Prefix,
     Call,
 }
 
-impl From<&token::Token> for Precedence {
-    fn from(value: &token::Token) -> Self {
+impl From<&Token> for Precedence {
+    fn from(value: &Token) -> Self {
         match value {
-            token::Token::Eq | token::Token::Ne => Self::Equals,
-            token::Token::Lt | token::Token::Le | token::Token::Gt | token::Token::Ge => {
-                Self::LessGreater
-            }
-            token::Token::Add | token::Token::Sub => Self::Sum,
-            token::Token::Div | token::Token::Mul | token::Token::Mod => Self::Product,
-            token::Token::LeftParen => Self::Call,
+            Token::Eq | Token::Ne => Self::Equality,
+            Token::Lt | Token::Le | Token::Gt | Token::Ge => Self::Relational,
+            Token::Add | Token::Sub => Self::Additive,
+            Token::Div | Token::Mul | Token::Mod => Self::Multiplicative,
+            Token::LeftParen => Self::Call,
             _ => Self::Lowest,
         }
     }
@@ -61,8 +60,8 @@ pub(super) use optional_peek;
 
 pub struct Parser<'a> {
     lexer: lexer::Lexer<'a>,
-    curr_token: token::Token,
-    peek_token: token::Token,
+    curr_token: Token,
+    peek_token: Token,
 
     depth: i32,
     has_semicolon: bool,
@@ -72,8 +71,8 @@ impl Parser<'_> {
     pub fn new(lexer: lexer::Lexer<'_>) -> Parser {
         Parser {
             lexer,
-            curr_token: token::Token::default(),
-            peek_token: token::Token::default(),
+            curr_token: Token::default(),
+            peek_token: Token::default(),
 
             depth: 0,
             has_semicolon: false,
@@ -93,7 +92,7 @@ impl Parser<'_> {
 
         let mut program = ast::Program::new();
 
-        while !matches!(self.curr_token, token::Token::EOF) {
+        while !matches!(self.curr_token, Token::EOF) {
             program.add_stmt(self.parse_statement()?);
             self.next_token()?;
         }
@@ -104,13 +103,13 @@ impl Parser<'_> {
     fn parse_statement(&mut self) -> Result<Statement, ParserError> {
         match self.curr_token {
             // parse_return
-            token::Token::Return => {
+            Token::Return => {
                 let token = self.curr_token.clone();
 
                 self.next_token()?;
                 let return_value = self.parse_expression(Precedence::Lowest)?;
 
-                self.has_semicolon = expect_peek!(self, token::Token::Semicolon);
+                self.has_semicolon = expect_peek!(self, Token::Semicolon);
 
                 Ok(Statement::Return(ast::ReturnStatement {
                     token,
@@ -119,21 +118,21 @@ impl Parser<'_> {
             }
 
             // parse_while
-            token::Token::While => {
+            Token::While => {
                 let token = self.curr_token.clone();
 
-                expect_peek!(self, token::Token::LeftParen);
+                expect_peek!(self, Token::LeftParen);
 
                 self.next_token()?;
                 let condition = self.parse_expression(Precedence::Lowest)?;
 
-                expect_peek!(self, token::Token::RightParen);
+                expect_peek!(self, Token::RightParen);
 
-                expect_peek!(self, token::Token::LeftBrace);
+                expect_peek!(self, Token::LeftBrace);
 
                 let block = self.parse_block()?;
 
-                self.has_semicolon = optional_peek!(self, token::Token::Semicolon);
+                self.has_semicolon = optional_peek!(self, Token::Semicolon);
 
                 Ok(Statement::While(ast::WhileStatement {
                     token,
@@ -143,8 +142,8 @@ impl Parser<'_> {
             }
 
             // parse_ident
-            token::Token::Ident(_) => match self.peek_token {
-                token::Token::ColonAssign | token::Token::Assign => {
+            Token::Ident(_) => match self.peek_token {
+                Token::ColonAssign | Token::Assign => {
                     let name = ast::Identifier {
                         token: self.curr_token.clone(),
                         value: self.curr_token.to_string(),
@@ -156,15 +155,15 @@ impl Parser<'_> {
                     self.next_token()?;
                     let value = self.parse_expression(Precedence::Lowest)?;
 
-                    self.has_semicolon = expect_peek!(self, token::Token::Semicolon);
+                    self.has_semicolon = expect_peek!(self, Token::Semicolon);
 
                     Ok(Statement::Var(ast::Var { token, name, value }))
                 }
-                token::Token::AddAssign
-                | token::Token::SubAssign
-                | token::Token::MulAssign
-                | token::Token::DivAssign
-                | token::Token::ModAssign => {
+                Token::AddAssign
+                | Token::SubAssign
+                | Token::MulAssign
+                | Token::DivAssign
+                | Token::ModAssign => {
                     let name = ast::Identifier {
                         token: self.curr_token.clone(),
                         value: self.curr_token.to_string(),
@@ -176,20 +175,20 @@ impl Parser<'_> {
                     self.next_token()?;
                     let value = self.parse_expression(Precedence::Lowest)?;
 
-                    self.has_semicolon = expect_peek!(self, token::Token::Semicolon);
+                    self.has_semicolon = expect_peek!(self, Token::Semicolon);
 
                     // probably need to change this monstrosity.
                     Ok(Statement::Var(ast::Var {
-                        token: token::Token::Assign,
+                        token: Token::Assign,
                         name: name.clone(),
                         value: Expression::Infix(ast::InfixExpression {
                             left: Box::new(Expression::Identifier(name)),
                             operator: match &token {
-                                token::Token::AddAssign => token::Token::Add,
-                                token::Token::SubAssign => token::Token::Sub,
-                                token::Token::MulAssign => token::Token::Mul,
-                                token::Token::DivAssign => token::Token::Div,
-                                token::Token::ModAssign => token::Token::Mod,
+                                Token::AddAssign => Token::Add,
+                                Token::SubAssign => Token::Sub,
+                                Token::MulAssign => Token::Mul,
+                                Token::DivAssign => Token::Div,
+                                Token::ModAssign => Token::Mod,
                                 _ => unreachable!(),
                             },
                             token,
@@ -201,13 +200,13 @@ impl Parser<'_> {
             },
 
             // parse_if: parse if expression as statement
-            token::Token::If => {
+            Token::If => {
                 let expression = self.parse_if()?;
 
-                self.has_semicolon = optional_peek!(self, token::Token::Semicolon);
+                self.has_semicolon = optional_peek!(self, Token::Semicolon);
 
                 Ok(Statement::Expression(ast::ExpressionStatement {
-                    token: token::Token::If,
+                    token: Token::If,
                     expression,
                 }))
             }
@@ -223,9 +222,9 @@ impl Parser<'_> {
         };
 
         self.has_semicolon = if self.depth == 0 {
-            expect_peek!(self, token::Token::Semicolon)
+            expect_peek!(self, Token::Semicolon)
         } else {
-            optional_peek!(self, token::Token::Semicolon)
+            optional_peek!(self, Token::Semicolon)
         };
 
         Ok(Statement::Expression(stmt))
@@ -234,7 +233,7 @@ impl Parser<'_> {
     fn parse_expression(&mut self, precedence: Precedence) -> Result<Expression, ParserError> {
         let mut left_expr = self.parse_prefix()?;
 
-        while !matches!(self.peek_token, token::Token::Semicolon)
+        while !matches!(self.peek_token, Token::Semicolon)
             && precedence < Precedence::from(&self.peek_token)
         {
             match self.parse_infix(&self.peek_token.clone(), &left_expr)? {
@@ -254,10 +253,7 @@ impl Parser<'_> {
 
         self.depth += 1;
         loop {
-            if matches!(
-                self.curr_token,
-                token::Token::RightBrace | token::Token::EOF
-            ) {
+            if matches!(self.curr_token, Token::RightBrace | Token::EOF) {
                 if let Some(Statement::Expression(_)) = statements.last() {
                     if !self.has_semicolon {
                         break;
@@ -285,25 +281,24 @@ impl Parser<'_> {
     fn parse_if(&mut self) -> Result<Expression, ParserError> {
         let token = self.curr_token.clone();
 
-        expect_peek!(self, token::Token::LeftParen);
+        expect_peek!(self, Token::LeftParen);
 
         self.next_token()?;
         let condition = self.parse_expression(Precedence::Lowest)?;
 
-        expect_peek!(self, token::Token::RightParen);
+        expect_peek!(self, Token::RightParen);
 
-        expect_peek!(self, token::Token::LeftBrace);
+        expect_peek!(self, Token::LeftBrace);
 
         let consequence = self.parse_block()?;
 
-        let alternative: Option<Box<Expression>> = if matches!(self.peek_token, token::Token::Else)
-        {
+        let alternative: Option<Box<Expression>> = if matches!(self.peek_token, Token::Else) {
             self.next_token()?;
             self.next_token()?;
 
             Some(Box::new(match self.curr_token {
-                token::Token::If => self.parse_if()?,
-                token::Token::LeftBrace => Expression::Block(self.parse_block()?),
+                Token::If => self.parse_if()?,
+                Token::LeftBrace => Expression::Block(self.parse_block()?),
                 _ => return Err(ParserError::UnexpectedToken(self.curr_token.clone())),
             }))
         } else {
