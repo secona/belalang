@@ -42,6 +42,24 @@ impl<'a> Lexer<'a> {
                 }
                 _ => Ok(Token::Not),
             },
+            b'&' => match self.peek_char() {
+                Some(b'&') => {
+                    self.read_char();
+                    Ok(Token::And)
+                }
+                _ => Err(ParserError::UnknownToken(
+                    String::from_utf8(vec![self.ch]).unwrap(),
+                )),
+            },
+            b'|' => match self.peek_char() {
+                Some(b'|') => {
+                    self.read_char();
+                    Ok(Token::Or)
+                }
+                _ => Err(ParserError::UnknownToken(
+                    String::from_utf8(vec![self.ch]).unwrap(),
+                )),
+            },
             b':' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();

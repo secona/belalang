@@ -95,6 +95,17 @@ impl Evaluator {
                             right,
                         )),
                     },
+                    (Object::Boolean(l), Object::Boolean(r)) => match infix_expr.operator {
+                        Token::And => Ok(Object::Boolean(*l && *r)),
+                        Token::Or => Ok(Object::Boolean(*l || *r)),
+                        Token::Eq => Ok(Object::Boolean(*l == *r)),
+                        Token::Ne => Ok(Object::Boolean(*l != *r)),
+                        _ => Err(EvaluatorError::UnknownInfixOperator(
+                            left,
+                            infix_expr.operator,
+                            right,
+                        )),
+                    },
                     (Object::String(l), Object::String(r)) => match infix_expr.operator {
                         Token::Add => Ok(Object::String(format!("{} {}", l, r))),
                         _ => Err(EvaluatorError::UnknownInfixOperator(
@@ -103,15 +114,11 @@ impl Evaluator {
                             right,
                         )),
                     },
-                    (_, _) => match infix_expr.operator {
-                        Token::Eq => Ok(Object::Boolean(left == right)),
-                        Token::Ne => Ok(Object::Boolean(left != right)),
-                        _ => Err(EvaluatorError::UnknownInfixOperator(
-                            left,
-                            infix_expr.operator,
-                            right,
-                        )),
-                    },
+                    (_, _) => Err(EvaluatorError::UnknownInfixOperator(
+                        left,
+                        infix_expr.operator,
+                        right,
+                    )),
                 }
             }
             Expression::If(expr) => {

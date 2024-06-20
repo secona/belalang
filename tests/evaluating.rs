@@ -123,3 +123,16 @@ fn assignment_ops() {
     eval!("a := 10; a /= 2; a;", object::Object::Integer = 5);
     eval!("a := 10; a %= 3; a;", object::Object::Integer = 1);
 }
+
+#[test]
+fn logical_ops() {
+    eval!("true && true;", object::Object::Boolean = true);
+    eval!("true && false;", object::Object::Boolean = false);
+    eval!("false && true;", object::Object::Boolean = false);
+    eval!("false && false;", object::Object::Boolean = false);
+
+    eval!("true || true;", object::Object::Boolean = true);
+    eval!("true || false;", object::Object::Boolean = true);
+    eval!("false || true;", object::Object::Boolean = true);
+    eval!("false || false;", object::Object::Boolean = false);
+}

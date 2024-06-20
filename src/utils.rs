@@ -6,4 +6,3 @@ pub fn hex_byte_to_u8(byte: u8) -> Option<u8> {
         _ => None,
     }
 }
-

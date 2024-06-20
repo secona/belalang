@@ -11,6 +11,8 @@ use crate::{
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
     Lowest,
+    LogicalOr,
+    LogicalAnd,
     Equality,
     Relational,
     Additive,
@@ -22,6 +24,8 @@ pub enum Precedence {
 impl From<&Token> for Precedence {
     fn from(value: &Token) -> Self {
         match value {
+            Token::Or => Self::LogicalOr,
+            Token::And => Self::LogicalAnd,
             Token::Eq | Token::Ne => Self::Equality,
             Token::Lt | Token::Le | Token::Gt | Token::Ge => Self::Relational,
             Token::Add | Token::Sub => Self::Additive,

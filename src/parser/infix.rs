@@ -14,7 +14,7 @@ impl super::Parser<'_> {
     ) -> Result<Option<Expression>, ParserError> {
         match tok {
             // parse_infix: parse infix expression
-            arithmetic_tokens!() | comparison_tokens!() => {
+            arithmetic_tokens!() | comparison_tokens!() | Token::Or | Token::And => {
                 self.next_token()?;
 
                 let token = self.curr_token.clone();

@@ -1,4 +1,7 @@
-use std::{error::Error, io::{self, Write}};
+use std::{
+    error::Error,
+    io::{self, Write},
+};
 
 use belalang::{lexer::Lexer, token::Token};
 

@@ -51,6 +51,8 @@ pub enum Token {
 
     // Logical operators
     Not, // !
+    And, // &&
+    Or,  // ||
 
     // Comparison operators
     Eq, // ==
@@ -101,9 +103,11 @@ impl std::fmt::Display for Token {
         f.write_str(match self {
             Token::Empty => "<empty>",
             Token::EOF => "EOF",
+
             Token::Ident(s) => s,
             Token::Int(s) => s,
             Token::String(s) => s,
+
             Token::Assign => "=",
             Token::ColonAssign => ":=",
             Token::AddAssign => "+=",
@@ -111,32 +115,40 @@ impl std::fmt::Display for Token {
             Token::MulAssign => "*=",
             Token::DivAssign => "/=",
             Token::ModAssign => "%=",
+
             Token::Add => "+",
             Token::Sub => "-",
-            Token::Not => "!",
             Token::Mul => "*",
             Token::Div => "/",
+            Token::Mod => "%",
+
+            Token::Not => "!",
+            Token::And => "&&",
+            Token::Or => "||",
+
+            Token::Eq => "==",
+            Token::Ne => "!=",
             Token::Lt => "<",
             Token::Le => "<=",
             Token::Gt => ">",
             Token::Ge => ">=",
-            Token::Eq => "==",
-            Token::Ne => "!=",
-            Token::Comma => ",",
-            Token::Backslash => r"\",
-            Token::Semicolon => ";",
+
             Token::LeftParen => "(",
             Token::RightParen => ")",
             Token::LeftBrace => "{",
             Token::RightBrace => "}",
+
             Token::Function => "fn",
-            Token::True => "true",
-            Token::False => "false",
+            Token::While => "while",
             Token::If => "if",
             Token::Else => "else",
             Token::Return => "return",
-            Token::Mod => "%",
-            Token::While => "while",
+            Token::True => "true",
+            Token::False => "false",
+
+            Token::Comma => ",",
+            Token::Semicolon => ";",
+            Token::Backslash => r"\",
         })
     }
 }
