@@ -57,6 +57,39 @@ impl Evaluator {
             Expression::Boolean(bool_expr) => Ok(Object::Boolean(bool_expr.value)),
             Expression::String(s) => Ok(Object::String(s.value)),
             Expression::Null(_) => Ok(Object::Null),
+            Expression::Var(var) => match var.token {
+                Token::ColonAssign => {
+                    let name = &var.name.value;
+
+                    if self.env.has_here(name) {
+                        return Err(EvaluatorError::VariableRedeclaration(name.clone()));
+                    }
+
+                    if self.builtins.has_fn(name) {
+                        return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
+                    }
+
+                    let value = self.eval_expression(*var.value)?;
+                    self.env.set(&var.name.value, value.clone());
+                    Ok(value)
+                }
+                Token::Assign => {
+                    let name = &var.name.value;
+
+                    if self.builtins.has_fn(name) {
+                        return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
+                    }
+
+                    if !self.env.has(name) {
+                        return Err(EvaluatorError::UnknownVariable(name.clone()));
+                    }
+
+                    let value = self.eval_expression(*var.value)?;
+                    self.env.set(&var.name.value, value.clone());
+                    Ok(value)
+                }
+                _ => unreachable!(),
+            },
             Expression::Prefix(node) => {
                 let right = self.eval_expression(*node.right)?;
 
@@ -182,39 +215,6 @@ impl Evaluator {
                 let value = self.eval_expression(return_stmt.return_value)?;
                 Err(EvaluatorError::ReturningValue(value))
             }
-            Statement::Var(var) => match var.token {
-                Token::ColonAssign => {
-                    let name = &var.name.value;
-
-                    if self.env.has_here(name) {
-                        return Err(EvaluatorError::VariableRedeclaration(name.clone()));
-                    }
-
-                    if self.builtins.has_fn(name) {
-                        return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
-                    }
-
-                    let value = self.eval_expression(var.value)?;
-                    self.env.set(&var.name.value, value.clone());
-                    Ok(value)
-                }
-                Token::Assign => {
-                    let name = &var.name.value;
-
-                    if self.builtins.has_fn(name) {
-                        return Err(EvaluatorError::OverwriteBuiltin(name.to_string()));
-                    }
-
-                    if !self.env.has(name) {
-                        return Err(EvaluatorError::UnknownVariable(name.clone()));
-                    }
-
-                    let value = self.eval_expression(var.value)?;
-                    self.env.set(&var.name.value, value.clone());
-                    Ok(value)
-                }
-                _ => unreachable!(),
-            },
             Statement::While(stmt) => {
                 while let Object::Boolean(true) = self.eval_expression(*stmt.condition.clone())? {
                     self.eval_block(stmt.block.clone(), self.env.capture())?;

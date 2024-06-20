@@ -60,34 +60,6 @@ fn r#return() {
 }
 
 #[test]
-fn var_declare() {
-    let program = test_parse("x := 5;");
-
-    assert_eq!(program.statements.len(), 1);
-
-    let stmt = as_variant!(&program.statements[0], ast::Statement::Var);
-
-    assert_eq!(stmt.token, token::Token::ColonAssign);
-    ident_has_name!(stmt.name, "x");
-
-    expr_variant!(&stmt.value, ast::Expression::Integer = 5);
-}
-
-#[test]
-fn var_assign() {
-    let program = test_parse("x = 5;");
-
-    assert_eq!(program.statements.len(), 1);
-
-    let stmt = as_variant!(&program.statements[0], ast::Statement::Var);
-
-    assert_eq!(stmt.token, token::Token::Assign);
-    ident_has_name!(stmt.name, "x");
-
-    expr_variant!(&stmt.value, ast::Expression::Integer = 5);
-}
-
-#[test]
 fn r#while() {
     let program = test_parse("while (true) { 12; }");
 

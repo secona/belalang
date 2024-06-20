@@ -7,12 +7,8 @@ use crate::{
 use super::{expect_peek, Precedence};
 
 impl super::Parser<'_> {
-    pub fn parse_infix(
-        &mut self,
-        tok: &Token,
-        left: &Expression,
-    ) -> Result<Option<Expression>, ParserError> {
-        match tok {
+    pub fn parse_infix(&mut self, left: &Expression) -> Result<Option<Expression>, ParserError> {
+        match self.peek_token {
             // parse_infix: parse infix expression
             arithmetic_tokens!() | comparison_tokens!() | Token::Or | Token::And => {
                 self.next_token()?;
@@ -43,6 +39,61 @@ impl super::Parser<'_> {
                     token: self.curr_token.clone(),
                     function: Box::new(left.clone()),
                     args,
+                })))
+            }
+
+            Token::ColonAssign | Token::Assign => {
+                let name = ast::Identifier {
+                    token: self.curr_token.clone(),
+                    value: self.curr_token.to_string(),
+                };
+
+                self.next_token()?;
+                let token = self.curr_token.clone();
+
+                self.next_token()?;
+                let value = Box::new(self.parse_expression(Precedence::Lowest)?);
+
+                Ok(Some(Expression::Var(ast::VarExpression {
+                    token,
+                    name,
+                    value,
+                })))
+            }
+
+            Token::AddAssign
+            | Token::SubAssign
+            | Token::MulAssign
+            | Token::DivAssign
+            | Token::ModAssign => {
+                let name = ast::Identifier {
+                    token: self.curr_token.clone(),
+                    value: self.curr_token.to_string(),
+                };
+
+                self.next_token()?;
+                let token = self.curr_token.clone();
+
+                self.next_token()?;
+                let value = self.parse_expression(Precedence::Lowest)?;
+
+                // probably need to change this monstrosity.
+                Ok(Some(Expression::Var(ast::VarExpression {
+                    token: Token::Assign,
+                    name: name.clone(),
+                    value: Box::new(Expression::Infix(ast::InfixExpression {
+                        left: Box::new(Expression::Identifier(name)),
+                        operator: match &token {
+                            Token::AddAssign => Token::Add,
+                            Token::SubAssign => Token::Sub,
+                            Token::MulAssign => Token::Mul,
+                            Token::DivAssign => Token::Div,
+                            Token::ModAssign => Token::Mod,
+                            _ => unreachable!(),
+                        },
+                        token,
+                        right: Box::new(value),
+                    })),
                 })))
             }
 

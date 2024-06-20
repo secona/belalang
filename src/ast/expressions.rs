@@ -50,6 +50,19 @@ impl std::fmt::Display for NullLiteral {
 }
 
 #[derive(Debug, Clone)]
+pub struct VarExpression {
+    pub token: token::Token,
+    pub name: Identifier,
+    pub value: Box<Expression>,
+}
+
+impl std::fmt::Display for VarExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {} {};", self.name, self.token, self.value)
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct CallExpression {
     pub token: token::Token,
     pub function: Box<Expression>,
@@ -182,6 +195,7 @@ pub enum Expression {
     Integer(IntegerLiteral),
     String(StringLiteral),
     Null(NullLiteral),
+    Var(VarExpression),
     Call(CallExpression),
     Function(FunctionLiteral),
     Identifier(Identifier),
@@ -198,6 +212,7 @@ impl std::fmt::Display for Expression {
             Expression::Integer(v) => v.to_string(),
             Expression::String(v) => v.to_string(),
             Expression::Null(v) => v.to_string(),
+            Expression::Var(v) => v.to_string(),
             Expression::Call(v) => v.to_string(),
             Expression::Function(v) => v.to_string(),
             Expression::Identifier(v) => v.to_string(),

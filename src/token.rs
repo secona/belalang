@@ -23,6 +23,20 @@ macro_rules! comparison_tokens {
 
 pub(super) use comparison_tokens;
 
+macro_rules! assignment_tokens {
+    () => {
+        crate::token::Token::Assign
+            | crate::token::Token::ColonAssign
+            | crate::token::Token::AddAssign
+            | crate::token::Token::SubAssign
+            | crate::token::Token::MulAssign
+            | crate::token::Token::DivAssign
+            | crate::token::Token::ModAssign
+    };
+}
+
+pub(super) use assignment_tokens;
+
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub enum Token {
     #[default]

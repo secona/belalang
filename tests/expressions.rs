@@ -250,9 +250,10 @@ fn if_with_multiple_statements() {
     assert_eq!(if_expr.token, token::Token::If);
 
     // testing consequence block
-    let stmt_0 = as_variant!(&if_expr.consequence.statements[0], ast::Statement::Var);
+    let stmt_0 = as_variant!(&if_expr.consequence.statements[0], ast::Statement::Expression);
+    let stmt_0 = as_variant!(&stmt_0.expression, ast::Expression::Var);
     ident_has_name!(stmt_0.name, "a");
-    expr_variant!(&stmt_0.value, ast::Expression::Integer = 10);
+    expr_variant!(&*stmt_0.value, ast::Expression::Integer = 10);
 
     let stmt_1 = as_variant!(
         &if_expr.consequence.statements[1],
@@ -385,4 +386,34 @@ fn operator_precedence() {
     test_parse_to_string("a + add(b * c) + d;", "((a + add((b * c))) + d);");
     test_parse_to_string("add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8));", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)));");
     test_parse_to_string("add(a + b + c * d / f + g);", "add((((a + b) + ((c * d) / f)) + g));");
+}
+
+#[test]
+fn var_declare() {
+    let program = test_parse("x := 5;");
+
+    assert_eq!(program.statements.len(), 1);
+
+    let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
+    let expr = as_variant!(&stmt.expression, ast::Expression::Var);
+
+    assert_eq!(expr.token, token::Token::ColonAssign);
+    ident_has_name!(expr.name, "x");
+
+    expr_variant!(&*expr.value, ast::Expression::Integer = 5);
+}
+
+#[test]
+fn var_assign() {
+    let program = test_parse("x = 5;");
+
+    assert_eq!(program.statements.len(), 1);
+
+    let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
+    let expr = as_variant!(&stmt.expression, ast::Expression::Var);
+
+    assert_eq!(expr.token, token::Token::Assign);
+    ident_has_name!(expr.name, "x");
+
+    expr_variant!(&*expr.value, ast::Expression::Integer = 5);
 }
