@@ -22,7 +22,7 @@ impl std::fmt::Display for Object {
             Self::Null => f.write_str("null"),
             Self::Integer(i) => f.write_str(&format!("{}", i)),
             Self::Boolean(b) => f.write_str(&format!("{}", b)),
-            Self::String(s) => f.write_str(&s),
+            Self::String(s) => f.write_str(s),
             _ => f.write_str(""),
         }
     }

@@ -11,18 +11,10 @@ use crate::{
 
 use self::builtins::Builtins;
 
+#[derive(Default)]
 pub struct Evaluator {
     env: Environment,
     builtins: Builtins,
-}
-
-impl Default for Evaluator {
-    fn default() -> Self {
-        Self {
-            env: Environment::default(),
-            builtins: Builtins::default(),
-        }
-    }
 }
 
 impl Evaluator {
@@ -231,8 +223,10 @@ impl Evaluator {
         env: Environment,
     ) -> Result<Object, EvaluatorError> {
         let mut result = Object::Null;
-        let mut ev = Evaluator::default();
-        ev.env = env;
+        let mut ev = Evaluator {
+            env,
+            ..Default::default()
+        };
 
         for statement in block.statements {
             result = ev.eval_statement(statement)?;

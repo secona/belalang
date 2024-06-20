@@ -96,7 +96,7 @@ impl Parser<'_> {
         self.curr_token = self.lexer.next_token()?;
         self.peek_token = self.lexer.next_token()?;
 
-        let mut program = ast::Program::new();
+        let mut program = ast::Program::default();
 
         while !matches!(self.curr_token, Token::EOF) {
             program.add_stmt(self.parse_statement()?);

@@ -22,7 +22,7 @@ pub struct ReturnStatement {
 
 impl std::fmt::Display for ReturnStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "return {};", self.return_value.to_string())
+        write!(f, "return {};", self.return_value)
     }
 }
 

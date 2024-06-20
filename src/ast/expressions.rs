@@ -147,13 +147,7 @@ pub struct InfixExpression {
 
 impl std::fmt::Display for InfixExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "({} {} {})",
-            self.left.to_string(),
-            self.operator,
-            self.right.to_string(),
-        )
+        write!(f, "({} {} {})", self.left, self.operator, self.right)
     }
 }
 
@@ -166,7 +160,7 @@ pub struct PrefixExpression {
 
 impl std::fmt::Display for PrefixExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({}{})", self.operator, self.right.to_string(),)
+        write!(f, "({}{})", self.operator, self.right)
     }
 }
 

@@ -11,9 +11,7 @@ pub struct Environment {
 
 impl Default for Environment {
     fn default() -> Self {
-        let mut stores = Vec::new();
-        stores.push(Rc::new(RefCell::new(HashMap::new())));
-
+        let stores = vec![Rc::new(RefCell::new(HashMap::new()))];
         Self { stores }
     }
 }

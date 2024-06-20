@@ -23,7 +23,7 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn next_token(&mut self) -> Result<Token, ParserError> {
-        if self.skip_whitespace_and_comments().is_err() {
+        if !self.skip_whitespace_and_comments() {
             return Ok(Token::EOF);
         }
 
@@ -147,14 +147,14 @@ impl<'a> Lexer<'a> {
         self.input.get(self.read_position).copied()
     }
 
-    /// Return error if encounters the EOF.
-    pub fn skip_whitespace_and_comments(&mut self) -> Result<(), ()> {
+    /// Return false if it encounters an EOF.
+    pub fn skip_whitespace_and_comments(&mut self) -> bool {
         loop {
             match self.read_char() {
                 Some(b' ' | b'\t' | b'\n' | b'\r') => (),
                 Some(b'#') => self.skip_comment(),
-                None => return Err(()),
-                _ => return Ok(()),
+                None => return false,
+                _ => return true,
             };
         }
     }
