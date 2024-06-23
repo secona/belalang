@@ -250,7 +250,10 @@ fn if_with_multiple_statements() {
     assert_eq!(if_expr.token, token::Token::If);
 
     // testing consequence block
-    let stmt_0 = as_variant!(&if_expr.consequence.statements[0], ast::Statement::Expression);
+    let stmt_0 = as_variant!(
+        &if_expr.consequence.statements[0],
+        ast::Statement::Expression
+    );
     let stmt_0 = as_variant!(&stmt_0.expression, ast::Expression::Var);
     ident_has_name!(stmt_0.name, "a");
     expr_variant!(&*stmt_0.value, ast::Expression::Integer = 10);
@@ -275,6 +278,72 @@ fn infix() {
         token::Token::Add,
         ast::Expression::Integer = 2
     ));
+}
+
+#[test]
+fn infix_var_declare() {
+    let program = test_parse("x := 5;");
+
+    assert_eq!(program.statements.len(), 1);
+
+    let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
+    let expr = as_variant!(&stmt.expression, ast::Expression::Var);
+
+    assert_eq!(expr.token, token::Token::ColonAssign);
+    ident_has_name!(expr.name, "x");
+
+    expr_variant!(&*expr.value, ast::Expression::Integer = 5);
+}
+
+#[test]
+fn infix_var_assign() {
+    let program = test_parse("x = 5;");
+
+    assert_eq!(program.statements.len(), 1);
+
+    let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
+    let expr = as_variant!(&stmt.expression, ast::Expression::Var);
+
+    assert_eq!(expr.token, token::Token::Assign);
+    ident_has_name!(expr.name, "x");
+
+    expr_variant!(&*expr.value, ast::Expression::Integer = 5);
+}
+
+#[test]
+#[should_panic]
+fn infix_on_invalid_lhs_panics() {
+    test_parse("1 = 5;");
+}
+
+#[test]
+#[rustfmt::skip]
+fn infix_operator_precedence() {
+    test_parse_to_string("a * b + c;", "((a * b) + c);");
+    test_parse_to_string("!-a;", "(!(-a));");
+    test_parse_to_string("a + b + c;", "((a + b) + c);");
+    test_parse_to_string("a + b - c;", "((a + b) - c);");
+    test_parse_to_string("a * b * c;", "((a * b) * c);");
+    test_parse_to_string("a * b / c;", "((a * b) / c);");
+    test_parse_to_string("a + b / c;", "(a + (b / c));");
+    test_parse_to_string("a + b * c + d / e - f;", "(((a + (b * c)) + (d / e)) - f);");
+    test_parse_to_string("3 + 4; -5 * 5;", "(3 + 4);((-5) * 5);");
+    test_parse_to_string("5 > 4 == 3 < 4;", "((5 > 4) == (3 < 4));");
+    test_parse_to_string("5 < 4 != 3 > 4;", "((5 < 4) != (3 > 4));");
+    test_parse_to_string("3 + 4 * 5 == 3 * 1 + 4 * 5;", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)));");
+    test_parse_to_string("3 + 4 * 5 == 3 * 1 + 4 * 5;", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)));");
+    test_parse_to_string("true;", "true;");
+    test_parse_to_string("false;", "false;");
+    test_parse_to_string("3 > 5 == false;", "((3 > 5) == false);");
+    test_parse_to_string("3 < 5 == true;", "((3 < 5) == true);");
+    test_parse_to_string("1 + (2 + 3) + 4;", "((1 + (2 + 3)) + 4);");
+    test_parse_to_string("(5 + 5) * 2;", "((5 + 5) * 2);");
+    test_parse_to_string("2 / (5 + 5);", "(2 / (5 + 5));");
+    test_parse_to_string("-(5 + 5);", "(-(5 + 5));");
+    test_parse_to_string("!(true == true);", "(!(true == true));");
+    test_parse_to_string("a + add(b * c) + d;", "((a + add((b * c))) + d);");
+    test_parse_to_string("add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8));", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)));");
+    test_parse_to_string("add(a + b + c * d / f + g);", "add((((a + b) + ((c * d) / f)) + g));");
 }
 
 #[test]
@@ -356,64 +425,4 @@ fn string() {
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
     expr_variant!(&expr.expression, ast::Expression::String = "Hello, World!");
-}
-
-#[test]
-#[rustfmt::skip]
-fn operator_precedence() {
-    test_parse_to_string("a * b + c;", "((a * b) + c);");
-    test_parse_to_string("!-a;", "(!(-a));");
-    test_parse_to_string("a + b + c;", "((a + b) + c);");
-    test_parse_to_string("a + b - c;", "((a + b) - c);");
-    test_parse_to_string("a * b * c;", "((a * b) * c);");
-    test_parse_to_string("a * b / c;", "((a * b) / c);");
-    test_parse_to_string("a + b / c;", "(a + (b / c));");
-    test_parse_to_string("a + b * c + d / e - f;", "(((a + (b * c)) + (d / e)) - f);");
-    test_parse_to_string("3 + 4; -5 * 5;", "(3 + 4);((-5) * 5);");
-    test_parse_to_string("5 > 4 == 3 < 4;", "((5 > 4) == (3 < 4));");
-    test_parse_to_string("5 < 4 != 3 > 4;", "((5 < 4) != (3 > 4));");
-    test_parse_to_string("3 + 4 * 5 == 3 * 1 + 4 * 5;", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)));");
-    test_parse_to_string("3 + 4 * 5 == 3 * 1 + 4 * 5;", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)));");
-    test_parse_to_string("true;", "true;");
-    test_parse_to_string("false;", "false;");
-    test_parse_to_string("3 > 5 == false;", "((3 > 5) == false);");
-    test_parse_to_string("3 < 5 == true;", "((3 < 5) == true);");
-    test_parse_to_string("1 + (2 + 3) + 4;", "((1 + (2 + 3)) + 4);");
-    test_parse_to_string("(5 + 5) * 2;", "((5 + 5) * 2);");
-    test_parse_to_string("2 / (5 + 5);", "(2 / (5 + 5));");
-    test_parse_to_string("-(5 + 5);", "(-(5 + 5));");
-    test_parse_to_string("!(true == true);", "(!(true == true));");
-    test_parse_to_string("a + add(b * c) + d;", "((a + add((b * c))) + d);");
-    test_parse_to_string("add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8));", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)));");
-    test_parse_to_string("add(a + b + c * d / f + g);", "add((((a + b) + ((c * d) / f)) + g));");
-}
-
-#[test]
-fn var_declare() {
-    let program = test_parse("x := 5;");
-
-    assert_eq!(program.statements.len(), 1);
-
-    let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
-    let expr = as_variant!(&stmt.expression, ast::Expression::Var);
-
-    assert_eq!(expr.token, token::Token::ColonAssign);
-    ident_has_name!(expr.name, "x");
-
-    expr_variant!(&*expr.value, ast::Expression::Integer = 5);
-}
-
-#[test]
-fn var_assign() {
-    let program = test_parse("x = 5;");
-
-    assert_eq!(program.statements.len(), 1);
-
-    let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
-    let expr = as_variant!(&stmt.expression, ast::Expression::Var);
-
-    assert_eq!(expr.token, token::Token::Assign);
-    ident_has_name!(expr.name, "x");
-
-    expr_variant!(&*expr.value, ast::Expression::Integer = 5);
 }
