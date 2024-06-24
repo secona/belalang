@@ -132,7 +132,7 @@ impl Evaluator {
                         )),
                     },
                     (Object::String(l), Object::String(r)) => match infix_expr.operator {
-                        Token::Add => Ok(Object::String(format!("{} {}", l, r))),
+                        Token::Add => Ok(Object::String(format!("{l}{r}"))),
                         _ => Err(EvaluatorError::UnknownInfixOperator(
                             left,
                             infix_expr.operator,

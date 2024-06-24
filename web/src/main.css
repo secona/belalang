@@ -72,4 +72,5 @@ footer {
 #out p {
   padding: 0;
   margin: 0;
+  white-space: pre;
 }
