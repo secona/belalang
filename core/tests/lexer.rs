@@ -1,7 +1,7 @@
 #[macro_use]
 mod common;
 
-use belalang::token::Token;
+use belalang_core::token::Token;
 use common::test_tokens;
 
 #[test]

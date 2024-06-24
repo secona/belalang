@@ -1,6 +1,6 @@
 use std::{error::Error, fs, path::PathBuf};
 
-use belalang::{evaluator::Evaluator, lexer::Lexer, parser::Parser};
+use belalang_core::{evaluator::Evaluator, lexer::Lexer, parser::Parser};
 use rustyline::{error::ReadlineError, DefaultEditor};
 
 pub fn run_file(filename: PathBuf) -> Result<(), Box<dyn Error>> {

@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-use belalang::{lexer::Lexer, parser::Parser};
+use belalang_core::{lexer::Lexer, parser::Parser};
 
 fn main() {
     loop {

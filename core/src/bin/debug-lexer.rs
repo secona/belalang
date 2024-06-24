@@ -3,7 +3,7 @@ use std::{
     io::{self, Write},
 };
 
-use belalang::{lexer::Lexer, token::Token};
+use belalang_core::{lexer::Lexer, token::Token};
 
 fn main() -> Result<(), Box<dyn Error>> {
     loop {

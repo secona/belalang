@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use belalang::{
+use belalang_core::{
     ast,
     error::EvaluatorError,
     evaluator::{self, object::Object},

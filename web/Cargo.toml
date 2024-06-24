@@ -8,4 +8,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 wasm-bindgen = "0.2.92"
-belalang = { path = ".." }
+belalang_core = { path = "../core" }

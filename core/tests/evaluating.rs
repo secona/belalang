@@ -1,4 +1,4 @@
-use belalang::evaluator::object;
+use belalang_core::evaluator::object;
 
 #[macro_use]
 mod common;

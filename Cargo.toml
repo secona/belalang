@@ -1,10 +1,6 @@
-workspace = { members = ["cli", "web"] }
-
-[package]
-name = "belalang"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-lazy_static = "1.4.0"
-thiserror = "1.0.61"
+[workspace]
+members = [
+	"cli",
+	"core",
+	"web"
+]

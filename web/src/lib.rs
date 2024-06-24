@@ -1,4 +1,4 @@
-use belalang::{
+use belalang_core::{
     evaluator::{
         builtins::{self, Builtins},
         object::Object,
