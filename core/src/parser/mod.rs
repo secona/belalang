@@ -159,26 +159,21 @@ impl Parser<'_> {
                 }))
             }
 
-            // parse_ident
-            Token::Ident(_) => self.parse_expression_statement(),
+            _ => {
+                let stmt = ast::ExpressionStatement {
+                    token: self.curr_token.clone(),
+                    expression: self.parse_expression(Precedence::Lowest)?,
+                };
 
-            _ => self.parse_expression_statement(),
+                self.has_semicolon = if self.depth == 0 {
+                    expect_peek!(self, Token::Semicolon)
+                } else {
+                    optional_peek!(self, Token::Semicolon)
+                };
+
+                Ok(Statement::Expression(stmt))
+            },
         }
-    }
-
-    fn parse_expression_statement(&mut self) -> Result<Statement, ParserError> {
-        let stmt = ast::ExpressionStatement {
-            token: self.curr_token.clone(),
-            expression: self.parse_expression(Precedence::Lowest)?,
-        };
-
-        self.has_semicolon = if self.depth == 0 {
-            expect_peek!(self, Token::Semicolon)
-        } else {
-            optional_peek!(self, Token::Semicolon)
-        };
-
-        Ok(Statement::Expression(stmt))
     }
 
     fn parse_expression(&mut self, precedence: Precedence) -> Result<Expression, ParserError> {

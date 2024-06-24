@@ -43,6 +43,10 @@ impl super::Parser<'_> {
             }
 
             Token::ColonAssign | Token::Assign => {
+                if !matches!(left, Expression::Identifier(_)) {
+                    return Err(ParserError::InvalidLHS(left.clone()))
+                }
+
                 let name = ast::Identifier {
                     token: self.curr_token.clone(),
                     value: self.curr_token.to_string(),
@@ -66,6 +70,10 @@ impl super::Parser<'_> {
             | Token::MulAssign
             | Token::DivAssign
             | Token::ModAssign => {
+                if !matches!(left, Expression::Identifier(_)) {
+                    return Err(ParserError::InvalidLHS(left.clone()))
+                }
+
                 let name = ast::Identifier {
                     token: self.curr_token.clone(),
                     value: self.curr_token.to_string(),

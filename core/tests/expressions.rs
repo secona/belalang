@@ -312,8 +312,10 @@ fn infix_var_assign() {
 
 #[test]
 #[should_panic]
-fn infix_on_invalid_lhs_panics() {
+fn infix_on_invalid_lhs() {
     test_parse("1 = 5;");
+    test_parse("x + 2 = 5;");
+    test_parse("x + 2 += 5;");
 }
 
 #[test]

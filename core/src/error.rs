@@ -1,3 +1,4 @@
+use crate::ast::Expression;
 use crate::evaluator::object::Object;
 use crate::token::Token;
 
@@ -17,6 +18,9 @@ pub enum ParserError {
 
     #[error("unknown token: {0}")]
     UnknownToken(String),
+
+    #[error("invalid lhs: {0}")]
+    InvalidLHS(Expression),
 
     #[error("error parsing integer: could not parse {0} as integer")]
     ParsingInteger(String),
