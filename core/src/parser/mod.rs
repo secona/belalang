@@ -1,11 +1,8 @@
-mod infix;
-mod prefix;
-
 use crate::{
     ast::{self, Expression, Statement},
     error::ParserError,
     lexer,
-    token::{assignment_tokens, Token},
+    token::{arithmetic_tokens, assignment_tokens, comparison_tokens, Token},
 };
 
 #[derive(Debug, PartialEq, PartialOrd)]
@@ -255,5 +252,231 @@ impl Parser<'_> {
             consequence,
             alternative,
         }))
+    }
+
+    pub fn parse_infix(&mut self, left: &Expression) -> Result<Option<Expression>, ParserError> {
+        match self.peek_token {
+            // parse_infix: parse infix expression
+            arithmetic_tokens!() | comparison_tokens!() | Token::Or | Token::And => {
+                self.next_token()?;
+
+                let token = self.curr_token.clone();
+                let operator = self.curr_token.clone();
+                let precedence = Precedence::from(&self.curr_token);
+
+                self.next_token()?;
+
+                let right = self.parse_expression(precedence)?;
+
+                Ok(Some(Expression::Infix(ast::InfixExpression {
+                    token,
+                    left: Box::new(left.clone()),
+                    operator,
+                    right: Box::new(right),
+                })))
+            }
+
+            // parse_call: parse call expression
+            Token::LeftParen => {
+                self.next_token()?;
+                self.next_token()?;
+
+                let mut args = Vec::new();
+
+                if !matches!(self.curr_token, Token::RightParen) {
+                    loop {
+                        args.push(self.parse_expression(Precedence::Lowest)?);
+
+                        if !matches!(self.peek_token, Token::Comma) {
+                            break;
+                        }
+
+                        self.next_token()?;
+                        self.next_token()?;
+                    }
+
+                    expect_peek!(self, Token::RightParen);
+                }
+
+                Ok(Some(Expression::Call(ast::CallExpression {
+                    token: self.curr_token.clone(),
+                    function: Box::new(left.clone()),
+                    args,
+                })))
+            }
+
+            Token::ColonAssign | Token::Assign => {
+                if !matches!(left, Expression::Identifier(_)) {
+                    return Err(ParserError::InvalidLHS(left.clone()));
+                }
+
+                let name = ast::Identifier {
+                    token: self.curr_token.clone(),
+                    value: self.curr_token.to_string(),
+                };
+
+                self.next_token()?;
+                let token = self.curr_token.clone();
+
+                self.next_token()?;
+                let value = Box::new(self.parse_expression(Precedence::Lowest)?);
+
+                Ok(Some(Expression::Var(ast::VarExpression {
+                    token,
+                    name,
+                    value,
+                })))
+            }
+
+            Token::AddAssign
+            | Token::SubAssign
+            | Token::MulAssign
+            | Token::DivAssign
+            | Token::ModAssign => {
+                if !matches!(left, Expression::Identifier(_)) {
+                    return Err(ParserError::InvalidLHS(left.clone()));
+                }
+
+                let name = ast::Identifier {
+                    token: self.curr_token.clone(),
+                    value: self.curr_token.to_string(),
+                };
+
+                self.next_token()?;
+                let token = self.curr_token.clone();
+
+                self.next_token()?;
+                let value = self.parse_expression(Precedence::Lowest)?;
+
+                // probably need to change this monstrosity.
+                Ok(Some(Expression::Var(ast::VarExpression {
+                    token: Token::Assign,
+                    name: name.clone(),
+                    value: Box::new(Expression::Infix(ast::InfixExpression {
+                        left: Box::new(Expression::Identifier(name)),
+                        operator: match &token {
+                            Token::AddAssign => Token::Add,
+                            Token::SubAssign => Token::Sub,
+                            Token::MulAssign => Token::Mul,
+                            Token::DivAssign => Token::Div,
+                            Token::ModAssign => Token::Mod,
+                            _ => unreachable!(),
+                        },
+                        token,
+                        right: Box::new(value),
+                    })),
+                })))
+            }
+
+            _ => Ok(None),
+        }
+    }
+
+    pub fn parse_prefix(&mut self) -> Result<Expression, ParserError> {
+        match self.curr_token {
+            // parse_identifier: parse current token as identifier
+            Token::Ident(_) => Ok(Expression::Identifier(ast::Identifier {
+                token: self.curr_token.clone(),
+                value: self.curr_token.clone().to_string(),
+            })),
+
+            // parse_integer: parse current token as integer
+            Token::Int(_) => match self.curr_token.to_string().parse::<i64>() {
+                Ok(lit) => Ok(Expression::Integer(ast::IntegerLiteral {
+                    token: self.curr_token.clone(),
+                    value: lit,
+                })),
+                Err(_) => Err(ParserError::ParsingInteger(self.curr_token.to_string())),
+            },
+
+            // parse_boolean: parse current token as boolean
+            Token::True | Token::False => {
+                Ok(Expression::Boolean(ast::BooleanExpression {
+                    token: self.curr_token.clone(),
+                    value: matches!(self.curr_token, Token::True),
+                }))
+            }
+
+            // parse_string: parse current expression as string
+            Token::String(_) => Ok(Expression::String(ast::StringLiteral {
+                token: self.curr_token.clone(),
+                value: self.curr_token.to_string(),
+            })),
+
+            // parse_prefix: parse current expression with prefix
+            Token::Not | Token::Sub => {
+                let prev_token = self.curr_token.clone();
+
+                self.next_token()?;
+
+                let right = self.parse_expression(Precedence::Prefix).unwrap();
+
+                Ok(Expression::Prefix(ast::PrefixExpression {
+                    operator: prev_token.clone(),
+                    token: prev_token,
+                    right: Box::new(right),
+                }))
+            }
+
+            // parse_grouped: parse grouped expression
+            Token::LeftParen => {
+                self.next_token()?;
+                let expr = self.parse_expression(Precedence::Lowest);
+
+                expect_peek!(self, Token::RightParen);
+
+                expr
+            }
+
+            // parse_block
+            Token::LeftBrace => {
+                let block = self.parse_block()?;
+                Ok(Expression::Block(block))
+            }
+
+            // parse_if: parse current if expression
+            Token::If => self.parse_if(),
+
+            // parse_function: parse current expression as function
+            Token::Function => {
+                let token = self.curr_token.clone();
+                let mut params = Vec::new();
+
+                expect_peek!(self, Token::LeftParen);
+
+                self.next_token()?;
+
+                if !matches!(self.curr_token, Token::RightParen) {
+                    params.push(ast::Identifier {
+                        token: self.curr_token.clone(),
+                        value: self.curr_token.to_string(),
+                    });
+
+                    while matches!(self.peek_token, Token::Comma) {
+                        self.next_token()?;
+                        self.next_token()?;
+
+                        params.push(ast::Identifier {
+                            token: self.curr_token.clone(),
+                            value: self.curr_token.to_string(),
+                        });
+                    }
+
+                    expect_peek!(self, Token::RightParen);
+                }
+
+                expect_peek!(self, Token::LeftBrace);
+
+                let body = self.parse_block()?;
+
+                Ok(Expression::Function(ast::FunctionLiteral {
+                    token,
+                    params,
+                    body,
+                }))
+            }
+
+            _ => Err(ParserError::UnknownPrefixOperator(self.curr_token.clone())),
+        }
     }
 }
