@@ -1,8 +1,7 @@
 use crate::{
     error::ParserError,
-    macros::{digits, letters, unwrap_or_return},
     token::Token,
-    utils::hex_byte_to_u8,
+    utils::{digits, hex_byte_to_u8, letters, unwrap_or_return},
 };
 
 pub struct Lexer<'a> {
