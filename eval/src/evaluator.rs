@@ -1,15 +1,8 @@
-pub mod builtins;
-pub mod environment;
-pub mod object;
-
-use crate::{
+use crate::{builtins::Builtins, environment::Environment, error::EvaluatorError, object::Object};
+use belalang_core::{
     ast::{BlockExpression, Expression, Node, Program, Statement},
-    error::EvaluatorError,
-    evaluator::{environment::Environment, object::Object},
     token::Token,
 };
-
-use self::builtins::Builtins;
 
 #[derive(Default)]
 pub struct Evaluator {

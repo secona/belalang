@@ -1,6 +1,7 @@
 use std::{error::Error, fs, path::PathBuf};
 
-use belalang_core::{evaluator::Evaluator, lexer::Lexer, parser::Parser};
+use belalang_core::{lexer::Lexer, parser::Parser};
+use belalang_eval::evaluator::Evaluator;
 use rustyline::{error::ReadlineError, DefaultEditor};
 
 pub fn run_file(filename: PathBuf) -> Result<(), Box<dyn Error>> {
@@ -8,10 +9,9 @@ pub fn run_file(filename: PathBuf) -> Result<(), Box<dyn Error>> {
 
     let lexer = Lexer::new(file.as_slice());
     let mut parser = Parser::new(lexer);
-    let mut ev = Evaluator::default();
-
     let program = parser.parse_program()?;
 
+    let mut ev = Evaluator::default();
     ev.eval_program(program)?;
     Ok(())
 }

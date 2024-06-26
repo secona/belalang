@@ -4,9 +4,11 @@ use std::{
     rc::Rc,
 };
 
+use crate::object::Object;
+
 #[derive(Debug, Clone)]
 pub struct Environment {
-    stores: Vec<Rc<RefCell<HashMap<String, super::Object>>>>,
+    stores: Vec<Rc<RefCell<HashMap<String, Object>>>>,
 }
 
 impl Default for Environment {
@@ -47,7 +49,7 @@ impl Environment {
         false
     }
 
-    pub fn get<'a>(&'a self, key: &String) -> Option<Ref<'a, super::Object>> {
+    pub fn get<'a>(&'a self, key: &String) -> Option<Ref<'a, Object>> {
         for store in self.stores.iter().rev() {
             let value = Ref::filter_map(store.borrow(), |v| v.get(key)).ok();
 
@@ -59,7 +61,7 @@ impl Environment {
         None
     }
 
-    pub fn set(&mut self, key: &String, value: super::Object) {
+    pub fn set(&mut self, key: &String, value: Object) {
         for store in self.stores.iter().rev() {
             let mut store = store.borrow_mut();
             if store.contains_key(key) {
@@ -77,7 +79,7 @@ impl Environment {
 #[cfg(test)]
 mod tests {
     use super::Environment;
-    use crate::evaluator::Object;
+    use crate::object::Object;
 
     #[test]
     fn set() {

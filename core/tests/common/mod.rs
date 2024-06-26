@@ -2,8 +2,6 @@
 
 use belalang_core::{
     ast,
-    error::EvaluatorError,
-    evaluator::{self, object::Object},
     lexer::{self, Lexer},
     parser,
     token::Token,
@@ -20,16 +18,6 @@ pub fn test_parse(input: &str) -> ast::Program {
 pub fn test_parse_to_string(input: &str, expected: &str) {
     let program = test_parse(input);
     assert_eq!(program.to_string(), expected);
-}
-
-pub fn test_eval(input: String) -> Result<Object, EvaluatorError> {
-    let input = input.as_bytes().into();
-    let lexer = lexer::Lexer::new(input);
-    let mut parser = parser::Parser::new(lexer);
-    let program = parser.parse_program().expect("parser errors");
-
-    let mut ev = evaluator::Evaluator::default();
-    return ev.eval_program(program);
 }
 
 pub fn test_tokens(input: &str, tokens: Vec<Token>) {
@@ -80,34 +68,5 @@ macro_rules! expr_variant {
 
         expr_variant!(&*v.right, $right_variant = $right);
         assert_eq!(v.operator, $op);
-    };
-}
-
-#[macro_export]
-macro_rules! eval {
-    ($input:expr, $variant:path = $expected:expr) => {
-        let evaluated = common::test_eval($input.into());
-
-        match evaluated {
-            Ok($variant(value)) => assert_eq!(value, $expected),
-            Ok(unexpected) => panic!("got unexpected object. got={}", unexpected),
-            Err(err) => panic!("got errors instead. got={}", err),
-        }
-    };
-    ($input:expr, $variant:pat) => {
-        let evaluated = common::test_eval($input.into());
-
-        match evaluated {
-            Ok(obj) => matches!(obj, $variant),
-            Err(err) => panic!("got errors instead. got={}", err),
-        }
-    };
-    ($input:expr, Err => $expected:expr) => {
-        let evaluated = common::test_eval($input.into());
-
-        match evaluated {
-            Ok(unexpected) => panic!("got ok instead. got={}", unexpected),
-            Err(err) => assert_eq!(err.to_string(), $expected),
-        }
     };
 }

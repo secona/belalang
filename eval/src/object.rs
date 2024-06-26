@@ -1,5 +1,5 @@
-use crate::ast;
-use crate::evaluator::Environment;
+use belalang_core::ast;
+use crate::environment::Environment;
 
 #[derive(Debug, Clone)]
 pub enum Object {

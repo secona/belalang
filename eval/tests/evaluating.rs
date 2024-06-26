@@ -1,7 +1,44 @@
-use belalang_core::evaluator::object;
+use belalang_core::{lexer, parser};
+use belalang_eval::{error::EvaluatorError, evaluator, object};
 
-#[macro_use]
-mod common;
+pub fn test_eval(input: String) -> Result<object::Object, EvaluatorError> {
+    let input = input.as_bytes().into();
+    let lexer = lexer::Lexer::new(input);
+    let mut parser = parser::Parser::new(lexer);
+    let program = parser.parse_program().expect("parser errors");
+
+    let mut ev = evaluator::Evaluator::default();
+    return ev.eval_program(program);
+}
+
+#[macro_export]
+macro_rules! eval {
+    ($input:expr, $variant:path = $expected:expr) => {
+        let evaluated = test_eval($input.into());
+
+        match evaluated {
+            Ok($variant(value)) => assert_eq!(value, $expected),
+            Ok(unexpected) => panic!("got unexpected object. got={}", unexpected),
+            Err(err) => panic!("got errors instead. got={}", err),
+        }
+    };
+    ($input:expr, $variant:pat) => {
+        let evaluated = test_eval($input.into());
+
+        match evaluated {
+            Ok(obj) => matches!(obj, $variant),
+            Err(err) => panic!("got errors instead. got={}", err),
+        }
+    };
+    ($input:expr, Err => $expected:expr) => {
+        let evaluated = test_eval($input.into());
+
+        match evaluated {
+            Ok(unexpected) => panic!("got ok instead. got={}", unexpected),
+            Err(err) => assert_eq!(err.to_string(), $expected),
+        }
+    };
+}
 
 #[test]
 fn integer() {

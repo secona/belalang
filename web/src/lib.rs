@@ -1,11 +1,8 @@
-use belalang_core::{
-    evaluator::{
-        builtins::{self, Builtins},
-        object::Object,
-        Evaluator,
-    },
-    lexer::Lexer,
-    parser::Parser,
+use belalang_core::{lexer::Lexer, parser::Parser};
+use belalang_eval::{
+    builtins::{self, Builtins},
+    evaluator::Evaluator,
+    object::Object,
 };
 use wasm_bindgen::prelude::*;
 
