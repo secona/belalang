@@ -125,7 +125,7 @@ impl<'a> Lexer<'a> {
             b',' => Ok(Token::Comma),
             b'\\' => Ok(Token::Backslash),
             b'"' => self.read_string(),
-            letters!() => Ok(self.read_identifier()),
+            letters!() => Ok(self.read_identifier()?),
             digits!() => Ok(self.read_number()?),
             _ => Err(ParserError::UnknownToken(
                 String::from_utf8(vec![self.ch]).unwrap(),
@@ -234,14 +234,14 @@ impl<'a> Lexer<'a> {
         Ok(Token::String(String::from_utf8(result).unwrap()))
     }
 
-    pub fn read_identifier(&mut self) -> Token {
+    pub fn read_identifier(&mut self) -> Result<Token, ParserError> {
         let position = self.position;
 
-        while matches!(self.peek_char(), Some(letters!())) {
+        while matches!(self.peek_char(), Some(letters!() | digits!())) {
             self.read_char();
         }
 
-        Token::from(&self.input[position..self.read_position])
+        Ok(Token::from(&self.input[position..self.read_position]))
     }
 
     pub fn read_number(&mut self) -> Result<Token, ParserError> {
