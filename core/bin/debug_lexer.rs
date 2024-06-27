@@ -18,12 +18,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         let mut lexer = Lexer::new(input.as_bytes());
 
         loop {
-            let token = lexer.next_token()?;
-            println!("{:?}", token);
-
-            if let Token::EOF = token {
-                break;
-            }
+            match lexer.next_token() {
+                Ok(Token::EOF) => break,
+                Ok(token) => println!("{:?}", token),
+                Err(err) => println!("ERROR: {:?}", err)
+            };
         }
     }
 }

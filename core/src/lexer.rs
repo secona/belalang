@@ -126,7 +126,7 @@ impl<'a> Lexer<'a> {
             b'\\' => Ok(Token::Backslash),
             b'"' => self.read_string(),
             letters!() => Ok(self.read_identifier()),
-            digits!() => Ok(self.read_number()),
+            digits!() => Ok(self.read_number()?),
             _ => Err(ParserError::UnknownToken(
                 String::from_utf8(vec![self.ch]).unwrap(),
             )),
@@ -244,15 +244,32 @@ impl<'a> Lexer<'a> {
         Token::from(&self.input[position..self.read_position])
     }
 
-    pub fn read_number(&mut self) -> Token {
+    pub fn read_number(&mut self) -> Result<Token, ParserError> {
+        let mut has_decimal = false;
         let position = self.position;
 
-        while matches!(self.peek_char(), Some(digits!())) {
-            self.read_char();
+        loop {
+            match self.peek_char() {
+                Some(digits!()) => {
+                    self.read_char();
+                }
+                Some(b'.') if !has_decimal => {
+                    has_decimal = true;
+                    self.read_char();
+                }
+                _ => {
+                    break;
+                }
+            }
         }
 
         let num = &self.input[position..self.read_position];
         let num = std::str::from_utf8(num).unwrap();
-        Token::Int(String::from(num))
+
+        Ok(if has_decimal {
+            Token::Float(String::from(num))
+        } else {
+            Token::Int(String::from(num))
+        })
     }
 }

@@ -27,6 +27,18 @@ impl std::fmt::Display for IntegerLiteral {
 }
 
 #[derive(Debug, Clone)]
+pub struct FloatLiteral {
+    pub token: token::Token,
+    pub value: f64,
+}
+
+impl std::fmt::Display for FloatLiteral {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.value)
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct StringLiteral {
     pub token: token::Token,
     pub value: String,
@@ -187,6 +199,7 @@ impl std::fmt::Display for BlockExpression {
 pub enum Expression {
     Boolean(BooleanExpression),
     Integer(IntegerLiteral),
+    Float(FloatLiteral),
     String(StringLiteral),
     Null(NullLiteral),
     Var(VarExpression),
@@ -204,6 +217,7 @@ impl std::fmt::Display for Expression {
         f.write_str(&match self {
             Expression::Boolean(v) => v.to_string(),
             Expression::Integer(v) => v.to_string(),
+            Expression::Float(v) => v.to_string(),
             Expression::String(v) => v.to_string(),
             Expression::Null(v) => v.to_string(),
             Expression::Var(v) => v.to_string(),

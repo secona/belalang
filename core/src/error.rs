@@ -24,6 +24,9 @@ pub enum ParserError {
     #[error("error parsing integer: could not parse {0} as integer")]
     ParsingInteger(String),
 
+    #[error("error parsing float: could not parse {0} as float")]
+    ParsingFloat(String),
+
     #[error("unclosed string")]
     UnclosedString(),
 }

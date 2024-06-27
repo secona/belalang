@@ -45,6 +45,7 @@ pub enum Token {
 
     Ident(String),
     Int(String),
+    Float(String),
     String(String),
 
     // Assignment operators
@@ -120,6 +121,7 @@ impl std::fmt::Display for Token {
 
             Token::Ident(s) => s,
             Token::Int(s) => s,
+            Token::Float(s) => s,
             Token::String(s) => s,
 
             Token::Assign => "=",

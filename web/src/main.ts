@@ -81,20 +81,24 @@ const examples: Record<string, string> = {
   "Hello World": `println("Hello, World!");`,
 
   "Variables": `# Declare variables using the \`:=\` operator
-# Currently, Belalang only supports integers and strings
+# Currently, Belalang only supports integers, floats, and strings
 int_var := 123;
+flo_var := 44.2;
 str_var := "Hello, World!";
 
 # Print variables to the console using the builtin \`println\` function
 println("the value of int_var is", int_var);
+println("the value of flo_var is", flo_var);
 println("the value of str_var is", str_var);
 
 # Assign new values to existing variables using the \`=\` operator
 int_var = 1;
+flo_var = 1.4;
 str_var = "Hello, Mom!";
 
 # Print the new values of the variables
 println("the new value of int_var is", int_var);
+println("the new value of flo_var is", flo_var);
 println("the new value of str_var is", str_var);`,
 
   "If-Else If-Else": `# Variable declaration and assignment

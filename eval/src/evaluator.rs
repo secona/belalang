@@ -39,6 +39,7 @@ impl Evaluator {
     pub fn eval_expression(&mut self, expression: Expression) -> Result<Object, EvaluatorError> {
         match expression {
             Expression::Integer(int_lit) => Ok(Object::Integer(int_lit.value)),
+            Expression::Float(float_lit) => Ok(Object::Float(float_lit.value)),
             Expression::Boolean(bool_expr) => Ok(Object::Boolean(bool_expr.value)),
             Expression::String(s) => Ok(Object::String(s.value)),
             Expression::Null(_) => Ok(Object::Null),
@@ -101,6 +102,24 @@ impl Evaluator {
                         Token::Mul => Ok(Object::Integer(l * r)),
                         Token::Div => Ok(Object::Integer(l / r)),
                         Token::Mod => Ok(Object::Integer(l % r)),
+                        Token::Lt => Ok(Object::Boolean(l < r)),
+                        Token::Le => Ok(Object::Boolean(l <= r)),
+                        Token::Gt => Ok(Object::Boolean(l > r)),
+                        Token::Ge => Ok(Object::Boolean(l >= r)),
+                        Token::Eq => Ok(Object::Boolean(l == r)),
+                        Token::Ne => Ok(Object::Boolean(l != r)),
+                        _ => Err(EvaluatorError::UnknownInfixOperator(
+                            left,
+                            infix_expr.operator,
+                            right,
+                        )),
+                    },
+                    (Object::Float(l), Object::Float(r)) => match infix_expr.operator {
+                        Token::Add => Ok(Object::Float(l + r)),
+                        Token::Sub => Ok(Object::Float(l - r)),
+                        Token::Mul => Ok(Object::Float(l * r)),
+                        Token::Div => Ok(Object::Float(l / r)),
+                        Token::Mod => Ok(Object::Float(l % r)),
                         Token::Lt => Ok(Object::Boolean(l < r)),
                         Token::Le => Ok(Object::Boolean(l <= r)),
                         Token::Gt => Ok(Object::Boolean(l > r)),

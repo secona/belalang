@@ -375,19 +375,28 @@ impl Parser<'_> {
     pub fn parse_prefix(&mut self) -> Result<Expression, ParserError> {
         match self.curr_token {
             // parse_identifier: parse current token as identifier
-            Token::Ident(_) => Ok(Expression::Identifier(ast::Identifier {
+            Token::Ident(ref i) => Ok(Expression::Identifier(ast::Identifier {
                 token: self.curr_token.clone(),
-                value: self.curr_token.clone().to_string(),
+                value: i.into(),
             })),
 
             // parse_integer: parse current token as integer
-            Token::Int(_) => match self.curr_token.to_string().parse::<i64>() {
+            Token::Int(ref i) => match i.parse::<i64>() {
                 Ok(lit) => Ok(Expression::Integer(ast::IntegerLiteral {
                     token: self.curr_token.clone(),
                     value: lit,
                 })),
-                Err(_) => Err(ParserError::ParsingInteger(self.curr_token.to_string())),
+                Err(_) => Err(ParserError::ParsingInteger(i.into())),
             },
+
+            // parse_float: parse current token as float
+            Token::Float(ref f) => match f.parse::<f64>() {
+                Ok(lit) => Ok(Expression::Float(ast::FloatLiteral {
+                    token: self.curr_token.clone(),
+                    value: lit,
+                })),
+                Err(_) => Err(ParserError::ParsingFloat(f.into())),
+            }
 
             // parse_boolean: parse current token as boolean
             Token::True | Token::False => {
@@ -398,9 +407,9 @@ impl Parser<'_> {
             }
 
             // parse_string: parse current expression as string
-            Token::String(_) => Ok(Expression::String(ast::StringLiteral {
+            Token::String(ref s) => Ok(Expression::String(ast::StringLiteral {
                 token: self.curr_token.clone(),
-                value: self.curr_token.to_string(),
+                value: s.into(),
             })),
 
             // parse_prefix: parse current expression with prefix

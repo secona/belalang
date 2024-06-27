@@ -5,6 +5,7 @@ use crate::environment::Environment;
 pub enum Object {
     Null,
     Integer(i64),
+    Float(f64),
     Boolean(bool),
     String(String),
     Builtin(String),
@@ -21,6 +22,7 @@ impl std::fmt::Display for Object {
         match self {
             Self::Null => f.write_str("null"),
             Self::Integer(i) => f.write_str(&format!("{}", i)),
+            Self::Float(fl) => f.write_str(&format!("{}", fl)),
             Self::Boolean(b) => f.write_str(&format!("{}", b)),
             Self::String(s) => f.write_str(s),
             _ => f.write_str(""),
