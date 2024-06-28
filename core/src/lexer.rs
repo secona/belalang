@@ -121,6 +121,8 @@ impl<'a> Lexer<'a> {
             b')' => Ok(Token::RightParen),
             b'{' => Ok(Token::LeftBrace),
             b'}' => Ok(Token::RightBrace),
+            b'[' => Ok(Token::LeftBracket),
+            b']' => Ok(Token::RightBracket),
             b';' => Ok(Token::Semicolon),
             b',' => Ok(Token::Comma),
             b'\\' => Ok(Token::Backslash),

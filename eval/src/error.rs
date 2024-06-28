@@ -15,6 +15,9 @@ pub enum EvaluatorError {
     #[error("not a function")]
     NotAFunction,
 
+    #[error("not an array")]
+    NotAnArray,
+
     #[error("overwriting builtin: {0}")]
     OverwriteBuiltin(String),
 

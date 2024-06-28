@@ -78,10 +78,12 @@ pub enum Token {
     Ge, // >=
 
     // Parenthesis and Braces
-    LeftParen,  // (
-    RightParen, // )
-    LeftBrace,  // {
-    RightBrace, // }
+    LeftParen,    // (
+    RightParen,   // )
+    LeftBrace,    // {
+    RightBrace,   // }
+    LeftBracket,  // [
+    RightBracket, // ]
 
     // Keywords
     Function, // fn
@@ -153,6 +155,8 @@ impl std::fmt::Display for Token {
             Token::RightParen => ")",
             Token::LeftBrace => "{",
             Token::RightBrace => "}",
+            Token::LeftBracket => "[",
+            Token::RightBracket => "]",
 
             Token::Function => "fn",
             Token::While => "while",

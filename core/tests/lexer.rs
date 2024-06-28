@@ -7,7 +7,7 @@ use common::test_tokens;
 #[test]
 fn tokens() {
     test_tokens(
-        "=+(){},;!-/*5;5 < 10 > 5;:= >= <= += -= /= %= *= || &&",
+        "=+(){}[],;!-/*5;5 < 10 > 5;:= >= <= += -= /= %= *= || &&",
         vec![
             Token::Assign,
             Token::Add,
@@ -15,6 +15,8 @@ fn tokens() {
             Token::RightParen,
             Token::LeftBrace,
             Token::RightBrace,
+            Token::LeftBracket,
+            Token::RightBracket,
             Token::Comma,
             Token::Semicolon,
             Token::Not,

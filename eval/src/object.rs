@@ -9,6 +9,7 @@ pub enum Object {
     Boolean(bool),
     String(String),
     Builtin(String),
+    Array(Vec<Object>),
 
     Function {
         params: Vec<ast::Identifier>,
@@ -25,6 +26,7 @@ impl std::fmt::Display for Object {
             Self::Float(fl) => f.write_str(&format!("{}", fl)),
             Self::Boolean(b) => f.write_str(&format!("{}", b)),
             Self::String(s) => f.write_str(s),
+            Self::Array(a) => f.write_str(&format!("{:?}", a)),
             _ => f.write_str(""),
         }
     }

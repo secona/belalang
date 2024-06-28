@@ -17,6 +17,7 @@ pub enum Precedence {
     Multiplicative,
     Prefix,
     Call,
+    Index,
 }
 
 impl From<&Token> for Precedence {
@@ -30,6 +31,7 @@ impl From<&Token> for Precedence {
             Token::Add | Token::Sub => Self::Additive,
             Token::Div | Token::Mul | Token::Mod => Self::Multiplicative,
             Token::LeftParen => Self::Call,
+            Token::LeftBracket => Self::Index,
             _ => Self::Lowest,
         }
     }
@@ -169,7 +171,7 @@ impl Parser<'_> {
                 };
 
                 Ok(Statement::Expression(stmt))
-            },
+            }
         }
     }
 
@@ -305,6 +307,23 @@ impl Parser<'_> {
                 })))
             }
 
+            Token::LeftBracket => {
+                let token = self.curr_token.clone();
+
+                self.next_token()?;
+                self.next_token()?;
+
+                let index = Box::new(self.parse_expression(Precedence::Lowest)?);
+
+                expect_peek!(self, Token::RightBracket);
+
+                Ok(Some(Expression::Index(ast::IndexExpression {
+                    token,
+                    left: Box::new(left.clone()),
+                    index,
+                })))
+            }
+
             Token::ColonAssign | Token::Assign => {
                 if !matches!(left, Expression::Identifier(_)) {
                     return Err(ParserError::InvalidLHS(left.clone()));
@@ -396,20 +415,45 @@ impl Parser<'_> {
                     value: lit,
                 })),
                 Err(_) => Err(ParserError::ParsingFloat(f.into())),
-            }
+            },
 
             // parse_boolean: parse current token as boolean
-            Token::True | Token::False => {
-                Ok(Expression::Boolean(ast::BooleanExpression {
-                    token: self.curr_token.clone(),
-                    value: matches!(self.curr_token, Token::True),
-                }))
-            }
+            Token::True | Token::False => Ok(Expression::Boolean(ast::BooleanExpression {
+                token: self.curr_token.clone(),
+                value: matches!(self.curr_token, Token::True),
+            })),
 
             // parse_string: parse current expression as string
             Token::String(ref s) => Ok(Expression::String(ast::StringLiteral {
                 token: self.curr_token.clone(),
                 value: s.into(),
+            })),
+
+            // parse_array
+            Token::LeftBracket => Ok(Expression::Array(ast::ArrayLiteral {
+                token: self.curr_token.clone(),
+                elements: {
+                    self.next_token()?;
+
+                    let mut elements = Vec::new();
+
+                    if !matches!(self.curr_token, Token::RightBracket) {
+                        loop {
+                            elements.push(self.parse_expression(Precedence::Lowest)?);
+
+                            if !matches!(self.peek_token, Token::Comma) {
+                                break;
+                            }
+
+                            self.next_token()?;
+                            self.next_token()?;
+                        }
+
+                        expect_peek!(self, Token::RightBracket);
+                    }
+
+                    elements
+                },
             })),
 
             // parse_prefix: parse current expression with prefix

@@ -43,6 +43,22 @@ impl Evaluator {
             Expression::Boolean(bool_expr) => Ok(Object::Boolean(bool_expr.value)),
             Expression::String(s) => Ok(Object::String(s.value)),
             Expression::Null(_) => Ok(Object::Null),
+            Expression::Array(arr) => Ok(Object::Array(
+                arr.elements
+                    .into_iter()
+                    .map(|el| self.eval_expression(el))
+                    .collect::<Result<Vec<_>, _>>()?,
+            )),
+            Expression::Index(idx) => {
+                let left = self.eval_expression(*idx.left)?;
+                let index = self.eval_expression(*idx.index)?;
+
+                if let (Object::Array(objs), Object::Integer(idx)) = (left, index) {
+                    Ok(objs.get(idx as usize).unwrap_or(&Object::Null).clone())
+                } else {
+                    Err(EvaluatorError::NotAnArray)
+                }
+            }
             Expression::Var(var) => match var.token {
                 Token::ColonAssign => {
                     let name = &var.name.value;

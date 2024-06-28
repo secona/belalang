@@ -97,6 +97,37 @@ fn call_with_function_literal() {
 }
 
 #[test]
+fn array() {
+    let program = test_parse("[1, 2, 3];");
+
+    assert_eq!(program.statements.len(), 1);
+
+    let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
+    let array = as_variant!(&stmt.expression, ast::Expression::Array);
+
+    assert_eq!(array.elements.len(), 3);
+
+    expr_variant!(&array.elements[0], ast::Expression::Integer = 1);
+    expr_variant!(&array.elements[1], ast::Expression::Integer = 2);
+    expr_variant!(&array.elements[2], ast::Expression::Integer = 3);
+}
+
+#[test]
+fn array_indexing() {
+    let program = test_parse("arr[1];");
+
+    assert_eq!(program.statements.len(), 1);
+
+    let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
+    let index = as_variant!(&stmt.expression, ast::Expression::Index);
+
+    expr_variant!(&*index.index, ast::Expression::Integer = 1);
+
+    let ident = as_variant!(&*index.left, ast::Expression::Identifier);
+    ident_has_name!(ident, "arr");
+}
+
+#[test]
 fn function() {
     let program = test_parse("fn(x, y) { x + y; };");
 

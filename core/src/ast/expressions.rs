@@ -62,6 +62,25 @@ impl std::fmt::Display for NullLiteral {
 }
 
 #[derive(Debug, Clone)]
+pub struct ArrayLiteral {
+    pub token: token::Token,
+    pub elements: Vec<Expression>,
+}
+
+impl std::fmt::Display for ArrayLiteral {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let elements = self
+            .elements
+            .iter()
+            .map(|arg| arg.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        write!(f, "[{}]", elements)
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct VarExpression {
     pub token: token::Token,
     pub name: Identifier,
@@ -91,6 +110,19 @@ impl std::fmt::Display for CallExpression {
             .join(", ");
 
         write!(f, "{}({})", self.function, args)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct IndexExpression {
+    pub token: token::Token,
+    pub left: Box<Expression>,
+    pub index: Box<Expression>,
+}
+
+impl std::fmt::Display for IndexExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}[{}])", self.left, self.index)
     }
 }
 
@@ -202,8 +234,10 @@ pub enum Expression {
     Float(FloatLiteral),
     String(StringLiteral),
     Null(NullLiteral),
+    Array(ArrayLiteral),
     Var(VarExpression),
     Call(CallExpression),
+    Index(IndexExpression),
     Function(FunctionLiteral),
     Identifier(Identifier),
     If(IfExpression),
@@ -220,8 +254,10 @@ impl std::fmt::Display for Expression {
             Expression::Float(v) => v.to_string(),
             Expression::String(v) => v.to_string(),
             Expression::Null(v) => v.to_string(),
+            Expression::Array(v) => v.to_string(),
             Expression::Var(v) => v.to_string(),
             Expression::Call(v) => v.to_string(),
+            Expression::Index(v) => v.to_string(),
             Expression::Function(v) => v.to_string(),
             Expression::Identifier(v) => v.to_string(),
             Expression::If(v) => v.to_string(),
