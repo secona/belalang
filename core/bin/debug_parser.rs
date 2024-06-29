@@ -17,7 +17,7 @@ fn main() {
 
         match parser.parse_program() {
             Ok(program) => println!("{:#?}", program.statements),
-            Err(err) => println!("{:?}", err),
+            Err(err) => println!("ERROR: {:?}", err),
         }
     }
 }

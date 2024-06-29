@@ -2,7 +2,7 @@ use crate::{
     ast::{self, Expression, Statement},
     error::ParserError,
     lexer,
-    token::{arithmetic_tokens, assignment_tokens, comparison_tokens, Token},
+    token::{arithmetic_tokens, assignment_tokens, bitwise_tokens, comparison_tokens, Token},
 };
 
 #[derive(Debug, PartialEq, PartialOrd)]
@@ -11,8 +11,12 @@ pub enum Precedence {
     AssignmentOps,
     LogicalOr,
     LogicalAnd,
+    BitOr,
+    BitXor,
+    BitAnd,
     Equality,
     Relational,
+    Shift,
     Additive,
     Multiplicative,
     Prefix,
@@ -26,8 +30,12 @@ impl From<&Token> for Precedence {
             assignment_tokens!() => Self::AssignmentOps,
             Token::Or => Self::LogicalOr,
             Token::And => Self::LogicalAnd,
+            Token::BitOr => Self::BitOr,
+            Token::BitXor => Self::BitXor,
+            Token::BitAnd => Self::BitAnd,
             Token::Eq | Token::Ne => Self::Equality,
             Token::Lt | Token::Le | Token::Gt | Token::Ge => Self::Relational,
+            Token::ShiftLeft | Token::ShiftRight => Self::Shift,
             Token::Add | Token::Sub => Self::Additive,
             Token::Div | Token::Mul | Token::Mod => Self::Multiplicative,
             Token::LeftParen => Self::Call,
@@ -259,7 +267,11 @@ impl Parser<'_> {
     pub fn parse_infix(&mut self, left: &Expression) -> Result<Option<Expression>, ParserError> {
         match self.peek_token {
             // parse_infix: parse infix expression
-            arithmetic_tokens!() | comparison_tokens!() | Token::Or | Token::And => {
+            arithmetic_tokens!()
+            | comparison_tokens!()
+            | bitwise_tokens!()
+            | Token::Or
+            | Token::And => {
                 self.next_token()?;
 
                 let token = self.curr_token.clone();
@@ -351,7 +363,9 @@ impl Parser<'_> {
             | Token::SubAssign
             | Token::MulAssign
             | Token::DivAssign
-            | Token::ModAssign => {
+            | Token::ModAssign
+            | Token::ShiftLeftAssign
+            | Token::ShiftRightAssign => {
                 if !matches!(left, Expression::Identifier(_)) {
                     return Err(ParserError::InvalidLHS(left.clone()));
                 }
@@ -379,6 +393,8 @@ impl Parser<'_> {
                             Token::MulAssign => Token::Mul,
                             Token::DivAssign => Token::Div,
                             Token::ModAssign => Token::Mod,
+                            Token::ShiftLeftAssign => Token::ShiftLeft,
+                            Token::ShiftRightAssign => Token::ShiftRight,
                             _ => unreachable!(),
                         },
                         token,

@@ -27,6 +27,13 @@ impl<'a> Lexer<'a> {
         }
 
         match self.ch {
+            b':' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Ok(Token::ColonAssign)
+                }
+                _ => Err(ParserError::UnknownToken(":".into())),
+            },
             b'=' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
@@ -46,32 +53,44 @@ impl<'a> Lexer<'a> {
                     self.read_char();
                     Ok(Token::And)
                 }
-                _ => Err(ParserError::UnknownToken(
-                    String::from_utf8(vec![self.ch]).unwrap(),
-                )),
+                Some(b'=') => {
+                    self.read_char();
+                    Ok(Token::BitAndAssign)
+                }
+                _ => Ok(Token::BitAnd),
             },
             b'|' => match self.peek_char() {
                 Some(b'|') => {
                     self.read_char();
                     Ok(Token::Or)
                 }
-                _ => Err(ParserError::UnknownToken(
-                    String::from_utf8(vec![self.ch]).unwrap(),
-                )),
-            },
-            b':' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
-                    Ok(Token::ColonAssign)
+                    Ok(Token::BitOrAssign)
                 }
-                _ => Err(ParserError::UnknownToken(
-                    String::from_utf8(vec![self.ch]).unwrap(),
-                )),
+                _ => Ok(Token::BitOr),
+            },
+            b'^' => match self.peek_char() {
+                Some(b'=') => {
+                    self.read_char();
+                    Ok(Token::BitXorAssign)
+                }
+                _ => Ok(Token::BitXor),
             },
             b'<' => match self.peek_char() {
                 Some(b'=') => {
                     self.read_char();
                     Ok(Token::Le)
+                }
+                Some(b'<') => {
+                    self.read_char();
+                    match self.peek_char() {
+                        Some(b'=') => {
+                            self.read_char();
+                            Ok(Token::ShiftLeftAssign)
+                        }
+                        _ => Ok(Token::ShiftLeft),
+                    }
                 }
                 _ => Ok(Token::Lt),
             },
@@ -79,6 +98,16 @@ impl<'a> Lexer<'a> {
                 Some(b'=') => {
                     self.read_char();
                     Ok(Token::Ge)
+                }
+                Some(b'>') => {
+                    self.read_char();
+                    match self.peek_char() {
+                        Some(b'=') => {
+                            self.read_char();
+                            Ok(Token::ShiftRightAssign)
+                        }
+                        _ => Ok(Token::ShiftRight),
+                    }
                 }
                 _ => Ok(Token::Gt),
             },

@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             match lexer.next_token() {
                 Ok(Token::EOF) => break,
                 Ok(token) => println!("{:?}", token),
-                Err(err) => println!("ERROR: {:?}", err)
+                Err(err) => println!("ERROR: {:?}", err),
             };
         }
     }

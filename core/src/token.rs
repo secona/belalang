@@ -32,10 +32,27 @@ macro_rules! assignment_tokens {
             | crate::token::Token::MulAssign
             | crate::token::Token::DivAssign
             | crate::token::Token::ModAssign
+            | crate::token::Token::BitAndAssign
+            | crate::token::Token::BitOrAssign
+            | crate::token::Token::BitXorAssign
+            | crate::token::Token::ShiftLeftAssign
+            | crate::token::Token::ShiftRightAssign
     };
 }
 
 pub(super) use assignment_tokens;
+
+macro_rules! bitwise_tokens {
+    () => {
+        crate::token::Token::BitAnd
+            | crate::token::Token::BitOr
+            | crate::token::Token::BitXor
+            | crate::token::Token::ShiftLeft
+            | crate::token::Token::ShiftRight
+    };
+}
+
+pub(super) use bitwise_tokens;
 
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub enum Token {
@@ -49,13 +66,18 @@ pub enum Token {
     String(String),
 
     // Assignment operators
-    Assign,      // =
-    ColonAssign, // :=
-    AddAssign,   // +=
-    SubAssign,   // -=
-    MulAssign,   // *=
-    DivAssign,   // /=
-    ModAssign,   // %=
+    Assign,           // =
+    ColonAssign,      // :=
+    AddAssign,        // +=
+    SubAssign,        // -=
+    MulAssign,        // *=
+    DivAssign,        // /=
+    ModAssign,        // %=
+    BitAndAssign,     // &=
+    BitOrAssign,      // |=
+    BitXorAssign,     // ^=
+    ShiftLeftAssign,  // <<=
+    ShiftRightAssign, // >>=
 
     // Arithmetic operators
     Add, // +
@@ -68,6 +90,14 @@ pub enum Token {
     Not, // !
     And, // &&
     Or,  // ||
+
+    // Bitwise operators
+    BitAnd, // &
+    BitOr,  // |
+    // BitNot,  // ~ TODO
+    BitXor,     // ^
+    ShiftLeft,  // <<
+    ShiftRight, // >>
 
     // Comparison operators
     Eq, // ==
@@ -133,6 +163,11 @@ impl std::fmt::Display for Token {
             Token::MulAssign => "*=",
             Token::DivAssign => "/=",
             Token::ModAssign => "%=",
+            Token::BitAndAssign => "&=",
+            Token::BitOrAssign => "|=",
+            Token::BitXorAssign => "^=",
+            Token::ShiftLeftAssign => "<<=",
+            Token::ShiftRightAssign => ">>=",
 
             Token::Add => "+",
             Token::Sub => "-",
@@ -143,6 +178,13 @@ impl std::fmt::Display for Token {
             Token::Not => "!",
             Token::And => "&&",
             Token::Or => "||",
+
+            Token::BitAnd => "&",
+            Token::BitOr => "|",
+            // Token::BitNot => "~", TODO
+            Token::BitXor => "^",
+            Token::ShiftLeft => "<<",
+            Token::ShiftRight => ">>",
 
             Token::Eq => "==",
             Token::Ne => "!=",
