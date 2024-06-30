@@ -1,5 +1,5 @@
 use crate::{
-    error::ParserError,
+    error::SyntaxError,
     token::Token,
     utils::{digits, hex_byte_to_u8, letters, unwrap_or_return},
 };
@@ -21,7 +21,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn next_token(&mut self) -> Result<Token, ParserError> {
+    pub fn next_token(&mut self) -> Result<Token, SyntaxError> {
         if !self.skip_whitespace_and_comments() {
             return Ok(Token::EOF);
         }
@@ -32,7 +32,7 @@ impl<'a> Lexer<'a> {
                     self.read_char();
                     Ok(Token::ColonAssign)
                 }
-                _ => Err(ParserError::UnknownToken(":".into())),
+                _ => Err(SyntaxError::UnknownToken(":".into())),
             },
             b'=' => match self.peek_char() {
                 Some(b'=') => {
@@ -158,7 +158,7 @@ impl<'a> Lexer<'a> {
             b'"' => self.read_string(),
             letters!() => Ok(self.read_identifier()?),
             digits!() => Ok(self.read_number()?),
-            _ => Err(ParserError::UnknownToken(
+            _ => Err(SyntaxError::UnknownToken(
                 String::from_utf8(vec![self.ch]).unwrap(),
             )),
         }
@@ -199,7 +199,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn read_string(&mut self) -> Result<Token, ParserError> {
+    pub fn read_string(&mut self) -> Result<Token, SyntaxError> {
         let mut result = Vec::<u8>::new();
 
         loop {
@@ -229,20 +229,20 @@ impl<'a> Lexer<'a> {
                         self.read_char(); // consume the 'x'
 
                         let hi_c =
-                            unwrap_or_return!(self.read_char(), Err(ParserError::UnexpectedEOF));
+                            unwrap_or_return!(self.read_char(), Err(SyntaxError::UnexpectedEOF));
                         let lo_c =
-                            unwrap_or_return!(self.read_char(), Err(ParserError::UnexpectedEOF));
+                            unwrap_or_return!(self.read_char(), Err(SyntaxError::UnexpectedEOF));
 
                         let hi = unwrap_or_return!(
                             hex_byte_to_u8(hi_c),
-                            Err(ParserError::UnknownEscapeString(
+                            Err(SyntaxError::UnknownEscapeString(
                                 String::from_utf8(vec![b'x', hi_c, lo_c]).unwrap(),
                             ))
                         );
 
                         let lo = unwrap_or_return!(
                             hex_byte_to_u8(lo_c),
-                            Err(ParserError::UnknownEscapeString(
+                            Err(SyntaxError::UnknownEscapeString(
                                 String::from_utf8(vec![b'x', hi_c, lo_c]).unwrap(),
                             ))
                         );
@@ -250,22 +250,22 @@ impl<'a> Lexer<'a> {
                         result.push((hi << 4) | lo);
                     }
                     Some(c) => {
-                        return Err(ParserError::UnknownEscapeString(
+                        return Err(SyntaxError::UnknownEscapeString(
                             String::from_utf8(vec![c]).unwrap(),
                         ))
                     }
-                    None => return Err(ParserError::UnclosedString()),
+                    None => return Err(SyntaxError::UnclosedString()),
                 },
                 Some(b'"') => break,
                 Some(c) => result.push(c),
-                None => return Err(ParserError::UnclosedString()),
+                None => return Err(SyntaxError::UnclosedString()),
             }
         }
 
         Ok(Token::String(String::from_utf8(result).unwrap()))
     }
 
-    pub fn read_identifier(&mut self) -> Result<Token, ParserError> {
+    pub fn read_identifier(&mut self) -> Result<Token, SyntaxError> {
         let position = self.position;
 
         while matches!(self.peek_char(), Some(letters!() | digits!())) {
@@ -275,7 +275,7 @@ impl<'a> Lexer<'a> {
         Ok(Token::from(&self.input[position..self.read_position]))
     }
 
-    pub fn read_number(&mut self) -> Result<Token, ParserError> {
+    pub fn read_number(&mut self) -> Result<Token, SyntaxError> {
         let mut has_decimal = false;
         let position = self.position;
 

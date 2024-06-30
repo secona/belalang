@@ -1,6 +1,6 @@
 use crate::{
     ast::{self, Expression, Statement},
-    error::ParserError,
+    error::SyntaxError,
     lexer,
     token::{arithmetic_tokens, assignment_tokens, bitwise_tokens, comparison_tokens, Token},
 };
@@ -51,7 +51,7 @@ macro_rules! expect_peek {
             $self.next_token()?;
             true
         } else {
-            return Err(ParserError::UnexpectedToken($self.peek_token.clone()));
+            return Err(SyntaxError::UnexpectedToken($self.peek_token.clone()));
         }
     };
 }
@@ -92,14 +92,14 @@ impl Parser<'_> {
         }
     }
 
-    fn next_token(&mut self) -> Result<(), ParserError> {
+    fn next_token(&mut self) -> Result<(), SyntaxError> {
         self.curr_token = std::mem::take(&mut self.peek_token);
         self.peek_token = self.lexer.next_token()?;
 
         Ok(())
     }
 
-    pub fn parse_program(&mut self) -> Result<ast::Program, ParserError> {
+    pub fn parse_program(&mut self) -> Result<ast::Program, SyntaxError> {
         self.curr_token = self.lexer.next_token()?;
         self.peek_token = self.lexer.next_token()?;
 
@@ -113,7 +113,7 @@ impl Parser<'_> {
         Ok(program)
     }
 
-    fn parse_statement(&mut self) -> Result<Statement, ParserError> {
+    fn parse_statement(&mut self) -> Result<Statement, SyntaxError> {
         match self.curr_token {
             // parse_return
             Token::Return => {
@@ -183,7 +183,7 @@ impl Parser<'_> {
         }
     }
 
-    fn parse_expression(&mut self, precedence: Precedence) -> Result<Expression, ParserError> {
+    fn parse_expression(&mut self, precedence: Precedence) -> Result<Expression, SyntaxError> {
         let mut left_expr = self.parse_prefix()?;
 
         while precedence < Precedence::from(&self.peek_token) {
@@ -196,7 +196,7 @@ impl Parser<'_> {
         Ok(left_expr)
     }
 
-    fn parse_block(&mut self) -> Result<ast::BlockExpression, ParserError> {
+    fn parse_block(&mut self) -> Result<ast::BlockExpression, SyntaxError> {
         let token = self.curr_token.clone();
         let mut statements = Vec::new();
 
@@ -229,7 +229,7 @@ impl Parser<'_> {
         Ok(ast::BlockExpression { statements, token })
     }
 
-    fn parse_if(&mut self) -> Result<Expression, ParserError> {
+    fn parse_if(&mut self) -> Result<Expression, SyntaxError> {
         let token = self.curr_token.clone();
 
         expect_peek!(self, Token::LeftParen);
@@ -250,7 +250,7 @@ impl Parser<'_> {
             Some(Box::new(match self.curr_token {
                 Token::If => self.parse_if()?,
                 Token::LeftBrace => Expression::Block(self.parse_block()?),
-                _ => return Err(ParserError::UnexpectedToken(self.curr_token.clone())),
+                _ => return Err(SyntaxError::UnexpectedToken(self.curr_token.clone())),
             }))
         } else {
             None
@@ -264,7 +264,7 @@ impl Parser<'_> {
         }))
     }
 
-    pub fn parse_infix(&mut self, left: &Expression) -> Result<Option<Expression>, ParserError> {
+    pub fn parse_infix(&mut self, left: &Expression) -> Result<Option<Expression>, SyntaxError> {
         match self.peek_token {
             // parse_infix: parse infix expression
             arithmetic_tokens!()
@@ -338,7 +338,7 @@ impl Parser<'_> {
 
             Token::ColonAssign | Token::Assign => {
                 if !matches!(left, Expression::Identifier(_)) {
-                    return Err(ParserError::InvalidLHS(left.clone()));
+                    return Err(SyntaxError::InvalidLHS(left.clone()));
                 }
 
                 let name = ast::Identifier {
@@ -367,7 +367,7 @@ impl Parser<'_> {
             | Token::ShiftLeftAssign
             | Token::ShiftRightAssign => {
                 if !matches!(left, Expression::Identifier(_)) {
-                    return Err(ParserError::InvalidLHS(left.clone()));
+                    return Err(SyntaxError::InvalidLHS(left.clone()));
                 }
 
                 let name = ast::Identifier {
@@ -407,7 +407,7 @@ impl Parser<'_> {
         }
     }
 
-    pub fn parse_prefix(&mut self) -> Result<Expression, ParserError> {
+    pub fn parse_prefix(&mut self) -> Result<Expression, SyntaxError> {
         match self.curr_token {
             // parse_identifier: parse current token as identifier
             Token::Ident(ref i) => Ok(Expression::Identifier(ast::Identifier {
@@ -421,7 +421,7 @@ impl Parser<'_> {
                     token: self.curr_token.clone(),
                     value: lit,
                 })),
-                Err(_) => Err(ParserError::ParsingInteger(i.into())),
+                Err(_) => Err(SyntaxError::ParsingInteger(i.into())),
             },
 
             // parse_float: parse current token as float
@@ -430,7 +430,7 @@ impl Parser<'_> {
                     token: self.curr_token.clone(),
                     value: lit,
                 })),
-                Err(_) => Err(ParserError::ParsingFloat(f.into())),
+                Err(_) => Err(SyntaxError::ParsingFloat(f.into())),
             },
 
             // parse_boolean: parse current token as boolean
@@ -545,7 +545,7 @@ impl Parser<'_> {
                 }))
             }
 
-            _ => Err(ParserError::UnknownPrefixOperator(self.curr_token.clone())),
+            _ => Err(SyntaxError::UnknownPrefixOperator(self.curr_token.clone())),
         }
     }
 }

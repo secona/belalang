@@ -2,7 +2,7 @@ use crate::ast::Expression;
 use crate::token::Token;
 
 #[derive(thiserror::Error, Debug)]
-pub enum ParserError {
+pub enum SyntaxError {
     #[error("unexpected token: {0}")]
     UnexpectedToken(Token),
 
