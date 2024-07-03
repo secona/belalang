@@ -64,6 +64,9 @@ dependencies = [
 [[package]]
 name = "belalang_comp"
 version = "0.1.0"
+dependencies = [
+ "belalang_core",
+]
 
 [[package]]
 name = "belalang_core"
