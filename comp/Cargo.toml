@@ -5,5 +5,13 @@ edition = "2021"
 publish = false
 license = "Apache-2.0"
 
+[features]
+debug = []
+
+[[bin]]
+name = "debug_stack"
+path = "bin/debug_stack.rs"
+required-features = ["debug"]
+
 [dependencies]
 belalang_core = { path = "../core" }
