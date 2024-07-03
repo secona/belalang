@@ -1,8 +1,8 @@
-use std::error::Error;
-
+use belalang_comp::code;
 use belalang_comp::compiler::Compiler;
 use belalang_comp::object::Object;
-use belalang_comp::code;
+
+use crate::error::RuntimeError;
 
 pub struct VM {
     pub constants: Vec<Object>,
@@ -23,27 +23,61 @@ impl VM {
         }
     }
 
-    pub fn stack_top(&mut self) -> Option<&Object> {
-        self.stack.last()
-    }
-
-    pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn run(&mut self) -> Result<(), RuntimeError> {
         let mut ip = 0;
         while ip < self.instructions.len() {
-            match self.instructions[ip] {
+            let op = self.instructions[ip];
+
+            match op {
                 code::CONSTANT => {
                     let hi = self.instructions[ip + 1];
                     let lo = self.instructions[ip + 2];
                     let index = ((hi as u16) << 8) | (lo as u16);
 
-                    println!("{} {} {}", hi, lo, index);
-
                     let object = self.constants[index as usize].clone();
                     self.push(object)?;
 
                     ip += 2;
-                },
-                _ => {}
+                }
+
+                code::ADD => {
+                    let Object::Integer(right) = self.pop()?;
+                    let Object::Integer(left) = self.pop()?;
+
+                    self.push(Object::Integer(left + right))?;
+                }
+
+                code::SUB => {
+                    let Object::Integer(right) = self.pop()?;
+                    let Object::Integer(left) = self.pop()?;
+
+                    self.push(Object::Integer(left - right))?;
+                }
+
+                code::MUL => {
+                    let Object::Integer(right) = self.pop()?;
+                    let Object::Integer(left) = self.pop()?;
+
+                    self.push(Object::Integer(left * right))?;
+                }
+
+                code::DIV => {
+                    let Object::Integer(right) = self.pop()?;
+                    let Object::Integer(left) = self.pop()?;
+
+                    self.push(Object::Integer(left / right))?;
+                }
+
+                code::MOD => {
+                    let Object::Integer(right) = self.pop()?;
+                    let Object::Integer(left) = self.pop()?;
+
+                    self.push(Object::Integer(left % right))?;
+                }
+
+                _ => {
+                    return Err(RuntimeError::UnknownInstruction(op))
+                }
             };
 
             ip += 1;
@@ -52,7 +86,24 @@ impl VM {
         Ok(())
     }
 
-    fn push(&mut self, object: Object) -> Result<(), Box<dyn Error>> {
+    pub fn stack_top(&mut self) -> Option<&Object> {
+        if self.sp > 0 {
+            self.stack.get(self.sp - 1)
+        } else {
+            None
+        }
+    }
+
+    pub fn pop(&mut self) -> Result<Object, RuntimeError> {
+        if self.sp == 0 {
+            return Err(RuntimeError::StackUnderflow);
+        }
+
+        self.sp -= 1;
+        Ok(self.stack.remove(self.sp))
+    }
+
+    fn push(&mut self, object: Object) -> Result<(), RuntimeError> {
         self.stack.push(object);
         self.sp += 1;
 
@@ -79,16 +130,9 @@ mod tests {
         let mut vm = VM::new(compiler);
         vm.run().unwrap();
 
-        assert_eq!(vm.stack.len(), 2);
-
-        println!("{:?}", vm.stack);
-
-        // FIXME: supposed to be 3
+        assert_eq!(vm.stack.len(), 1);
 
         let Object::Integer(v) = vm.stack[0];
-        assert_eq!(v, 5);
-
-        let Object::Integer(v) = vm.stack[1];
-        assert_eq!(v, 10);
+        assert_eq!(v, 15);
     }
 }
