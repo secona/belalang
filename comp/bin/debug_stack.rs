@@ -25,7 +25,7 @@ fn main() {
                         println!("instructions: {:?}", compiler.instructions);
                         println!("constants: {:?}", compiler.constants);
                     },
-                    Err(err) => println!("ERROR: {:?}", err),
+                    Err(err) => println!("ERROR: {}", err),
                 };
             },
             Err(err) => println!("ERROR: {:?}", err),

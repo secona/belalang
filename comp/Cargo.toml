@@ -15,3 +15,4 @@ required-features = ["debug"]
 
 [dependencies]
 belalang_core = { path = "../core" }
+thiserror = "1.0.61"

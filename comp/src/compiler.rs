@@ -1,8 +1,10 @@
-use std::error::Error;
-
 use belalang_core::ast::{Expression, Node, Program, Statement};
 
-use crate::{code, object::Object};
+use crate::{
+    code::{self, ToBytecode},
+    error::CompileError,
+    object::Object,
+};
 
 pub struct Compiler {
     pub instructions: Vec<u8>,
@@ -19,7 +21,7 @@ impl Default for Compiler {
 }
 
 impl Compiler {
-    pub fn compile(&mut self, node: Node) -> Result<(), Box<dyn Error>> {
+    pub fn compile(&mut self, node: Node) -> Result<(), CompileError> {
         match node {
             Node::Program(program) => self.compile_program(program),
             Node::Expression(expression) => self.compile_expression(expression),
@@ -27,7 +29,7 @@ impl Compiler {
         }
     }
 
-    pub fn compile_program(&mut self, program: Program) -> Result<(), Box<dyn Error>> {
+    pub fn compile_program(&mut self, program: Program) -> Result<(), CompileError> {
         for statement in program.statements {
             self.compile_statement(statement)?;
         }
@@ -35,7 +37,7 @@ impl Compiler {
         Ok(())
     }
 
-    pub fn compile_statement(&mut self, statement: Statement) -> Result<(), Box<dyn Error>> {
+    pub fn compile_statement(&mut self, statement: Statement) -> Result<(), CompileError> {
         match statement {
             Statement::Expression(statement) => {
                 self.compile_expression(statement.expression)?;
@@ -47,7 +49,7 @@ impl Compiler {
         Ok(())
     }
 
-    pub fn compile_expression(&mut self, expression: Expression) -> Result<(), Box<dyn Error>> {
+    pub fn compile_expression(&mut self, expression: Expression) -> Result<(), CompileError> {
         match expression {
             Expression::Boolean(_) => todo!(),
 
@@ -71,6 +73,7 @@ impl Compiler {
             Expression::Infix(infix) => {
                 self.compile_expression(*infix.left)?;
                 self.compile_expression(*infix.right)?;
+                self.add_bytecode(infix.operator.to_bytecode()?)
             }
 
             Expression::Prefix(_) => todo!(),
@@ -85,13 +88,17 @@ impl Compiler {
         self.constants.len() - 1
     }
 
+    pub fn add_bytecode(&mut self, byte: u8) {
+        self.instructions.push(byte);
+    }
+
     pub fn add_instruction(&mut self, bytes: Vec<u8>) -> usize {
         let pos = self.instructions.len();
 
         for byte in bytes {
-            self.instructions.push(byte);
+            self.add_bytecode(byte);
         }
-        
+
         pos
     }
 }

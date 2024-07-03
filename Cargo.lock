@@ -66,6 +66,7 @@ name = "belalang_comp"
 version = "0.1.0"
 dependencies = [
  "belalang_core",
+ "thiserror",
 ]
 
 [[package]]
