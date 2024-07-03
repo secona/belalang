@@ -2,7 +2,7 @@ use std::error::Error;
 
 use belalang_core::ast::{Expression, Node, Program, Statement};
 
-use crate::{code::Code, object::Object};
+use crate::{code, object::Object};
 
 pub struct Compiler {
     pub instructions: Vec<u8>,
@@ -54,7 +54,7 @@ impl Compiler {
             Expression::Integer(integer) => {
                 let integer = Object::Integer(integer.value);
                 let index = self.add_constant(integer) as u16;
-                self.add_instruction(Code::Constant(index).into());
+                self.add_instruction(code::constant(index).to_vec());
             }
 
             Expression::Float(_) => todo!(),

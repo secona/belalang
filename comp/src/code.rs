@@ -1,37 +1,16 @@
-#[repr(u8)]
-pub enum Code {
-    Constant(u16),
-}
+pub const CONSTANT: u8 = 0x00;
 
-impl Code {
-    fn discriminant(&self) -> u8 {
-        unsafe { *<*const _>::from(self).cast::<u8>() }
-    }
-}
-
-impl Into<Vec<u8>> for Code {
-    fn into(self) -> Vec<u8> {
-        let mut result = vec![self.discriminant()];
-
-        match self {
-            Self::Constant(v) => {
-                result.push((v >> 8) as u8);
-                result.push((v & 0xFF) as u8);
-            }
-        }
-
-        result
-    }
+pub fn constant(v: u16) -> [u8; 3] {
+    [CONSTANT, (v >> 8) as u8, (v & 0xFF) as u8]
 }
 
 #[cfg(test)]
 mod tests {
-    use super::Code;
+    use crate::code;
 
     #[test]
     fn constant() {
-        let code = Code::Constant(65534);
-        let bytes: Vec<u8> = code.into();
+        let bytes = code::constant(65534);
 
         assert_eq!(bytes.len(), 3);
         assert_eq!(bytes[0], 0);
