@@ -1,0 +1,12 @@
+[package]
+name = "belalang_vm"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "Apache-2.0"
+
+[dependencies]
+belalang_comp = { path = "../comp" }
+
+[dev-dependencies]
+belalang_core = { path = "../core" }
