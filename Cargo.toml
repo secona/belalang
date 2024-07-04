@@ -6,5 +6,8 @@ members = [
 	"web",
 	"eval",
 	"comp",
-	"vm"
+	"vm",
+
+	# internal
+	"debug"
 ]

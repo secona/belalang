@@ -1,0 +1,21 @@
+[package]
+name = "debug"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "lexer"
+path = "src/lexer.rs"
+
+[[bin]]
+name = "parser"
+path = "src/parser.rs"
+
+[[bin]]
+name = "compiler"
+path = "src/compiler.rs"
+
+[dependencies]
+belalang_core = { path = "../core" }
+belalang_comp = { path = "../comp" }

@@ -5,18 +5,5 @@ edition = "2021"
 publish = false
 license = "Apache-2.0"
 
-[features]
-debug = []
-
-[[bin]]
-name = "debug_lexer"
-path = "bin/debug_lexer.rs"
-required-features = ["debug"]
-
-[[bin]]
-name = "debug_parser"
-path = "bin/debug_parser.rs"
-required-features = ["debug"]
-
 [dependencies]
 thiserror = "1.0.61"
