@@ -53,7 +53,13 @@ impl Compiler {
 
     pub fn compile_expression(&mut self, expression: Expression) -> Result<(), CompileError> {
         match expression {
-            Expression::Boolean(_) => todo!(),
+            Expression::Boolean(boolean) => {
+                self.add_bytecode(if boolean.value == true {
+                    code::TRUE
+                } else {
+                    code::FALSE
+                });
+            }
 
             Expression::Integer(integer) => {
                 let integer = Object::Integer(integer.value);

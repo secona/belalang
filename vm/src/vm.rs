@@ -49,43 +49,54 @@ impl VM {
                 }
 
                 code::ADD => {
-                    let Object::Integer(right) = self.pop()?;
-                    let Object::Integer(left) = self.pop()?;
-
-                    self.push(Object::Integer(left + right))?;
+                    if let (Object::Integer(right), Object::Integer(left)) =
+                        (self.pop()?, self.pop()?)
+                    {
+                        self.push(Object::Integer(left + right))?;
+                    };
                 }
 
                 code::SUB => {
-                    let Object::Integer(right) = self.pop()?;
-                    let Object::Integer(left) = self.pop()?;
-
-                    self.push(Object::Integer(left - right))?;
+                    if let (Object::Integer(right), Object::Integer(left)) =
+                        (self.pop()?, self.pop()?)
+                    {
+                        self.push(Object::Integer(left - right))?;
+                    };
                 }
 
                 code::MUL => {
-                    let Object::Integer(right) = self.pop()?;
-                    let Object::Integer(left) = self.pop()?;
-
-                    self.push(Object::Integer(left * right))?;
+                    if let (Object::Integer(right), Object::Integer(left)) =
+                        (self.pop()?, self.pop()?)
+                    {
+                        self.push(Object::Integer(left * right))?;
+                    };
                 }
 
                 code::DIV => {
-                    let Object::Integer(right) = self.pop()?;
-                    let Object::Integer(left) = self.pop()?;
-
-                    self.push(Object::Integer(left / right))?;
+                    if let (Object::Integer(right), Object::Integer(left)) =
+                        (self.pop()?, self.pop()?)
+                    {
+                        self.push(Object::Integer(left / right))?;
+                    };
                 }
 
                 code::MOD => {
-                    let Object::Integer(right) = self.pop()?;
-                    let Object::Integer(left) = self.pop()?;
-
-                    self.push(Object::Integer(left % right))?;
+                    if let (Object::Integer(right), Object::Integer(left)) =
+                        (self.pop()?, self.pop()?)
+                    {
+                        self.push(Object::Integer(left % right))?;
+                    };
                 }
 
-                _ => {
-                    return Err(RuntimeError::UnknownInstruction(op))
+                code::TRUE => {
+                    self.push(Object::Boolean(true))?;
                 }
+
+                code::FALSE => {
+                    self.push(Object::Boolean(false))?;
+                }
+
+                _ => return Err(RuntimeError::UnknownInstruction(op)),
             };
 
             ip += 1;
@@ -140,7 +151,7 @@ mod tests {
 
         assert_eq!(vm.stack.len(), 0);
 
-        let Object::Integer(v) = vm.last_popped;
+        let Object::Integer(v) = vm.last_popped else { panic!() };
         assert_eq!(v, 15);
     }
 }
