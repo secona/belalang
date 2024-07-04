@@ -10,6 +10,8 @@ pub struct VM {
 
     pub stack: Vec<Object>,
     pub sp: usize,
+
+    pub last_popped: Object,
 }
 
 impl VM {
@@ -20,6 +22,8 @@ impl VM {
 
             stack: Vec::new(),
             sp: 0,
+
+            last_popped: Object::Integer(1), // TEMP
         }
     }
 
@@ -38,6 +42,10 @@ impl VM {
                     self.push(object)?;
 
                     ip += 2;
+                }
+
+                code::POP => {
+                    self.last_popped = self.pop()?;
                 }
 
                 code::ADD => {
@@ -130,9 +138,9 @@ mod tests {
         let mut vm = VM::new(compiler);
         vm.run().unwrap();
 
-        assert_eq!(vm.stack.len(), 1);
+        assert_eq!(vm.stack.len(), 0);
 
-        let Object::Integer(v) = vm.stack[0];
+        let Object::Integer(v) = vm.last_popped;
         assert_eq!(v, 15);
     }
 }

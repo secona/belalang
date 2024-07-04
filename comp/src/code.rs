@@ -3,11 +3,12 @@ use belalang_core::token::Token;
 use crate::error::CompileError;
 
 pub const CONSTANT: u8 = 0x00;
-pub const ADD: u8 = 0x01;
-pub const SUB: u8 = 0x02;
-pub const MUL: u8 = 0x03;
-pub const DIV: u8 = 0x04;
-pub const MOD: u8 = 0x05;
+pub const POP: u8 = 0x01;
+pub const ADD: u8 = 0x02;
+pub const SUB: u8 = 0x03;
+pub const MUL: u8 = 0x04;
+pub const DIV: u8 = 0x05;
+pub const MOD: u8 = 0x06;
 
 pub fn constant(v: u16) -> [u8; 3] {
     [CONSTANT, (v >> 8) as u8, (v & 0xFF) as u8]

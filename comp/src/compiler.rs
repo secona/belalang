@@ -41,7 +41,9 @@ impl Compiler {
         match statement {
             Statement::Expression(statement) => {
                 self.compile_expression(statement.expression)?;
+                self.add_bytecode(code::POP);
             }
+
             Statement::Return(_) => todo!(),
             Statement::While(_) => todo!(),
         };
