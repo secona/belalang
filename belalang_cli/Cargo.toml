@@ -6,7 +6,7 @@ publish = false
 license = "Apache-2.0"
 
 [dependencies]
-belalang_core = { path = "../core" }
-belalang_eval = { path = "../eval" }
+belalang_core = { path = "../belalang_core" }
+belalang_eval = { path = "../belalang_eval" }
 clap = { version = "4.5.4", features = ["derive"] }
 rustyline = "14.0.0"

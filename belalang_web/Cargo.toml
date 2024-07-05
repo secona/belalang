@@ -9,6 +9,6 @@ license = "Apache-2.0"
 crate-type = ["cdylib"]
 
 [dependencies]
-belalang_core = { path = "../core" }
-belalang_eval = { path = "../eval" }
+belalang_core = { path = "../belalang_core" }
+belalang_eval = { path = "../belalang_eval" }
 wasm-bindgen = "0.2.92"

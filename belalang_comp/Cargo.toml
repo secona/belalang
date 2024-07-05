@@ -14,5 +14,5 @@ path = "bin/debug_stack.rs"
 required-features = ["debug"]
 
 [dependencies]
-belalang_core = { path = "../core" }
+belalang_core = { path = "../belalang_core" }
 thiserror = "1.0.61"
