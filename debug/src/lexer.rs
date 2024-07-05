@@ -1,28 +1,32 @@
-use std::{
-    error::Error,
-    io::{self, Write},
-};
+use std::error::Error;
 
 use belalang_core::{lexer::Lexer, token::Token};
+use rustyline::{error::ReadlineError, DefaultEditor};
 
 fn main() -> Result<(), Box<dyn Error>> {
+    let mut rl = DefaultEditor::new()?;
+
     loop {
-        print!(">> ");
-        let _ = io::stdout().flush();
+        match rl.readline(">> ") {
+            Ok(line) => {
+                let mut lexer = Lexer::new(line.as_bytes());
 
-        let mut input = String::new();
-        io::stdin()
-            .read_line(&mut input)
-            .expect("Error reading from STDIN");
-
-        let mut lexer = Lexer::new(input.as_bytes());
-
-        loop {
-            match lexer.next_token() {
-                Ok(Token::EOF) => break,
-                Ok(token) => println!("{:?}", token),
-                Err(err) => println!("ERROR: {:?}", err),
-            };
-        }
+                loop {
+                    match lexer.next_token() {
+                        Ok(Token::EOF) => break,
+                        Ok(token) => println!("{:?}", token),
+                        Err(err) => println!("ERROR: {}", err),
+                    };
+                }
+            }
+            Err(ReadlineError::Interrupted) => (),
+            Err(ReadlineError::Eof) => break,
+            Err(err) => {
+                println!("error reading line: {:?}", err);
+                break;
+            }
+        };
     }
+
+    Ok(())
 }

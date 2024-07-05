@@ -17,5 +17,6 @@ name = "compiler"
 path = "src/compiler.rs"
 
 [dependencies]
+rustyline = "14.0.0"
 belalang_core = { path = "../core" }
 belalang_comp = { path = "../comp" }

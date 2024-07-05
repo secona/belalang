@@ -1,34 +1,41 @@
-use std::io;
-use std::io::Write;
+use std::error::Error;
 
-use belalang_core::{lexer::Lexer, parser::Parser};
 use belalang_comp::compiler::Compiler;
+use belalang_core::{lexer::Lexer, parser::Parser};
+use rustyline::error::ReadlineError;
+use rustyline::DefaultEditor;
 
-fn main() {
+fn compile(line: String) -> Result<(), Box<dyn Error>> {
+    let lexer = Lexer::new(line.as_bytes());
+    let mut parser = Parser::new(lexer);
+    let program = parser.parse_program()?;
+
+    let mut compiler = Compiler::default();
+    compiler.compile_program(program)?;
+    println!("instructions: {:?}", compiler.instructions);
+    println!("constants: {:?}", compiler.constants);
+
+    Ok(())
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let mut rl = DefaultEditor::new()?;
+
     loop {
-        print!(">> ");
-        let _ = io::stdout().flush();
-
-        let mut input = String::new();
-        io::stdin()
-            .read_line(&mut input)
-            .expect("Error reading from STDIN");
-
-        let lexer = Lexer::new(input.as_bytes());
-        let mut parser = Parser::new(lexer);
-
-        match parser.parse_program() {
-            Ok(program) => {
-                let mut compiler = Compiler::default();
-                match compiler.compile_program(program) {
-                    Ok(_) => {
-                        println!("instructions: {:?}", compiler.instructions);
-                        println!("constants: {:?}", compiler.constants);
-                    },
-                    Err(err) => println!("ERROR: {}", err),
-                };
-            },
-            Err(err) => println!("ERROR: {:?}", err),
+        match rl.readline(">> ") {
+            Ok(line) => {
+                if let Err(err) = compile(line) {
+                    println!("ERROR: {}", err);
+                }
+            }
+            Err(ReadlineError::Interrupted) => (),
+            Err(ReadlineError::Eof) => break,
+            Err(err) => {
+                println!("error reading line: {:?}", err);
+                break;
+            }
         }
     }
+
+    Ok(())
 }
