@@ -6,7 +6,7 @@ on:
 
 defaults:
   run:
-     working-directory: web 
+     working-directory: belalang_web 
 
 jobs:
   deploy:
