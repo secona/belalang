@@ -188,6 +188,7 @@ version = "0.0.0"
 dependencies = [
  "belalang_comp",
  "belalang_core",
+ "belalang_vm",
  "rustyline",
 ]
 

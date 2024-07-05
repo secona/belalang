@@ -16,7 +16,12 @@ path = "src/parser.rs"
 name = "compiler"
 path = "src/compiler.rs"
 
+[[bin]]
+name = "vm"
+path = "src/vm.rs"
+
 [dependencies]
 rustyline = "14.0.0"
 belalang_core = { path = "../core" }
 belalang_comp = { path = "../comp" }
+belalang_vm = { path = "../vm" }
