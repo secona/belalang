@@ -1,7 +1,10 @@
-use belalang_core::ast::{Expression, Node, Program, Statement};
+use belalang_core::{
+    ast::{Expression, Node, Program, Statement},
+    token::Token,
+};
 
 use crate::{
-    code::{self, ToBytecode},
+    code,
     error::CompileError,
     object::Object,
 };
@@ -81,10 +84,31 @@ impl Compiler {
             Expression::Infix(infix) => {
                 self.compile_expression(*infix.left)?;
                 self.compile_expression(*infix.right)?;
-                self.add_bytecode(infix.operator.to_bytecode()?)
+                self.add_bytecode(match infix.operator {
+                    Token::Add => code::ADD,
+                    Token::Sub => code::SUB,
+                    Token::Mul => code::MUL,
+                    Token::Div => code::DIV,
+                    Token::Mod => code::MOD,
+                    Token::Eq => code::EQ,
+                    Token::Ne => code::NE,
+                    Token::Lt => code::LT,
+                    Token::Le => code::LE,
+                    Token::Gt => code::GT,
+                    Token::Ge => code::GE,
+                    _ => return Err(CompileError::UnknownInfixOp(infix.operator)),
+                })
             }
 
-            Expression::Prefix(_) => todo!(),
+            Expression::Prefix(prefix) => {
+                self.compile_expression(*prefix.right)?;
+                self.add_bytecode(match prefix.operator {
+                    Token::Sub => code::MINUS,
+                    Token::Not => code::BANG,
+                    _ => return Err(CompileError::UnknownInfixOp(prefix.operator)),
+                });
+            }
+
             Expression::Block(_) => todo!(),
         };
 

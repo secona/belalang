@@ -96,6 +96,22 @@ impl VM {
                     self.push(Object::Boolean(false))?;
                 }
 
+                code::EQ => todo!(),
+
+                code::NE => todo!(),
+
+                code::LT => todo!(),
+
+                code::LE => todo!(),
+
+                code::GT => todo!(),
+
+                code::GE => todo!(),
+
+                code::BANG => todo!(),
+
+                code::MINUS => todo!(),
+
                 _ => return Err(RuntimeError::UnknownInstruction(op)),
             };
 
