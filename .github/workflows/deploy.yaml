@@ -46,4 +46,4 @@ jobs:
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: ${{ secrets.CF_PROJECT_NAME }}
           directory: dist
-          workingDirectory: web
+          workingDirectory: belalang_web
