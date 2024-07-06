@@ -12,8 +12,16 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
 
     let mut compiler = Compiler::default();
     compiler.compile_program(program)?;
-    println!("instructions: {:?}", compiler.instructions);
-    println!("constants: {:?}", compiler.constants);
+
+    println!("[instructions]");
+    for (i, inst) in compiler.instructions.iter().enumerate() {
+        println!("{:#06x}: {:#04x}", i, inst);
+    }
+
+    println!("\n[constants]");
+    for (i, constant) in compiler.constants.iter().enumerate() {
+        println!("{:#04x}: {:?}", i, constant);
+    }
 
     Ok(())
 }

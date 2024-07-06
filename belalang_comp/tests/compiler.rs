@@ -96,3 +96,22 @@ fn prefix_expressions() {
         Object::Integer(5),
     ]);
 }
+
+#[test]
+fn if_expressions() {
+    let compiler = test_compile("if (true) { 10 }; 9;").unwrap();
+
+    assert_eq!(compiler.instructions, vec![
+        code::TRUE,
+        code::JUMP_IF_FALSE, 0, 7,
+        code::CONSTANT, 0, 0,
+        code::POP,
+        code::CONSTANT, 0, 1,
+        code::POP,
+    ]);
+
+    assert_eq!(compiler.constants, vec![
+        Object::Integer(10),
+        Object::Integer(9),
+    ]);
+}

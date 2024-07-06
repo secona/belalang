@@ -1,13 +1,9 @@
 use belalang_core::{
-    ast::{Expression, Node, Program, Statement},
+    ast::{BlockExpression, Expression, Node, Program, Statement},
     token::Token,
 };
 
-use crate::{
-    code,
-    error::CompileError,
-    object::Object,
-};
+use crate::{code, error::CompileError, object::Object};
 
 pub struct Compiler {
     pub instructions: Vec<u8>,
@@ -79,7 +75,37 @@ impl Compiler {
             Expression::Index(_) => todo!(),
             Expression::Function(_) => todo!(),
             Expression::Identifier(_) => todo!(),
-            Expression::If(_) => todo!(),
+
+            Expression::If(r#if) => {
+                self.compile_expression(*r#if.condition)?;
+
+                let jif = self.add_instruction(code::jump_if_false(0).to_vec());
+
+                self.compile_block(r#if.consequence)?;
+                if let Some(&code::POP) = self.instructions.last() {
+                    self.instructions.pop();
+                }
+
+                let jump = self.add_instruction(code::jump(0).to_vec());
+
+                let post_consequencee = self.instructions.len();
+                self.replace_u16_operand(jif, post_consequencee as u16);
+
+                match r#if.alternative {
+                    None => {
+                        self.add_bytecode(code::NULL);
+                    }
+                    Some(alternative) => {
+                        self.compile_expression(*alternative)?;
+                        if let Some(&code::POP) = self.instructions.last() {
+                            self.instructions.pop();
+                        }
+                    }
+                };
+
+                let post_alternative = self.instructions.len();
+                self.replace_u16_operand(jump, post_alternative as u16);
+            }
 
             Expression::Infix(infix) => {
                 self.compile_expression(*infix.left)?;
@@ -97,7 +123,7 @@ impl Compiler {
                     Token::Gt => code::GT,
                     Token::Ge => code::GE,
                     _ => return Err(CompileError::UnknownInfixOp(infix.operator)),
-                })
+                });
             }
 
             Expression::Prefix(prefix) => {
@@ -109,8 +135,18 @@ impl Compiler {
                 });
             }
 
-            Expression::Block(_) => todo!(),
+            Expression::Block(block) => {
+                self.compile_block(block)?;
+            }
         };
+
+        Ok(())
+    }
+
+    fn compile_block(&mut self, block: BlockExpression) -> Result<(), CompileError> {
+        for statement in block.statements {
+            self.compile_statement(statement)?;
+        }
 
         Ok(())
     }
@@ -120,8 +156,9 @@ impl Compiler {
         self.constants.len() - 1
     }
 
-    pub fn add_bytecode(&mut self, byte: u8) {
+    pub fn add_bytecode(&mut self, byte: u8) -> usize {
         self.instructions.push(byte);
+        self.instructions.len() - 1
     }
 
     pub fn add_instruction(&mut self, bytes: Vec<u8>) -> usize {
@@ -132,5 +169,10 @@ impl Compiler {
         }
 
         pos
+    }
+
+    pub fn replace_u16_operand(&mut self, index: usize, value: u16) {
+        self.instructions[index + 1] = (value >> 8) as u8;
+        self.instructions[index + 2] = (value & 0xFF) as u8;
     }
 }
