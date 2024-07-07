@@ -23,6 +23,11 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
         println!("{:#04x}: {:?}", i, constant);
     }
 
+    println!("\n[symbols]");
+    for (key, symbol) in compiler.symbol_table.store {
+        println!("{key}: {symbol:?}");
+    }
+
     Ok(())
 }
 

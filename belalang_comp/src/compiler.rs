@@ -1,22 +1,16 @@
-use belalang_core::{
-    ast::{BlockExpression, Expression, Node, Program, Statement},
-    token::Token,
-};
+use belalang_core::ast::{BlockExpression, Expression, Node, Program, Statement};
+use belalang_core::token::Token;
 
-use crate::{code, error::CompileError, object::Object};
+use crate::code;
+use crate::error::CompileError;
+use crate::object::Object;
+use crate::symbol_table::SymbolTable;
 
+#[derive(Default)]
 pub struct Compiler {
     pub instructions: Vec<u8>,
     pub constants: Vec<Object>,
-}
-
-impl Default for Compiler {
-    fn default() -> Self {
-        Self {
-            instructions: Vec::new(),
-            constants: Vec::new(),
-        }
-    }
+    pub symbol_table: SymbolTable,
 }
 
 impl Compiler {
@@ -53,7 +47,7 @@ impl Compiler {
     pub fn compile_expression(&mut self, expression: Expression) -> Result<(), CompileError> {
         match expression {
             Expression::Boolean(boolean) => {
-                self.add_bytecode(if boolean.value == true {
+                self.add_bytecode(if boolean.value {
                     code::TRUE
                 } else {
                     code::FALSE
@@ -70,11 +64,27 @@ impl Compiler {
             Expression::String(_) => todo!(),
             Expression::Null(_) => todo!(),
             Expression::Array(_) => todo!(),
-            Expression::Var(_) => todo!(),
+
+            Expression::Var(var) => match var.token {
+                Token::ColonAssign => {
+                    self.compile_expression(*var.value)?;
+
+                    let symbol = self.symbol_table.define(var.name.value)?;
+                    let index = symbol.index;
+
+                    self.add_instruction(code::set_global(index as u16).to_vec());
+                }
+                _ => todo!(),
+            },
+
             Expression::Call(_) => todo!(),
             Expression::Index(_) => todo!(),
             Expression::Function(_) => todo!(),
-            Expression::Identifier(_) => todo!(),
+
+            Expression::Identifier(ident) => {
+                let symbol = self.symbol_table.resolve(ident.value)?;
+                self.add_instruction(code::get_global(symbol.index as u16).to_vec());
+            }
 
             Expression::If(r#if) => {
                 self.compile_expression(*r#if.condition)?;
