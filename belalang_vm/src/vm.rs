@@ -18,7 +18,7 @@ impl VM {
     pub fn new(compiler: Compiler) -> Self {
         Self {
             constants: compiler.constants,
-            instructions: compiler.instructions,
+            instructions: Vec::default(), // fix temporarily
 
             stack: Vec::new(),
             sp: 0,

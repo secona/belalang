@@ -20,6 +20,9 @@ pub const JUMP_IF_FALSE: u8 = 0x13;
 pub const NULL: u8 = 0x14;
 pub const SET_GLOBAL: u8 = 0x15;
 pub const GET_GLOBAL: u8 = 0x16;
+pub const CALL: u8 = 0x17;
+pub const RETURN: u8 = 0x18;
+pub const RETURN_VALUE: u8 = 0x19;
 
 pub fn constant(v: u16) -> [u8; 3] {
     [CONSTANT, (v >> 8) as u8, (v & 0xFF) as u8]

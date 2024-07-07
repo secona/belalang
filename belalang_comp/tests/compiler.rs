@@ -18,9 +18,9 @@ fn test_compile(input: &str) -> Result<Compiler, Box<dyn Error>> {
 
 #[test]
 fn integer_literals() {
-    let compiler = test_compile("1; 2; 3;").unwrap();
+    let mut compiler = test_compile("1; 2; 3;").unwrap();
 
-    assert_eq!(compiler.instructions, vec![
+    assert_eq!(compiler.current_scope().instructions, vec![
         code::CONSTANT, 0, 0,
         code::POP,
         code::CONSTANT, 0, 1,
@@ -38,9 +38,9 @@ fn integer_literals() {
 
 #[test]
 fn booleans() {
-    let compiler = test_compile("true; false;").unwrap();
+    let mut compiler = test_compile("true; false;").unwrap();
 
-    assert_eq!(compiler.instructions, vec![
+    assert_eq!(compiler.current_scope().instructions, vec![
         code::TRUE,
         code::POP,
         code::FALSE,
@@ -52,9 +52,9 @@ fn booleans() {
 
 fn test_compile_infix(op: &str, code: u8) {
     let input = format!("1 {} 3;", op);
-    let compiler = test_compile(&input).unwrap();
+    let mut compiler = test_compile(&input).unwrap();
 
-    assert_eq!(compiler.instructions, vec![
+    assert_eq!(compiler.current_scope().instructions, vec![
         code::CONSTANT, 0, 0,
         code::CONSTANT, 0, 1,
         code,
@@ -84,9 +84,9 @@ fn infix_expressions() {
 
 #[test]
 fn prefix_expressions() {
-    let compiler = test_compile("-5;").unwrap();
+    let mut compiler = test_compile("-5;").unwrap();
 
-    assert_eq!(compiler.instructions, vec![
+    assert_eq!(compiler.current_scope().instructions, vec![
         code::CONSTANT, 0, 0,
         code::MINUS,
         code::POP,
@@ -99,9 +99,9 @@ fn prefix_expressions() {
 
 #[test]
 fn if_expressions() {
-    let compiler = test_compile("if (true) { 10 }; 9;").unwrap();
+    let mut compiler = test_compile("if (true) { 10 }; 9;").unwrap();
 
-    assert_eq!(compiler.instructions, vec![
+    assert_eq!(compiler.current_scope().instructions, vec![
         code::TRUE,
         code::JUMP_IF_FALSE, 0, 7,
         code::CONSTANT, 0, 0,

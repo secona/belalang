@@ -14,7 +14,7 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
     compiler.compile_program(program)?;
 
     println!("[instructions]");
-    for (i, inst) in compiler.instructions.iter().enumerate() {
+    for (i, inst) in compiler.current_scope().instructions.iter().enumerate() {
         println!("{:#06x}: {:#04x}", i, inst);
     }
 

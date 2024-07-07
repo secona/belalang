@@ -6,11 +6,26 @@ use crate::error::CompileError;
 use crate::object::Object;
 use crate::symbol_table::SymbolTable;
 
-#[derive(Default)]
-pub struct Compiler {
+#[derive(Default, Clone)]
+pub struct CompilationScope {
     pub instructions: Vec<u8>,
+}
+
+pub struct Compiler {
     pub constants: Vec<Object>,
     pub symbol_table: SymbolTable,
+
+    pub scopes: Vec<CompilationScope>,
+}
+
+impl Default for Compiler {
+    fn default() -> Self {
+        Self {
+            constants: Vec::default(),
+            symbol_table: SymbolTable::default(),
+            scopes: vec![CompilationScope::default()],
+        }
+    }
 }
 
 impl Compiler {
@@ -91,29 +106,30 @@ impl Compiler {
 
                 let jif = self.add_instruction(code::jump_if_false(0).to_vec());
 
-                self.compile_block(r#if.consequence)?;
-                if let Some(&code::POP) = self.instructions.last() {
-                    self.instructions.pop();
-                }
+                let mut instructions = self.compile_block(r#if.consequence)?;
+                self.current_scope().instructions.append(&mut instructions);
 
                 let jump = self.add_instruction(code::jump(0).to_vec());
 
-                let post_consequencee = self.instructions.len();
-                self.replace_u16_operand(jif, post_consequencee as u16);
+                let post_consequence = self.current_scope().instructions.len();
+                self.replace_u16_operand(jif, post_consequence as u16);
 
                 match r#if.alternative {
                     None => {
                         self.add_bytecode(code::NULL);
                     }
-                    Some(alternative) => {
-                        self.compile_expression(*alternative)?;
-                        if let Some(&code::POP) = self.instructions.last() {
-                            self.instructions.pop();
+                    Some(alt) => match *alt {
+                        Expression::Block(block) => {
+                            let mut instructions = self.compile_block(block)?;
+                            self.current_scope().instructions.append(&mut instructions);
                         }
-                    }
+                        _ => {
+                            self.compile_expression(*alt)?;
+                        }
+                    },
                 };
 
-                let post_alternative = self.instructions.len();
+                let post_alternative = self.current_scope().instructions.len();
                 self.replace_u16_operand(jump, post_alternative as u16);
             }
 
@@ -153,12 +169,34 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile_block(&mut self, block: BlockExpression) -> Result<(), CompileError> {
+    fn compile_block(&mut self, block: BlockExpression) -> Result<Vec<u8>, CompileError> {
+        self.enter_scope();
+
         for statement in block.statements {
             self.compile_statement(statement)?;
         }
 
-        Ok(())
+        let mut instructions = self.leave_scope().instructions;
+        if let Some(&code::POP) = instructions.last() {
+            instructions.pop();
+        }
+
+        Ok(instructions)
+    }
+
+    // scopes vector will contain at least 1 value, the main scope.
+    // calling `unwrap` is fine.
+
+    fn enter_scope(&mut self) {
+        self.scopes.push(CompilationScope::default());
+    }
+
+    fn leave_scope(&mut self) -> CompilationScope {
+        self.scopes.pop().unwrap()
+    }
+
+    pub fn current_scope(&mut self) -> &mut CompilationScope {
+        self.scopes.last_mut().unwrap()
     }
 
     pub fn add_constant(&mut self, obj: Object) -> usize {
@@ -167,12 +205,14 @@ impl Compiler {
     }
 
     pub fn add_bytecode(&mut self, byte: u8) -> usize {
-        self.instructions.push(byte);
-        self.instructions.len() - 1
+        let scope = self.current_scope();
+
+        scope.instructions.push(byte);
+        scope.instructions.len() - 1
     }
 
     pub fn add_instruction(&mut self, bytes: Vec<u8>) -> usize {
-        let pos = self.instructions.len();
+        let pos = self.current_scope().instructions.len();
 
         for byte in bytes {
             self.add_bytecode(byte);
@@ -182,7 +222,9 @@ impl Compiler {
     }
 
     pub fn replace_u16_operand(&mut self, index: usize, value: u16) {
-        self.instructions[index + 1] = (value >> 8) as u8;
-        self.instructions[index + 2] = (value & 0xFF) as u8;
+        let scope = self.current_scope();
+
+        scope.instructions[index + 1] = (value >> 8) as u8;
+        scope.instructions[index + 2] = (value & 0xFF) as u8;
     }
 }
