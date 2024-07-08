@@ -51,7 +51,11 @@ impl Compiler {
                 self.add_bytecode(code::POP);
             }
 
-            Statement::Return(_) => todo!(),
+            Statement::Return(r#return) => {
+                self.compile_expression(r#return.return_value)?;
+                self.add_bytecode(code::RETURN_VALUE);
+            }
+
             Statement::While(_) => todo!(),
         };
 
@@ -92,7 +96,18 @@ impl Compiler {
 
             Expression::Call(_) => todo!(),
             Expression::Index(_) => todo!(),
-            Expression::Function(_) => todo!(),
+
+            Expression::Function(function) => {
+                let mut instructions = self.compile_block(function.body)?;
+
+                match instructions.last() {
+                    Some(&code::RETURN_VALUE) => (),
+                    _ => instructions.push(code::RETURN_VALUE),
+                };
+
+                let index = self.add_constant(Object::Function(instructions)) as u16;
+                self.add_instruction(code::constant(index).to_vec());
+            }
 
             Expression::Identifier(ident) => {
                 let symbol = self.current_symbols_mut().resolve(ident.value)?;
@@ -106,7 +121,9 @@ impl Compiler {
                 let jif = self.add_instruction(code::jump_if_false(0).to_vec());
 
                 let mut instructions = self.compile_block(r#if.consequence)?;
-                self.current_scope_mut().instructions.append(&mut instructions);
+                self.current_scope_mut()
+                    .instructions
+                    .append(&mut instructions);
 
                 let jump = self.add_instruction(code::jump(0).to_vec());
 
@@ -120,7 +137,9 @@ impl Compiler {
                     Some(alt) => match *alt {
                         Expression::Block(block) => {
                             let mut instructions = self.compile_block(block)?;
-                            self.current_scope_mut().instructions.append(&mut instructions);
+                            self.current_scope_mut()
+                                .instructions
+                                .append(&mut instructions);
                         }
                         _ => {
                             self.compile_expression(*alt)?;
