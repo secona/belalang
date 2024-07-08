@@ -13,8 +13,7 @@ pub struct CompilationScope {
 
 pub struct Compiler {
     pub constants: Vec<Object>,
-    pub symbol_table: SymbolTable,
-
+    pub symbols: Vec<SymbolTable>,
     pub scopes: Vec<CompilationScope>,
 }
 
@@ -22,7 +21,7 @@ impl Default for Compiler {
     fn default() -> Self {
         Self {
             constants: Vec::default(),
-            symbol_table: SymbolTable::default(),
+            symbols: vec![SymbolTable::default()],
             scopes: vec![CompilationScope::default()],
         }
     }
@@ -84,10 +83,9 @@ impl Compiler {
                 Token::ColonAssign => {
                     self.compile_expression(*var.value)?;
 
-                    let symbol = self.symbol_table.define(var.name.value)?;
-                    let index = symbol.index;
-
-                    self.add_instruction(code::set_global(index as u16).to_vec());
+                    let symbol = self.current_symbols_mut().define(var.name.value)?;
+                    let index = symbol.index as u16;
+                    self.add_instruction(code::set_global(index).to_vec());
                 }
                 _ => todo!(),
             },
@@ -97,8 +95,9 @@ impl Compiler {
             Expression::Function(_) => todo!(),
 
             Expression::Identifier(ident) => {
-                let symbol = self.symbol_table.resolve(ident.value)?;
-                self.add_instruction(code::get_global(symbol.index as u16).to_vec());
+                let symbol = self.current_symbols_mut().resolve(ident.value)?;
+                let index = symbol.index as u16;
+                self.add_instruction(code::get_global(index).to_vec());
             }
 
             Expression::If(r#if) => {
@@ -107,11 +106,11 @@ impl Compiler {
                 let jif = self.add_instruction(code::jump_if_false(0).to_vec());
 
                 let mut instructions = self.compile_block(r#if.consequence)?;
-                self.current_scope().instructions.append(&mut instructions);
+                self.current_scope_mut().instructions.append(&mut instructions);
 
                 let jump = self.add_instruction(code::jump(0).to_vec());
 
-                let post_consequence = self.current_scope().instructions.len();
+                let post_consequence = self.current_scope_mut().instructions.len();
                 self.replace_u16_operand(jif, post_consequence as u16);
 
                 match r#if.alternative {
@@ -121,7 +120,7 @@ impl Compiler {
                     Some(alt) => match *alt {
                         Expression::Block(block) => {
                             let mut instructions = self.compile_block(block)?;
-                            self.current_scope().instructions.append(&mut instructions);
+                            self.current_scope_mut().instructions.append(&mut instructions);
                         }
                         _ => {
                             self.compile_expression(*alt)?;
@@ -129,7 +128,7 @@ impl Compiler {
                     },
                 };
 
-                let post_alternative = self.current_scope().instructions.len();
+                let post_alternative = self.current_scope_mut().instructions.len();
                 self.replace_u16_operand(jump, post_alternative as u16);
             }
 
@@ -188,15 +187,21 @@ impl Compiler {
     // calling `unwrap` is fine.
 
     fn enter_scope(&mut self) {
+        self.symbols.push(SymbolTable::local());
         self.scopes.push(CompilationScope::default());
     }
 
     fn leave_scope(&mut self) -> CompilationScope {
+        self.symbols.pop();
         self.scopes.pop().unwrap()
     }
 
-    pub fn current_scope(&mut self) -> &mut CompilationScope {
+    pub fn current_scope_mut(&mut self) -> &mut CompilationScope {
         self.scopes.last_mut().unwrap()
+    }
+
+    pub fn current_symbols_mut(&mut self) -> &mut SymbolTable {
+        self.symbols.last_mut().unwrap()
     }
 
     pub fn add_constant(&mut self, obj: Object) -> usize {
@@ -205,14 +210,14 @@ impl Compiler {
     }
 
     pub fn add_bytecode(&mut self, byte: u8) -> usize {
-        let scope = self.current_scope();
+        let scope = self.current_scope_mut();
 
         scope.instructions.push(byte);
         scope.instructions.len() - 1
     }
 
     pub fn add_instruction(&mut self, bytes: Vec<u8>) -> usize {
-        let pos = self.current_scope().instructions.len();
+        let pos = self.current_scope_mut().instructions.len();
 
         for byte in bytes {
             self.add_bytecode(byte);
@@ -222,7 +227,7 @@ impl Compiler {
     }
 
     pub fn replace_u16_operand(&mut self, index: usize, value: u16) {
-        let scope = self.current_scope();
+        let scope = self.current_scope_mut();
 
         scope.instructions[index + 1] = (value >> 8) as u8;
         scope.instructions[index + 2] = (value & 0xFF) as u8;

@@ -20,7 +20,7 @@ fn test_compile(input: &str) -> Result<Compiler, Box<dyn Error>> {
 fn integer_literals() {
     let mut compiler = test_compile("1; 2; 3;").unwrap();
 
-    assert_eq!(compiler.current_scope().instructions, vec![
+    assert_eq!(compiler.current_scope_mut().instructions, vec![
         code::CONSTANT, 0, 0,
         code::POP,
         code::CONSTANT, 0, 1,
@@ -40,7 +40,7 @@ fn integer_literals() {
 fn booleans() {
     let mut compiler = test_compile("true; false;").unwrap();
 
-    assert_eq!(compiler.current_scope().instructions, vec![
+    assert_eq!(compiler.current_scope_mut().instructions, vec![
         code::TRUE,
         code::POP,
         code::FALSE,
@@ -54,7 +54,7 @@ fn test_compile_infix(op: &str, code: u8) {
     let input = format!("1 {} 3;", op);
     let mut compiler = test_compile(&input).unwrap();
 
-    assert_eq!(compiler.current_scope().instructions, vec![
+    assert_eq!(compiler.current_scope_mut().instructions, vec![
         code::CONSTANT, 0, 0,
         code::CONSTANT, 0, 1,
         code,
@@ -86,7 +86,7 @@ fn infix_expressions() {
 fn prefix_expressions() {
     let mut compiler = test_compile("-5;").unwrap();
 
-    assert_eq!(compiler.current_scope().instructions, vec![
+    assert_eq!(compiler.current_scope_mut().instructions, vec![
         code::CONSTANT, 0, 0,
         code::MINUS,
         code::POP,
@@ -101,7 +101,7 @@ fn prefix_expressions() {
 fn if_expressions() {
     let mut compiler = test_compile("if (true) { 10 }; 9;").unwrap();
 
-    assert_eq!(compiler.current_scope().instructions, vec![
+    assert_eq!(compiler.current_scope_mut().instructions, vec![
         code::TRUE,
         code::JUMP_IF_FALSE, 0, 7,
         code::CONSTANT, 0, 0,

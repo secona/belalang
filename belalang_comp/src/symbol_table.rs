@@ -3,9 +3,11 @@ use std::collections::HashMap;
 
 use crate::error::CompileError;
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone, Copy)]
 pub enum SymbolScope {
+    #[default]
     Global,
+    Local,
 }
 
 #[derive(Debug)]
@@ -14,16 +16,24 @@ pub struct Symbol {
     pub index: usize,
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct SymbolTable {
+    pub scope: SymbolScope,
     pub store: HashMap<String, Symbol>,
     pub count: usize,
 }
 
 impl SymbolTable {
+    pub fn local() -> Self {
+        Self {
+            scope: SymbolScope::Local,
+            ..Default::default()
+        }
+    }
+
     pub fn define(&mut self, name: String) -> Result<&Symbol, CompileError> {
         let symbol = Symbol {
-            scope: SymbolScope::Global,
+            scope: self.scope,
             index: self.count,
         };
 

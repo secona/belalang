@@ -19,6 +19,7 @@ fn run(line: String) -> Result<(), Box<dyn Error>> {
     println!("stack: {:?}", vm.stack);
     println!("sp: {}", vm.sp);
     println!("last popped: {:?}", vm.last_popped);
+    println!("globals: {:?}", vm.globals);
 
     Ok(())
 }
