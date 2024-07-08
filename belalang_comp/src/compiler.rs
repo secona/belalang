@@ -4,7 +4,7 @@ use belalang_core::token::Token;
 use crate::code;
 use crate::error::CompileError;
 use crate::object::Object;
-use crate::symbol_table::SymbolTable;
+use crate::symbol_table::SymbolTableList;
 
 #[derive(Default, Clone)]
 pub struct CompilationScope {
@@ -13,7 +13,7 @@ pub struct CompilationScope {
 
 pub struct Compiler {
     pub constants: Vec<Object>,
-    pub symbols: Vec<SymbolTable>,
+    pub symbols: SymbolTableList,
     pub scopes: Vec<CompilationScope>,
 }
 
@@ -21,7 +21,7 @@ impl Default for Compiler {
     fn default() -> Self {
         Self {
             constants: Vec::default(),
-            symbols: vec![SymbolTable::default()],
+            symbols: SymbolTableList::default(),
             scopes: vec![CompilationScope::default()],
         }
     }
@@ -87,7 +87,7 @@ impl Compiler {
                 Token::ColonAssign => {
                     self.compile_expression(*var.value)?;
 
-                    let symbol = self.current_symbols_mut().define(var.name.value)?;
+                    let symbol = self.symbols.define(var.name.value)?;
                     let index = symbol.index as u16;
                     self.add_instruction(code::set_global(index).to_vec());
                 }
@@ -110,7 +110,7 @@ impl Compiler {
             }
 
             Expression::Identifier(ident) => {
-                let symbol = self.current_symbols_mut().resolve(ident.value)?;
+                let symbol = self.symbols.resolve(ident.value)?;
                 let index = symbol.index as u16;
                 self.add_instruction(code::get_global(index).to_vec());
             }
@@ -206,7 +206,7 @@ impl Compiler {
     // calling `unwrap` is fine.
 
     fn enter_scope(&mut self) {
-        self.symbols.push(SymbolTable::local());
+        self.symbols.new_local();
         self.scopes.push(CompilationScope::default());
     }
 
@@ -217,10 +217,6 @@ impl Compiler {
 
     pub fn current_scope_mut(&mut self) -> &mut CompilationScope {
         self.scopes.last_mut().unwrap()
-    }
-
-    pub fn current_symbols_mut(&mut self) -> &mut SymbolTable {
-        self.symbols.last_mut().unwrap()
     }
 
     pub fn add_constant(&mut self, obj: Object) -> usize {
