@@ -12,6 +12,8 @@ pub struct VM {
     pub sp: usize,
 
     pub last_popped: Object,
+
+    pub globals: Vec<Object>,
 }
 
 impl VM {
@@ -24,6 +26,8 @@ impl VM {
             sp: 0,
 
             last_popped: Object::Integer(1), // TEMP
+
+            globals: Vec::new(),
         }
     }
 
@@ -123,9 +127,16 @@ impl VM {
 
                 code::NULL => todo!(),
 
-                code::SET_GLOBAL => todo!(),
+                code::SET_GLOBAL => {
+                    let index = self.read_u16(&mut ip) as usize;
+                    let object = self.stack_top()?.clone();
+                    self.globals.insert(index, object);
+                },
 
-                code::GET_GLOBAL => todo!(),
+                code::GET_GLOBAL => {
+                    let index = self.read_u16(&mut ip) as usize;
+                    self.push(self.globals[index].clone())?;
+                },
 
                 code::CALL => todo!(),
 
@@ -150,12 +161,8 @@ impl VM {
         ((hi as u16) << 8) | (lo as u16)
     }
 
-    pub fn stack_top(&mut self) -> Option<&Object> {
-        if self.sp > 0 {
-            self.stack.get(self.sp - 1)
-        } else {
-            None
-        }
+    pub fn stack_top(&mut self) -> Result<&Object, RuntimeError> {
+        self.stack.get(self.sp - 1).ok_or(RuntimeError::StackUnderflow)
     }
 
     pub fn pop(&mut self) -> Result<Object, RuntimeError> {
