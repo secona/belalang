@@ -18,7 +18,7 @@ impl VM {
     pub fn new(compiler: Compiler) -> Self {
         Self {
             constants: compiler.constants,
-            instructions: Vec::default(), // fix temporarily
+            instructions: compiler.scopes.last().unwrap().instructions.clone(),
 
             stack: Vec::new(),
             sp: 0,
@@ -34,14 +34,9 @@ impl VM {
 
             match op {
                 code::CONSTANT => {
-                    let hi = self.instructions[ip + 1];
-                    let lo = self.instructions[ip + 2];
-                    let index = ((hi as u16) << 8) | (lo as u16);
-
+                    let index = self.read_u16(&mut ip);
                     let object = self.constants[index as usize].clone();
                     self.push(object)?;
-
-                    ip += 2;
                 }
 
                 code::POP => {
@@ -112,6 +107,32 @@ impl VM {
 
                 code::MINUS => todo!(),
 
+                code::JUMP => {
+                    let dest = self.read_u16(&mut ip);
+                    ip = (dest - 1) as usize;
+                },
+
+                code::JUMP_IF_FALSE => {
+                    let dest = self.read_u16(&mut ip);
+                    let value = self.pop()?;
+
+                    if let Object::Boolean(false) = value {
+                        ip = (dest - 1) as usize;
+                    }
+                },
+
+                code::NULL => todo!(),
+
+                code::SET_GLOBAL => todo!(),
+
+                code::GET_GLOBAL => todo!(),
+
+                code::CALL => todo!(),
+
+                code::RETURN => todo!(),
+
+                code::RETURN_VALUE => todo!(),
+
                 _ => return Err(RuntimeError::UnknownInstruction(op)),
             };
 
@@ -119,6 +140,14 @@ impl VM {
         }
 
         Ok(())
+    }
+
+    pub fn read_u16(&mut self, ip: &mut usize) -> u16 {
+        let hi = self.instructions[*ip + 1];
+        let lo = self.instructions[*ip + 2];
+        *ip += 2;
+
+        ((hi as u16) << 8) | (lo as u16)
     }
 
     pub fn stack_top(&mut self) -> Option<&Object> {
@@ -167,7 +196,9 @@ mod tests {
 
         assert_eq!(vm.stack.len(), 0);
 
-        let Object::Integer(v) = vm.last_popped else { panic!() };
+        let Object::Integer(v) = vm.last_popped else {
+            panic!()
+        };
         assert_eq!(v, 15);
     }
 }
