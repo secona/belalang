@@ -50,6 +50,7 @@ impl SymbolTable {
     }
 }
 
+#[derive(Debug)]
 pub struct SymbolTableList {
     symbol_tables: Vec<SymbolTable>,
 }

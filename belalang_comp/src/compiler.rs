@@ -4,7 +4,7 @@ use belalang_core::token::Token;
 use crate::code;
 use crate::error::CompileError;
 use crate::object::Object;
-use crate::symbol_table::SymbolTableList;
+use crate::symbol_table::{SymbolScope, SymbolTableList};
 
 #[derive(Default, Clone)]
 pub struct CompilationScope {
@@ -88,8 +88,14 @@ impl Compiler {
                     self.compile_expression(*var.value)?;
 
                     let symbol = self.symbols.define(var.name.value)?;
-                    let index = symbol.index as u16;
-                    self.add_instruction(code::set_global(index).to_vec());
+                    let scope = symbol.scope;
+                    let index = symbol.index;
+
+                    self.add_instruction(if matches!(scope, SymbolScope::Global) {
+                        code::set_global(index as u16).to_vec()
+                    } else {
+                        code::set_local(index as u8).to_vec()
+                    });
                 }
                 _ => todo!(),
             },
@@ -111,8 +117,14 @@ impl Compiler {
 
             Expression::Identifier(ident) => {
                 let symbol = self.symbols.resolve(ident.value)?;
-                let index = symbol.index as u16;
-                self.add_instruction(code::get_global(index).to_vec());
+                let scope = symbol.scope;
+                let index = symbol.index;
+
+                self.add_instruction(if matches!(scope, SymbolScope::Global) {
+                    code::get_global(index as u16).to_vec()
+                } else {
+                    code::get_local(index as u8).to_vec()
+                });
             }
 
             Expression::If(r#if) => {
