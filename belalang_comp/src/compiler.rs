@@ -100,7 +100,11 @@ impl Compiler {
                 _ => todo!(),
             },
 
-            Expression::Call(_) => todo!(),
+            Expression::Call(call) => {
+                self.compile_expression(*call.function)?;
+                self.add_bytecode(code::CALL);
+            }
+
             Expression::Index(_) => todo!(),
 
             Expression::Function(function) => {
