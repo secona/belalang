@@ -4,7 +4,7 @@ use belalang_core::token::Token;
 use crate::code;
 use crate::error::CompileError;
 use crate::object::Object;
-use crate::symbol_table::{SymbolScope, SymbolTableList};
+use crate::symbol_table::{SymbolScope, SymbolTable, SymbolTableList};
 
 #[derive(Default, Clone)]
 pub struct CompilationScope {
@@ -104,14 +104,15 @@ impl Compiler {
             Expression::Index(_) => todo!(),
 
             Expression::Function(function) => {
-                let mut instructions = self.compile_block(function.body)?;
+                let (symbols, scope) = self.compile_block(function.body)?;
+                let mut instructions = scope.instructions;
 
                 match instructions.last() {
                     Some(&code::RETURN_VALUE) => (),
                     _ => instructions.push(code::RETURN_VALUE),
                 };
 
-                let index = self.add_constant(Object::Function(instructions)) as u16;
+                let index = self.add_constant(Object::Function(instructions, symbols.count)) as u16;
                 self.add_instruction(code::constant(index).to_vec());
             }
 
@@ -132,10 +133,10 @@ impl Compiler {
 
                 let jif = self.add_instruction(code::jump_if_false(0).to_vec());
 
-                let mut instructions = self.compile_block(r#if.consequence)?;
+                let (_, mut scope) = self.compile_block(r#if.consequence)?;
                 self.current_scope_mut()
                     .instructions
-                    .append(&mut instructions);
+                    .append(&mut scope.instructions);
 
                 let jump = self.add_instruction(code::jump(0).to_vec());
 
@@ -148,10 +149,10 @@ impl Compiler {
                     }
                     Some(alt) => match *alt {
                         Expression::Block(block) => {
-                            let mut instructions = self.compile_block(block)?;
+                            let (_, mut scope) = self.compile_block(block)?;
                             self.current_scope_mut()
                                 .instructions
-                                .append(&mut instructions);
+                                .append(&mut scope.instructions);
                         }
                         _ => {
                             self.compile_expression(*alt)?;
@@ -199,19 +200,23 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile_block(&mut self, block: BlockExpression) -> Result<Vec<u8>, CompileError> {
+    fn compile_block(
+        &mut self,
+        block: BlockExpression,
+    ) -> Result<(SymbolTable, CompilationScope), CompileError> {
         self.enter_scope();
 
         for statement in block.statements {
             self.compile_statement(statement)?;
         }
 
-        let mut instructions = self.leave_scope().instructions;
-        if let Some(&code::POP) = instructions.last() {
-            instructions.pop();
+        let (symbols, mut scope) = self.leave_scope();
+
+        if let Some(&code::POP) = scope.instructions.last() {
+            scope.instructions.pop();
         }
 
-        Ok(instructions)
+        Ok((symbols, scope))
     }
 
     // scopes vector will contain at least 1 value, the main scope.
@@ -222,9 +227,8 @@ impl Compiler {
         self.scopes.push(CompilationScope::default());
     }
 
-    fn leave_scope(&mut self) -> CompilationScope {
-        self.symbols.pop();
-        self.scopes.pop().unwrap()
+    fn leave_scope(&mut self) -> (SymbolTable, CompilationScope) {
+        (self.symbols.pop(), self.scopes.pop().unwrap())
     }
 
     pub fn current_scope_mut(&mut self) -> &mut CompilationScope {

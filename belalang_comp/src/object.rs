@@ -2,5 +2,5 @@
 pub enum Object {
     Integer(i64),
     Boolean(bool),
-    Function(Vec<u8>),
+    Function(Vec<u8>, usize),
 }
