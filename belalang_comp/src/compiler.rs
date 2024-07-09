@@ -92,9 +92,9 @@ impl Compiler {
                     let index = symbol.index;
 
                     self.add_instruction(if matches!(scope, SymbolScope::Global) {
-                        code::set_global(index as u16).to_vec()
+                        code::def_global(index as u16).to_vec()
                     } else {
-                        code::set_local(index as u8).to_vec()
+                        code::def_local(index as u8).to_vec()
                     });
                 }
                 _ => todo!(),

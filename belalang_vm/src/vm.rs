@@ -127,6 +127,8 @@ impl VM {
 
                 code::NULL => todo!(),
 
+                code::DEF_GLOBAL => todo!(),
+
                 code::SET_GLOBAL => {
                     let index = self.read_u16(&mut ip) as usize;
                     let object = self.stack_top()?.clone();

@@ -18,13 +18,18 @@ pub const MINUS: u8 = 0x11;
 pub const JUMP: u8 = 0x12;
 pub const JUMP_IF_FALSE: u8 = 0x13;
 pub const NULL: u8 = 0x14;
-pub const SET_GLOBAL: u8 = 0x15;
-pub const GET_GLOBAL: u8 = 0x16;
-pub const SET_LOCAL: u8 = 0x17;
-pub const GET_LOCAL: u8 = 0x18;
-pub const CALL: u8 = 0x19;
-pub const RETURN: u8 = 0x1A;
-pub const RETURN_VALUE: u8 = 0x1B;
+
+pub const DEF_GLOBAL: u8 = 0x15;
+pub const SET_GLOBAL: u8 = 0x16;
+pub const GET_GLOBAL: u8 = 0x17;
+
+pub const DEF_LOCAL: u8 = 0x18;
+pub const SET_LOCAL: u8 = 0x19;
+pub const GET_LOCAL: u8 = 0x1A;
+
+pub const CALL: u8 = 0x1B;
+pub const RETURN: u8 = 0x1C;
+pub const RETURN_VALUE: u8 = 0x1D;
 
 pub fn constant(v: u16) -> [u8; 3] {
     [CONSTANT, (v >> 8) as u8, (v & 0xFF) as u8]
@@ -38,12 +43,20 @@ pub fn jump_if_false(v: u16) -> [u8; 3] {
     [JUMP_IF_FALSE, (v >> 8) as u8, (v & 0xFF) as u8]
 }
 
+pub fn def_global(v: u16) -> [u8; 3] {
+    [DEF_GLOBAL, (v >> 8) as u8, (v & 0xFF) as u8]
+}
+
 pub fn set_global(v: u16) -> [u8; 3] {
     [SET_GLOBAL, (v >> 8) as u8, (v & 0xFF) as u8]
 }
 
 pub fn get_global(v: u16) -> [u8; 3] {
     [GET_GLOBAL, (v >> 8) as u8, (v & 0xFF) as u8]
+}
+
+pub fn def_local(v: u8) -> [u8; 2] {
+    [DEF_LOCAL, v]
 }
 
 pub fn set_local(v: u8) -> [u8; 2] {
