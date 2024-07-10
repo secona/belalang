@@ -3,7 +3,7 @@ use belalang_core::token::Token;
 
 use crate::code;
 use crate::error::CompileError;
-use crate::object::Object;
+use crate::object::{Function, Object};
 use crate::scope::{CompilationScope, ScopeManager, SymbolScope};
 
 pub struct Compiler {
@@ -107,8 +107,11 @@ impl Compiler {
                     _ => instructions.push(code::RETURN_VALUE),
                 };
 
-                let index =
-                    self.add_constant(Object::Function(instructions, scope.symbol_count)) as u16;
+                let index = self.add_constant(Object::Function(Function {
+                    instructions,
+                    arity: scope.symbol_count,
+                })) as u16;
+
                 self.add_instruction(code::constant(index).to_vec());
             }
 

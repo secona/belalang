@@ -3,38 +3,37 @@ use belalang_comp::compiler::Compiler;
 use belalang_comp::object::Object;
 
 use crate::error::RuntimeError;
+use crate::frame::FrameManager;
 
 pub struct VM {
     pub constants: Vec<Object>,
-    pub instructions: Vec<u8>,
+    pub globals: Vec<Object>,
 
+    pub last_popped: Object,
     pub stack: Vec<Object>,
     pub sp: usize,
 
-    pub last_popped: Object,
-
-    pub globals: Vec<Object>,
+    pub frame: FrameManager,
 }
 
 impl VM {
-    pub fn new(compiler: Compiler) -> Self {
+    pub fn new(mut compiler: Compiler) -> Self {
         Self {
-            constants: compiler.constants,
-            instructions: compiler.scope.current().instructions.clone(),
+            constants: compiler.constants.drain(..).collect(),
+            globals: Vec::new(),
 
+            last_popped: Object::Integer(1), // TEMP
             stack: Vec::new(),
             sp: 0,
 
-            last_popped: Object::Integer(1), // TEMP
-
-            globals: Vec::new(),
+            frame: FrameManager::new(compiler),
         }
     }
 
     pub fn run(&mut self) -> Result<(), RuntimeError> {
         let mut ip = 0;
-        while ip < self.instructions.len() {
-            let op = self.instructions[ip];
+        while ip < self.frame.current().ins().len() {
+            let op = self.frame.current().ins()[ip];
 
             match op {
                 code::CONSTANT => {
@@ -114,7 +113,7 @@ impl VM {
                 code::JUMP => {
                     let dest = self.read_u16(&mut ip);
                     ip = (dest - 1) as usize;
-                },
+                }
 
                 code::JUMP_IF_FALSE => {
                     let dest = self.read_u16(&mut ip);
@@ -123,7 +122,7 @@ impl VM {
                     if let Object::Boolean(false) = value {
                         ip = (dest - 1) as usize;
                     }
-                },
+                }
 
                 code::NULL => todo!(),
 
@@ -133,12 +132,12 @@ impl VM {
                     let index = self.read_u16(&mut ip) as usize;
                     let object = self.stack_top()?.clone();
                     self.globals.insert(index, object);
-                },
+                }
 
                 code::GET_GLOBAL => {
                     let index = self.read_u16(&mut ip) as usize;
                     self.push(self.globals[index].clone())?;
-                },
+                }
 
                 code::PUSH_SCOPE => todo!(),
 
@@ -160,15 +159,17 @@ impl VM {
     }
 
     pub fn read_u16(&mut self, ip: &mut usize) -> u16 {
-        let hi = self.instructions[*ip + 1];
-        let lo = self.instructions[*ip + 2];
+        let hi = self.frame.current().ins()[*ip + 1];
+        let lo = self.frame.current().ins()[*ip + 2];
         *ip += 2;
 
         ((hi as u16) << 8) | (lo as u16)
     }
 
     pub fn stack_top(&mut self) -> Result<&Object, RuntimeError> {
-        self.stack.get(self.sp - 1).ok_or(RuntimeError::StackUnderflow)
+        self.stack
+            .get(self.sp - 1)
+            .ok_or(RuntimeError::StackUnderflow)
     }
 
     pub fn pop(&mut self) -> Result<Object, RuntimeError> {
