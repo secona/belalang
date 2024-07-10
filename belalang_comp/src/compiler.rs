@@ -192,7 +192,12 @@ impl Compiler {
             }
 
             Expression::Block(block) => {
-                self.compile_block(block)?;
+                let mut scope = self.compile_block(block)?;
+
+                self.scope
+                    .current_mut()
+                    .instructions
+                    .append(&mut scope.instructions);
             }
         };
 
