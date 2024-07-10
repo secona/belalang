@@ -14,7 +14,7 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
     compiler.compile_program(program)?;
 
     println!("[instructions]");
-    for (i, inst) in compiler.current_scope_mut().instructions.iter().enumerate() {
+    for (i, inst) in compiler.scope.current().instructions.iter().enumerate() {
         println!("{:#06x}: {:#04x}", i, inst);
     }
 
@@ -24,7 +24,7 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
     }
 
     println!("\n[symbols]");
-    println!("{:#?}", compiler.symbols);
+    println!("{:#?}", compiler.scope.current().symbol_store);
 
     Ok(())
 }

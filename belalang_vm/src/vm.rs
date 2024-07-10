@@ -20,7 +20,7 @@ impl VM {
     pub fn new(compiler: Compiler) -> Self {
         Self {
             constants: compiler.constants,
-            instructions: compiler.scopes.last().unwrap().instructions.clone(),
+            instructions: compiler.scope.current().instructions.clone(),
 
             stack: Vec::new(),
             sp: 0,

@@ -4,25 +4,18 @@ use belalang_core::token::Token;
 use crate::code;
 use crate::error::CompileError;
 use crate::object::Object;
-use crate::symbol_table::{SymbolScope, SymbolTable, SymbolTableList};
-
-#[derive(Default, Clone)]
-pub struct CompilationScope {
-    pub instructions: Vec<u8>,
-}
+use crate::scope::{CompilationScope, ScopeManager, SymbolScope};
 
 pub struct Compiler {
     pub constants: Vec<Object>,
-    pub symbols: SymbolTableList,
-    pub scopes: Vec<CompilationScope>,
+    pub scope: ScopeManager,
 }
 
 impl Default for Compiler {
     fn default() -> Self {
         Self {
             constants: Vec::default(),
-            symbols: SymbolTableList::default(),
-            scopes: vec![CompilationScope::default()],
+            scope: ScopeManager::default(),
         }
     }
 }
@@ -87,7 +80,7 @@ impl Compiler {
                 Token::ColonAssign => {
                     self.compile_expression(*var.value)?;
 
-                    let symbol = self.symbols.define(var.name.value)?;
+                    let symbol = self.scope.define(var.name.value)?;
                     let scope = symbol.scope;
                     let index = symbol.index;
 
@@ -108,7 +101,7 @@ impl Compiler {
             Expression::Index(_) => todo!(),
 
             Expression::Function(function) => {
-                let (symbols, scope) = self.compile_block(function.body)?;
+                let scope = self.compile_block(function.body)?;
                 let mut instructions = scope.instructions;
 
                 match instructions.last() {
@@ -116,12 +109,12 @@ impl Compiler {
                     _ => instructions.push(code::RETURN_VALUE),
                 };
 
-                let index = self.add_constant(Object::Function(instructions, symbols.count)) as u16;
+                let index = self.add_constant(Object::Function(instructions, scope.symbol_count)) as u16;
                 self.add_instruction(code::constant(index).to_vec());
             }
 
             Expression::Identifier(ident) => {
-                let symbol = self.symbols.resolve(ident.value)?;
+                let symbol = self.scope.resolve(ident.value)?;
                 let scope = symbol.scope;
                 let index = symbol.index;
 
@@ -137,14 +130,15 @@ impl Compiler {
 
                 let jif = self.add_instruction(code::jump_if_false(0).to_vec());
 
-                let (_, mut scope) = self.compile_block(r#if.consequence)?;
-                self.current_scope_mut()
+                let mut scope = self.compile_block(r#if.consequence)?;
+                self.scope
+                    .current_mut()
                     .instructions
                     .append(&mut scope.instructions);
 
                 let jump = self.add_instruction(code::jump(0).to_vec());
 
-                let post_consequence = self.current_scope_mut().instructions.len();
+                let post_consequence = self.scope.current().instructions.len();
                 self.replace_u16_operand(jif, post_consequence as u16);
 
                 match r#if.alternative {
@@ -153,8 +147,9 @@ impl Compiler {
                     }
                     Some(alt) => match *alt {
                         Expression::Block(block) => {
-                            let (_, mut scope) = self.compile_block(block)?;
-                            self.current_scope_mut()
+                            let mut scope = self.compile_block(block)?;
+                            self.scope
+                                .current_mut()
                                 .instructions
                                 .append(&mut scope.instructions);
                         }
@@ -164,7 +159,7 @@ impl Compiler {
                     },
                 };
 
-                let post_alternative = self.current_scope_mut().instructions.len();
+                let post_alternative = self.scope.current().instructions.len();
                 self.replace_u16_operand(jump, post_alternative as u16);
             }
 
@@ -204,39 +199,20 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile_block(
-        &mut self,
-        block: BlockExpression,
-    ) -> Result<(SymbolTable, CompilationScope), CompileError> {
-        self.enter_scope();
+    fn compile_block(&mut self, block: BlockExpression) -> Result<CompilationScope, CompileError> {
+        self.scope.enter();
 
         for statement in block.statements {
             self.compile_statement(statement)?;
         }
 
-        let (symbols, mut scope) = self.leave_scope();
+        let mut scope = self.scope.leave();
 
         if let Some(&code::POP) = scope.instructions.last() {
             scope.instructions.pop();
         }
 
-        Ok((symbols, scope))
-    }
-
-    // scopes vector will contain at least 1 value, the main scope.
-    // calling `unwrap` is fine.
-
-    fn enter_scope(&mut self) {
-        self.symbols.new_local();
-        self.scopes.push(CompilationScope::default());
-    }
-
-    fn leave_scope(&mut self) -> (SymbolTable, CompilationScope) {
-        (self.symbols.pop(), self.scopes.pop().unwrap())
-    }
-
-    pub fn current_scope_mut(&mut self) -> &mut CompilationScope {
-        self.scopes.last_mut().unwrap()
+        Ok(scope)
     }
 
     pub fn add_constant(&mut self, obj: Object) -> usize {
@@ -245,14 +221,14 @@ impl Compiler {
     }
 
     pub fn add_bytecode(&mut self, byte: u8) -> usize {
-        let scope = self.current_scope_mut();
+        let scope = self.scope.current_mut();
 
         scope.instructions.push(byte);
         scope.instructions.len() - 1
     }
 
     pub fn add_instruction(&mut self, bytes: Vec<u8>) -> usize {
-        let pos = self.current_scope_mut().instructions.len();
+        let pos = self.scope.current_mut().instructions.len();
 
         for byte in bytes {
             self.add_bytecode(byte);
@@ -262,7 +238,7 @@ impl Compiler {
     }
 
     pub fn replace_u16_operand(&mut self, index: usize, value: u16) {
-        let scope = self.current_scope_mut();
+        let scope = self.scope.current_mut();
 
         scope.instructions[index + 1] = (value >> 8) as u8;
         scope.instructions[index + 2] = (value & 0xFF) as u8;
