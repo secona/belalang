@@ -84,11 +84,9 @@ impl Compiler {
                     let scope = symbol.scope;
                     let index = symbol.index;
 
-                    self.add_instruction(if matches!(scope, SymbolScope::Global) {
-                        code::def_global(index as u16).to_vec()
-                    } else {
-                        code::def_local(index as u8).to_vec()
-                    });
+                    if matches!(scope, SymbolScope::Global) {
+                        self.add_instruction(code::def_global(index as u16).to_vec());
+                    }
                 }
                 _ => todo!(),
             },
@@ -109,7 +107,8 @@ impl Compiler {
                     _ => instructions.push(code::RETURN_VALUE),
                 };
 
-                let index = self.add_constant(Object::Function(instructions, scope.symbol_count)) as u16;
+                let index =
+                    self.add_constant(Object::Function(instructions, scope.symbol_count)) as u16;
                 self.add_instruction(code::constant(index).to_vec());
             }
 
@@ -206,11 +205,13 @@ impl Compiler {
 
     fn compile_block(&mut self, block: BlockExpression) -> Result<CompilationScope, CompileError> {
         self.scope.enter();
+        self.add_bytecode(code::PUSH_SCOPE);
 
         for statement in block.statements {
             self.compile_statement(statement)?;
         }
 
+        self.add_bytecode(code::POP_SCOPE);
         let mut scope = self.scope.leave();
 
         if let Some(&code::POP) = scope.instructions.last() {
