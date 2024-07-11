@@ -20,9 +20,9 @@ impl VM {
     pub fn new(mut compiler: Compiler) -> Self {
         Self {
             constants: compiler.constants.drain(..).collect(),
-            globals: Vec::new(),
+            globals: vec![Object::Null; compiler.scope.current().symbol_count],
 
-            last_popped: Object::Integer(1), // TEMP
+            last_popped: Object::Null,
             stack: Vec::new(),
             sp: 0,
 
@@ -126,12 +126,11 @@ impl VM {
 
                 code::NULL => todo!(),
 
-                code::DEF_GLOBAL => todo!(),
-
-                code::SET_GLOBAL => {
+                // temporary
+                code::DEF_GLOBAL | code::SET_GLOBAL => {
                     let index = self.read_u16(&mut ip) as usize;
                     let object = self.stack_top()?.clone();
-                    self.globals.insert(index, object);
+                    self.globals[index] = object;
                 }
 
                 code::GET_GLOBAL => {

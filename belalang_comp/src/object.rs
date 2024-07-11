@@ -6,6 +6,7 @@ pub struct Function {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Object {
+    Null,
     Integer(i64),
     Boolean(bool),
     Function(Function),
