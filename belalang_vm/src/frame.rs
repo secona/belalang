@@ -1,6 +1,7 @@
 use belalang_comp::compiler::Compiler;
 use belalang_comp::object::{Function, Object};
 
+#[derive(Debug)]
 pub struct Frame {
     pub function: Function,
     pub slots: Vec<Object>,
@@ -13,6 +14,7 @@ impl Frame {
     }
 }
 
+#[derive(Debug)]
 pub struct FrameManager {
     pub main_frame: Frame,
     pub frames: Vec<Frame>,
@@ -42,5 +44,9 @@ impl FrameManager {
 
     pub fn current(&self) -> &Frame {
         self.frames.last().unwrap_or(&self.main_frame)
+    }
+
+    pub fn current_mut(&mut self) -> &mut Frame {
+        self.frames.last_mut().unwrap_or(&mut self.main_frame)
     }
 }

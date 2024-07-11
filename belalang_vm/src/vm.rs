@@ -138,6 +138,17 @@ impl VM {
                     self.push(self.globals[index].clone())?;
                 }
 
+                code::SET_LOCAL => {
+                    let index = self.read_u8(&mut ip) as usize;
+                    let object = self.stack_top()?.clone();
+                    self.frame.current_mut().slots.insert(index, object);
+                }
+
+                code::GET_LOCAL => {
+                    let index = self.read_u8(&mut ip) as usize;
+                    self.push(self.frame.current().slots[index].clone())?;
+                }
+
                 code::CALL => todo!(),
 
                 code::RETURN => todo!(),
@@ -159,6 +170,11 @@ impl VM {
         *ip += 2;
 
         ((hi as u16) << 8) | (lo as u16)
+    }
+
+    pub fn read_u8(&mut self, ip: &mut usize) -> u8 {
+        *ip += 1;
+        self.frame.current().ins()[*ip]
     }
 
     pub fn stack_top(&mut self) -> Result<&Object, RuntimeError> {

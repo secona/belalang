@@ -73,10 +73,15 @@ impl Compiler {
                     self.compile_expression(*var.value)?;
 
                     let symbol = self.scope.define(var.name.value)?;
+                    let index = symbol.index;
 
-                    if matches!(symbol.scope, SymbolScope::Global) {
-                        let index = symbol.index;
-                        self.add_instruction(code::def_global(index as u16).to_vec());
+                    match symbol.scope {
+                        SymbolScope::Global => {
+                            self.add_instruction(code::def_global(index as u16).to_vec());
+                        }
+                        SymbolScope::Local => {
+                            self.add_instruction(code::set_local(index as u8).to_vec());
+                        },
                     }
                 }
                 _ => todo!(),

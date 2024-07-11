@@ -20,6 +20,7 @@ fn run(line: String) -> Result<(), Box<dyn Error>> {
     println!("sp: {}", vm.sp);
     println!("last popped: {:?}", vm.last_popped);
     println!("globals: {:?}", vm.globals);
+    println!("frame: {:#?}", vm.frame);
 
     Ok(())
 }
