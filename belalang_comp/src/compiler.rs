@@ -198,13 +198,11 @@ impl Compiler {
 
     fn compile_block(&mut self, block: BlockExpression) -> Result<CompilationScope, CompileError> {
         self.scope.enter();
-        self.add_bytecode(code::PUSH_SCOPE);
 
         for statement in block.statements {
             self.compile_statement(statement)?;
         }
 
-        self.add_bytecode(code::POP_SCOPE);
         let mut scope = self.scope.leave();
 
         if let Some(&code::POP) = scope.instructions.last() {

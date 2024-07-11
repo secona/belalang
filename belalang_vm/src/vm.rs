@@ -139,10 +139,6 @@ impl VM {
                     self.push(self.globals[index].clone())?;
                 }
 
-                code::PUSH_SCOPE => todo!(),
-
-                code::POP_SCOPE => todo!(),
-
                 code::CALL => todo!(),
 
                 code::RETURN => todo!(),

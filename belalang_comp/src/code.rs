@@ -33,9 +33,6 @@ pub const GET_GLOBAL: u8 = 0x17;
 pub const SET_LOCAL: u8 = 0x18;
 pub const GET_LOCAL: u8 = 0x19;
 
-pub const PUSH_SCOPE: u8 = 0x1A;
-pub const POP_SCOPE: u8 = 0x1B;
-
 pub const CALL: u8 = 0x1C;
 pub const RETURN: u8 = 0x1D;
 pub const RETURN_VALUE: u8 = 0x1E;
