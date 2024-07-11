@@ -6,18 +6,10 @@ use crate::error::CompileError;
 use crate::object::{Function, Object};
 use crate::scope::{CompilationScope, ScopeManager, SymbolScope};
 
+#[derive(Default)]
 pub struct Compiler {
     pub constants: Vec<Object>,
     pub scope: ScopeManager,
-}
-
-impl Default for Compiler {
-    fn default() -> Self {
-        Self {
-            constants: Vec::default(),
-            scope: ScopeManager::default(),
-        }
-    }
 }
 
 impl Compiler {
@@ -81,10 +73,9 @@ impl Compiler {
                     self.compile_expression(*var.value)?;
 
                     let symbol = self.scope.define(var.name.value)?;
-                    let scope = symbol.scope;
-                    let index = symbol.index;
 
-                    if matches!(scope, SymbolScope::Global) {
+                    if matches!(symbol.scope, SymbolScope::Global) {
+                        let index = symbol.index;
                         self.add_instruction(code::def_global(index as u16).to_vec());
                     }
                 }
@@ -117,10 +108,9 @@ impl Compiler {
 
             Expression::Identifier(ident) => {
                 let symbol = self.scope.resolve(ident.value)?;
-                let scope = symbol.scope;
                 let index = symbol.index;
 
-                self.add_instruction(if matches!(scope, SymbolScope::Global) {
+                self.add_instruction(if matches!(symbol.scope, SymbolScope::Global) {
                     code::get_global(index as u16).to_vec()
                 } else {
                     code::get_local(index as u8).to_vec()

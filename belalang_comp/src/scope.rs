@@ -61,32 +61,35 @@ impl CompilationScope {
 }
 
 pub struct ScopeManager {
-    store: Vec<CompilationScope>,
+    main_scope: CompilationScope,
+    scope_store: Vec<CompilationScope>,
 }
 
 impl Default for ScopeManager {
     fn default() -> Self {
         Self {
-            store: vec![CompilationScope::global()],
+            main_scope: CompilationScope::global(),
+            scope_store: Vec::default(),
         }
     }
 }
 
 impl ScopeManager {
     pub fn enter(&mut self) {
-        self.store.push(CompilationScope::local());
+        self.scope_store.push(CompilationScope::local());
     }
 
     pub fn leave(&mut self) -> CompilationScope {
-        self.store.pop().unwrap()
+        // we want to panic when trying to leave main scope
+        self.scope_store.pop().unwrap()
     }
 
     pub fn current_mut(&mut self) -> &mut CompilationScope {
-        self.store.last_mut().unwrap()
+        self.scope_store.last_mut().unwrap_or(&mut self.main_scope)
     }
 
     pub fn current(&self) -> &CompilationScope {
-        self.store.last().unwrap()
+        self.scope_store.last().unwrap_or(&self.main_scope)
     }
 
     pub fn define(&mut self, name: String) -> Result<&Symbol, CompileError> {
@@ -94,12 +97,14 @@ impl ScopeManager {
     }
 
     pub fn resolve(&self, name: String) -> Result<&Symbol, CompileError> {
-        for symbol in self.store.iter().rev() {
+        for symbol in self.scope_store.iter().rev() {
             if let Some(symbol) = symbol.resolve(&name) {
                 return Ok(symbol);
             }
         }
 
-        Err(CompileError::UnknownSymbol(name))
+        self.main_scope
+            .resolve(&name)
+            .ok_or(CompileError::UnknownSymbol(name))
     }
 }
