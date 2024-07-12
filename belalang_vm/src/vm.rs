@@ -28,13 +28,12 @@ impl VM {
     }
 
     pub fn run(&mut self) -> Result<(), RuntimeError> {
-        let mut ip = 0;
-        while ip < self.frame.current().ins().len() {
-            let op = self.frame.current().ins()[ip];
+        while self.frame.current().ip < self.frame.current().ins().len() {
+            let op = self.frame.current().ins()[self.frame.current().ip];
 
             match op {
                 code::CONSTANT => {
-                    let index = self.read_u16(&mut ip);
+                    let index = self.read_u16();
                     let object = self.constants[index as usize].clone();
                     self.push(object)?;
                 }
@@ -116,16 +115,16 @@ impl VM {
                 code::MINUS => todo!(),
 
                 code::JUMP => {
-                    let relative = self.read_u16(&mut ip);
-                    ip += relative as usize;
+                    let relative = self.read_u16();
+                    self.inc_ip(relative as usize);
                 }
 
                 code::JUMP_IF_FALSE => {
-                    let relative = self.read_u16(&mut ip);
+                    let relative = self.read_u16();
                     let value = self.pop()?;
 
                     if let Object::Boolean(false) = value {
-                        ip += relative as usize;
+                        self.inc_ip(relative as usize);
                     }
                 }
 
@@ -133,56 +132,81 @@ impl VM {
 
                 // temporary
                 code::DEF_GLOBAL | code::SET_GLOBAL => {
-                    let index = self.read_u16(&mut ip) as usize;
+                    let index = self.read_u16() as usize;
                     let object = self.stack_top()?.clone();
                     self.globals.insert(index, object);
                 }
 
                 code::GET_GLOBAL => {
-                    let index = self.read_u16(&mut ip) as usize;
+                    let index = self.read_u16() as usize;
                     self.push(self.globals[index].clone())?;
                 }
 
                 code::SET_LOCAL => {
-                    let index = self.read_u8(&mut ip) as usize;
+                    let index = self.read_u8() as usize;
                     let object = self.stack_top()?.clone();
                     self.frame.current_mut().slots.insert(index, object);
                 }
 
                 code::GET_LOCAL => {
-                    let index = self.read_u8(&mut ip) as usize;
+                    let index = self.read_u8() as usize;
                     self.push(self.frame.current().slots[index].clone())?;
                 }
 
-                code::CALL => todo!(),
+                code::CALL => {
+                    if let Object::Function(function) = self.pop()? {
+                        self.frame.push(function);
+                        continue; // continue because we dont want to increment the ip
+                    } else {
+                        return Err(RuntimeError::NotAFunction);
+                    }
+                }
 
                 code::RETURN => todo!(),
 
-                code::RETURN_VALUE => todo!(),
+                code::RETURN_VALUE => {
+                    if self.stack_top().is_err() {
+                        self.push(Object::Null)?;
+                    }
+
+                    self.frame.pop();
+                }
 
                 _ => return Err(RuntimeError::UnknownInstruction(op)),
             };
 
-            ip += 1;
+            self.inc_ip(1)
         }
 
         Ok(())
     }
 
-    pub fn read_u16(&mut self, ip: &mut usize) -> u16 {
-        let hi = self.frame.current().ins()[*ip + 1];
-        let lo = self.frame.current().ins()[*ip + 2];
-        *ip += 2;
+    pub fn inc_ip(&mut self, value: usize) {
+        self.frame.current_mut().ip += value;
+    }
+
+    pub fn read_u16(&mut self) -> u16 {
+        let current_frame = &mut self.frame.current_mut();
+
+        let hi = current_frame.ins()[current_frame.ip + 1];
+        let lo = current_frame.ins()[current_frame.ip + 2];
+        current_frame.ip += 2;
 
         ((hi as u16) << 8) | (lo as u16)
     }
 
-    pub fn read_u8(&mut self, ip: &mut usize) -> u8 {
-        *ip += 1;
-        self.frame.current().ins()[*ip]
+    pub fn read_u8(&mut self) -> u8 {
+        let current_frame = &mut self.frame.current_mut();
+
+        current_frame.ip += 1;
+        current_frame.ins()[current_frame.ip]
     }
 
     pub fn stack_top(&mut self) -> Result<&Object, RuntimeError> {
+        if self.sp == 0 {
+            return Err(RuntimeError::StackUnderflow);
+        }
+
         self.stack
             .get(self.sp - 1)
             .ok_or(RuntimeError::StackUnderflow)
@@ -194,6 +218,7 @@ impl VM {
         }
 
         self.sp -= 1;
+
         Ok(self.stack.remove(self.sp))
     }
 

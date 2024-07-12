@@ -4,5 +4,8 @@ pub enum RuntimeError {
     StackUnderflow,
 
     #[error("unknown instruction: {0}")]
-    UnknownInstruction(u8)
+    UnknownInstruction(u8),
+
+    #[error("attempt to call non-function")]
+    NotAFunction,
 }

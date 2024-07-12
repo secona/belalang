@@ -49,4 +49,15 @@ impl FrameManager {
     pub fn current_mut(&mut self) -> &mut Frame {
         self.frames.last_mut().unwrap_or(&mut self.main_frame)
     }
+
+    pub fn push(&mut self, function: Function) {
+        self.frames.push(Frame {
+            function,
+            ..Default::default()
+        })
+    }
+
+    pub fn pop(&mut self) {
+        self.frames.pop();
+    }
 }
