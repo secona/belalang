@@ -131,6 +131,7 @@ impl Compiler {
                 self.compile_expression(*r#if.condition)?;
 
                 let jif = self.add_instruction(code::jump_if_false(0).to_vec());
+                let jif_index = self.scope.current().instructions.len();
 
                 let mut scope = self.compile_block(r#if.consequence)?;
                 self.scope
@@ -139,9 +140,10 @@ impl Compiler {
                     .append(&mut scope.instructions);
 
                 let jump = self.add_instruction(code::jump(0).to_vec());
+                let jump_index = self.scope.current().instructions.len();
 
                 let post_consequence = self.scope.current().instructions.len();
-                self.replace_u16_operand(jif, post_consequence as u16);
+                self.replace_u16_operand(jif, (post_consequence - jif_index) as u16);
 
                 match r#if.alternative {
                     None => {
@@ -162,7 +164,7 @@ impl Compiler {
                 };
 
                 let post_alternative = self.scope.current().instructions.len();
-                self.replace_u16_operand(jump, post_alternative as u16);
+                self.replace_u16_operand(jump, (post_alternative - jump_index) as u16);
             }
 
             Expression::Infix(infix) => {

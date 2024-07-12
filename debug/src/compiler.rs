@@ -11,15 +11,15 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
     let program = parser.parse_program()?;
 
     let mut compiler = Compiler::default();
-    compiler.compile_program(program)?;
+    let code = compiler.compile_program(program)?;
 
     println!("[instructions]");
-    for (i, inst) in compiler.scope.current().instructions.iter().enumerate() {
+    for (i, inst) in code.instructions.iter().enumerate() {
         println!("{:#06x}: {:#04x}", i, inst);
     }
 
     println!("\n[constants]");
-    for (i, constant) in compiler.constants.iter().enumerate() {
+    for (i, constant) in code.constants.iter().enumerate() {
         println!("{:#04x}: {:?}", i, constant);
     }
 

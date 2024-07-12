@@ -108,16 +108,16 @@ impl VM {
                 code::MINUS => todo!(),
 
                 code::JUMP => {
-                    let dest = self.read_u16(&mut ip);
-                    ip = (dest - 1) as usize;
+                    let relative = self.read_u16(&mut ip);
+                    ip += relative as usize;
                 }
 
                 code::JUMP_IF_FALSE => {
-                    let dest = self.read_u16(&mut ip);
+                    let relative = self.read_u16(&mut ip);
                     let value = self.pop()?;
 
                     if let Object::Boolean(false) = value {
-                        ip = (dest - 1) as usize;
+                        ip += relative as usize;
                     }
                 }
 
