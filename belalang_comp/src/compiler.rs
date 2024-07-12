@@ -89,6 +89,21 @@ impl Compiler {
                         }
                     }
                 }
+                Token::Assign => {
+                    self.compile_expression(*var.value)?;
+
+                    let symbol = self.scope.resolve(var.name.value)?;
+                    let index = symbol.index;
+
+                    match symbol.scope {
+                        SymbolScope::Global => {
+                            self.add_instruction(code::set_global(index as u16).to_vec());
+                        }
+                        SymbolScope::Local => {
+                            self.add_instruction(code::set_local(index as u8).to_vec());
+                        }
+                    }
+                }
                 _ => todo!(),
             },
 
