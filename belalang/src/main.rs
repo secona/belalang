@@ -1,4 +1,4 @@
-use belalang_cli::{repl, run_file};
+use belalang::{repl, run_file};
 use clap::Parser;
 use std::{error::Error, path::PathBuf};
 

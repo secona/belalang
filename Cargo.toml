@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-	"belalang_cli",
+	"belalang",
 	"belalang_comp",
 	"belalang_core",
 	"belalang_eval",
