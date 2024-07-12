@@ -11,9 +11,10 @@ fn run(line: String) -> Result<(), Box<dyn Error>> {
     let program = parser.parse_program()?;
 
     let mut compiler = Compiler::default();
-    compiler.compile_program(program)?;
+    let mut code = compiler.compile_program(program)?;
 
-    let mut vm = VM::new(compiler);
+    let mut vm = VM::default();
+    vm.append_code(&mut code);
     vm.run()?;
 
     println!("stack: {:?}", vm.stack);

@@ -2,25 +2,25 @@
 
 use std::error::Error;
 
-use belalang_comp::{code, compiler::Compiler, object::Object};
+use belalang_comp::{code, compiler::{Code, Compiler}, object::Object};
 use belalang_core::{lexer::Lexer, parser::Parser};
 
-fn test_compile(input: &str) -> Result<Compiler, Box<dyn Error>> {
+fn test_compile(input: &str) -> Result<Code, Box<dyn Error>> {
     let lexer = Lexer::new(input.as_bytes());
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program()?;
 
     let mut compiler = Compiler::default();
-    compiler.compile_program(program)?;
+    let code = compiler.compile_program(program)?;
 
-    Ok(compiler)
+    Ok(code)
 }
 
 #[test]
 fn integer_literals() {
-    let compiler = test_compile("1; 2; 3;").unwrap();
+    let code = test_compile("1; 2; 3;").unwrap();
 
-    assert_eq!(compiler.scope.current().instructions, vec![
+    assert_eq!(code.instructions, vec![
         code::CONSTANT, 0, 0,
         code::POP,
         code::CONSTANT, 0, 1,
@@ -29,7 +29,7 @@ fn integer_literals() {
         code::POP,
     ]);
 
-    assert_eq!(compiler.constants, vec![
+    assert_eq!(code.constants, vec![
         Object::Integer(1),
         Object::Integer(2),
         Object::Integer(3),
@@ -38,30 +38,30 @@ fn integer_literals() {
 
 #[test]
 fn booleans() {
-    let compiler = test_compile("true; false;").unwrap();
+    let code = test_compile("true; false;").unwrap();
 
-    assert_eq!(compiler.scope.current().instructions, vec![
+    assert_eq!(code.instructions, vec![
         code::TRUE,
         code::POP,
         code::FALSE,
         code::POP,
     ]);
 
-    assert_eq!(compiler.constants, vec![]);
+    assert_eq!(code.constants, vec![]);
 }
 
 fn test_compile_infix(op: &str, code: u8) {
     let input = format!("1 {} 3;", op);
-    let compiler = test_compile(&input).unwrap();
+    let compiled = test_compile(&input).unwrap();
 
-    assert_eq!(compiler.scope.current().instructions, vec![
+    assert_eq!(compiled.instructions, vec![
         code::CONSTANT, 0, 0,
         code::CONSTANT, 0, 1,
         code,
         code::POP,
     ]);
 
-    assert_eq!(compiler.constants, vec![
+    assert_eq!(compiled.constants, vec![
         Object::Integer(1),
         Object::Integer(3),
     ]);
@@ -84,24 +84,24 @@ fn infix_expressions() {
 
 #[test]
 fn prefix_expressions() {
-    let compiler = test_compile("-5;").unwrap();
+    let code = test_compile("-5;").unwrap();
 
-    assert_eq!(compiler.scope.current().instructions, vec![
+    assert_eq!(code.instructions, vec![
         code::CONSTANT, 0, 0,
         code::MINUS,
         code::POP,
     ]);
 
-    assert_eq!(compiler.constants, vec![
+    assert_eq!(code.constants, vec![
         Object::Integer(5),
     ]);
 }
 
 #[test]
 fn if_expressions() {
-    let compiler = test_compile("if (true) { 10 }; 9;").unwrap();
+    let code = test_compile("if (true) { 10 }; 9;").unwrap();
 
-    assert_eq!(compiler.scope.current().instructions, vec![
+    assert_eq!(code.instructions, vec![
         code::TRUE,
         code::JUMP_IF_FALSE, 0, 7,
         code::CONSTANT, 0, 0,
@@ -110,7 +110,7 @@ fn if_expressions() {
         code::POP,
     ]);
 
-    assert_eq!(compiler.constants, vec![
+    assert_eq!(code.constants, vec![
         Object::Integer(10),
         Object::Integer(9),
     ]);

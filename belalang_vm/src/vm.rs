@@ -1,10 +1,11 @@
 use belalang_comp::code;
-use belalang_comp::compiler::Compiler;
+use belalang_comp::compiler::Code;
 use belalang_comp::object::Object;
 
 use crate::error::RuntimeError;
 use crate::frame::FrameManager;
 
+#[derive(Default)]
 pub struct VM {
     pub constants: Vec<Object>,
     pub globals: Vec<Object>,
@@ -17,17 +18,13 @@ pub struct VM {
 }
 
 impl VM {
-    pub fn new(mut compiler: Compiler) -> Self {
-        Self {
-            constants: compiler.constants.drain(..).collect(),
-            globals: vec![Object::Null; compiler.scope.current().symbol_count],
-
-            last_popped: Object::Null,
-            stack: Vec::new(),
-            sp: 0,
-
-            frame: FrameManager::new(compiler),
-        }
+    pub fn append_code(&mut self, code: &mut Code) {
+        self.constants.append(&mut code.constants);
+        self.frame
+            .main_frame
+            .function
+            .instructions
+            .append(&mut code.instructions);
     }
 
     pub fn run(&mut self) -> Result<(), RuntimeError> {
@@ -214,9 +211,10 @@ mod tests {
         let program = parser.parse_program().unwrap();
 
         let mut compiler = Compiler::default();
-        compiler.compile_program(program).unwrap();
+        let mut code = compiler.compile_program(program).unwrap();
 
-        let mut vm = VM::new(compiler);
+        let mut vm = VM::default();
+        vm.append_code(&mut code);
         vm.run().unwrap();
 
         assert_eq!(vm.stack.len(), 0);

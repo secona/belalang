@@ -61,7 +61,7 @@ impl CompilationScope {
 }
 
 pub struct ScopeManager {
-    main_scope: CompilationScope,
+    pub main_scope: CompilationScope,
     scope_store: Vec<CompilationScope>,
 }
 

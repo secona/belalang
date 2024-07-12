@@ -1,4 +1,4 @@
-use belalang_core::ast::{BlockExpression, Expression, Node, Program, Statement};
+use belalang_core::ast::{BlockExpression, Expression, Program, Statement};
 use belalang_core::token::Token;
 
 use crate::code;
@@ -6,27 +6,32 @@ use crate::error::CompileError;
 use crate::object::{Function, Object};
 use crate::scope::{CompilationScope, ScopeManager, SymbolScope};
 
+pub struct Code {
+    pub instructions: Vec<u8>,
+    pub constants: Vec<Object>,
+}
+
 #[derive(Default)]
 pub struct Compiler {
+    prev_constants: usize,
     pub constants: Vec<Object>,
     pub scope: ScopeManager,
 }
 
 impl Compiler {
-    pub fn compile(&mut self, node: Node) -> Result<(), CompileError> {
-        match node {
-            Node::Program(program) => self.compile_program(program),
-            Node::Expression(expression) => self.compile_expression(expression),
-            Node::Statement(statement) => self.compile_statement(statement),
-        }
-    }
-
-    pub fn compile_program(&mut self, program: Program) -> Result<(), CompileError> {
+    pub fn compile_program(&mut self, program: Program) -> Result<Code, CompileError> {
         for statement in program.statements {
             self.compile_statement(statement)?;
         }
 
-        Ok(())
+        let code = Code {
+            instructions: self.scope.main_scope.instructions.drain(..).collect(),
+            constants: self.constants[self.prev_constants..].to_vec(),
+        };
+
+        self.prev_constants = self.constants.len();
+
+        Ok(code)
     }
 
     pub fn compile_statement(&mut self, statement: Statement) -> Result<(), CompileError> {
@@ -81,7 +86,7 @@ impl Compiler {
                         }
                         SymbolScope::Local => {
                             self.add_instruction(code::set_local(index as u8).to_vec());
-                        },
+                        }
                     }
                 }
                 _ => todo!(),

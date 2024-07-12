@@ -1,7 +1,7 @@
 use belalang_comp::compiler::Compiler;
 use belalang_comp::object::{Function, Object};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Frame {
     pub function: Function,
     pub slots: Vec<Object>,
@@ -14,7 +14,7 @@ impl Frame {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct FrameManager {
     pub main_frame: Frame,
     pub frames: Vec<Frame>,
