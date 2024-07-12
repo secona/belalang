@@ -4,9 +4,7 @@ members = [
 	"belalang",
 	"belalang_comp",
 	"belalang_core",
-	"belalang_eval",
 	"belalang_vm",
-	"belalang_web",
 
 	# internal
 	"debug"
