@@ -55,8 +55,9 @@ dependencies = [
 name = "belalang_cli"
 version = "0.1.0"
 dependencies = [
+ "belalang_comp",
  "belalang_core",
- "belalang_eval",
+ "belalang_vm",
  "clap",
  "rustyline",
 ]

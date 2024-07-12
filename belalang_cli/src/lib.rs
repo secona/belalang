@@ -1,26 +1,20 @@
-use std::{error::Error, fs, path::PathBuf};
+use std::{error::Error, path::PathBuf};
 
+use belalang_comp::compiler::Compiler;
 use belalang_core::{lexer::Lexer, parser::Parser};
-use belalang_eval::evaluator::Evaluator;
+use belalang_vm::vm::VM;
 use rustyline::{error::ReadlineError, DefaultEditor};
 
-pub fn run_file(filename: PathBuf) -> Result<(), Box<dyn Error>> {
-    let file = fs::read(filename).expect("Unable to read file!");
-
-    let lexer = Lexer::new(file.as_slice());
-    let mut parser = Parser::new(lexer);
-    let program = parser.parse_program()?;
-
-    let mut ev = Evaluator::default();
-    ev.eval_program(program)?;
-    Ok(())
+pub fn run_file(_filename: PathBuf) -> Result<(), Box<dyn Error>> {
+    todo!()
 }
 
 pub fn repl() -> Result<(), Box<dyn Error>> {
     println!("Welcome to Belalang REPL v{}!\n", env!("CARGO_PKG_VERSION"));
 
     let mut rl = DefaultEditor::new()?;
-    let mut ev = Evaluator::default();
+    let mut compiler = Compiler::default();
+    let mut vm = VM::default();
 
     loop {
         match rl.readline(">> ") {
@@ -31,16 +25,22 @@ pub fn repl() -> Result<(), Box<dyn Error>> {
                 let mut parser = Parser::new(lexer);
 
                 match parser.parse_program() {
-                    Ok(program) => match ev.eval_program(program) {
-                        Ok(evaluated) => println!("{}", evaluated),
-                        Err(msg) => println!("{}", msg),
+                    Ok(program) => match compiler.compile_program(program) {
+                        Ok(mut code) => {
+                            vm.append_code(&mut code);
+                            match vm.run() {
+                                Ok(_) => println!("{}", vm.last_popped),
+                                Err(err) => println!("runtime error: {err}"),
+                            }
+                        },
+                        Err(err) => println!("compile error: {err}"),
                     },
-                    Err(err) => {
-                        println!("{}", err);
-                    }
-                };
+                    Err(err) => println!("parsing error: {err}"),
+                }
             }
-            Err(ReadlineError::Interrupted) => {}
+            Err(ReadlineError::Interrupted) => {
+                continue;
+            }
             Err(ReadlineError::Eof) => {
                 println!("\nSee you, space cowboy...");
                 break;

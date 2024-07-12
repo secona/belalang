@@ -127,7 +127,7 @@ impl VM {
                 code::DEF_GLOBAL | code::SET_GLOBAL => {
                     let index = self.read_u16(&mut ip) as usize;
                     let object = self.stack_top()?.clone();
-                    self.globals[index] = object;
+                    self.globals.insert(index, object);
                 }
 
                 code::GET_GLOBAL => {
