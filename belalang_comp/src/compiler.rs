@@ -1,4 +1,4 @@
-use belalang_core::ast::{BlockExpression, Expression, Program, Statement};
+use belalang_core::ast::{BlockExpression, Expression, FunctionLiteral, Program, Statement};
 use belalang_core::token::Token;
 
 use crate::code;
@@ -93,6 +93,10 @@ impl Compiler {
             },
 
             Expression::Call(call) => {
+                for arg in call.args.into_iter().rev() {
+                    self.compile_expression(arg)?;
+                }
+
                 self.compile_expression(*call.function)?;
                 self.add_bytecode(code::CALL);
             }
@@ -100,7 +104,8 @@ impl Compiler {
             Expression::Index(_) => todo!(),
 
             Expression::Function(function) => {
-                let scope = self.compile_block(function.body)?;
+                let arity = function.params.len();
+                let scope = self.compile_fn(function)?;
                 let mut instructions = scope.instructions;
 
                 match instructions.last() {
@@ -109,8 +114,8 @@ impl Compiler {
                 };
 
                 let index = self.add_constant(Object::Function(Function {
+                    arity,
                     instructions,
-                    arity: scope.symbol_count,
                 })) as u16;
 
                 self.add_instruction(code::constant(index).to_vec());
@@ -219,6 +224,29 @@ impl Compiler {
         self.scope.enter();
 
         for statement in block.statements {
+            self.compile_statement(statement)?;
+        }
+
+        let mut scope = self.scope.leave();
+
+        if let Some(&code::POP) = scope.instructions.last() {
+            scope.instructions.pop();
+        }
+
+        Ok(scope)
+    }
+
+    fn compile_fn(
+        &mut self,
+        mut function: FunctionLiteral,
+    ) -> Result<CompilationScope, CompileError> {
+        self.scope.enter();
+
+        for param in function.params.drain(..) {
+            self.scope.define(param.value)?;
+        }
+
+        for statement in function.body.statements {
             self.compile_statement(statement)?;
         }
 

@@ -175,7 +175,14 @@ impl VM {
 
                 code::CALL => {
                     if let Object::Function(function) = self.pop()? {
+                        let args: Vec<_> = (0..function.arity)
+                            .map(|_| self.pop())
+                            .collect::<Result<Vec<_>, _>>()?;
+
                         self.frame.push(function);
+
+                        self.frame.current_mut().slots.extend(args);
+
                         continue; // continue because we dont want to increment the ip
                     } else {
                         return Err(RuntimeError::NotAFunction);
