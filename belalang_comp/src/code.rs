@@ -10,32 +10,29 @@ pub const MOD: u8 = 0x06;
 
 pub const TRUE: u8 = 0x07;
 pub const FALSE: u8 = 0x08;
+pub const NULL: u8 = 0x09;
 
-pub const EQ: u8 = 0x0A;
-pub const NE: u8 = 0x0B;
-pub const LT: u8 = 0x0C;
-pub const LE: u8 = 0x0D;
-pub const GT: u8 = 0x0E;
-pub const GE: u8 = 0x0F;
+pub const EQUAL: u8 = 0x0A;
+pub const NOT_EQUAL: u8 = 0x0B;
+pub const LESS_THAN: u8 = 0x0C;
+pub const LESS_THAN_EQUAL: u8 = 0x0D;
 
-pub const BANG: u8 = 0x10;
-pub const MINUS: u8 = 0x11;
+pub const BANG: u8 = 0x0E;
+pub const MINUS: u8 = 0x0F;
 
-pub const JUMP: u8 = 0x12;
-pub const JUMP_IF_FALSE: u8 = 0x13;
+pub const JUMP: u8 = 0x10;
+pub const JUMP_IF_FALSE: u8 = 0x11;
 
-pub const NULL: u8 = 0x14;
+pub const DEF_GLOBAL: u8 = 0x12;
+pub const SET_GLOBAL: u8 = 0x13;
+pub const GET_GLOBAL: u8 = 0x14;
 
-pub const DEF_GLOBAL: u8 = 0x15;
-pub const SET_GLOBAL: u8 = 0x16;
-pub const GET_GLOBAL: u8 = 0x17;
+pub const SET_LOCAL: u8 = 0x15;
+pub const GET_LOCAL: u8 = 0x16;
 
-pub const SET_LOCAL: u8 = 0x18;
-pub const GET_LOCAL: u8 = 0x19;
-
-pub const CALL: u8 = 0x1C;
-pub const RETURN: u8 = 0x1D;
-pub const RETURN_VALUE: u8 = 0x1E;
+pub const CALL: u8 = 0x17;
+pub const RETURN: u8 = 0x18;
+pub const RETURN_VALUE: u8 = 0x19;
 
 pub fn constant(v: u16) -> [u8; 3] {
     [CONSTANT, (v >> 8) as u8, (v & 0xFF) as u8]

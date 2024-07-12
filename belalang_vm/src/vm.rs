@@ -91,17 +91,25 @@ impl VM {
                     self.push(Object::Boolean(false))?;
                 }
 
-                code::EQ => todo!(),
+                code::EQUAL => todo!(),
 
-                code::NE => todo!(),
+                code::NOT_EQUAL => todo!(),
 
-                code::LT => todo!(),
+                code::LESS_THAN => {
+                    if let (Object::Integer(right), Object::Integer(left)) =
+                        (self.pop()?, self.pop()?)
+                    {
+                        self.push(Object::Boolean(left < right))?;
+                    };
+                }
 
-                code::LE => todo!(),
-
-                code::GT => todo!(),
-
-                code::GE => todo!(),
+                code::LESS_THAN_EQUAL => {
+                    if let (Object::Integer(right), Object::Integer(left)) =
+                        (self.pop()?, self.pop()?)
+                    {
+                        self.push(Object::Boolean(left <= right))?;
+                    };
+                }
 
                 code::BANG => todo!(),
 

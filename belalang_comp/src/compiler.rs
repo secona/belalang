@@ -168,20 +168,27 @@ impl Compiler {
             }
 
             Expression::Infix(infix) => {
-                self.compile_expression(*infix.left)?;
-                self.compile_expression(*infix.right)?;
+                match infix.operator {
+                    Token::Gt | Token::Ge => {
+                        self.compile_expression(*infix.right)?;
+                        self.compile_expression(*infix.left)?;
+                    }
+                    _ => {
+                        self.compile_expression(*infix.left)?;
+                        self.compile_expression(*infix.right)?;
+                    }
+                }
+
                 self.add_bytecode(match infix.operator {
                     Token::Add => code::ADD,
                     Token::Sub => code::SUB,
                     Token::Mul => code::MUL,
                     Token::Div => code::DIV,
                     Token::Mod => code::MOD,
-                    Token::Eq => code::EQ,
-                    Token::Ne => code::NE,
-                    Token::Lt => code::LT,
-                    Token::Le => code::LE,
-                    Token::Gt => code::GT,
-                    Token::Ge => code::GE,
+                    Token::Eq => code::EQUAL,
+                    Token::Ne => code::NOT_EQUAL,
+                    Token::Lt | Token::Gt => code::LESS_THAN,
+                    Token::Le | Token::Ge => code::LESS_THAN_EQUAL,
                     _ => return Err(CompileError::UnknownInfixOp(infix.operator)),
                 });
             }

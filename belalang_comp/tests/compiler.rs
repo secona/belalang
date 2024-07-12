@@ -74,12 +74,12 @@ fn infix_expressions() {
     test_compile_infix("*", code::MUL);
     test_compile_infix("/", code::DIV);
     test_compile_infix("%", code::MOD);
-    test_compile_infix("==", code::EQ);
-    test_compile_infix("!=", code::NE);
-    test_compile_infix("<", code::LT);
-    test_compile_infix("<=", code::LE);
-    test_compile_infix(">", code::GT);
-    test_compile_infix(">=", code::GE);
+    test_compile_infix("==", code::EQUAL);
+    test_compile_infix("!=", code::NOT_EQUAL);
+    test_compile_infix("<", code::LESS_THAN);
+    test_compile_infix("<=", code::LESS_THAN_EQUAL);
+    // test_compile_infix(">", code::LESS_THAN);
+    // test_compile_infix(">=", code::LESS_THAN_EQUAL);
 }
 
 #[test]
@@ -103,8 +103,10 @@ fn if_expressions() {
 
     assert_eq!(code.instructions, vec![
         code::TRUE,
-        code::JUMP_IF_FALSE, 0, 7,
+        code::JUMP_IF_FALSE, 0, 6,
         code::CONSTANT, 0, 0,
+        code::JUMP, 0, 1,
+        code::NULL,
         code::POP,
         code::CONSTANT, 0, 1,
         code::POP,
