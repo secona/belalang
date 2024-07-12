@@ -90,9 +90,19 @@ impl VM {
                     self.push(Object::Boolean(false))?;
                 }
 
-                code::EQUAL => todo!(),
+                code::EQUAL => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
 
-                code::NOT_EQUAL => todo!(),
+                    self.push(Object::Boolean(right == left))?;
+                }
+
+                code::NOT_EQUAL => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+
+                    self.push(Object::Boolean(right != left))?;
+                }
 
                 code::LESS_THAN => {
                     if let (Object::Integer(right), Object::Integer(left)) =
@@ -110,9 +120,17 @@ impl VM {
                     };
                 }
 
-                code::BANG => todo!(),
+                code::BANG => {
+                    if let Object::Boolean(b) = self.pop()? {
+                        self.push(Object::Boolean(!b))?;
+                    }
+                }
 
-                code::MINUS => todo!(),
+                code::MINUS => {
+                    if let Object::Integer(i) = self.pop()? {
+                        self.push(Object::Integer(-i))?;
+                    }
+                }
 
                 code::JUMP => {
                     let relative = self.read_u16();
@@ -128,7 +146,9 @@ impl VM {
                     }
                 }
 
-                code::NULL => todo!(),
+                code::NULL => {
+                    self.push(Object::Null)?;
+                }
 
                 // temporary
                 code::DEF_GLOBAL | code::SET_GLOBAL => {
@@ -161,8 +181,6 @@ impl VM {
                         return Err(RuntimeError::NotAFunction);
                     }
                 }
-
-                code::RETURN => todo!(),
 
                 code::RETURN_VALUE => {
                     if self.stack_top().is_err() {
