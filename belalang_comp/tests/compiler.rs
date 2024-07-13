@@ -185,7 +185,7 @@ fn var() {
 
     assert_eq!(code.instructions, vec![
         code::CONSTANT, 0, 0,
-        code::DEF_GLOBAL, 0, 0,
+        code::SET_GLOBAL, 0, 0,
         code::POP,
         code::CONSTANT, 0, 1,
         code::SET_GLOBAL, 0, 0,
@@ -206,7 +206,7 @@ fn var_assignment_ops() {
 
     assert_eq!(code.instructions, vec![
         code::CONSTANT, 0, 0,
-        code::DEF_GLOBAL, 0, 0,
+        code::SET_GLOBAL, 0, 0,
         code::POP,
         code::GET_GLOBAL, 0, 0,
         code::CONSTANT, 0, 1,
@@ -242,7 +242,7 @@ fn function_expressions() {
 
     assert_eq!(code.instructions, vec![
         code::CONSTANT, 0, 1,
-        code::DEF_GLOBAL, 0, 0,
+        code::SET_GLOBAL, 0, 0,
         code::POP,
     ]);
 
@@ -264,13 +264,13 @@ fn function_with_args_expressions() {
 
     assert_eq!(code.instructions, vec![
         code::CONSTANT, 0, 0,
-        code::DEF_GLOBAL, 0, 0,
+        code::SET_GLOBAL, 0, 0,
         code::POP,
         code::CONSTANT, 0, 1,
         code::CONSTANT, 0, 2,
         code::GET_GLOBAL, 0, 0,
         code::CALL,
-        code::DEF_GLOBAL, 0, 1,
+        code::SET_GLOBAL, 0, 1,
         code::POP,
     ]);
 

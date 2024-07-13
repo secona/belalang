@@ -78,16 +78,10 @@ impl Compiler {
                     self.compile_expression(*var.value)?;
 
                     let symbol = self.scope.define(var.name.value)?;
+                    let scope = symbol.scope;
                     let index = symbol.index;
 
-                    match symbol.scope {
-                        SymbolScope::Global => {
-                            self.add_instruction(code::def_global(index as u16).to_vec());
-                        }
-                        SymbolScope::Local => {
-                            self.add_instruction(code::set_local(index as u8).to_vec());
-                        }
-                    };
+                    self.set_variable(&scope, index);
                 }
                 Token::Assign
                 | Token::AddAssign
@@ -160,12 +154,7 @@ impl Compiler {
                     self.compile_statement(statement)?;
                 }
 
-                let mut scope = self.scope.leave();
-
-                if let Some(&code::POP) = scope.instructions.last() {
-                    scope.instructions.pop();
-                }
-
+                let scope = self.scope.leave();
                 let mut instructions = scope.instructions;
 
                 match instructions.last() {

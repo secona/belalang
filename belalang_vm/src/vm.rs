@@ -150,8 +150,7 @@ impl VM {
                     self.push(Object::Null)?;
                 }
 
-                // temporary
-                code::DEF_GLOBAL | code::SET_GLOBAL => {
+                code::SET_GLOBAL => {
                     let index = self.read_u16() as usize;
                     let object = self.stack_top()?.clone();
                     self.globals.insert(index, object);
