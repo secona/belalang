@@ -87,22 +87,51 @@ impl Compiler {
                         SymbolScope::Local => {
                             self.add_instruction(code::set_local(index as u8).to_vec());
                         }
-                    }
+                    };
                 }
-                Token::Assign => {
-                    self.compile_expression(*var.value)?;
-
+                Token::Assign
+                | Token::AddAssign
+                | Token::SubAssign
+                | Token::MulAssign
+                | Token::DivAssign
+                | Token::ModAssign => {
                     let symbol = self.scope.resolve(var.name.value)?;
+                    let scope = symbol.scope;
                     let index = symbol.index;
 
-                    match symbol.scope {
-                        SymbolScope::Global => {
-                            self.add_instruction(code::set_global(index as u16).to_vec());
+                    match var.token {
+                        Token::Assign => {
+                            self.compile_expression(*var.value)?;
                         }
-                        SymbolScope::Local => {
-                            self.add_instruction(code::set_local(index as u8).to_vec());
+                        Token::AddAssign => {
+                            self.get_variable(&scope, index);
+                            self.compile_expression(*var.value)?;
+                            self.add_bytecode(code::ADD);
                         }
+                        Token::SubAssign => {
+                            self.get_variable(&scope, index);
+                            self.compile_expression(*var.value)?;
+                            self.add_bytecode(code::SUB);
+                        }
+                        Token::MulAssign => {
+                            self.get_variable(&scope, index);
+                            self.compile_expression(*var.value)?;
+                            self.add_bytecode(code::MUL);
+                        }
+                        Token::DivAssign => {
+                            self.get_variable(&scope, index);
+                            self.compile_expression(*var.value)?;
+                            self.add_bytecode(code::DIV);
+                        }
+                        Token::ModAssign => {
+                            self.get_variable(&scope, index);
+                            self.compile_expression(*var.value)?;
+                            self.add_bytecode(code::MOD);
+                        }
+                        _ => unreachable!(),
                     }
+
+                    self.set_variable(&scope, index);
                 }
                 _ => todo!(),
             },
@@ -294,5 +323,19 @@ impl Compiler {
 
         scope.instructions[index + 1] = (value >> 8) as u8;
         scope.instructions[index + 2] = (value & 0xFF) as u8;
+    }
+
+    fn get_variable(&mut self, scope: &SymbolScope, index: usize) -> usize {
+        match scope {
+            SymbolScope::Global => self.add_instruction(code::get_global(index as u16).to_vec()),
+            SymbolScope::Local => self.add_instruction(code::get_local(index as u8).to_vec()),
+        }
+    }
+
+    fn set_variable(&mut self, scope: &SymbolScope, index: usize) -> usize {
+        match scope {
+            SymbolScope::Global => self.add_instruction(code::set_global(index as u16).to_vec()),
+            SymbolScope::Local => self.add_instruction(code::set_local(index as u8).to_vec()),
+        }
     }
 }

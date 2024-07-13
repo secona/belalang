@@ -197,7 +197,28 @@ fn var() {
     assert_eq!(code.constants, vec![
         Object::Integer(12),
         Object::Integer(11),
-    ])
+    ]);
+}
+
+#[test]
+fn var_assignment_ops() {
+    let code = test_compile("x := 1; x += 1;").unwrap();
+
+    assert_eq!(code.instructions, vec![
+        code::CONSTANT, 0, 0,
+        code::DEF_GLOBAL, 0, 0,
+        code::POP,
+        code::GET_GLOBAL, 0, 0,
+        code::CONSTANT, 0, 1,
+        code::ADD,
+        code::SET_GLOBAL, 0, 0,
+        code::POP,
+    ]);
+
+    assert_eq!(code.constants, vec![
+        Object::Integer(1),
+        Object::Integer(1),
+    ]);
 }
 
 #[test]

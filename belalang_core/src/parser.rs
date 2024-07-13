@@ -319,7 +319,7 @@ impl Parser<'_> {
                 })))
             }
 
-            Token::ColonAssign | Token::Assign => {
+            assignment_tokens!() => {
                 if !matches!(left, Expression::Identifier(_)) {
                     return Err(SyntaxError::InvalidLHS(left.clone()));
                 }
@@ -339,50 +339,6 @@ impl Parser<'_> {
                     token,
                     name,
                     value,
-                })))
-            }
-
-            Token::AddAssign
-            | Token::SubAssign
-            | Token::MulAssign
-            | Token::DivAssign
-            | Token::ModAssign
-            | Token::ShiftLeftAssign
-            | Token::ShiftRightAssign => {
-                if !matches!(left, Expression::Identifier(_)) {
-                    return Err(SyntaxError::InvalidLHS(left.clone()));
-                }
-
-                let name = ast::Identifier {
-                    token: self.curr_token.clone(),
-                    value: self.curr_token.to_string(),
-                };
-
-                self.next_token()?;
-                let token = self.curr_token.clone();
-
-                self.next_token()?;
-                let value = self.parse_expression(Precedence::Lowest)?;
-
-                // probably need to change this monstrosity.
-                Ok(Some(Expression::Var(ast::VarExpression {
-                    token: Token::Assign,
-                    name: name.clone(),
-                    value: Box::new(Expression::Infix(ast::InfixExpression {
-                        left: Box::new(Expression::Identifier(name)),
-                        operator: match &token {
-                            Token::AddAssign => Token::Add,
-                            Token::SubAssign => Token::Sub,
-                            Token::MulAssign => Token::Mul,
-                            Token::DivAssign => Token::Div,
-                            Token::ModAssign => Token::Mod,
-                            Token::ShiftLeftAssign => Token::ShiftLeft,
-                            Token::ShiftRightAssign => Token::ShiftRight,
-                            _ => unreachable!(),
-                        },
-                        token,
-                        right: Box::new(value),
-                    })),
                 })))
             }
 
