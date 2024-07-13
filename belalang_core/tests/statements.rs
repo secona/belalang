@@ -14,8 +14,7 @@ fn block() {
 
     let f = as_variant!(&expr.expression, ast::Expression::Function);
 
-    // +1 from implicit null expression at the end.
-    assert_eq!(f.body.statements.len(), 4);
+    assert_eq!(f.body.statements.len(), 3);
 
     // first statement
     let expr_0 = as_variant!(&f.body.statements[0], ast::Statement::Expression);
@@ -69,8 +68,7 @@ fn r#while() {
 
     expr_variant!(&*stmt.condition, ast::Expression::Boolean = true);
 
-    // +1 from implicit null expression at the end.
-    assert_eq!(stmt.block.statements.len(), 2);
+    assert_eq!(stmt.block.statements.len(), 1);
 
     let expr_0 = as_variant!(&stmt.block.statements[0], ast::Statement::Expression);
 
