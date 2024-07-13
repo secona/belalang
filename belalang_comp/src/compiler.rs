@@ -1,10 +1,10 @@
-use belalang_core::ast::{BlockExpression, Expression, FunctionLiteral, Program, Statement};
+use belalang_core::ast::{BlockExpression, Expression, Program, Statement};
 use belalang_core::token::Token;
 
 use crate::code;
 use crate::error::CompileError;
 use crate::object::{Function, Object};
-use crate::scope::{CompilationScope, ScopeManager, SymbolScope};
+use crate::scope::{ScopeManager, SymbolScope};
 
 pub struct Code {
     pub instructions: Vec<u8>,
@@ -118,9 +118,25 @@ impl Compiler {
 
             Expression::Index(_) => todo!(),
 
-            Expression::Function(function) => {
+            Expression::Function(mut function) => {
+                self.scope.enter();
+
                 let arity = function.params.len();
-                let scope = self.compile_fn(function)?;
+
+                for param in function.params.drain(..) {
+                    self.scope.define(param.value)?;
+                }
+
+                for statement in function.body.statements {
+                    self.compile_statement(statement)?;
+                }
+
+                let mut scope = self.scope.leave();
+
+                if let Some(&code::POP) = scope.instructions.last() {
+                    scope.instructions.pop();
+                }
+
                 let mut instructions = scope.instructions;
 
                 match instructions.last() {
@@ -153,11 +169,14 @@ impl Compiler {
                 let jif = self.add_instruction(code::jump_if_false(0).to_vec());
                 let jif_index = self.scope.current().instructions.len();
 
-                let mut scope = self.compile_block(r#if.consequence)?;
+                self.scope.enter();
+                self.compile_block(r#if.consequence)?;
+                let scope = self.scope.leave();
+
                 self.scope
                     .current_mut()
                     .instructions
-                    .append(&mut scope.instructions);
+                    .extend(scope.instructions);
 
                 let jump = self.add_instruction(code::jump(0).to_vec());
                 let jump_index = self.scope.current().instructions.len();
@@ -171,11 +190,14 @@ impl Compiler {
                     }
                     Some(alt) => match *alt {
                         Expression::Block(block) => {
-                            let mut scope = self.compile_block(block)?;
+                            self.scope.enter();
+                            self.compile_block(block)?;
+                            let scope = self.scope.leave();
+
                             self.scope
                                 .current_mut()
                                 .instructions
-                                .append(&mut scope.instructions);
+                                .extend(scope.instructions);
                         }
                         _ => {
                             self.compile_expression(*alt)?;
@@ -223,55 +245,26 @@ impl Compiler {
             }
 
             Expression::Block(block) => {
-                let mut scope = self.compile_block(block)?;
+                self.scope.enter();
+                self.compile_block(block)?;
+                let scope = self.scope.leave();
 
                 self.scope
                     .current_mut()
                     .instructions
-                    .append(&mut scope.instructions);
+                    .extend(scope.instructions);
             }
         };
 
         Ok(())
     }
 
-    fn compile_block(&mut self, block: BlockExpression) -> Result<CompilationScope, CompileError> {
-        self.scope.enter();
-
+    fn compile_block(&mut self, block: BlockExpression) -> Result<(), CompileError> {
         for statement in block.statements {
             self.compile_statement(statement)?;
         }
 
-        let mut scope = self.scope.leave();
-
-        if let Some(&code::POP) = scope.instructions.last() {
-            scope.instructions.pop();
-        }
-
-        Ok(scope)
-    }
-
-    fn compile_fn(
-        &mut self,
-        mut function: FunctionLiteral,
-    ) -> Result<CompilationScope, CompileError> {
-        self.scope.enter();
-
-        for param in function.params.drain(..) {
-            self.scope.define(param.value)?;
-        }
-
-        for statement in function.body.statements {
-            self.compile_statement(statement)?;
-        }
-
-        let mut scope = self.scope.leave();
-
-        if let Some(&code::POP) = scope.instructions.last() {
-            scope.instructions.pop();
-        }
-
-        Ok(scope)
+        Ok(())
     }
 
     pub fn add_constant(&mut self, obj: Object) -> usize {

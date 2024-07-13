@@ -1,6 +1,7 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
+use crate::code;
 use crate::error::CompileError;
 
 #[derive(Debug, Clone, Copy)]
@@ -81,7 +82,13 @@ impl ScopeManager {
 
     pub fn leave(&mut self) -> CompilationScope {
         // we want to panic when trying to leave main scope
-        self.scope_store.pop().unwrap()
+        let mut scope = self.scope_store.pop().unwrap();
+
+        if let Some(&code::POP) = scope.instructions.last() {
+            scope.instructions.pop();
+        }
+
+        scope
     }
 
     pub fn current_mut(&mut self) -> &mut CompilationScope {
