@@ -60,7 +60,7 @@ fn r#return() {
 
 #[test]
 fn r#while() {
-    let program = test_parse("while (true) { 12; }");
+    let program = test_parse("while true { 12; }");
 
     assert_eq!(program.statements.len(), 1);
 

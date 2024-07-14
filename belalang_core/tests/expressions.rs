@@ -191,7 +191,7 @@ fn identifier() {
 
 #[test]
 fn if_without_else() {
-    let program = test_parse("if (x < y) { x }");
+    let program = test_parse("if x < y { x }");
 
     assert_eq!(program.statements.len(), 1);
 
@@ -223,7 +223,7 @@ fn if_without_else() {
 
 #[test]
 fn if_with_else() {
-    let program = test_parse("if (x < y) { x } else { y }");
+    let program = test_parse("if x < y { x } else { y }");
 
     assert_eq!(program.statements.len(), 1);
 
@@ -260,7 +260,7 @@ fn if_with_else() {
 
 #[test]
 fn if_with_multiple_statements() {
-    let program = test_parse("if (x < y) { a := 10; x }");
+    let program = test_parse("if x < y { a := 10; x }");
 
     assert_eq!(program.statements.len(), 1);
 

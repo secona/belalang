@@ -134,12 +134,8 @@ impl Parser<'_> {
             Token::While => {
                 let token = self.curr_token.clone();
 
-                expect_peek!(self, Token::LeftParen);
-
                 self.next_token()?;
                 let condition = self.parse_expression(Precedence::Lowest)?;
-
-                expect_peek!(self, Token::RightParen);
 
                 expect_peek!(self, Token::LeftBrace);
 
@@ -215,12 +211,8 @@ impl Parser<'_> {
     fn parse_if(&mut self) -> Result<Expression, SyntaxError> {
         let token = self.curr_token.clone();
 
-        expect_peek!(self, Token::LeftParen);
-
         self.next_token()?;
         let condition = self.parse_expression(Precedence::Lowest)?;
-
-        expect_peek!(self, Token::RightParen);
 
         expect_peek!(self, Token::LeftBrace);
 

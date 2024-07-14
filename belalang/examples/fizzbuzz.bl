@@ -1,7 +1,7 @@
 n := 1;
 
-while (n < 101) {
-	if (n % 15 == 0) {
+while n < 101 {
+	if n % 15 == 0 {
 		println("Fizzbuzz");
 	} else {
 		if (n % 5 == 0) {
