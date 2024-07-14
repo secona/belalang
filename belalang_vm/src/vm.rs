@@ -172,19 +172,35 @@ impl VM {
                     self.push(self.frame.current().slots[index].clone())?;
                 }
 
+                code::GET_BUILTIN => {
+                    let index = self.read_u8() as usize;
+                    self.push(match index {
+                        0 => Object::Builtin("print".into()),
+                        _ => Object::Null,
+                    })?;
+                }
+
                 code::CALL => {
-                    if let Object::Function(function) = self.pop()? {
-                        let args: Vec<_> = (0..function.arity)
-                            .map(|_| self.pop())
-                            .collect::<Result<Vec<_>, _>>()?;
+                    match self.pop()? {
+                        Object::Function(function) => {
+                            let args: Vec<_> = (0..function.arity)
+                                .map(|_| self.pop())
+                                .collect::<Result<Vec<_>, _>>()?;
 
-                        self.frame.push(function);
+                            self.frame.push(function);
 
-                        self.frame.current_mut().slots.extend(args);
+                            self.frame.current_mut().slots.extend(args);
 
-                        continue; // continue because we dont want to increment the ip
-                    } else {
-                        return Err(RuntimeError::NotAFunction);
+                            continue; // continue because we dont want to increment the ip
+                        }
+                        Object::Builtin(name) => match name.as_str() {
+                            "print" => {
+                                println!("{}", self.pop()?);
+                                self.push(Object::Null)?;
+                            },
+                            _ => {}
+                        },
+                        _ => return Err(RuntimeError::NotAFunction),
                     }
                 }
 

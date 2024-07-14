@@ -29,9 +29,11 @@ pub const GET_GLOBAL: u8 = 0x13;
 pub const SET_LOCAL: u8 = 0x14;
 pub const GET_LOCAL: u8 = 0x15;
 
-pub const CALL: u8 = 0x16;
-pub const RETURN: u8 = 0x17;
-pub const RETURN_VALUE: u8 = 0x18;
+pub const GET_BUILTIN: u8 = 0x16;
+
+pub const CALL: u8 = 0x17;
+pub const RETURN: u8 = 0x18;
+pub const RETURN_VALUE: u8 = 0x19;
 
 pub fn constant(v: u16) -> [u8; 3] {
     [CONSTANT, (v >> 8) as u8, (v & 0xFF) as u8]
@@ -59,6 +61,10 @@ pub fn set_local(v: u8) -> [u8; 2] {
 
 pub fn get_local(v: u8) -> [u8; 2] {
     [GET_LOCAL, v]
+}
+
+pub fn get_builtin(v: u8) -> [u8; 2] {
+    [GET_BUILTIN, v]
 }
 
 #[cfg(test)]

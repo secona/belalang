@@ -13,6 +13,7 @@ pub enum Object {
     Integer(i64),
     Boolean(bool),
     Function(Function),
+    Builtin(String),
 }
 
 impl Display for Object {
@@ -22,6 +23,7 @@ impl Display for Object {
             Object::Integer(i) => f.write_str(&format!("{i}")),
             Object::Boolean(b) => f.write_str(&format!("{b}")),
             Object::Function(_) => f.write_str("<fn>"),
+            Object::Builtin(_) => f.write_str("<builtin fn>"),
         }
     }
 }

@@ -4,7 +4,7 @@ use belalang_core::token::Token;
 use crate::code;
 use crate::error::CompileError;
 use crate::object::{Function, Object};
-use crate::scope::{ScopeManager, SymbolScope};
+use crate::scope::{ScopeLevel, ScopeManager};
 
 pub struct Code {
     pub instructions: Vec<u8>,
@@ -172,13 +172,10 @@ impl Compiler {
 
             Expression::Identifier(ident) => {
                 let symbol = self.scope.resolve(ident.value)?;
+                let scope = symbol.scope;
                 let index = symbol.index;
 
-                self.add_instruction(if matches!(symbol.scope, SymbolScope::Global) {
-                    code::get_global(index as u16).to_vec()
-                } else {
-                    code::get_local(index as u8).to_vec()
-                });
+                self.get_variable(&scope, index);
             }
 
             Expression::If(r#if) => {
@@ -314,17 +311,19 @@ impl Compiler {
         scope.instructions[index + 2] = (value & 0xFF) as u8;
     }
 
-    fn get_variable(&mut self, scope: &SymbolScope, index: usize) -> usize {
+    fn get_variable(&mut self, scope: &ScopeLevel, index: usize) -> usize {
         match scope {
-            SymbolScope::Global => self.add_instruction(code::get_global(index as u16).to_vec()),
-            SymbolScope::Local => self.add_instruction(code::get_local(index as u8).to_vec()),
+            ScopeLevel::Global => self.add_instruction(code::get_global(index as u16).to_vec()),
+            ScopeLevel::Local => self.add_instruction(code::get_local(index as u8).to_vec()),
+            ScopeLevel::Builtin => self.add_instruction(code::get_builtin(index as u8).to_vec()),
         }
     }
 
-    fn set_variable(&mut self, scope: &SymbolScope, index: usize) -> usize {
+    fn set_variable(&mut self, scope: &ScopeLevel, index: usize) -> usize {
         match scope {
-            SymbolScope::Global => self.add_instruction(code::set_global(index as u16).to_vec()),
-            SymbolScope::Local => self.add_instruction(code::set_local(index as u8).to_vec()),
+            ScopeLevel::Global => self.add_instruction(code::set_global(index as u16).to_vec()),
+            ScopeLevel::Local => self.add_instruction(code::set_local(index as u8).to_vec()),
+            ScopeLevel::Builtin => 0,
         }
     }
 }

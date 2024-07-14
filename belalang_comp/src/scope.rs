@@ -5,19 +5,20 @@ use crate::code;
 use crate::error::CompileError;
 
 #[derive(Debug, Clone, Copy)]
-pub enum SymbolScope {
+pub enum ScopeLevel {
+    Builtin,
     Global,
     Local,
 }
 
 #[derive(Debug)]
 pub struct Symbol {
-    pub scope: SymbolScope,
+    pub scope: ScopeLevel,
     pub index: usize,
 }
 
 pub struct CompilationScope {
-    pub scope: SymbolScope,
+    pub scope: ScopeLevel,
     pub instructions: Vec<u8>,
     pub symbol_store: HashMap<String, Symbol>,
     pub symbol_count: usize,
@@ -25,17 +26,28 @@ pub struct CompilationScope {
 
 impl CompilationScope {
     pub fn global() -> Self {
+        let mut symbol_store = HashMap::new();
+        let symbol_count = &symbol_store.len();
+
+        symbol_store.insert(
+            "print".into(),
+            Symbol {
+                scope: ScopeLevel::Builtin,
+                index: *symbol_count,
+            },
+        );
+
         Self {
-            scope: SymbolScope::Global,
+            scope: ScopeLevel::Global,
             instructions: Vec::default(),
-            symbol_store: HashMap::default(),
-            symbol_count: usize::default(),
+            symbol_store,
+            symbol_count: *symbol_count,
         }
     }
 
     pub fn local() -> Self {
         Self {
-            scope: SymbolScope::Local,
+            scope: ScopeLevel::Local,
             instructions: Vec::default(),
             symbol_store: HashMap::default(),
             symbol_count: usize::default(),
@@ -68,8 +80,18 @@ pub struct ScopeManager {
 
 impl Default for ScopeManager {
     fn default() -> Self {
+        let mut main_scope = CompilationScope::global();
+
+        main_scope.symbol_store.insert(
+            "print".into(),
+            Symbol {
+                scope: ScopeLevel::Builtin,
+                index: main_scope.symbol_count,
+            },
+        );
+
         Self {
-            main_scope: CompilationScope::global(),
+            main_scope,
             scope_store: Vec::default(),
         }
     }
