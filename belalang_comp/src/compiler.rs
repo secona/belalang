@@ -75,11 +75,11 @@ impl Compiler {
 
             Expression::Var(var) => match var.token {
                 Token::ColonAssign => {
-                    self.compile_expression(*var.value)?;
-
                     let symbol = self.scope.define(var.name.value)?;
                     let scope = symbol.scope;
                     let index = symbol.index;
+
+                    self.compile_expression(*var.value)?;
 
                     self.set_variable(&scope, index);
                 }
