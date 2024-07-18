@@ -1,5 +1,4 @@
-use belalang_comp::compiler::Compiler;
-use belalang_comp::object::{Function, Object};
+use crate::object::{Function, Object};
 
 #[derive(Debug, Default)]
 pub struct Frame {
@@ -21,27 +20,6 @@ pub struct FrameManager {
 }
 
 impl FrameManager {
-    pub fn new(mut compiler: Compiler) -> Self {
-        let instructions = compiler
-            .scope
-            .current_mut()
-            .instructions
-            .drain(..)
-            .collect();
-
-        Self {
-            main_frame: Frame {
-                function: Function {
-                    instructions,
-                    arity: 0,
-                },
-                slots: Vec::new(),
-                ip: 0,
-            },
-            frames: Vec::new(),
-        }
-    }
-
     pub fn current(&self) -> &Frame {
         self.frames.last().unwrap_or(&self.main_frame)
     }

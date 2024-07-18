@@ -67,6 +67,7 @@ name = "belalang_comp"
 version = "0.1.0"
 dependencies = [
  "belalang_core",
+ "belalang_vm",
  "thiserror",
 ]
 
@@ -81,7 +82,6 @@ dependencies = [
 name = "belalang_vm"
 version = "0.1.0"
 dependencies = [
- "belalang_comp",
  "belalang_core",
  "thiserror",
 ]

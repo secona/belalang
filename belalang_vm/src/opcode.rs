@@ -69,11 +69,11 @@ pub fn get_builtin(v: u8) -> [u8; 2] {
 
 #[cfg(test)]
 mod tests {
-    use crate::code;
+    use crate::opcode;
 
     #[test]
     fn constant() {
-        let bytes = code::constant(65534);
+        let bytes = opcode::constant(65534);
 
         assert_eq!(bytes.len(), 3);
         assert_eq!(bytes[0], 0);

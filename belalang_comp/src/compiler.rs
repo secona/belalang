@@ -1,15 +1,11 @@
 use belalang_core::ast::{BlockExpression, Expression, Program, Statement};
 use belalang_core::token::Token;
+use belalang_vm::bytecode::Bytecode;
+use belalang_vm::opcode;
+use belalang_vm::object::{Function, Object};
 
-use crate::code;
 use crate::error::CompileError;
-use crate::object::{Function, Object};
 use crate::scope::{ScopeLevel, ScopeManager};
-
-pub struct Code {
-    pub instructions: Vec<u8>,
-    pub constants: Vec<Object>,
-}
 
 #[derive(Default)]
 pub struct Compiler {
@@ -19,12 +15,12 @@ pub struct Compiler {
 }
 
 impl Compiler {
-    pub fn compile_program(&mut self, program: Program) -> Result<Code, CompileError> {
+    pub fn compile_program(&mut self, program: Program) -> Result<Bytecode, CompileError> {
         for statement in program.statements {
             self.compile_statement(statement)?;
         }
 
-        let code = Code {
+        let code = Bytecode {
             instructions: self.scope.main_scope.instructions.drain(..).collect(),
             constants: self.constants[self.prev_constants..].to_vec(),
         };
@@ -38,12 +34,12 @@ impl Compiler {
         match statement {
             Statement::Expression(statement) => {
                 self.compile_expression(statement.expression)?;
-                self.add_bytecode(code::POP);
+                self.add_bytecode(opcode::POP);
             }
 
             Statement::Return(r#return) => {
                 self.compile_expression(r#return.return_value)?;
-                self.add_bytecode(code::RETURN_VALUE);
+                self.add_bytecode(opcode::RETURN_VALUE);
             }
 
             Statement::While(_) => todo!(),
@@ -56,16 +52,16 @@ impl Compiler {
         match expression {
             Expression::Boolean(boolean) => {
                 self.add_bytecode(if boolean.value {
-                    code::TRUE
+                    opcode::TRUE
                 } else {
-                    code::FALSE
+                    opcode::FALSE
                 });
             }
 
             Expression::Integer(integer) => {
                 let integer = Object::Integer(integer.value);
                 let index = self.add_constant(integer) as u16;
-                self.add_instruction(code::constant(index).to_vec());
+                self.add_instruction(opcode::constant(index).to_vec());
             }
 
             Expression::Float(_) => todo!(),
@@ -100,27 +96,27 @@ impl Compiler {
                         Token::AddAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
-                            self.add_bytecode(code::ADD);
+                            self.add_bytecode(opcode::ADD);
                         }
                         Token::SubAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
-                            self.add_bytecode(code::SUB);
+                            self.add_bytecode(opcode::SUB);
                         }
                         Token::MulAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
-                            self.add_bytecode(code::MUL);
+                            self.add_bytecode(opcode::MUL);
                         }
                         Token::DivAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
-                            self.add_bytecode(code::DIV);
+                            self.add_bytecode(opcode::DIV);
                         }
                         Token::ModAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
-                            self.add_bytecode(code::MOD);
+                            self.add_bytecode(opcode::MOD);
                         }
                         _ => unreachable!(),
                     }
@@ -136,7 +132,7 @@ impl Compiler {
                 }
 
                 self.compile_expression(*call.function)?;
-                self.add_bytecode(code::CALL);
+                self.add_bytecode(opcode::CALL);
             }
 
             Expression::Index(_) => todo!(),
@@ -158,8 +154,8 @@ impl Compiler {
                 let mut instructions = scope.instructions;
 
                 match instructions.last() {
-                    Some(&code::RETURN_VALUE) => (),
-                    _ => instructions.push(code::RETURN_VALUE),
+                    Some(&opcode::RETURN_VALUE) => (),
+                    _ => instructions.push(opcode::RETURN_VALUE),
                 };
 
                 let index = self.add_constant(Object::Function(Function {
@@ -167,7 +163,7 @@ impl Compiler {
                     instructions,
                 })) as u16;
 
-                self.add_instruction(code::constant(index).to_vec());
+                self.add_instruction(opcode::constant(index).to_vec());
             }
 
             Expression::Identifier(ident) => {
@@ -181,7 +177,7 @@ impl Compiler {
             Expression::If(r#if) => {
                 self.compile_expression(*r#if.condition)?;
 
-                let jif = self.add_instruction(code::jump_if_false(0).to_vec());
+                let jif = self.add_instruction(opcode::jump_if_false(0).to_vec());
                 let jif_index = self.scope.current().instructions.len();
 
                 self.scope.enter();
@@ -193,7 +189,7 @@ impl Compiler {
                     .instructions
                     .extend(scope.instructions);
 
-                let jump = self.add_instruction(code::jump(0).to_vec());
+                let jump = self.add_instruction(opcode::jump(0).to_vec());
                 let jump_index = self.scope.current().instructions.len();
 
                 let post_consequence = self.scope.current().instructions.len();
@@ -201,7 +197,7 @@ impl Compiler {
 
                 match r#if.alternative {
                     None => {
-                        self.add_bytecode(code::NULL);
+                        self.add_bytecode(opcode::NULL);
                     }
                     Some(alt) => match *alt {
                         Expression::Block(block) => {
@@ -237,15 +233,15 @@ impl Compiler {
                 }
 
                 self.add_bytecode(match infix.operator {
-                    Token::Add => code::ADD,
-                    Token::Sub => code::SUB,
-                    Token::Mul => code::MUL,
-                    Token::Div => code::DIV,
-                    Token::Mod => code::MOD,
-                    Token::Eq => code::EQUAL,
-                    Token::Ne => code::NOT_EQUAL,
-                    Token::Lt | Token::Gt => code::LESS_THAN,
-                    Token::Le | Token::Ge => code::LESS_THAN_EQUAL,
+                    Token::Add => opcode::ADD,
+                    Token::Sub => opcode::SUB,
+                    Token::Mul => opcode::MUL,
+                    Token::Div => opcode::DIV,
+                    Token::Mod => opcode::MOD,
+                    Token::Eq => opcode::EQUAL,
+                    Token::Ne => opcode::NOT_EQUAL,
+                    Token::Lt | Token::Gt => opcode::LESS_THAN,
+                    Token::Le | Token::Ge => opcode::LESS_THAN_EQUAL,
                     _ => return Err(CompileError::UnknownInfixOp(infix.operator)),
                 });
             }
@@ -253,8 +249,8 @@ impl Compiler {
             Expression::Prefix(prefix) => {
                 self.compile_expression(*prefix.right)?;
                 self.add_bytecode(match prefix.operator {
-                    Token::Sub => code::MINUS,
-                    Token::Not => code::BANG,
+                    Token::Sub => opcode::MINUS,
+                    Token::Not => opcode::BANG,
                     _ => return Err(CompileError::UnknownInfixOp(prefix.operator)),
                 });
             }
@@ -313,16 +309,16 @@ impl Compiler {
 
     fn get_variable(&mut self, scope: &ScopeLevel, index: usize) -> usize {
         match scope {
-            ScopeLevel::Global => self.add_instruction(code::get_global(index as u16).to_vec()),
-            ScopeLevel::Local => self.add_instruction(code::get_local(index as u8).to_vec()),
-            ScopeLevel::Builtin => self.add_instruction(code::get_builtin(index as u8).to_vec()),
+            ScopeLevel::Global => self.add_instruction(opcode::get_global(index as u16).to_vec()),
+            ScopeLevel::Local => self.add_instruction(opcode::get_local(index as u8).to_vec()),
+            ScopeLevel::Builtin => self.add_instruction(opcode::get_builtin(index as u8).to_vec()),
         }
     }
 
     fn set_variable(&mut self, scope: &ScopeLevel, index: usize) -> usize {
         match scope {
-            ScopeLevel::Global => self.add_instruction(code::set_global(index as u16).to_vec()),
-            ScopeLevel::Local => self.add_instruction(code::set_local(index as u8).to_vec()),
+            ScopeLevel::Global => self.add_instruction(opcode::set_global(index as u16).to_vec()),
+            ScopeLevel::Local => self.add_instruction(opcode::set_local(index as u8).to_vec()),
             ScopeLevel::Builtin => 0,
         }
     }

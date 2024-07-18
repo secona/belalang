@@ -7,4 +7,5 @@ license = "Apache-2.0"
 
 [dependencies]
 belalang_core = { path = "../belalang_core" }
+belalang_vm =  { path = "../belalang_vm" }
 thiserror = "1.0.61"

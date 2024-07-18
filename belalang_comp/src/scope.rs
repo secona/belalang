@@ -1,7 +1,8 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
-use crate::code;
+use belalang_vm::opcode;
+
 use crate::error::CompileError;
 
 #[derive(Debug, Clone, Copy)]
@@ -106,7 +107,7 @@ impl ScopeManager {
         // we want to panic when trying to leave main scope
         let mut scope = self.scope_store.pop().unwrap();
 
-        if let Some(&code::POP) = scope.instructions.last() {
+        if let Some(&opcode::POP) = scope.instructions.last() {
             scope.instructions.pop();
         }
 
