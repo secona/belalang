@@ -1,6 +1,7 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
+use belalang_vm::builtins::BuiltinCollection;
 use belalang_vm::opcode;
 
 use crate::error::CompileError;
@@ -83,13 +84,19 @@ impl Default for ScopeManager {
     fn default() -> Self {
         let mut main_scope = CompilationScope::global();
 
-        main_scope.symbol_store.insert(
-            "print".into(),
-            Symbol {
-                scope: ScopeLevel::Builtin,
-                index: main_scope.symbol_count,
-            },
-        );
+        let builtins = BuiltinCollection::default();
+
+        for builtin in builtins.store.into_iter() {
+            main_scope.symbol_store.insert(
+                builtin.name,
+                Symbol {
+                    scope: ScopeLevel::Builtin,
+                    index: main_scope.symbol_count,
+                },
+            );
+
+            main_scope.symbol_count += 1;
+        }
 
         Self {
             main_scope,

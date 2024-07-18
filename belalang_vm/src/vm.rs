@@ -1,6 +1,7 @@
-use crate::opcode;
+use crate::builtins::BuiltinCollection;
 use crate::bytecode::Bytecode;
 use crate::object::Object;
+use crate::opcode;
 
 use crate::error::RuntimeError;
 use crate::frame::FrameManager;
@@ -15,6 +16,8 @@ pub struct VM {
     pub sp: usize,
 
     pub frame: FrameManager,
+
+    pub builtin_collection: BuiltinCollection,
 }
 
 impl VM {
@@ -174,10 +177,7 @@ impl VM {
 
                 opcode::GET_BUILTIN => {
                     let index = self.read_u8() as usize;
-                    self.push(match index {
-                        0 => Object::Builtin("print".into()),
-                        _ => Object::Null,
-                    })?;
+                    self.push(Object::Builtin(index))?;
                 }
 
                 opcode::CALL => {
@@ -193,13 +193,14 @@ impl VM {
 
                             continue; // continue because we dont want to increment the ip
                         }
-                        Object::Builtin(name) => match name.as_str() {
-                            "print" => {
-                                println!("{}", self.pop()?);
-                                self.push(Object::Null)?;
-                            },
-                            _ => {}
-                        },
+                        Object::Builtin(index) => {
+                            let args = (0..self.builtin_collection.get_arity(index)?)
+                                .map(|_| self.pop())
+                                .collect::<Result<Vec<_>, _>>()?;
+
+                            let builtin = self.builtin_collection.get(index)?;
+                            self.push(builtin.call(args))?;
+                        }
                         _ => return Err(RuntimeError::NotAFunction),
                     }
                 }

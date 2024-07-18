@@ -13,7 +13,7 @@ pub enum Object {
     Integer(i64),
     Boolean(bool),
     Function(Function),
-    Builtin(String),
+    Builtin(usize),
 }
 
 impl Display for Object {
