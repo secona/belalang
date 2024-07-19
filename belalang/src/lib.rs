@@ -1,9 +1,12 @@
-use std::{error::Error, path::PathBuf};
+use std::error::Error;
+use std::path::PathBuf;
 
 use belalang_comp::compiler::CompilerBuilder;
-use belalang_core::{lexer::Lexer, parser::Parser};
-use belalang_vm::vm::VM;
-use rustyline::{error::ReadlineError, DefaultEditor};
+use belalang_core::lexer::Lexer;
+use belalang_core::parser::Parser;
+use belalang_vm::vm::VMBuilder;
+use rustyline::error::ReadlineError;
+use rustyline::DefaultEditor;
 
 pub fn run_file(_filename: PathBuf) -> Result<(), Box<dyn Error>> {
     todo!()
@@ -14,7 +17,7 @@ pub fn repl() -> Result<(), Box<dyn Error>> {
 
     let mut rl = DefaultEditor::new()?;
     let mut compiler = CompilerBuilder::default().build();
-    let mut vm = VM::default();
+    let mut vm = VMBuilder::default().build();
 
     loop {
         match rl.readline(">> ") {
@@ -32,7 +35,7 @@ pub fn repl() -> Result<(), Box<dyn Error>> {
                                 Ok(_) => println!("{}", vm.last_popped),
                                 Err(err) => println!("runtime error: {err}"),
                             }
-                        },
+                        }
                         Err(err) => println!("compile error: {err}"),
                     },
                     Err(err) => println!("parsing error: {err}"),

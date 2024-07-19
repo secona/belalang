@@ -2,7 +2,7 @@ use std::error::Error;
 
 use belalang_comp::compiler::CompilerBuilder;
 use belalang_core::{lexer::Lexer, parser::Parser};
-use belalang_vm::vm::VM;
+use belalang_vm::vm::VMBuilder;
 use rustyline::{error::ReadlineError, DefaultEditor};
 
 fn run(line: String) -> Result<(), Box<dyn Error>> {
@@ -13,7 +13,7 @@ fn run(line: String) -> Result<(), Box<dyn Error>> {
     let mut compiler = CompilerBuilder::default().build();
     let mut code = compiler.compile_program(program)?;
 
-    let mut vm = VM::default();
+    let mut vm = VMBuilder::default().build();
     vm.append_code(&mut code);
     vm.run()?;
 

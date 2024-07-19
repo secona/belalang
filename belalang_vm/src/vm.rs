@@ -6,7 +6,6 @@ use crate::opcode;
 use crate::error::RuntimeError;
 use crate::frame::FrameManager;
 
-#[derive(Default)]
 pub struct VM {
     pub constants: Vec<Object>,
     pub globals: Vec<Object>,
@@ -268,6 +267,33 @@ impl VM {
         self.sp += 1;
 
         Ok(())
+    }
+}
+
+#[derive(Default)]
+pub struct VMBuilder {
+    builtin_collection: Option<BuiltinCollection>,
+}
+
+impl VMBuilder {
+    pub fn builtin_collection(mut self, builtin_collection: BuiltinCollection) -> Self {
+        self.builtin_collection = Some(builtin_collection);
+        self
+    }
+
+    pub fn build(self) -> VM {
+        VM {
+            constants: Vec::new(),
+            globals: Vec::new(),
+
+            last_popped: Object::Null,
+            stack: Vec::new(),
+            sp: 0,
+
+            frame: FrameManager::default(),
+
+            builtin_collection: self.builtin_collection.unwrap_or_default(),
+        }
     }
 }
 
