@@ -282,9 +282,12 @@ impl VMBuilder {
     }
 
     pub fn build(self) -> VM {
+        let builtin_collection = self.builtin_collection.unwrap_or_default();
+        let globals_offset = builtin_collection.keys().len(); // temporary fix
+
         VM {
             constants: Vec::new(),
-            globals: Vec::new(),
+            globals: vec![Object::Null; globals_offset],
 
             last_popped: Object::Null,
             stack: Vec::new(),
@@ -292,7 +295,7 @@ impl VMBuilder {
 
             frame: FrameManager::default(),
 
-            builtin_collection: self.builtin_collection.unwrap_or_default(),
+            builtin_collection,
         }
     }
 }
