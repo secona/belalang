@@ -86,9 +86,9 @@ impl Default for ScopeManager {
 
         let builtins = BuiltinCollection::default();
 
-        for builtin in builtins.store.into_iter() {
+        for key in builtins.keys() {
             main_scope.symbol_store.insert(
-                builtin.name,
+                key.to_string(),
                 Symbol {
                     scope: ScopeLevel::Builtin,
                     index: main_scope.symbol_count,

@@ -1,8 +1,8 @@
 use belalang_core::ast::{BlockExpression, Expression, Program, Statement};
 use belalang_core::token::Token;
 use belalang_vm::bytecode::Bytecode;
-use belalang_vm::opcode;
 use belalang_vm::object::{Function, Object};
+use belalang_vm::opcode;
 
 use crate::error::CompileError;
 use crate::scope::{ScopeLevel, ScopeManager};
