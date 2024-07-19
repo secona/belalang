@@ -1,6 +1,6 @@
 use std::{error::Error, path::PathBuf};
 
-use belalang_comp::compiler::Compiler;
+use belalang_comp::compiler::CompilerBuilder;
 use belalang_core::{lexer::Lexer, parser::Parser};
 use belalang_vm::vm::VM;
 use rustyline::{error::ReadlineError, DefaultEditor};
@@ -13,7 +13,7 @@ pub fn repl() -> Result<(), Box<dyn Error>> {
     println!("Welcome to Belalang REPL v{}!\n", env!("CARGO_PKG_VERSION"));
 
     let mut rl = DefaultEditor::new()?;
-    let mut compiler = Compiler::default();
+    let mut compiler = CompilerBuilder::default().build();
     let mut vm = VM::default();
 
     loop {

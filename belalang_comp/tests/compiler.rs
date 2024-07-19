@@ -2,7 +2,7 @@
 
 use std::error::Error;
 
-use belalang_comp::compiler::Compiler;
+use belalang_comp::compiler::CompilerBuilder;
 use belalang_core::parser::Parser;
 use belalang_core::lexer::Lexer;
 use belalang_vm::object::{Object, Function};
@@ -14,7 +14,7 @@ fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program()?;
 
-    let mut compiler = Compiler::default();
+    let mut compiler = CompilerBuilder::default().build();
     let code = compiler.compile_program(program)?;
 
     Ok(code)

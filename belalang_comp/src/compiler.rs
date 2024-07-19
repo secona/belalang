@@ -1,15 +1,16 @@
 use belalang_core::ast::{BlockExpression, Expression, Program, Statement};
 use belalang_core::token::Token;
+use belalang_vm::builtins::BuiltinCollection;
 use belalang_vm::bytecode::Bytecode;
 use belalang_vm::object::{Function, Object};
 use belalang_vm::opcode;
 
 use crate::error::CompileError;
-use crate::scope::{ScopeLevel, ScopeManager};
+use crate::scope::{ScopeLevel, ScopeManager, ScopeManagerBuilder};
 
-#[derive(Default)]
 pub struct Compiler {
     prev_constants: usize,
+
     pub constants: Vec<Object>,
     pub scope: ScopeManager,
 }
@@ -320,6 +321,30 @@ impl Compiler {
             ScopeLevel::Global => self.add_instruction(opcode::set_global(index as u16).to_vec()),
             ScopeLevel::Local => self.add_instruction(opcode::set_local(index as u8).to_vec()),
             ScopeLevel::Builtin => 0,
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct CompilerBuilder {
+    builtin_collection: Option<BuiltinCollection>,
+}
+
+impl CompilerBuilder {
+    pub fn builtin_collection(mut self, builtin_collection: BuiltinCollection) -> Self {
+        self.builtin_collection = Some(builtin_collection);
+        self
+    }
+
+    pub fn build(self) -> Compiler {
+        let scope_manager = ScopeManagerBuilder::default()
+            .builtin_collection(self.builtin_collection.unwrap_or_default())
+            .build();
+
+        Compiler {
+            scope: scope_manager,
+            constants: Vec::new(),
+            prev_constants: 0,
         }
     }
 }

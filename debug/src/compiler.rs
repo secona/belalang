@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use belalang_comp::compiler::Compiler;
+use belalang_comp::compiler::CompilerBuilder;
 use belalang_core::{lexer::Lexer, parser::Parser};
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
@@ -10,7 +10,7 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program()?;
 
-    let mut compiler = Compiler::default();
+    let mut compiler = CompilerBuilder::default().build();
     let code = compiler.compile_program(program)?;
 
     println!("[instructions]");

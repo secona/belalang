@@ -27,35 +27,6 @@ pub struct CompilationScope {
 }
 
 impl CompilationScope {
-    pub fn global() -> Self {
-        let mut symbol_store = HashMap::new();
-        let symbol_count = &symbol_store.len();
-
-        symbol_store.insert(
-            "print".into(),
-            Symbol {
-                scope: ScopeLevel::Builtin,
-                index: *symbol_count,
-            },
-        );
-
-        Self {
-            scope: ScopeLevel::Global,
-            instructions: Vec::default(),
-            symbol_store,
-            symbol_count: *symbol_count,
-        }
-    }
-
-    pub fn local() -> Self {
-        Self {
-            scope: ScopeLevel::Local,
-            instructions: Vec::default(),
-            symbol_store: HashMap::default(),
-            symbol_count: usize::default(),
-        }
-    }
-
     pub fn define(&mut self, name: String) -> Result<&Symbol, CompileError> {
         let symbol = Symbol {
             scope: self.scope,
@@ -80,34 +51,14 @@ pub struct ScopeManager {
     scope_store: Vec<CompilationScope>,
 }
 
-impl Default for ScopeManager {
-    fn default() -> Self {
-        let mut main_scope = CompilationScope::global();
-
-        let builtins = BuiltinCollection::default();
-
-        for key in builtins.keys() {
-            main_scope.symbol_store.insert(
-                key.to_string(),
-                Symbol {
-                    scope: ScopeLevel::Builtin,
-                    index: main_scope.symbol_count,
-                },
-            );
-
-            main_scope.symbol_count += 1;
-        }
-
-        Self {
-            main_scope,
-            scope_store: Vec::default(),
-        }
-    }
-}
-
 impl ScopeManager {
     pub fn enter(&mut self) {
-        self.scope_store.push(CompilationScope::local());
+        self.scope_store.push(CompilationScope {
+            scope: ScopeLevel::Local,
+            instructions: Vec::new(),
+            symbol_store: HashMap::new(),
+            symbol_count: 0,
+        });
     }
 
     pub fn leave(&mut self) -> CompilationScope {
@@ -143,5 +94,45 @@ impl ScopeManager {
         self.main_scope
             .resolve(&name)
             .ok_or(CompileError::UnknownSymbol(name))
+    }
+}
+
+#[derive(Default)]
+pub struct ScopeManagerBuilder {
+    builtin_collection: Option<BuiltinCollection>,
+}
+
+impl ScopeManagerBuilder {
+    pub fn builtin_collection(mut self, builtin_collection: BuiltinCollection) -> Self {
+        self.builtin_collection = Some(builtin_collection);
+        self
+    }
+
+    pub fn build(self) -> ScopeManager {
+        let mut sm = ScopeManager {
+            main_scope: CompilationScope {
+                scope: ScopeLevel::Global,
+                instructions: Vec::new(),
+                symbol_store: HashMap::new(),
+                symbol_count: 0,
+            },
+            scope_store: Vec::new(),
+        };
+
+        let builtins = self.builtin_collection.unwrap_or_default();
+
+        for key in builtins.keys() {
+            sm.main_scope.symbol_store.insert(
+                key.to_string(),
+                Symbol {
+                    scope: ScopeLevel::Builtin,
+                    index: sm.main_scope.symbol_count,
+                },
+            );
+
+            sm.main_scope.symbol_count += 1;
+        }
+
+        sm
     }
 }
