@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use belalang_comp::compiler::CompilerBuilder;
+use belalang_comp::disassembly::disassemble;
 use belalang_core::{lexer::Lexer, parser::Parser};
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
@@ -13,10 +14,8 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
     let mut compiler = CompilerBuilder::default().build();
     let code = compiler.compile_program(program)?;
 
-    println!("[instructions]");
-    for (i, inst) in code.instructions.iter().enumerate() {
-        println!("{:#06x}: {:#04x}", i, inst);
-    }
+    let disassembled = disassemble(code.instructions);
+    print!("{disassembled}");
 
     println!("\n[constants]");
     for (i, constant) in code.constants.iter().enumerate() {

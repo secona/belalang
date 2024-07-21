@@ -30,7 +30,7 @@ impl Compiler {
                 constants
             } else {
                 self.constants.drain(..).collect()
-            }
+            },
         };
 
         Ok(code)
