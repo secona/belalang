@@ -120,6 +120,22 @@ impl VM {
                     };
                 }
 
+                opcode::AND => {
+                    if let (Object::Boolean(right), Object::Boolean(left)) =
+                        (self.pop()?, self.pop()?)
+                    {
+                        self.push(Object::Boolean(right && left))?;
+                    }
+                }
+
+                opcode::OR => {
+                    if let (Object::Boolean(right), Object::Boolean(left)) =
+                        (self.pop()?, self.pop()?)
+                    {
+                        self.push(Object::Boolean(right || left))?;
+                    }
+                }
+
                 opcode::BANG => {
                     if let Object::Boolean(b) = self.pop()? {
                         self.push(Object::Boolean(!b))?;

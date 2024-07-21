@@ -286,6 +286,8 @@ impl Compiler {
                     Token::Mod => opcode::MOD,
                     Token::Eq => opcode::EQUAL,
                     Token::Ne => opcode::NOT_EQUAL,
+                    Token::And => opcode::AND,
+                    Token::Or => opcode::OR,
                     Token::Lt | Token::Gt => opcode::LESS_THAN,
                     Token::Le | Token::Ge => opcode::LESS_THAN_EQUAL,
                     _ => return Err(CompileError::UnknownInfixOp(infix.operator)),
