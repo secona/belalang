@@ -95,9 +95,24 @@ impl Compiler {
                 self.add_instruction(opcode::constant(index).to_vec());
             }
 
-            Expression::Float(_) => todo!(),
-            Expression::String(_) => todo!(),
-            Expression::Null(_) => todo!(),
+            Expression::Float(float) => {
+                let float = Object::Float(float.value);
+                let index = self.add_constant(float) as u16;
+                self.add_instruction(opcode::constant(index).to_vec());
+            }
+
+            Expression::String(string) => {
+                let string = Object::String(string.value);
+                let index = self.add_constant(string) as u16;
+                self.add_instruction(opcode::constant(index).to_vec());
+            }
+
+            Expression::Null(_) => {
+                let null = Object::Null;
+                let index = self.add_constant(null) as u16;
+                self.add_instruction(opcode::constant(index).to_vec());
+            },
+
             Expression::Array(_) => todo!(),
 
             Expression::Var(var) => match var.token {
