@@ -20,16 +20,14 @@ pub struct VM {
 }
 
 impl VM {
-    pub fn append_code(&mut self, code: &mut Bytecode) {
-        self.constants.append(&mut code.constants);
+    pub fn run(&mut self, code: Bytecode) -> Result<(), RuntimeError> {
+        self.constants.extend(code.constants.into_iter());
         self.frame
             .main_frame
             .function
             .instructions
-            .append(&mut code.instructions);
-    }
+            .extend(code.instructions.into_iter());
 
-    pub fn run(&mut self) -> Result<(), RuntimeError> {
         while self.frame.current().ip < self.frame.current().ins().len() {
             let op = self.frame.current().ins()[self.frame.current().ip];
 

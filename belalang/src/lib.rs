@@ -35,7 +35,7 @@ pub fn repl() -> Result<(), Box<dyn Error>> {
                     }
                 };
 
-                let mut code = match compiler.compile_program(program) {
+                let code = match compiler.compile_program(program) {
                     Ok(code) => code,
                     Err(err) => {
                         println!("Compile Error: {err}");
@@ -43,8 +43,7 @@ pub fn repl() -> Result<(), Box<dyn Error>> {
                     }
                 };
 
-                vm.append_code(&mut code);
-                match vm.run() {
+                match vm.run(code) {
                     Ok(_) => println!("{}", vm.last_popped),
                     Err(err) => println!("runtime error: {err}"),
                 }
