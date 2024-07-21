@@ -65,12 +65,11 @@ impl Compiler {
                     .instructions
                     .extend(scope.instructions);
 
-                let current = self.scope.current().instructions.len();
                 let jump = self.add_instruction(opcode::jump(0).to_vec());
-                self.replace_u16_operand(jump, (start_of_while as isize - current as isize) as u16);
+                let current = self.scope.current().instructions.len();
 
-                let post_block = self.scope.current().instructions.len();
-                self.replace_u16_operand(jif, (post_block as isize - jif_index as isize) as u16);
+                self.replace_u16_operand(jump, (start_of_while as isize - current as isize) as u16);
+                self.replace_u16_operand(jif, (current as isize - jif_index as isize) as u16);
 
                 self.add_bytecode(opcode::NULL);
                 self.add_bytecode(opcode::POP);

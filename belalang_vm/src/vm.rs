@@ -153,7 +153,11 @@ impl VM {
                 opcode::SET_GLOBAL => {
                     let index = self.read_u16() as usize;
                     let object = self.stack_top()?.clone();
-                    self.globals.insert(index, object);
+
+                    match self.globals.get(index) {
+                        Some(_) => self.globals[index] = object,
+                        None => self.globals.insert(index, object),
+                    }
                 }
 
                 opcode::GET_GLOBAL => {
