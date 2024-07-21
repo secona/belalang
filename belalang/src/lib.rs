@@ -16,7 +16,7 @@ pub fn repl() -> Result<(), Box<dyn Error>> {
     println!("Welcome to Belalang REPL v{}!\n", env!("CARGO_PKG_VERSION"));
 
     let mut rl = DefaultEditor::new()?;
-    let mut compiler = CompilerBuilder::default().build();
+    let mut compiler = CompilerBuilder::default().incremental(true).build();
     let mut vm = VMBuilder::default().build();
 
     loop {
@@ -27,18 +27,26 @@ pub fn repl() -> Result<(), Box<dyn Error>> {
                 let lexer = Lexer::new(line.as_bytes().into());
                 let mut parser = Parser::new(lexer);
 
-                match parser.parse_program() {
-                    Ok(program) => match compiler.compile_program(program) {
-                        Ok(mut code) => {
-                            vm.append_code(&mut code);
-                            match vm.run() {
-                                Ok(_) => println!("{}", vm.last_popped),
-                                Err(err) => println!("runtime error: {err}"),
-                            }
-                        }
-                        Err(err) => println!("compile error: {err}"),
-                    },
-                    Err(err) => println!("parsing error: {err}"),
+                let program = match parser.parse_program() {
+                    Ok(program) => program,
+                    Err(err) => {
+                        println!("Parsing Error: {err}");
+                        continue;
+                    }
+                };
+
+                let mut code = match compiler.compile_program(program) {
+                    Ok(code) => code,
+                    Err(err) => {
+                        println!("Compile Error: {err}");
+                        continue;
+                    }
+                };
+
+                vm.append_code(&mut code);
+                match vm.run() {
+                    Ok(_) => println!("{}", vm.last_popped),
+                    Err(err) => println!("runtime error: {err}"),
                 }
             }
             Err(ReadlineError::Interrupted) => {

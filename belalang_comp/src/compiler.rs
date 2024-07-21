@@ -9,6 +9,7 @@ use crate::error::CompileError;
 use crate::scope::{ScopeLevel, ScopeManager, ScopeManagerBuilder};
 
 pub struct Compiler {
+    incremental: bool,
     prev_constants: usize,
 
     pub constants: Vec<Object>,
@@ -23,10 +24,14 @@ impl Compiler {
 
         let code = Bytecode {
             instructions: self.scope.main_scope.instructions.drain(..).collect(),
-            constants: self.constants[self.prev_constants..].to_vec(),
+            constants: if self.incremental {
+                let constants = self.constants[self.prev_constants..].to_vec();
+                self.prev_constants = self.constants.len();
+                constants
+            } else {
+                self.constants.drain(..).collect()
+            }
         };
-
-        self.prev_constants = self.constants.len();
 
         Ok(code)
     }
@@ -327,10 +332,16 @@ impl Compiler {
 
 #[derive(Default)]
 pub struct CompilerBuilder {
+    incremental: bool,
     builtin_collection: Option<BuiltinCollection>,
 }
 
 impl CompilerBuilder {
+    pub fn incremental(mut self, incremental: bool) -> Self {
+        self.incremental = incremental;
+        self
+    }
+
     pub fn builtin_collection(mut self, builtin_collection: BuiltinCollection) -> Self {
         self.builtin_collection = Some(builtin_collection);
         self
@@ -342,6 +353,7 @@ impl CompilerBuilder {
             .build();
 
         Compiler {
+            incremental: self.incremental,
             scope: scope_manager,
             constants: Vec::new(),
             prev_constants: 0,
