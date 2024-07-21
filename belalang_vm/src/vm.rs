@@ -133,12 +133,12 @@ impl VM {
                 }
 
                 opcode::JUMP => {
-                    let relative = self.read_u16();
+                    let relative = self.read_u16() as i16;
                     self.inc_ip(relative as usize);
                 }
 
                 opcode::JUMP_IF_FALSE => {
-                    let relative = self.read_u16();
+                    let relative = self.read_u16() as i16;
                     let value = self.pop()?;
 
                     if let Object::Boolean(false) = value {
@@ -220,7 +220,12 @@ impl VM {
     }
 
     pub fn inc_ip(&mut self, value: usize) {
-        self.frame.current_mut().ip += value;
+        self.frame.current_mut().ip = self
+            .frame
+            .current()
+            .ip
+            .checked_add_signed(value as isize)
+            .unwrap();
     }
 
     pub fn read_u16(&mut self) -> u16 {

@@ -120,7 +120,7 @@ pub fn disassemble(bytes: Vec<u8>) -> String {
 
             opcode::GET_BUILTIN => {
                 let (operand, start_i) = read_u8(&bytes, &mut i);
-                result.push_str(&format!("{:#06x}: GET_LOCAL {:#03}\n", start_i, operand));
+                result.push_str(&format!("{:#06x}: GET_BUILTIN {:#03}\n", start_i, operand));
             }
 
             opcode::CALL => {

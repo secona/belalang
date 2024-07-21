@@ -48,7 +48,33 @@ impl Compiler {
                 self.add_bytecode(opcode::RETURN_VALUE);
             }
 
-            Statement::While(_) => todo!(),
+            Statement::While(r#while) => {
+                let start_of_while = self.scope.current().instructions.len();
+
+                self.compile_expression(*r#while.condition)?;
+
+                let jif = self.add_instruction(opcode::jump_if_false(0).to_vec());
+                let jif_index = self.scope.current().instructions.len();
+
+                self.scope.enter();
+                self.compile_block(r#while.block)?;
+                let scope = self.scope.leave();
+
+                self.scope
+                    .current_mut()
+                    .instructions
+                    .extend(scope.instructions);
+
+                let current = self.scope.current().instructions.len();
+                let jump = self.add_instruction(opcode::jump(0).to_vec());
+                self.replace_u16_operand(jump, (start_of_while as isize - current as isize) as u16);
+
+                let post_block = self.scope.current().instructions.len();
+                self.replace_u16_operand(jif, (post_block as isize - jif_index as isize) as u16);
+
+                self.add_bytecode(opcode::NULL);
+                self.add_bytecode(opcode::POP);
+            }
         };
 
         Ok(())
