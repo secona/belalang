@@ -78,6 +78,34 @@ pub fn disassemble(bytes: Vec<u8>) -> String {
                 result.push_str(&format!("{:#06x}: LESS_THAN_EQUAL\n", i));
             }
 
+            opcode::AND => {
+                result.push_str(&format!("{:#06x}: AND\n", i));
+            }
+
+            opcode::OR => {
+                result.push_str(&format!("{:#06x}: OR\n", i));
+            }
+
+            opcode::BIT_AND => {
+                result.push_str(&format!("{:#06x}: BIT_AND\n", i));
+            }
+
+            opcode::BIT_OR => {
+                result.push_str(&format!("{:#06x}: BIT_OR\n", i));
+            }
+
+            opcode::BIT_XOR => {
+                result.push_str(&format!("{:#06x}: BIT_XOR\n", i));
+            }
+
+            opcode::BIT_SL => {
+                result.push_str(&format!("{:#06x}: BIT_SL\n", i));
+            }
+
+            opcode::BIT_SR => {
+                result.push_str(&format!("{:#06x}: BIT_SR\n", i));
+            }
+
             opcode::BANG => {
                 result.push_str(&format!("{:#06x}: BANG\n", i));
             }

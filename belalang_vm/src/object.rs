@@ -1,3 +1,4 @@
+use std::cmp::{max, min};
 use std::fmt::Display;
 
 use belalang_core::token::Token;
@@ -142,6 +143,56 @@ impl Object {
             // different types
             (Self::Integer(l), Self::Float(r)) => Ok(Self::Boolean((l as f64) <= r)),
             (Self::Float(l), Self::Integer(r)) => Ok(Self::Boolean(l <= (r as f64))),
+
+            // unsupported
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+        }
+    }
+
+    pub fn try_bit_and(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
+            // same type
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l & r)),
+
+            // unsupported
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+        }
+    }
+
+    pub fn try_bit_or(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
+            // same type
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l | r)),
+
+            // unsupported
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+        }
+    }
+
+    pub fn try_bit_xor(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
+            // same type
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l ^ r)),
+
+            // unsupported
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+        }
+    }
+
+    pub fn try_bit_sl(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
+            // same type
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l << r)),
+
+            // unsupported
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+        }
+    }
+
+    pub fn try_bit_sr(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
+            // same type
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l >> r)),
 
             // unsupported
             (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),

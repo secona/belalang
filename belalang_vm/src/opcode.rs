@@ -19,23 +19,29 @@ pub const LESS_THAN_EQUAL: u8 = 0x0D;
 pub const AND: u8 = 0x0E;
 pub const OR: u8 = 0x0F;
 
-pub const BANG: u8 = 0x10;
-pub const MINUS: u8 = 0x11;
+pub const BIT_AND: u8 = 0x10;
+pub const BIT_OR: u8 = 0x11;
+pub const BIT_XOR: u8 = 0x12;
+pub const BIT_SL: u8 = 0x13;
+pub const BIT_SR: u8 = 0x14;
 
-pub const JUMP: u8 = 0x12;
-pub const JUMP_IF_FALSE: u8 = 0x13;
+pub const BANG: u8 = 0x15;
+pub const MINUS: u8 = 0x16;
 
-pub const SET_GLOBAL: u8 = 0x14;
-pub const GET_GLOBAL: u8 = 0x15;
+pub const JUMP: u8 = 0x17;
+pub const JUMP_IF_FALSE: u8 = 0x18;
 
-pub const SET_LOCAL: u8 = 0x16;
-pub const GET_LOCAL: u8 = 0x17;
+pub const SET_GLOBAL: u8 = 0x19;
+pub const GET_GLOBAL: u8 = 0x1A;
 
-pub const GET_BUILTIN: u8 = 0x18;
+pub const SET_LOCAL: u8 = 0x1B;
+pub const GET_LOCAL: u8 = 0x1C;
 
-pub const CALL: u8 = 0x19;
-pub const RETURN: u8 = 0x1A;
-pub const RETURN_VALUE: u8 = 0x1B;
+pub const GET_BUILTIN: u8 = 0x1D;
+
+pub const CALL: u8 = 0x1E;
+pub const RETURN: u8 = 0x1F;
+pub const RETURN_VALUE: u8 = 0x20;
 
 pub fn constant(v: u16) -> [u8; 3] {
     [CONSTANT, (v >> 8) as u8, (v & 0xFF) as u8]

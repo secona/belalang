@@ -120,6 +120,36 @@ impl VM {
                     }
                 }
 
+                opcode::BIT_AND => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_bit_and(right)?)?;
+                }
+
+                opcode::BIT_OR => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_bit_or(right)?)?;
+                }
+
+                opcode::BIT_XOR => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_bit_xor(right)?)?;
+                }
+
+                opcode::BIT_SL => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_bit_sl(right)?)?;
+                }
+
+                opcode::BIT_SR => {
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_bit_sr(right)?)?;
+                }
+
                 opcode::BANG => {
                     if let Object::Boolean(b) = self.pop()? {
                         self.push(Object::Boolean(!b))?;
