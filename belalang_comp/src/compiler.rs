@@ -56,14 +56,14 @@ impl Compiler {
                 let jif = self.add_instruction(opcode::jump_if_false(0).to_vec());
                 let jif_index = self.scope.current().instructions.len();
 
-                self.scope.enter();
+                // self.scope.enter();
                 self.compile_block(r#while.block)?;
-                let scope = self.scope.leave();
+                // let scope = self.scope.leave();
 
-                self.scope
-                    .current_mut()
-                    .instructions
-                    .extend(scope.instructions);
+                // self.scope
+                //     .current_mut()
+                //     .instructions
+                //     .extend(scope.instructions);
 
                 let jump = self.add_instruction(opcode::jump(0).to_vec());
                 let current = self.scope.current().instructions.len();
@@ -111,7 +111,7 @@ impl Compiler {
                 let null = Object::Null;
                 let index = self.add_constant(null) as u16;
                 self.add_instruction(opcode::constant(index).to_vec());
-            },
+            }
 
             Expression::Array(_) => todo!(),
 
@@ -226,14 +226,14 @@ impl Compiler {
                 let jif = self.add_instruction(opcode::jump_if_false(0).to_vec());
                 let jif_index = self.scope.current().instructions.len();
 
-                self.scope.enter();
+                // self.scope.enter();
                 self.compile_block(r#if.consequence)?;
-                let scope = self.scope.leave();
+                // let scope = self.scope.leave();
 
-                self.scope
-                    .current_mut()
-                    .instructions
-                    .extend(scope.instructions);
+                // self.scope
+                //     .current_mut()
+                //     .instructions
+                //     .extend(scope.instructions);
 
                 let jump = self.add_instruction(opcode::jump(0).to_vec());
                 let jump_index = self.scope.current().instructions.len();
@@ -247,14 +247,14 @@ impl Compiler {
                     }
                     Some(alt) => match *alt {
                         Expression::Block(block) => {
-                            self.scope.enter();
+                            // self.scope.enter();
                             self.compile_block(block)?;
-                            let scope = self.scope.leave();
+                            // let scope = self.scope.leave();
 
-                            self.scope
-                                .current_mut()
-                                .instructions
-                                .extend(scope.instructions);
+                            // self.scope
+                            //     .current_mut()
+                            //     .instructions
+                            //     .extend(scope.instructions);
                         }
                         _ => {
                             self.compile_expression(*alt)?;
@@ -304,14 +304,14 @@ impl Compiler {
             }
 
             Expression::Block(block) => {
-                self.scope.enter();
+                // self.scope.enter();
                 self.compile_block(block)?;
-                let scope = self.scope.leave();
+                // let scope = self.scope.leave();
 
-                self.scope
-                    .current_mut()
-                    .instructions
-                    .extend(scope.instructions);
+                // self.scope
+                //     .current_mut()
+                //     .instructions
+                //     .extend(scope.instructions);
             }
         };
 
@@ -321,6 +321,10 @@ impl Compiler {
     fn compile_block(&mut self, block: BlockExpression) -> Result<(), CompileError> {
         for statement in block.statements {
             self.compile_statement(statement)?;
+        }
+
+        if let Some(&opcode::POP) = self.scope.current().instructions.last() {
+            self.scope.current_mut().instructions.pop();
         }
 
         Ok(())
