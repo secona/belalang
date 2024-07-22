@@ -37,102 +37,82 @@ impl Display for Object {
 }
 
 impl Object {
-    pub fn try_add(&self, rhs: Self) -> Result<Self, RuntimeError> {
-        match (self, &rhs) {
+    pub fn try_add(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
             // same type
-            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(*l + *r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(*l + *r)),
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l + r)),
+            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(l + r)),
 
             // different types
             (Self::Integer(i), Self::Float(f)) | (Self::Float(f), Self::Integer(i)) => {
-                Ok(Self::Float(*i as f64 + *f))
+                Ok(Self::Float(i as f64 + f))
             }
             (Self::String(l), r) => Ok(Self::String(format!("{l}{r}"))),
             (l, Self::String(r)) => Ok(Self::String(format!("{l}{r}"))),
 
             // unsupported
-            _ => Err(RuntimeError::InvalidOperation(
-                self.clone(),
-                Token::Add,
-                rhs,
-            )),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Add, r)),
         }
     }
 
-    pub fn try_sub(&self, rhs: Self) -> Result<Self, RuntimeError> {
-        match (self, &rhs) {
+    pub fn try_sub(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
             // same type
-            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(*l - *r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(*l - *r)),
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l - r)),
+            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(l - r)),
 
             // different types
-            (Self::Integer(l), Self::Float(r)) => Ok(Self::Float(*l as f64 - *r)),
-            (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(*l - *r as f64)),
+            (Self::Integer(l), Self::Float(r)) => Ok(Self::Float(l as f64 - r)),
+            (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(l - r as f64)),
 
             // unsupported
-            _ => Err(RuntimeError::InvalidOperation(
-                self.clone(),
-                Token::Sub,
-                rhs,
-            )),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Sub, r)),
         }
     }
 
-    pub fn try_mul(&self, rhs: Self) -> Result<Self, RuntimeError> {
-        match (self, &rhs) {
+    pub fn try_mul(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
             // same type
-            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(*l * *r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(*l * *r)),
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l * r)),
+            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(l * r)),
 
             // strings
             (Self::String(s), Self::Integer(i)) | (Self::Integer(i), Self::String(s)) => {
-                Ok(Self::String(s.repeat(*i as usize)))
+                Ok(Self::String(s.repeat(i as usize)))
             }
 
             // unsupported
-            _ => Err(RuntimeError::InvalidOperation(
-                self.clone(),
-                Token::Mul,
-                rhs,
-            )),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Mul, r)),
         }
     }
 
-    pub fn try_div(&self, rhs: Self) -> Result<Self, RuntimeError> {
-        match (self, &rhs) {
+    pub fn try_div(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
             // same type
-            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(*l / *r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(*l / *r)),
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l / r)),
+            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(l / r)),
 
             // different types
-            (Self::Integer(l), Self::Float(r)) => Ok(Self::Float(*l as f64 / *r)),
-            (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(*l / *r as f64)),
+            (Self::Integer(l), Self::Float(r)) => Ok(Self::Float(l as f64 / r)),
+            (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(l / r as f64)),
 
             // unsupported
-            _ => Err(RuntimeError::InvalidOperation(
-                self.clone(),
-                Token::Div,
-                rhs,
-            )),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Div, r)),
         }
     }
 
-    pub fn try_mod(&self, rhs: Self) -> Result<Self, RuntimeError> {
-        match (self, &rhs) {
+    pub fn try_mod(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
             // same type
-            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(*l % *r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(*l % *r)),
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l % r)),
+            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(l % r)),
 
             // different types
-            (Self::Integer(l), Self::Float(r)) => Ok(Self::Float(*l as f64 % *r)),
-            (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(*l % *r as f64)),
+            (Self::Integer(l), Self::Float(r)) => Ok(Self::Float(l as f64 % r)),
+            (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(l % r as f64)),
 
             // unsupported
-            _ => Err(RuntimeError::InvalidOperation(
-                self.clone(),
-                Token::Mod,
-                rhs,
-            )),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Mod, r)),
         }
     }
 }
