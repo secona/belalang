@@ -115,4 +115,36 @@ impl Object {
             (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Mod, r)),
         }
     }
+
+    pub fn try_less_than(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
+            // same type
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Boolean(l < r)),
+            (Self::Float(l), Self::Float(r)) => Ok(Self::Boolean(l < r)),
+            (Self::String(l), Self::String(r)) => Ok(Self::Boolean(l < r)),
+
+            // different types
+            (Self::Integer(l), Self::Float(r)) => Ok(Self::Boolean((l as f64) < r)),
+            (Self::Float(l), Self::Integer(r)) => Ok(Self::Boolean(l < (r as f64))),
+
+            // unsupported
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+        }
+    }
+
+    pub fn try_less_than_equal(self, rhs: Self) -> Result<Self, RuntimeError> {
+        match (self, rhs) {
+            // same type
+            (Self::Integer(l), Self::Integer(r)) => Ok(Self::Boolean(l <= r)),
+            (Self::Float(l), Self::Float(r)) => Ok(Self::Boolean(l <= r)),
+            (Self::String(l), Self::String(r)) => Ok(Self::Boolean(l <= r)),
+
+            // different types
+            (Self::Integer(l), Self::Float(r)) => Ok(Self::Boolean((l as f64) <= r)),
+            (Self::Float(l), Self::Integer(r)) => Ok(Self::Boolean(l <= (r as f64))),
+
+            // unsupported
+            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+        }
+    }
 }

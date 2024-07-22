@@ -83,31 +83,25 @@ impl VM {
                 opcode::EQUAL => {
                     let right = self.pop()?;
                     let left = self.pop()?;
-
                     self.push(Object::Boolean(right == left))?;
                 }
 
                 opcode::NOT_EQUAL => {
                     let right = self.pop()?;
                     let left = self.pop()?;
-
                     self.push(Object::Boolean(right != left))?;
                 }
 
                 opcode::LESS_THAN => {
-                    if let (Object::Integer(right), Object::Integer(left)) =
-                        (self.pop()?, self.pop()?)
-                    {
-                        self.push(Object::Boolean(left < right))?;
-                    };
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_less_than(right)?)?;
                 }
 
                 opcode::LESS_THAN_EQUAL => {
-                    if let (Object::Integer(right), Object::Integer(left)) =
-                        (self.pop()?, self.pop()?)
-                    {
-                        self.push(Object::Boolean(left <= right))?;
-                    };
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_less_than_equal(right)?)?;
                 }
 
                 opcode::AND => {
