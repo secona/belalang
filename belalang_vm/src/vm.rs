@@ -184,7 +184,12 @@ impl VM {
                 opcode::SET_LOCAL => {
                     let index = self.read_u8() as usize;
                     let object = self.stack_top()?.clone();
-                    self.frame.current_mut().slots.insert(index, object);
+
+                    let frame = self.frame.current_mut();
+                    match frame.slots.get(index) {
+                        Some(_) => frame.slots[index] = object,
+                        None => frame.slots.insert(index, object),
+                    }
                 }
 
                 opcode::GET_LOCAL => {
