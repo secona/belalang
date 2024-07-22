@@ -43,43 +43,33 @@ impl VM {
                 }
 
                 opcode::ADD => {
-                    if let (Object::Integer(right), Object::Integer(left)) =
-                        (self.pop()?, self.pop()?)
-                    {
-                        self.push(Object::Integer(left + right))?;
-                    };
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_add(right)?)?;
                 }
 
                 opcode::SUB => {
-                    if let (Object::Integer(right), Object::Integer(left)) =
-                        (self.pop()?, self.pop()?)
-                    {
-                        self.push(Object::Integer(left - right))?;
-                    };
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_sub(right)?)?;
                 }
 
                 opcode::MUL => {
-                    if let (Object::Integer(right), Object::Integer(left)) =
-                        (self.pop()?, self.pop()?)
-                    {
-                        self.push(Object::Integer(left * right))?;
-                    };
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_mul(right)?)?;
                 }
 
                 opcode::DIV => {
-                    if let (Object::Integer(right), Object::Integer(left)) =
-                        (self.pop()?, self.pop()?)
-                    {
-                        self.push(Object::Integer(left / right))?;
-                    };
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_div(right)?)?;
                 }
 
                 opcode::MOD => {
-                    if let (Object::Integer(right), Object::Integer(left)) =
-                        (self.pop()?, self.pop()?)
-                    {
-                        self.push(Object::Integer(left % right))?;
-                    };
+                    let right = self.pop()?;
+                    let left = self.pop()?;
+                    self.push(left.try_mod(right)?)?;
                 }
 
                 opcode::TRUE => {
