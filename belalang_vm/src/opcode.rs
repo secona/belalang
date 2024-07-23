@@ -44,6 +44,7 @@ pub const RETURN: u8 = 0x1F;
 pub const RETURN_VALUE: u8 = 0x20;
 
 pub const ARRAY: u8 = 0x21;
+pub const INDEX: u8 = 0x22;
 
 pub fn constant(v: u16) -> [u8; 3] {
     [CONSTANT, (v >> 8) as u8, (v & 0xFF) as u8]

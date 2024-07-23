@@ -208,7 +208,11 @@ impl Compiler {
                 self.add_bytecode(opcode::CALL);
             }
 
-            Expression::Index(_) => todo!(),
+            Expression::Index(index) => {
+                self.compile_expression(*index.left)?;
+                self.compile_expression(*index.index)?;
+                self.add_bytecode(opcode::INDEX);
+            },
 
             Expression::Function(mut function) => {
                 self.scope.enter();

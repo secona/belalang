@@ -260,6 +260,16 @@ impl VM {
                     self.push(Object::Array(arr))?;
                 }
 
+                opcode::INDEX => {
+                    let index = self.pop()?;
+                    let arr = self.pop()?;
+
+                    if let (Object::Array(arr), Object::Integer(index)) = (arr, index) {
+                        let obj = arr.get(index as usize).unwrap_or(&Object::Null);
+                        self.push(obj.clone())?;
+                    }
+                }
+
                 _ => return Err(RuntimeError::UnknownInstruction(op)),
             };
 

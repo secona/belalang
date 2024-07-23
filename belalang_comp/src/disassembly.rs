@@ -168,6 +168,10 @@ pub fn disassemble(bytes: Vec<u8>) -> String {
                 result.push_str(&format!("{:#06x}: ARRAY {:#03}\n", start_i, operand));
             }
 
+            opcode::INDEX => {
+                result.push_str(&format!("{:#06x}: INDEX\n", i));
+            }
+
             _ => {}
         }
 
