@@ -1,6 +1,7 @@
 use belalang::{repl, run_file};
 use clap::Parser;
-use std::{error::Error, path::PathBuf};
+use std::error::Error;
+use std::path::PathBuf;
 
 #[derive(clap::Parser)]
 struct CLI {
