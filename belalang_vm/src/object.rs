@@ -1,4 +1,3 @@
-use std::cmp::{max, min};
 use std::fmt::Display;
 
 use belalang_core::token::Token;

@@ -125,12 +125,7 @@ impl Compiler {
 
                     self.set_variable(&scope, index);
                 }
-                Token::Assign
-                | Token::AddAssign
-                | Token::SubAssign
-                | Token::MulAssign
-                | Token::DivAssign
-                | Token::ModAssign => {
+                _ => {
                     let symbol = self.scope.resolve(var.name.value)?;
                     let scope = symbol.scope;
                     let index = symbol.index;
@@ -164,12 +159,36 @@ impl Compiler {
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::MOD);
                         }
+                        Token::BitAndAssign => {
+                            self.get_variable(&scope, index);
+                            self.compile_expression(*var.value)?;
+                            self.add_bytecode(opcode::BIT_AND);
+                        }
+                        Token::BitOrAssign => {
+                            self.get_variable(&scope, index);
+                            self.compile_expression(*var.value)?;
+                            self.add_bytecode(opcode::BIT_OR);
+                        }
+                        Token::BitXorAssign => {
+                            self.get_variable(&scope, index);
+                            self.compile_expression(*var.value)?;
+                            self.add_bytecode(opcode::BIT_XOR);
+                        }
+                        Token::ShiftLeftAssign => {
+                            self.get_variable(&scope, index);
+                            self.compile_expression(*var.value)?;
+                            self.add_bytecode(opcode::BIT_SL);
+                        }
+                        Token::ShiftRightAssign => {
+                            self.get_variable(&scope, index);
+                            self.compile_expression(*var.value)?;
+                            self.add_bytecode(opcode::BIT_SR);
+                        }
                         _ => unreachable!(),
                     }
 
                     self.set_variable(&scope, index);
                 }
-                _ => todo!(),
             },
 
             Expression::Call(call) => {
