@@ -43,6 +43,8 @@ pub const CALL: u8 = 0x1E;
 pub const RETURN: u8 = 0x1F;
 pub const RETURN_VALUE: u8 = 0x20;
 
+pub const ARRAY: u8 = 0x21;
+
 pub fn constant(v: u16) -> [u8; 3] {
     [CONSTANT, (v >> 8) as u8, (v & 0xFF) as u8]
 }
@@ -73,6 +75,10 @@ pub fn get_local(v: u8) -> [u8; 2] {
 
 pub fn get_builtin(v: u8) -> [u8; 2] {
     [GET_BUILTIN, v]
+}
+
+pub fn array(v: u16) -> [u8; 3] {
+    [ARRAY, (v >> 8) as u8, (v & 0xFF) as u8]
 }
 
 #[cfg(test)]

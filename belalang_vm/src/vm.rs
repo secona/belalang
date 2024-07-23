@@ -249,6 +249,17 @@ impl VM {
                     self.frame.pop();
                 }
 
+                opcode::ARRAY => {
+                    let len = self.read_u16();
+                    let mut arr = Vec::new();
+
+                    for _ in 0..len {
+                        arr.push(self.pop()?);
+                    }
+
+                    self.push(Object::Array(arr))?;
+                }
+
                 _ => return Err(RuntimeError::UnknownInstruction(op)),
             };
 

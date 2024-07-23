@@ -20,18 +20,27 @@ pub enum Object {
     String(String),
     Function(Function),
     Builtin(usize),
+    Array(Vec<Object>),
 }
 
 impl Display for Object {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Object::Null => f.write_str("null"),
-            Object::Integer(i) => f.write_str(&format!("{i}")),
-            Object::Float(fl) => f.write_str(&format!("{fl}")),
-            Object::Boolean(b) => f.write_str(&format!("{b}")),
-            Object::String(s) => f.write_str(&s),
-            Object::Function(_) => f.write_str("<fn>"),
-            Object::Builtin(_) => f.write_str("<builtin fn>"),
+            Object::Null => write!(f, "null"),
+            Object::Integer(i) => write!(f, "{i}"),
+            Object::Float(fl) => write!(f, "{fl}"),
+            Object::Boolean(b) => write!(f, "{b}"),
+            Object::String(s) => write!(f, r#""{s}""#),
+            Object::Function(_) => write!(f, "<fn>"),
+            Object::Builtin(_) => write!(f, "<builtin fn>"),
+            Object::Array(v) => write!(
+                f,
+                "[{}]",
+                v.iter()
+                    .map(|e| e.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
         }
     }
 }

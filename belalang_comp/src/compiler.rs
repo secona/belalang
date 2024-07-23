@@ -113,7 +113,15 @@ impl Compiler {
                 self.add_instruction(opcode::constant(index).to_vec());
             }
 
-            Expression::Array(_) => todo!(),
+            Expression::Array(array) => {
+                let array_len = array.elements.len() as u16;
+
+                for element in array.elements.into_iter().rev() {
+                    self.compile_expression(element)?;
+                }
+
+                self.add_instruction(opcode::array(array_len).to_vec());
+            },
 
             Expression::Var(var) => match var.token {
                 Token::ColonAssign => {
