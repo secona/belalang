@@ -1,5 +1,6 @@
 use crate::builtins::BuiltinCollection;
 use crate::bytecode::Bytecode;
+use crate::globals::Globals;
 use crate::object::Object;
 use crate::opcode;
 
@@ -9,10 +10,10 @@ use crate::stack::Stack;
 
 pub struct VM {
     pub constants: Vec<Object>,
-    pub globals: Vec<Object>,
 
     pub frame: FrameManager,
     pub stack: Stack,
+    pub globals: Globals,
 
     pub builtin_collection: BuiltinCollection,
 }
@@ -182,15 +183,12 @@ impl VM {
                     let index = self.read_u16() as usize;
                     let object = self.stack.top()?.clone();
 
-                    match self.globals.get(index) {
-                        Some(_) => self.globals[index] = object,
-                        None => self.globals.insert(index, object),
-                    }
+                    self.globals.set(index, object);
                 }
 
                 opcode::GET_GLOBAL => {
                     let index = self.read_u16() as usize;
-                    self.stack.push(self.globals[index].clone())?;
+                    self.stack.push(self.globals.get(index))?;
                 }
 
                 opcode::SET_LOCAL => {
@@ -321,10 +319,10 @@ impl VMBuilder {
 
         VM {
             constants: Vec::new(),
-            globals: vec![Object::Null; globals_offset],
 
             frame: FrameManager::default(),
             stack: Stack::default(),
+            globals: Globals::with_offset(globals_offset),
 
             builtin_collection,
         }
