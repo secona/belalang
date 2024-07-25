@@ -5,16 +5,14 @@ use crate::opcode;
 
 use crate::error::RuntimeError;
 use crate::frame::FrameManager;
+use crate::stack::Stack;
 
 pub struct VM {
     pub constants: Vec<Object>,
     pub globals: Vec<Object>,
 
-    pub last_popped: Object,
-    pub stack: Vec<Object>,
-    pub sp: usize,
-
     pub frame: FrameManager,
+    pub stack: Stack,
 
     pub builtin_collection: BuiltinCollection,
 }
@@ -35,130 +33,130 @@ impl VM {
                 opcode::CONSTANT => {
                     let index = self.read_u16();
                     let object = self.constants[index as usize].clone();
-                    self.push(object)?;
+                    self.stack.push(object)?;
                 }
 
                 opcode::POP => {
-                    self.last_popped = self.pop()?;
+                    self.stack.pop()?;
                 }
 
                 opcode::ADD => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_add(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_add(right)?)?;
                 }
 
                 opcode::SUB => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_sub(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_sub(right)?)?;
                 }
 
                 opcode::MUL => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_mul(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_mul(right)?)?;
                 }
 
                 opcode::DIV => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_div(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_div(right)?)?;
                 }
 
                 opcode::MOD => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_mod(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_mod(right)?)?;
                 }
 
                 opcode::TRUE => {
-                    self.push(Object::Boolean(true))?;
+                    self.stack.push(Object::Boolean(true))?;
                 }
 
                 opcode::FALSE => {
-                    self.push(Object::Boolean(false))?;
+                    self.stack.push(Object::Boolean(false))?;
                 }
 
                 opcode::EQUAL => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(Object::Boolean(right == left))?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(Object::Boolean(right == left))?;
                 }
 
                 opcode::NOT_EQUAL => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(Object::Boolean(right != left))?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(Object::Boolean(right != left))?;
                 }
 
                 opcode::LESS_THAN => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_less_than(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_less_than(right)?)?;
                 }
 
                 opcode::LESS_THAN_EQUAL => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_less_than_equal(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_less_than_equal(right)?)?;
                 }
 
                 opcode::AND => {
                     if let (Object::Boolean(right), Object::Boolean(left)) =
-                        (self.pop()?, self.pop()?)
+                        (self.stack.pop_take()?, self.stack.pop_take()?)
                     {
-                        self.push(Object::Boolean(right && left))?;
+                        self.stack.push(Object::Boolean(right && left))?;
                     }
                 }
 
                 opcode::OR => {
                     if let (Object::Boolean(right), Object::Boolean(left)) =
-                        (self.pop()?, self.pop()?)
+                        (self.stack.pop_take()?, self.stack.pop_take()?)
                     {
-                        self.push(Object::Boolean(right || left))?;
+                        self.stack.push(Object::Boolean(right || left))?;
                     }
                 }
 
                 opcode::BIT_AND => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_bit_and(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_bit_and(right)?)?;
                 }
 
                 opcode::BIT_OR => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_bit_or(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_bit_or(right)?)?;
                 }
 
                 opcode::BIT_XOR => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_bit_xor(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_bit_xor(right)?)?;
                 }
 
                 opcode::BIT_SL => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_bit_sl(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_bit_sl(right)?)?;
                 }
 
                 opcode::BIT_SR => {
-                    let right = self.pop()?;
-                    let left = self.pop()?;
-                    self.push(left.try_bit_sr(right)?)?;
+                    let right = self.stack.pop_take()?;
+                    let left = self.stack.pop_take()?;
+                    self.stack.push(left.try_bit_sr(right)?)?;
                 }
 
                 opcode::BANG => {
-                    if let Object::Boolean(b) = self.pop()? {
-                        self.push(Object::Boolean(!b))?;
+                    if let Object::Boolean(b) = self.stack.pop_take()? {
+                        self.stack.push(Object::Boolean(!b))?;
                     }
                 }
 
                 opcode::MINUS => {
-                    if let Object::Integer(i) = self.pop()? {
-                        self.push(Object::Integer(-i))?;
+                    if let Object::Integer(i) = self.stack.pop_take()? {
+                        self.stack.push(Object::Integer(-i))?;
                     }
                 }
 
@@ -169,7 +167,7 @@ impl VM {
 
                 opcode::JUMP_IF_FALSE => {
                     let relative = self.read_u16() as i16;
-                    let value = self.pop()?;
+                    let value = self.stack.pop_take()?;
 
                     if let Object::Boolean(false) = value {
                         self.inc_ip(relative as usize);
@@ -177,12 +175,12 @@ impl VM {
                 }
 
                 opcode::NULL => {
-                    self.push(Object::Null)?;
+                    self.stack.push(Object::Null)?;
                 }
 
                 opcode::SET_GLOBAL => {
                     let index = self.read_u16() as usize;
-                    let object = self.stack_top()?.clone();
+                    let object = self.stack.top()?.clone();
 
                     match self.globals.get(index) {
                         Some(_) => self.globals[index] = object,
@@ -192,12 +190,12 @@ impl VM {
 
                 opcode::GET_GLOBAL => {
                     let index = self.read_u16() as usize;
-                    self.push(self.globals[index].clone())?;
+                    self.stack.push(self.globals[index].clone())?;
                 }
 
                 opcode::SET_LOCAL => {
                     let index = self.read_u8() as usize;
-                    let object = self.stack_top()?.clone();
+                    let object = self.stack.top()?.clone();
 
                     let frame = self.frame.current_mut();
                     match frame.slots.get(index) {
@@ -208,19 +206,19 @@ impl VM {
 
                 opcode::GET_LOCAL => {
                     let index = self.read_u8() as usize;
-                    self.push(self.frame.current().slots[index].clone())?;
+                    self.stack.push(self.frame.current().slots[index].clone())?;
                 }
 
                 opcode::GET_BUILTIN => {
                     let index = self.read_u8() as usize;
-                    self.push(Object::Builtin(index))?;
+                    self.stack.push(Object::Builtin(index))?;
                 }
 
                 opcode::CALL => {
-                    match self.pop()? {
+                    match self.stack.pop_take()? {
                         Object::Function(function) => {
                             let args: Vec<_> = (0..function.arity)
-                                .map(|_| self.pop())
+                                .map(|_| self.stack.pop_take())
                                 .collect::<Result<Vec<_>, _>>()?;
 
                             self.frame.push(function);
@@ -231,19 +229,19 @@ impl VM {
                         }
                         Object::Builtin(index) => {
                             let args = (0..self.builtin_collection.get_arity(index)?)
-                                .map(|_| self.pop())
+                                .map(|_| self.stack.pop_take())
                                 .collect::<Result<Vec<_>, _>>()?;
 
                             let builtin = self.builtin_collection.get(index)?;
-                            self.push(builtin.call(args))?;
+                            self.stack.push(builtin.call(args))?;
                         }
                         _ => return Err(RuntimeError::NotAFunction),
                     }
                 }
 
                 opcode::RETURN_VALUE => {
-                    if self.stack_top().is_err() {
-                        self.push(Object::Null)?;
+                    if self.stack.top().is_err() {
+                        self.stack.push(Object::Null)?;
                     }
 
                     self.frame.pop();
@@ -254,19 +252,19 @@ impl VM {
                     let mut arr = Vec::new();
 
                     for _ in 0..len {
-                        arr.push(self.pop()?);
+                        arr.push(self.stack.pop_take()?);
                     }
 
-                    self.push(Object::Array(arr))?;
+                    self.stack.push(Object::Array(arr))?;
                 }
 
                 opcode::INDEX => {
-                    let index = self.pop()?;
-                    let arr = self.pop()?;
+                    let index = self.stack.pop_take()?;
+                    let arr = self.stack.pop_take()?;
 
                     if let (Object::Array(arr), Object::Integer(index)) = (arr, index) {
                         let obj = arr.get(index as usize).unwrap_or(&Object::Null);
-                        self.push(obj.clone())?;
+                        self.stack.push(obj.clone())?;
                     }
                 }
 
@@ -304,33 +302,6 @@ impl VM {
         current_frame.ip += 1;
         current_frame.ins()[current_frame.ip]
     }
-
-    pub fn stack_top(&mut self) -> Result<&Object, RuntimeError> {
-        if self.sp == 0 {
-            return Err(RuntimeError::StackUnderflow);
-        }
-
-        self.stack
-            .get(self.sp - 1)
-            .ok_or(RuntimeError::StackUnderflow)
-    }
-
-    pub fn pop(&mut self) -> Result<Object, RuntimeError> {
-        if self.sp == 0 {
-            return Err(RuntimeError::StackUnderflow);
-        }
-
-        self.sp -= 1;
-
-        Ok(self.stack.remove(self.sp))
-    }
-
-    fn push(&mut self, object: Object) -> Result<(), RuntimeError> {
-        self.stack.push(object);
-        self.sp += 1;
-
-        Ok(())
-    }
 }
 
 #[derive(Default)]
@@ -352,11 +323,8 @@ impl VMBuilder {
             constants: Vec::new(),
             globals: vec![Object::Null; globals_offset],
 
-            last_popped: Object::Null,
-            stack: Vec::new(),
-            sp: 0,
-
             frame: FrameManager::default(),
+            stack: Stack::default(),
 
             builtin_collection,
         }

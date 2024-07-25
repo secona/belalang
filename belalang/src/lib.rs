@@ -57,7 +57,7 @@ pub fn repl() -> Result<(), Box<dyn Error>> {
                 };
 
                 match vm.run(code) {
-                    Ok(_) => println!("{}", vm.last_popped),
+                    Ok(_) => println!("{}", vm.stack.take_last()),
                     Err(err) => println!("runtime error: {err}"),
                 }
             }

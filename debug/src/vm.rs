@@ -16,10 +16,8 @@ fn run(line: String) -> Result<(), Box<dyn Error>> {
     let mut vm = VMBuilder::default().build();
     vm.run(code)?;
 
-    println!("stack: {:?}", vm.stack);
-    println!("sp: {}", vm.sp);
-    println!("last popped: {:?}", vm.last_popped);
-    println!("globals: {:?}", vm.globals);
+    println!("stack: {:#?}", vm.stack);
+    println!("globals: {:#?}", vm.globals);
     println!("frame: {:#?}", vm.frame);
 
     Ok(())
