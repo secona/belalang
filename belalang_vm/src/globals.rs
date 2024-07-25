@@ -1,5 +1,6 @@
 use crate::object::Object;
 
+#[derive(Debug)]
 pub struct Globals {
     globals: Vec<Object>,
 }
