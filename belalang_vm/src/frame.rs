@@ -1,3 +1,5 @@
+use std::vec::IntoIter;
+
 use crate::object::{Function, Object};
 
 #[derive(Debug, Default)]
@@ -7,25 +9,55 @@ pub struct Frame {
     pub ip: usize,
 }
 
-impl Frame {
-    pub fn ins(&self) -> &Vec<u8> {
-        &self.function.instructions
-    }
-}
-
 #[derive(Debug, Default)]
-pub struct FrameManager {
-    pub main_frame: Frame,
-    pub frames: Vec<Frame>,
+pub struct FrameStack {
+    main_frame: Frame,
+    frames: Vec<Frame>,
 }
 
-impl FrameManager {
-    pub fn current(&self) -> &Frame {
+impl FrameStack {
+    pub fn append_to_main(&mut self, instructions: IntoIter<u8>) {
+        self.main_frame.function.instructions.extend(instructions);
+    }
+
+    fn current(&self) -> &Frame {
         self.frames.last().unwrap_or(&self.main_frame)
     }
 
-    pub fn current_mut(&mut self) -> &mut Frame {
+    fn current_mut(&mut self) -> &mut Frame {
         self.frames.last_mut().unwrap_or(&mut self.main_frame)
+    }
+
+    pub fn current_ip(&self) -> usize {
+        self.current().ip
+    }
+
+    pub fn increment_ip(&mut self, value: usize) {
+        self.current_mut().ip = self
+            .current()
+            .ip
+            .checked_add_signed(value as isize)
+            .unwrap();
+    }
+
+    pub fn current_inst(&self) -> &Vec<u8> {
+        &self.current().function.instructions
+    }
+
+    pub fn set_local(&mut self, index: usize, object: Object) {
+        let frame = self.current_mut();
+        match frame.slots.get(index) {
+            Some(_) => frame.slots[index] = object,
+            None => frame.slots.insert(index, object),
+        }
+    }
+
+    pub fn set_locals(&mut self, objects: Vec<Object>) {
+        self.current_mut().slots.extend(objects);
+    }
+
+    pub fn get_local(&self, index: usize) -> Object {
+        self.current().slots[index].clone()
     }
 
     pub fn push(&mut self, function: Function) {

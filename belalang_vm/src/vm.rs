@@ -5,13 +5,13 @@ use crate::object::Object;
 use crate::opcode;
 
 use crate::error::RuntimeError;
-use crate::frame::FrameManager;
+use crate::frame::FrameStack;
 use crate::stack::Stack;
 
 pub struct VM {
     pub constants: Vec<Object>,
 
-    pub frame: FrameManager,
+    pub frame: FrameStack,
     pub stack: Stack,
     pub globals: Globals,
 
@@ -21,14 +21,10 @@ pub struct VM {
 impl VM {
     pub fn run(&mut self, code: Bytecode) -> Result<(), RuntimeError> {
         self.constants.extend(code.constants.into_iter());
-        self.frame
-            .main_frame
-            .function
-            .instructions
-            .extend(code.instructions.into_iter());
+        self.frame.append_to_main(code.instructions.into_iter());
 
-        while self.frame.current().ip < self.frame.current().ins().len() {
-            let op = self.frame.current().ins()[self.frame.current().ip];
+        while self.frame.current_ip() < self.frame.current_inst().len() {
+            let op = self.frame.current_inst()[self.frame.current_ip()];
 
             match op {
                 opcode::CONSTANT => {
@@ -163,7 +159,7 @@ impl VM {
 
                 opcode::JUMP => {
                     let relative = self.read_u16() as i16;
-                    self.inc_ip(relative as usize);
+                    self.frame.increment_ip(relative as usize);
                 }
 
                 opcode::JUMP_IF_FALSE => {
@@ -171,7 +167,7 @@ impl VM {
                     let value = self.stack.pop_take()?;
 
                     if let Object::Boolean(false) = value {
-                        self.inc_ip(relative as usize);
+                        self.frame.increment_ip(relative as usize);
                     }
                 }
 
@@ -194,17 +190,13 @@ impl VM {
                 opcode::SET_LOCAL => {
                     let index = self.read_u8() as usize;
                     let object = self.stack.top()?.clone();
-
-                    let frame = self.frame.current_mut();
-                    match frame.slots.get(index) {
-                        Some(_) => frame.slots[index] = object,
-                        None => frame.slots.insert(index, object),
-                    }
+                    self.frame.set_local(index, object);
                 }
 
                 opcode::GET_LOCAL => {
                     let index = self.read_u8() as usize;
-                    self.stack.push(self.frame.current().slots[index].clone())?;
+                    let object = self.frame.get_local(index);
+                    self.stack.push(object)?;
                 }
 
                 opcode::GET_BUILTIN => {
@@ -220,8 +212,7 @@ impl VM {
                                 .collect::<Result<Vec<_>, _>>()?;
 
                             self.frame.push(function);
-
-                            self.frame.current_mut().slots.extend(args);
+                            self.frame.set_locals(args);
 
                             continue; // continue because we dont want to increment the ip
                         }
@@ -269,36 +260,28 @@ impl VM {
                 _ => return Err(RuntimeError::UnknownInstruction(op)),
             };
 
-            self.inc_ip(1)
+            self.frame.increment_ip(1)
         }
 
         Ok(())
     }
 
-    pub fn inc_ip(&mut self, value: usize) {
-        self.frame.current_mut().ip = self
-            .frame
-            .current()
-            .ip
-            .checked_add_signed(value as isize)
-            .unwrap();
-    }
-
     pub fn read_u16(&mut self) -> u16 {
-        let current_frame = &mut self.frame.current_mut();
+        let inst = self.frame.current_inst();
+        let ip = self.frame.current_ip();
 
-        let hi = current_frame.ins()[current_frame.ip + 1];
-        let lo = current_frame.ins()[current_frame.ip + 2];
-        current_frame.ip += 2;
+        let hi = inst[ip + 1];
+        let lo = inst[ip + 2];
+        self.frame.increment_ip(2);
 
         ((hi as u16) << 8) | (lo as u16)
     }
 
     pub fn read_u8(&mut self) -> u8 {
-        let current_frame = &mut self.frame.current_mut();
+        let ip = self.frame.current_ip();
 
-        current_frame.ip += 1;
-        current_frame.ins()[current_frame.ip]
+        self.frame.increment_ip(1);
+        self.frame.current_inst()[ip]
     }
 }
 
@@ -320,7 +303,7 @@ impl VMBuilder {
         VM {
             constants: Vec::new(),
 
-            frame: FrameManager::default(),
+            frame: FrameStack::default(),
             stack: Stack::default(),
             globals: Globals::with_offset(globals_offset),
 
@@ -328,32 +311,3 @@ impl VMBuilder {
         }
     }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use crate::{compiler::Compiler, object::Object};
-//     use belalang_core::{lexer::Lexer, parser::Parser};
-//
-//     use super::VM;
-//
-//     #[test]
-//     fn constant() {
-//         let lexer = Lexer::new("5 + 10;".as_bytes());
-//         let mut parser = Parser::new(lexer);
-//         let program = parser.parse_program().unwrap();
-//
-//         let mut compiler = Compiler::default();
-//         let mut code = compiler.compile_program(program).unwrap();
-//
-//         let mut vm = VM::default();
-//         vm.append_code(&mut code);
-//         vm.run().unwrap();
-//
-//         assert_eq!(vm.stack.len(), 0);
-//
-//         let Object::Integer(v) = vm.last_popped else {
-//             panic!()
-//         };
-//         assert_eq!(v, 15);
-//     }
-// }
