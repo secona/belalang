@@ -281,7 +281,7 @@ impl VM {
         let ip = self.frame.current_ip();
 
         self.frame.increment_ip(1);
-        self.frame.current_inst()[ip]
+        self.frame.current_inst()[ip + 1]
     }
 }
 
