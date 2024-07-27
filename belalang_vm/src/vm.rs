@@ -167,7 +167,7 @@ impl VM {
 
                 opcode::JUMP => {
                     let relative = self.read_u16() as i16;
-                    self.ip += relative as usize;
+                    self.increment_ip(relative as usize);
                 }
 
                 opcode::JUMP_IF_FALSE => {
@@ -175,7 +175,7 @@ impl VM {
                     let value = self.stack.pop_take()?;
 
                     if let Object::Boolean(false) = value {
-                        self.ip += relative as usize;
+                        self.increment_ip(relative as usize);
                     }
                 }
 
@@ -268,10 +268,14 @@ impl VM {
                 _ => return Err(RuntimeError::UnknownInstruction(op)),
             };
 
-            self.ip += 1;
+            self.increment_ip(1);
         }
 
         Ok(())
+    }
+
+    pub fn increment_ip(&mut self, value: usize) {
+        self.ip = self.ip.checked_add_signed(value as isize).unwrap();
     }
 
     pub fn read_u16(&mut self) -> u16 {

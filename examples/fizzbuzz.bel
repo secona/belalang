@@ -4,7 +4,7 @@ while (n += 1) <= 100 {
 		print("Fizzbuzz");
 	} else if n % 5 == 0 {
 		print("Buzz");
-	} else if (n % 3 == 0) {
+	} else if n % 3 == 0 {
 		print("Fizz");
 	} else {
 		print(n);
