@@ -11,6 +11,7 @@ use crate::scope::{ScopeLevel, ScopeManager, ScopeManagerBuilder};
 pub struct Compiler {
     incremental: bool,
     prev_constants: usize,
+    function_instructions: Vec<Vec<u8>>,
 
     pub constants: Vec<Object>,
     pub scope: ScopeManager,
@@ -26,6 +27,16 @@ impl Compiler {
 
         if !self.incremental {
             instructions.push(opcode::RETURN_VALUE);
+        }
+
+        for constant in &mut self.constants {
+            if let Object::Function(ref mut f) = constant {
+                let pointer = instructions.len();
+                let inst = std::mem::take(&mut self.function_instructions[f.pointer]);
+
+                instructions.extend(inst);
+                f.pointer = pointer;
+            }
         }
 
         let constants = if self.incremental {
@@ -240,9 +251,13 @@ impl Compiler {
                     _ => instructions.push(opcode::RETURN_VALUE),
                 };
 
+                let pointer = self.function_instructions.len();
+                self.function_instructions.push(instructions);
+
                 let index = self.add_constant(Object::Function(Function {
                     arity,
-                    instructions,
+                    pointer,
+                    instructions: Vec::new(), // delete later
                 })) as u16;
 
                 self.add_instruction(opcode::constant(index).to_vec());
@@ -443,6 +458,7 @@ impl CompilerBuilder {
             incremental: self.incremental,
             scope: scope_manager,
             constants: Vec::new(),
+            function_instructions: Vec::new(),
             prev_constants: 0,
         }
     }

@@ -8,6 +8,7 @@ use crate::error::RuntimeError;
 pub struct Function {
     pub instructions: Vec<u8>,
     pub arity: usize,
+    pub pointer: usize,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
