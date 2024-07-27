@@ -254,11 +254,7 @@ impl Compiler {
                 let pointer = self.function_instructions.len();
                 self.function_instructions.push(instructions);
 
-                let index = self.add_constant(Object::Function(Function {
-                    arity,
-                    pointer,
-                    instructions: Vec::new(), // delete later
-                })) as u16;
+                let index = self.add_constant(Object::Function(Function { arity, pointer })) as u16;
 
                 self.add_instruction(opcode::constant(index).to_vec());
             }

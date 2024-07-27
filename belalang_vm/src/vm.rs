@@ -5,10 +5,12 @@ use crate::object::Object;
 use crate::opcode;
 
 use crate::error::RuntimeError;
-use crate::frame::FrameStack;
+use crate::frame::{Frame, FrameStack};
 use crate::stack::Stack;
 
 pub struct VM {
+    pub ip: usize,
+    pub instructions: Vec<u8>,
     pub constants: Vec<Object>,
 
     pub frame: FrameStack,
@@ -21,10 +23,10 @@ pub struct VM {
 impl VM {
     pub fn run(&mut self, code: Bytecode) -> Result<(), RuntimeError> {
         self.constants.extend(code.constants.into_iter());
-        self.frame.append_to_main(code.instructions.into_iter());
+        self.instructions.extend(code.instructions.into_iter());
 
-        while self.frame.current_ip() < self.frame.current_inst().len() {
-            let op = self.frame.current_inst()[self.frame.current_ip()];
+        while self.ip < self.instructions.len() {
+            let op = self.instructions[self.ip];
 
             match op {
                 opcode::NOOP => {}
@@ -165,7 +167,7 @@ impl VM {
 
                 opcode::JUMP => {
                     let relative = self.read_u16() as i16;
-                    self.frame.increment_ip(relative as usize);
+                    self.ip += relative as usize;
                 }
 
                 opcode::JUMP_IF_FALSE => {
@@ -173,7 +175,7 @@ impl VM {
                     let value = self.stack.pop_take()?;
 
                     if let Object::Boolean(false) = value {
-                        self.frame.increment_ip(relative as usize);
+                        self.ip += relative as usize;
                     }
                 }
 
@@ -209,11 +211,17 @@ impl VM {
                 opcode::CALL => {
                     match self.stack.pop_take()? {
                         Object::Function(function) => {
+                            self.frame.push(Frame {
+                                ret_addr: self.ip,
+                                slots: Vec::new(),
+                            });
+
                             let args: Vec<_> = (0..function.arity)
                                 .map(|_| self.stack.pop_take())
                                 .collect::<Result<Vec<_>, _>>()?;
 
-                            self.frame.push(function);
+                            self.ip = function.pointer;
+
                             self.frame.set_locals(args);
 
                             continue; // continue because we dont want to increment the ip
@@ -239,7 +247,8 @@ impl VM {
                         self.stack.push(Object::Null)?;
                     }
 
-                    self.frame.pop();
+                    let frame = self.frame.pop();
+                    self.ip = frame.ret_addr;
                 }
 
                 opcode::ARRAY => {
@@ -266,28 +275,25 @@ impl VM {
                 _ => return Err(RuntimeError::UnknownInstruction(op)),
             };
 
-            self.frame.increment_ip(1)
+            self.ip += 1;
         }
 
         Ok(())
     }
 
     pub fn read_u16(&mut self) -> u16 {
-        let inst = self.frame.current_inst();
-        let ip = self.frame.current_ip();
-
-        let hi = inst[ip + 1];
-        let lo = inst[ip + 2];
-        self.frame.increment_ip(2);
+        let hi = self.instructions[self.ip + 1];
+        let lo = self.instructions[self.ip + 2];
+        self.ip += 2;
 
         ((hi as u16) << 8) | (lo as u16)
     }
 
     pub fn read_u8(&mut self) -> u8 {
-        let ip = self.frame.current_ip();
+        let v = self.instructions[self.ip + 1];
+        self.ip += 1;
 
-        self.frame.increment_ip(1);
-        self.frame.current_inst()[ip + 1]
+        v
     }
 }
 
@@ -307,6 +313,8 @@ impl VMBuilder {
         let globals_offset = builtin_collection.keys().len(); // temporary fix
 
         VM {
+            ip: 0,
+            instructions: Vec::new(),
             constants: Vec::new(),
 
             frame: FrameStack::default(),
