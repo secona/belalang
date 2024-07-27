@@ -211,18 +211,12 @@ impl VM {
                 opcode::CALL => {
                     match self.stack.pop_take()? {
                         Object::Function(function) => {
-                            self.frame.push(Frame {
-                                ret_addr: self.ip,
-                                slots: Vec::new(),
-                            });
-
                             let args: Vec<_> = (0..function.arity)
                                 .map(|_| self.stack.pop_take())
                                 .collect::<Result<Vec<_>, _>>()?;
 
+                            self.frame.push(Frame::new(self.ip, args));
                             self.ip = function.pointer;
-
-                            self.frame.set_locals(args);
 
                             continue; // continue because we dont want to increment the ip
                         }

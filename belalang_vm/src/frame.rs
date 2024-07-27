@@ -6,9 +6,18 @@ pub struct Frame {
     pub ret_addr: usize,
 }
 
+impl Frame {
+    pub fn new(ret_addr: usize, locals: Vec<Object>) -> Self {
+        Self {
+            ret_addr,
+            slots: locals,
+            ..Default::default()
+        }
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct FrameStack {
-    main_frame: Frame,
     frames: Vec<Frame>,
 }
 
@@ -18,11 +27,11 @@ impl FrameStack {
     }
 
     fn current(&self) -> &Frame {
-        self.frames.last().unwrap_or(&self.main_frame)
+        self.frames.last().unwrap()
     }
 
     fn current_mut(&mut self) -> &mut Frame {
-        self.frames.last_mut().unwrap_or(&mut self.main_frame)
+        self.frames.last_mut().unwrap()
     }
 
     pub fn set_local(&mut self, index: usize, object: Object) {
@@ -31,10 +40,6 @@ impl FrameStack {
             Some(_) => frame.slots[index] = object,
             None => frame.slots.insert(index, object),
         }
-    }
-
-    pub fn set_locals(&mut self, objects: Vec<Object>) {
-        self.current_mut().slots.extend(objects);
     }
 
     pub fn get_local(&self, index: usize) -> Object {
