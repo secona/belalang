@@ -231,6 +231,10 @@ impl VM {
                 }
 
                 opcode::RETURN_VALUE => {
+                    if self.frame.top_level() {
+                        break;
+                    }
+
                     if self.stack.top().is_err() {
                         self.stack.push(Object::Null)?;
                     }

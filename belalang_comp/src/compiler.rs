@@ -22,18 +22,24 @@ impl Compiler {
             self.compile_statement(statement)?;
         }
 
-        let code = Bytecode {
-            instructions: self.scope.main_scope.instructions.drain(..).collect(),
-            constants: if self.incremental {
-                let constants = self.constants[self.prev_constants..].to_vec();
-                self.prev_constants = self.constants.len();
-                constants
-            } else {
-                self.constants.drain(..).collect()
-            },
+        let mut instructions: Vec<_> = self.scope.main_scope.instructions.drain(..).collect();
+
+        if !self.incremental {
+            instructions.push(opcode::RETURN_VALUE);
+        }
+
+        let constants = if self.incremental {
+            let constants = self.constants[self.prev_constants..].to_vec();
+            self.prev_constants = self.constants.len();
+            constants
+        } else {
+            self.constants.drain(..).collect()
         };
 
-        Ok(code)
+        Ok(Bytecode {
+            instructions,
+            constants,
+        })
     }
 
     pub fn compile_statement(&mut self, statement: Statement) -> Result<(), CompileError> {
@@ -120,7 +126,7 @@ impl Compiler {
                 }
 
                 self.add_instruction(opcode::array(array_len).to_vec());
-            },
+            }
 
             Expression::Var(var) => match var.token {
                 Token::ColonAssign => {
@@ -211,7 +217,7 @@ impl Compiler {
                 self.compile_expression(*index.left)?;
                 self.compile_expression(*index.index)?;
                 self.add_bytecode(opcode::INDEX);
-            },
+            }
 
             Expression::Function(mut function) => {
                 self.scope.enter();

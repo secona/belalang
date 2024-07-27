@@ -16,6 +16,10 @@ pub struct FrameStack {
 }
 
 impl FrameStack {
+    pub fn top_level(&self) -> bool {
+        self.frames.len() == 0
+    }
+
     pub fn append_to_main(&mut self, instructions: IntoIter<u8>) {
         self.main_frame.function.instructions.extend(instructions);
     }

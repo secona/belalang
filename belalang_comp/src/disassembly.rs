@@ -160,7 +160,7 @@ pub fn disassemble(bytes: Vec<u8>) -> String {
             }
 
             opcode::RETURN_VALUE => {
-                result.push_str(&format!("{:#06x}: RETURN\n", i));
+                result.push_str(&format!("{:#06x}: RETURN_VALUE\n", i));
             }
 
             opcode::ARRAY => {
