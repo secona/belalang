@@ -27,11 +27,7 @@ impl VM {
             let op = self.frame.current_inst()[self.frame.current_ip()];
 
             match op {
-                opcode::CONSTANT => {
-                    let index = self.read_u16();
-                    let object = self.constants[index as usize].clone();
-                    self.stack.push(object)?;
-                }
+                opcode::NOOP => {}
 
                 opcode::POP => {
                     self.stack.pop()?;
@@ -67,12 +63,22 @@ impl VM {
                     self.stack.push(left.try_mod(right)?)?;
                 }
 
+                opcode::CONSTANT => {
+                    let index = self.read_u16();
+                    let object = self.constants[index as usize].clone();
+                    self.stack.push(object)?;
+                }
+
                 opcode::TRUE => {
                     self.stack.push(Object::Boolean(true))?;
                 }
 
                 opcode::FALSE => {
                     self.stack.push(Object::Boolean(false))?;
+                }
+
+                opcode::NULL => {
+                    self.stack.push(Object::Null)?;
                 }
 
                 opcode::EQUAL => {
@@ -169,10 +175,6 @@ impl VM {
                     if let Object::Boolean(false) = value {
                         self.frame.increment_ip(relative as usize);
                     }
-                }
-
-                opcode::NULL => {
-                    self.stack.push(Object::Null)?;
                 }
 
                 opcode::SET_GLOBAL => {

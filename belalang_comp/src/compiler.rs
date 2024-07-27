@@ -71,8 +71,7 @@ impl Compiler {
                 self.replace_u16_operand(jump, (start_of_while as isize - current as isize) as u16);
                 self.replace_u16_operand(jif, (current as isize - jif_index as isize) as u16);
 
-                self.add_bytecode(opcode::NULL);
-                self.add_bytecode(opcode::POP);
+                self.add_bytecode(opcode::NOOP);
             }
         };
 

@@ -1,50 +1,65 @@
-pub const CONSTANT: u8 = 0x00;
+pub const NOOP: u8 = 0x00;
 
+// Stack Operations
 pub const POP: u8 = 0x01;
 
-pub const ADD: u8 = 0x02;
-pub const SUB: u8 = 0x03;
-pub const MUL: u8 = 0x04;
-pub const DIV: u8 = 0x05;
-pub const MOD: u8 = 0x06;
+// Arithmetic Operations
+pub const ADD: u8 = 0x10;
+pub const SUB: u8 = 0x11;
+pub const MUL: u8 = 0x12;
+pub const DIV: u8 = 0x13;
+pub const MOD: u8 = 0x14;
 
-pub const TRUE: u8 = 0x07;
-pub const FALSE: u8 = 0x08;
-pub const NULL: u8 = 0x09;
+// Constants
+pub const CONSTANT: u8 = 0x20;
+pub const TRUE: u8 = 0x21;
+pub const FALSE: u8 = 0x22;
+pub const NULL: u8 = 0x23;
 
-pub const EQUAL: u8 = 0x0A;
-pub const NOT_EQUAL: u8 = 0x0B;
-pub const LESS_THAN: u8 = 0x0C;
-pub const LESS_THAN_EQUAL: u8 = 0x0D;
-pub const AND: u8 = 0x0E;
-pub const OR: u8 = 0x0F;
+// Comparison Operations
+pub const EQUAL: u8 = 0x30;
+pub const NOT_EQUAL: u8 = 0x31;
+pub const LESS_THAN: u8 = 0x32;
+pub const LESS_THAN_EQUAL: u8 = 0x33;
 
-pub const BIT_AND: u8 = 0x10;
-pub const BIT_OR: u8 = 0x11;
-pub const BIT_XOR: u8 = 0x12;
-pub const BIT_SL: u8 = 0x13;
-pub const BIT_SR: u8 = 0x14;
+// Logical Operations
+pub const AND: u8 = 0x40;
+pub const OR: u8 = 0x41;
 
-pub const BANG: u8 = 0x15;
-pub const MINUS: u8 = 0x16;
+// Bitwise Operations
+pub const BIT_AND: u8 = 0x50;
+pub const BIT_OR: u8 = 0x51;
+pub const BIT_XOR: u8 = 0x52;
+pub const BIT_SL: u8 = 0x53;
+pub const BIT_SR: u8 = 0x54;
 
-pub const JUMP: u8 = 0x17;
-pub const JUMP_IF_FALSE: u8 = 0x18;
+// Unary Operations
+pub const BANG: u8 = 0x60;
+pub const MINUS: u8 = 0x61;
 
-pub const SET_GLOBAL: u8 = 0x19;
-pub const GET_GLOBAL: u8 = 0x1A;
+// Jump Operations
+pub const JUMP: u8 = 0x70;
+pub const JUMP_IF_FALSE: u8 = 0x71;
 
-pub const SET_LOCAL: u8 = 0x1B;
-pub const GET_LOCAL: u8 = 0x1C;
+// Global Variable Operations
+pub const SET_GLOBAL: u8 = 0x80;
+pub const GET_GLOBAL: u8 = 0x81;
 
-pub const GET_BUILTIN: u8 = 0x1D;
+// Local Variable Operations
+pub const SET_LOCAL: u8 = 0x90;
+pub const GET_LOCAL: u8 = 0x91;
 
-pub const CALL: u8 = 0x1E;
-pub const RETURN: u8 = 0x1F;
-pub const RETURN_VALUE: u8 = 0x20;
+// Builtin Function Operations
+pub const GET_BUILTIN: u8 = 0xA0;
 
-pub const ARRAY: u8 = 0x21;
-pub const INDEX: u8 = 0x22;
+// Function Call Operations
+pub const CALL: u8 = 0xB0;
+pub const RETURN: u8 = 0xB1;
+pub const RETURN_VALUE: u8 = 0xB2;
+
+// Array Operations
+pub const ARRAY: u8 = 0xC0;
+pub const INDEX: u8 = 0xC1;
 
 pub fn constant(v: u16) -> [u8; 3] {
     [CONSTANT, (v >> 8) as u8, (v & 0xFF) as u8]
