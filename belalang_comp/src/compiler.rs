@@ -6,12 +6,18 @@ use belalang_vm::object::{Function, Object};
 use belalang_vm::opcode;
 
 use crate::error::CompileError;
-use crate::scope::{ScopeLevel, ScopeManager, ScopeManagerBuilder};
+use crate::scope::{CompilationScope, ScopeLevel, ScopeManager, ScopeManagerBuilder};
+
+struct FunctionBuffer {
+    scope: CompilationScope,
+    constant_index: usize,
+    arity: usize,
+}
 
 pub struct Compiler {
     incremental: bool,
     prev_constants: usize,
-    function_instructions: Vec<Vec<u8>>,
+    function_buffers: Vec<FunctionBuffer>,
 
     pub constants: Vec<Object>,
     pub scope: ScopeManager,
@@ -29,14 +35,16 @@ impl Compiler {
             instructions.push(opcode::RETURN_VALUE);
         }
 
-        for constant in &mut self.constants {
-            if let Object::Function(ref mut f) = constant {
-                let pointer = instructions.len();
-                let inst = std::mem::take(&mut self.function_instructions[f.pointer]);
+        for buffer in std::mem::take(&mut self.function_buffers) {
+            let pointer = instructions.len();
 
-                instructions.extend(inst);
-                f.pointer = pointer;
-            }
+            instructions.extend(buffer.scope.instructions);
+
+            self.constants[buffer.constant_index] = Object::Function(Function {
+                arity: buffer.arity,
+                locals_count: buffer.scope.symbol_count,
+                pointer,
+            })
         }
 
         let constants = if self.incremental {
@@ -243,18 +251,21 @@ impl Compiler {
                     self.compile_statement(statement)?;
                 }
 
-                let scope = self.scope.leave();
-                let mut instructions = scope.instructions;
+                let mut scope = self.scope.leave();
 
-                match instructions.last() {
+                match scope.instructions.last() {
                     Some(&opcode::RETURN_VALUE) => (),
-                    _ => instructions.push(opcode::RETURN_VALUE),
+                    _ => scope.instructions.push(opcode::RETURN_VALUE),
                 };
 
-                let pointer = self.function_instructions.len();
-                self.function_instructions.push(instructions);
+                let constant_index = self.constants.len();
+                let index = self.add_constant(Object::Null) as u16;
 
-                let index = self.add_constant(Object::Function(Function { arity, pointer })) as u16;
+                self.function_buffers.push(FunctionBuffer {
+                    scope,
+                    constant_index,
+                    arity,
+                });
 
                 self.add_instruction(opcode::constant(index).to_vec());
             }
@@ -454,7 +465,7 @@ impl CompilerBuilder {
             incremental: self.incremental,
             scope: scope_manager,
             constants: Vec::new(),
-            function_instructions: Vec::new(),
+            function_buffers: Vec::new(),
             prev_constants: 0,
         }
     }

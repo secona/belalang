@@ -1,4 +1,4 @@
-use crate::object::Object;
+use crate::object::{Function, Object};
 
 #[derive(Debug, Default)]
 pub struct Frame {
@@ -7,12 +7,11 @@ pub struct Frame {
 }
 
 impl Frame {
-    pub fn new(ret_addr: usize, locals: Vec<Object>) -> Self {
-        Self {
-            ret_addr,
-            slots: locals,
-            ..Default::default()
-        }
+    pub fn new(ret_addr: usize, function: Function, init_locals: Vec<Object>) -> Self {
+        let mut slots = vec![Object::Null; function.locals_count];
+        slots.splice(..init_locals.len(), init_locals);
+
+        Self { ret_addr, slots }
     }
 }
 
@@ -36,10 +35,7 @@ impl FrameStack {
 
     pub fn set_local(&mut self, index: usize, object: Object) {
         let frame = self.current_mut();
-        match frame.slots.get(index) {
-            Some(_) => frame.slots[index] = object,
-            None => frame.slots.insert(index, object),
-        }
+        frame.slots[index] = object;
     }
 
     pub fn get_local(&self, index: usize) -> Object {

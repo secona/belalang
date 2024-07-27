@@ -8,6 +8,7 @@ use crate::error::RuntimeError;
 pub struct Function {
     pub arity: usize,
     pub pointer: usize,
+    pub locals_count: usize,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]

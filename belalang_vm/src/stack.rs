@@ -1,5 +1,5 @@
-use crate::object::Object;
 use crate::error::RuntimeError;
+use crate::object::Object;
 
 #[derive(Default, Debug)]
 pub struct Stack {
@@ -37,6 +37,12 @@ impl Stack {
         self.pointer -= 1;
 
         Ok(self.stack.remove(self.pointer))
+    }
+
+    pub fn pop_take_n(&mut self, n: usize) -> Result<Vec<Object>, RuntimeError> {
+        (0..n)
+            .map(|_| self.pop_take())
+            .collect::<Result<Vec<_>, _>>()
     }
 
     pub fn push(&mut self, object: Object) -> Result<(), RuntimeError> {

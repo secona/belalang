@@ -211,12 +211,11 @@ impl VM {
                 opcode::CALL => {
                     match self.stack.pop_take()? {
                         Object::Function(function) => {
-                            let args: Vec<_> = (0..function.arity)
-                                .map(|_| self.stack.pop_take())
-                                .collect::<Result<Vec<_>, _>>()?;
+                            let new_ip = function.pointer;
+                            let args = self.stack.pop_take_n(function.arity)?;
 
-                            self.frame.push(Frame::new(self.ip, args));
-                            self.ip = function.pointer;
+                            self.frame.push(Frame::new(self.ip, function, args));
+                            self.ip = new_ip;
 
                             continue; // continue because we dont want to increment the ip
                         }
