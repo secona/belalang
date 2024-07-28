@@ -37,6 +37,22 @@ impl StackAllocator {
         self.top = unsafe { NonNull::new_unchecked(top.add(1)) };
         unsafe { ptr::write(top, elem) }
     }
+
+    pub fn pop(&mut self) -> Option<u8> {
+        if self.start == self.top {
+            None
+        } else {
+            self.top = unsafe { NonNull::new_unchecked(self.top.as_ptr().sub(1)) };
+            Some(unsafe { ptr::read(self.top.as_ptr()) })
+        }
+    }
+}
+
+impl Drop for StackAllocator {
+    fn drop(&mut self) {
+        let layout = Layout::array::<u8>(self.size).unwrap();
+        unsafe { alloc::dealloc(self.start.as_ptr(), layout) }
+    }
 }
 
 #[cfg(test)]
@@ -46,12 +62,35 @@ mod tests {
     use super::StackAllocator;
 
     #[test]
-    fn allocator() {
+    fn allocator_push() {
         let mut allocator = StackAllocator::new();
 
         allocator.push(10);
 
         let elem = unsafe { ptr::read(allocator.start.as_ptr()) };
         assert_eq!(elem, 10);
+    }
+
+    #[test]
+    fn allocator_pop() {
+        let mut allocator = StackAllocator::new();
+
+        allocator.push(10);
+        allocator.push(11);
+        allocator.push(12);
+
+        assert_eq!(allocator.pop(), Some(12));
+        assert_eq!(allocator.pop(), Some(11));
+        assert_eq!(allocator.pop(), Some(10));
+        assert_eq!(allocator.pop(), None);
+    }
+
+    #[test]
+    fn allocator_drop() {
+        let mut allocator = StackAllocator::new();
+
+        allocator.push(10);
+
+        drop(allocator)
     }
 }
