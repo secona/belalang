@@ -1,62 +1,41 @@
 use std::alloc::{self, Layout};
 use std::ptr::{self, NonNull};
 
+const STACK_SIZE: usize = 4096;
+
 pub struct StackAllocator {
     start: NonNull<u8>,
     top: NonNull<u8>,
-    len: usize,
-    cap: usize,
+    size: usize,
 }
 
 impl StackAllocator {
     pub fn new() -> Self {
-        Self {
-            start: NonNull::dangling(),
-            top: NonNull::dangling(),
-            len: 0,
-            cap: 0,
-        }
-    }
+        let layout = Layout::array::<u8>(STACK_SIZE).unwrap();
+        let ptr = unsafe { alloc::alloc(layout) };
 
-    fn grow(&mut self) {
-        let (new_cap, new_layout) = if self.cap == 0 {
-            (1, Layout::array::<u8>(1).unwrap())
-        } else {
-            let new_cap = 2 * self.cap;
-            let new_layout = Layout::array::<u8>(new_cap).unwrap();
-            (new_cap, new_layout)
-        };
-
-        let new_ptr = if self.cap == 0 {
-            unsafe { alloc::alloc(new_layout) }
-        } else {
-            let old_layout = Layout::array::<u8>(self.cap).unwrap();
-            let old_ptr = self.start.as_ptr() as *mut u8;
-            unsafe { alloc::realloc(old_ptr, old_layout, new_layout.size()) }
-        };
-
-        self.start = match NonNull::new(new_ptr as *mut u8) {
+        let ptr = match NonNull::new(ptr as *mut u8) {
             Some(p) => p,
-            None => alloc::handle_alloc_error(new_layout),
+            None => alloc::handle_alloc_error(layout),
         };
 
-        if new_cap == 1 {
-            self.top = self.start;
+        Self {
+            start: ptr,
+            top: ptr,
+            size: STACK_SIZE,
         }
-
-        self.cap = new_cap;
     }
 
     pub fn push(&mut self, elem: u8) {
-        if self.len == self.cap {
-            self.grow();
+        let top = self.top.as_ptr();
+        let start = self.start.as_ptr();
+
+        if unsafe { top.offset_from(start) } > self.size as isize {
+            panic!("stack overflow");
         }
 
-        unsafe {
-            ptr::write(self.top.as_ptr(), elem);
-        }
-
-        self.len += 1;
+        self.top = unsafe { NonNull::new_unchecked(top.add(1)) };
+        unsafe { ptr::write(top, elem) }
     }
 }
 
