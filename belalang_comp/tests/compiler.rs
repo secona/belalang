@@ -31,6 +31,7 @@ fn integer_literals() {
         opcode::POP,
         opcode::CONSTANT, 0, 2,
         opcode::POP,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![
@@ -49,6 +50,7 @@ fn booleans() {
         opcode::POP,
         opcode::FALSE,
         opcode::POP,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![]);
@@ -63,6 +65,7 @@ fn test_compile_infix(op: &str, code: u8, reversed: bool) {
         opcode::CONSTANT, 0, 1,
         code,
         opcode::POP,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(compiled.constants, if reversed {
@@ -101,6 +104,7 @@ fn prefix_expressions() {
         opcode::CONSTANT, 0, 0,
         opcode::MINUS,
         opcode::POP,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![
@@ -123,6 +127,7 @@ fn if_expressions() {
         opcode::POP,
         opcode::CONSTANT, 0, 3,
         opcode::POP,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![
@@ -144,6 +149,7 @@ fn if_else_expressions() {
         opcode::JUMP, 0, 3,
         opcode::CONSTANT, 0, 1,
         opcode::POP,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![
@@ -171,6 +177,7 @@ fn if_else_if_expressions() {
         opcode::JUMP, 0, 3,
         opcode::CONSTANT, 0, 2,
         opcode::POP,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![
@@ -186,13 +193,14 @@ fn var() {
 
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
-        opcode::SET_GLOBAL, 0, 0,
+        opcode::SET_GLOBAL, 0, 1,
         opcode::POP,
         opcode::CONSTANT, 0, 1,
-        opcode::SET_GLOBAL, 0, 0,
+        opcode::SET_GLOBAL, 0, 1,
         opcode::POP,
-        opcode::GET_GLOBAL, 0, 0,
+        opcode::GET_GLOBAL, 0, 1,
         opcode::POP,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![
@@ -207,13 +215,14 @@ fn var_assignment_ops() {
 
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
-        opcode::SET_GLOBAL, 0, 0,
+        opcode::SET_GLOBAL, 0, 1,
         opcode::POP,
-        opcode::GET_GLOBAL, 0, 0,
+        opcode::GET_GLOBAL, 0, 1,
         opcode::CONSTANT, 0, 1,
         opcode::ADD,
-        opcode::SET_GLOBAL, 0, 0,
+        opcode::SET_GLOBAL, 0, 1,
         opcode::POP,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![
@@ -228,8 +237,9 @@ fn block_expression() {
 
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
-        opcode::SET_LOCAL, 0,
+        opcode::SET_GLOBAL, 0, 1, // need to change when block scope
         opcode::POP,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![
@@ -243,17 +253,20 @@ fn function_expressions() {
 
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 1,
-        opcode::SET_GLOBAL, 0, 0,
+        opcode::SET_GLOBAL, 0, 1,
         opcode::POP,
+        opcode::RETURN_VALUE,
+
+        // ten function instructions
+        opcode::CONSTANT, 0, 0,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![
         Object::Integer(10),
         Object::Function(Function {
-            instructions: vec![
-                opcode::CONSTANT, 0, 0,
-                opcode::RETURN_VALUE,
-            ],
+            pointer: 8,
+            locals_count: 0,
             arity: 0
         })
     ]);
@@ -265,24 +278,27 @@ fn function_with_args_expressions() {
 
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
-        opcode::SET_GLOBAL, 0, 0,
+        opcode::SET_GLOBAL, 0, 1,
         opcode::POP,
         opcode::CONSTANT, 0, 1,
         opcode::CONSTANT, 0, 2,
-        opcode::GET_GLOBAL, 0, 0,
+        opcode::GET_GLOBAL, 0, 1,
         opcode::CALL,
-        opcode::SET_GLOBAL, 0, 1,
+        opcode::SET_GLOBAL, 0, 2,
         opcode::POP,
+        opcode::RETURN_VALUE,
+
+        // add function instructions
+        opcode::GET_LOCAL, 0,
+        opcode::GET_LOCAL, 1,
+        opcode::ADD,
+        opcode::RETURN_VALUE,
     ]);
 
     assert_eq!(code.constants, vec![
         Object::Function(Function {
-            instructions: vec![
-                opcode::GET_LOCAL, 0,
-                opcode::GET_LOCAL, 1,
-                opcode::ADD,
-                opcode::RETURN_VALUE,
-            ],
+            pointer: 22,
+            locals_count: 2,
             arity: 2,
         }),
         Object::Integer(2),
