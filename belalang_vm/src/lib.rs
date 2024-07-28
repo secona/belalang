@@ -1,3 +1,4 @@
+pub mod allocator;
 pub mod builtins;
 pub mod bytecode;
 pub mod error;
