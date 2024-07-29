@@ -1,3 +1,4 @@
 pub mod stack_allocator;
 
-mod block;
+pub mod block;
+pub mod block_meta;
