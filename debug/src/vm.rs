@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use belalang_comp::compiler::CompilerBuilder;
+use belalang_compiler::compiler::CompilerBuilder;
 use belalang_core::{lexer::Lexer, parser::Parser};
 use belalang_vm::vm::VMBuilder;
 use rustyline::{error::ReadlineError, DefaultEditor};

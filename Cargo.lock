@@ -55,7 +55,7 @@ dependencies = [
 name = "belalang"
 version = "0.1.0"
 dependencies = [
- "belalang_comp",
+ "belalang_compiler",
  "belalang_core",
  "belalang_vm",
  "clap",
@@ -67,7 +67,7 @@ name = "belalang_allocator"
 version = "0.1.0"
 
 [[package]]
-name = "belalang_comp"
+name = "belalang_compiler"
 version = "0.1.0"
 dependencies = [
  "belalang_core",
@@ -168,7 +168,7 @@ checksum = "0b6a852b24ab71dffc585bcb46eaf7959d175cb865a7152e35b348d1b2960422"
 name = "debug"
 version = "0.0.0"
 dependencies = [
- "belalang_comp",
+ "belalang_compiler",
  "belalang_core",
  "belalang_vm",
  "rustyline",

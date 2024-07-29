@@ -23,5 +23,5 @@ path = "src/vm.rs"
 [dependencies]
 rustyline = "14.0.0"
 belalang_core = { path = "../belalang_core" }
-belalang_comp = { path = "../belalang_comp" }
+belalang_compiler = { path = "../belalang_compiler" }
 belalang_vm = { path = "../belalang_vm" }

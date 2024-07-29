@@ -2,7 +2,7 @@
 
 use std::error::Error;
 
-use belalang_comp::compiler::CompilerBuilder;
+use belalang_compiler::compiler::CompilerBuilder;
 use belalang_core::parser::Parser;
 use belalang_core::lexer::Lexer;
 use belalang_vm::object::{Object, Function};
