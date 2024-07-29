@@ -13,6 +13,10 @@ impl Block {
         let ptr = unsafe { NonNull::new_unchecked(alloc::alloc(layout)) };
         Ok(Block { ptr, size })
     }
+
+    pub fn as_ptr(&self) -> *mut u8 {
+        self.ptr.as_ptr()
+    }
 }
 
 impl Drop for Block {
