@@ -8,4 +8,8 @@ members = [
 
 	# internal
 	"debug"
+,
+
+	# internal
+	"belalang_allocator"
 ]
