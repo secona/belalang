@@ -58,4 +58,8 @@ impl BumpBlock {
             Some(next_ptr as *const u8)
         }
     }
+
+    pub fn current_hole_size(&self) -> usize {
+        self.cursor.as_ptr() as usize - self.limit.as_ptr() as usize
+    }
 }
