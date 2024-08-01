@@ -5,21 +5,25 @@ pub enum AllocError {
     OutOfMemory,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum Size {
     Small,
     Medium,
     Large,
 }
 
+#[derive(PartialEq)]
 pub enum Mark {
     Allocated,
     Unmarked,
     Marked,
 }
 
+#[derive(Clone, Copy)]
 pub enum AllocType {
     String,
+    Integer,
+    Array,
 }
 
 pub trait AllocObject {
@@ -29,7 +33,9 @@ pub trait AllocObject {
 pub trait AllocRaw {
     type Header: AllocHeader;
 
-    fn alloc(&self, object: impl AllocObject) -> Result<NonNull<impl AllocObject>, AllocError>;
+    fn alloc<T>(&self, object: T) -> Result<NonNull<T>, AllocError>
+    where
+        T: AllocObject;
     fn alloc_array(&self, array_size: usize) -> Result<NonNull<u8>, AllocError>;
     fn get_header(object: NonNull<()>) -> NonNull<Self::Header>;
     fn get_object(header: NonNull<Self::Header>) -> NonNull<()>;
