@@ -1,12 +1,9 @@
 use std::cell::UnsafeCell;
 use std::marker::PhantomData;
 
+use crate::allocator::{AllocError, Size};
 use crate::block_meta::BLOCK_CAPACITY;
 use crate::bump_block::BumpBlock;
-
-enum AllocError {
-    BadRequest,
-}
 
 #[derive(Default)]
 struct BlockList {
@@ -38,13 +35,6 @@ impl BlockList {
 
         Ok(ptr)
     }
-}
-
-#[derive(PartialEq)]
-pub enum Size {
-    Small,
-    Medium,
-    Large,
 }
 
 pub struct Heap<H> {
