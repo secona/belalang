@@ -101,7 +101,7 @@ impl<H: AllocHeader> AllocRaw for Heap<H> {
         let align = std::mem::size_of::<usize>();
         let alloc_size = (total_size + (align - 1)) & !(align - 1);
 
-        let size = Size::Small;
+        let size = Size::get_size(alloc_size)?;
 
         let ptr = self.find_space(alloc_size, size)? as *mut Self::Header;
         let header = Self::Header::new::<T>(object_size, size, Mark::Allocated);
@@ -120,7 +120,7 @@ impl<H: AllocHeader> AllocRaw for Heap<H> {
         let align = std::mem::size_of::<usize>();
         let alloc_size = (total_size + (align - 1)) & !(align - 1);
 
-        let size = Size::Small;
+        let size = Size::get_size(alloc_size)?;
 
         let ptr = self.find_space(alloc_size, size)? as *mut Self::Header;
         let header = Self::Header::new_array(array_size, size, Mark::Allocated);

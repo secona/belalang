@@ -1,15 +1,36 @@
 use std::ptr::NonNull;
 
+use crate::block_meta::{BLOCK_CAPACITY, LINE_SIZE};
+
 pub enum AllocError {
     BadRequest,
     OutOfMemory,
 }
+
+pub const MAX_ALLOC_SIZE: usize = std::u32::MAX as usize;
+pub const SM_MIN: usize = 1;
+pub const SM_MAX: usize = LINE_SIZE;
+pub const MD_MIN: usize = SM_MAX + 1;
+pub const MD_MAX: usize = BLOCK_CAPACITY;
+pub const LG_MIN: usize = MD_MAX + 1;
+pub const LG_MAX: usize = MAX_ALLOC_SIZE;
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum Size {
     Small,
     Medium,
     Large,
+}
+
+impl Size {
+    pub fn get_size(value: usize) -> Result<Self, AllocError> {
+        match value {
+            SM_MIN..=SM_MAX => Ok(Self::Small),
+            MD_MIN..=MD_MAX => Ok(Self::Medium),
+            LG_MIN..=LG_MAX => Ok(Self::Large),
+            _ => Err(AllocError::BadRequest)
+        }
+    }
 }
 
 #[derive(PartialEq)]
