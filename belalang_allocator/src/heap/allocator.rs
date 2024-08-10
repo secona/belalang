@@ -1,6 +1,6 @@
 use std::ptr::NonNull;
 
-use crate::block_meta::{BLOCK_CAPACITY, LINE_SIZE};
+use super::block_meta::{BLOCK_CAPACITY, LINE_SIZE};
 
 pub enum AllocError {
     BadRequest,

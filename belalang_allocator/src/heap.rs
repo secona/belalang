@@ -1,10 +1,15 @@
+pub mod allocator;
+pub mod block;
+pub mod block_meta;
+pub mod bump_block;
+
 use std::cell::UnsafeCell;
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
-use crate::allocator::{AllocError, AllocHeader, AllocObject, AllocRaw, Mark, Size};
-use crate::block_meta::BLOCK_CAPACITY;
-use crate::bump_block::BumpBlock;
+use self::allocator::{AllocError, AllocHeader, AllocObject, AllocRaw, Mark, Size};
+use self::block_meta::BLOCK_CAPACITY;
+use self::bump_block::BumpBlock;
 
 #[derive(Default)]
 struct BlockList {
@@ -147,8 +152,7 @@ impl<H: AllocHeader> AllocRaw for Heap<H> {
 
 #[cfg(test)]
 mod tests {
-    use crate::allocator::{AllocHeader, AllocObject, AllocRaw, AllocType, Mark, Size};
-
+    use super::allocator::{AllocHeader, AllocObject, AllocRaw, AllocType, Mark, Size};
     use super::Heap;
 
     struct TestHeader {
@@ -159,7 +163,7 @@ mod tests {
     }
 
     impl AllocHeader for TestHeader {
-        fn new<O: crate::allocator::AllocObject>(
+        fn new<O: AllocObject>(
             size: usize,
             size_class: Size,
             mark: Mark,
