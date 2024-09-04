@@ -22,8 +22,23 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn next_token(&mut self) -> Result<Token, SyntaxError> {
-        if !self.skip_whitespace_and_comments() {
-            return Ok(Token::EOF);
+        loop {
+            match self.read_char() {
+                // skips all lines that start with `#`
+                Some(b'#') => {
+                    while let Some(ch) = self.read_char() {
+                        if ch == b'\n' {
+                            break;
+                        }
+                    }
+                },
+                // skips all empty whitespaces
+                Some(b' ' | b'\t' | b'\n' | b'\r') => (),
+                // early return if it reached the EOF
+                None => return Ok(Token::EOF),
+                // break the loop if it isn't a whitespace or a comment
+                _ => break,
+            };
         }
 
         match self.ch {
@@ -175,28 +190,6 @@ impl<'a> Lexer<'a> {
 
     pub fn peek_char(&self) -> Option<u8> {
         self.input.get(self.read_position).copied()
-    }
-
-    /// Return false if it encounters an EOF.
-    pub fn skip_whitespace_and_comments(&mut self) -> bool {
-        loop {
-            match self.read_char() {
-                Some(b' ' | b'\t' | b'\n' | b'\r') => (),
-                Some(b'#') => self.skip_comment(),
-                None => return false,
-                _ => return true,
-            };
-        }
-    }
-
-    pub fn skip_comment(&mut self) {
-        while let b'#' = self.ch {
-            while let Some(ch) = self.read_char() {
-                if ch == b'\n' {
-                    break;
-                }
-            }
-        }
     }
 
     pub fn read_string(&mut self) -> Result<Token, SyntaxError> {
