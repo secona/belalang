@@ -106,7 +106,7 @@ mod tests {
         let bytes = opcode::constant(65534);
 
         assert_eq!(bytes.len(), 3);
-        assert_eq!(bytes[0], 0);
+        assert_eq!(bytes[0], 32);
         assert_eq!(bytes[1], 255);
         assert_eq!(bytes[2], 254);
     }
