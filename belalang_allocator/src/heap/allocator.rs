@@ -28,7 +28,7 @@ impl Size {
             SM_MIN..=SM_MAX => Ok(Self::Small),
             MD_MIN..=MD_MAX => Ok(Self::Medium),
             LG_MIN..=LG_MAX => Ok(Self::Large),
-            _ => Err(AllocError::BadRequest)
+            _ => Err(AllocError::BadRequest),
         }
     }
 }

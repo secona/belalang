@@ -163,11 +163,7 @@ mod tests {
     }
 
     impl AllocHeader for TestHeader {
-        fn new<O: AllocObject>(
-            size: usize,
-            size_class: Size,
-            mark: Mark,
-        ) -> Self {
+        fn new<O: AllocObject>(size: usize, size_class: Size, mark: Mark) -> Self {
             TestHeader {
                 _size: size_class,
                 _mark: mark,

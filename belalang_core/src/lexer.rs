@@ -1,8 +1,6 @@
-use crate::{
-    error::SyntaxError,
-    token::Token,
-    utils::{digits, hex_byte_to_u8, letters, unwrap_or_return},
-};
+use crate::error::SyntaxError;
+use crate::token::Token;
+use crate::utils::{digits, hex_byte_to_u8, letters, unwrap_or_return};
 
 pub struct Lexer<'a> {
     input: &'a [u8],
@@ -31,7 +29,7 @@ impl<'a> Lexer<'a> {
                             break;
                         }
                     }
-                },
+                }
                 // skips all empty whitespaces
                 Some(b' ' | b'\t' | b'\n' | b'\r') => (),
                 // early return if it reached the EOF
