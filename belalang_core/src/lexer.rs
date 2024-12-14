@@ -1,6 +1,32 @@
 use crate::error::SyntaxError;
 use crate::token::Token;
-use crate::utils::{digits, hex_byte_to_u8, letters, unwrap_or_return};
+
+macro_rules! letters {
+    () => {
+        b'a'..=b'z' | b'A'..=b'Z' | b'_' | b'$'
+    };
+}
+
+macro_rules! digits {
+    () => {
+        b'0'..=b'9'
+    };
+}
+
+macro_rules! identifiers {
+    () => {
+        letters!() | digits!()
+    }
+}
+
+pub fn hex_byte_to_u8(byte: u8) -> Option<u8> {
+    match byte {
+        b'0'..=b'9' => Some(byte - b'0'),
+        b'a'..=b'f' => Some(byte - b'a' + 10),
+        b'A'..=b'F' => Some(byte - b'A' + 10),
+        _ => None,
+    }
+}
 
 pub struct Lexer<'a> {
     input: &'a [u8],
@@ -179,7 +205,6 @@ impl<'a> Lexer<'a> {
 
     pub fn read_char(&mut self) -> Option<u8> {
         self.ch = self.peek_char()?;
-
         self.position = self.read_position;
         self.read_position += 1;
 
@@ -219,32 +244,15 @@ impl<'a> Lexer<'a> {
                     Some(b'x') => {
                         self.read_char(); // consume the 'x'
 
-                        let hi_c =
-                            unwrap_or_return!(self.read_char(), Err(SyntaxError::UnexpectedEOF));
-                        let lo_c =
-                            unwrap_or_return!(self.read_char(), Err(SyntaxError::UnexpectedEOF));
-
-                        let hi = unwrap_or_return!(
-                            hex_byte_to_u8(hi_c),
-                            Err(SyntaxError::UnknownEscapeString(
-                                String::from_utf8(vec![b'x', hi_c, lo_c]).unwrap(),
-                            ))
-                        );
-
-                        let lo = unwrap_or_return!(
-                            hex_byte_to_u8(lo_c),
-                            Err(SyntaxError::UnknownEscapeString(
-                                String::from_utf8(vec![b'x', hi_c, lo_c]).unwrap(),
-                            ))
-                        );
-
-                        result.push((hi << 4) | lo);
+                        match (
+                            self.read_char().and_then(hex_byte_to_u8),
+                            self.read_char().and_then(hex_byte_to_u8),
+                        ) {
+                            (Some(hi), Some(lo)) => result.push((hi << 4) | lo),
+                            (_, _) => return Err(SyntaxError::UnknownEscapeString),
+                        }
                     }
-                    Some(c) => {
-                        return Err(SyntaxError::UnknownEscapeString(
-                            String::from_utf8(vec![c]).unwrap(),
-                        ))
-                    }
+                    Some(_) => return Err(SyntaxError::UnknownEscapeString),
                     None => return Err(SyntaxError::UnclosedString()),
                 },
                 Some(b'"') => break,
@@ -259,7 +267,7 @@ impl<'a> Lexer<'a> {
     pub fn read_identifier(&mut self) -> Result<Token, SyntaxError> {
         let position = self.position;
 
-        while matches!(self.peek_char(), Some(letters!() | digits!())) {
+        while matches!(self.peek_char(), Some(identifiers!())) {
             self.read_char();
         }
 

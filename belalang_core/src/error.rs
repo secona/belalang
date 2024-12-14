@@ -9,8 +9,8 @@ pub enum SyntaxError {
     #[error("unexpected EOF")]
     UnexpectedEOF,
 
-    #[error(r"unknown escape string: \{0}")]
-    UnknownEscapeString(String),
+    #[error(r"unknown escape string")]
+    UnknownEscapeString,
 
     #[error("unknown prefix operator: {0}")]
     UnknownPrefixOperator(Token),
