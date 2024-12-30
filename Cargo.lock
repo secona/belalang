@@ -56,7 +56,6 @@ name = "belalang"
 version = "0.1.0"
 dependencies = [
  "belalang_compiler",
- "belalang_core",
  "belalang_vm",
  "clap",
 ]
@@ -69,15 +68,7 @@ version = "0.1.0"
 name = "belalang_compiler"
 version = "0.1.0"
 dependencies = [
- "belalang_core",
  "belalang_vm",
- "thiserror",
-]
-
-[[package]]
-name = "belalang_core"
-version = "0.1.0"
-dependencies = [
  "thiserror",
 ]
 
@@ -167,7 +158,6 @@ name = "debug"
 version = "0.0.0"
 dependencies = [
  "belalang_compiler",
- "belalang_core",
  "belalang_vm",
  "rustyline",
 ]

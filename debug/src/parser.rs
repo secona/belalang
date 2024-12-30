@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use belalang_core::{lexer::Lexer, parser::Parser};
+use belalang_compiler::{lexer::Lexer, parser::Parser};
 use rustyline::{error::ReadlineError, DefaultEditor};
 
 fn main() -> Result<(), Box<dyn Error>> {

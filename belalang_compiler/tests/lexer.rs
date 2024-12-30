@@ -1,8 +1,8 @@
 #[macro_use]
 mod common;
 
-use belalang_core::token::Token;
-use belalang_core::lexer::Lexer;
+use belalang_compiler::token::Token;
+use belalang_compiler::lexer::Lexer;
 
 fn test_tokens(input: &str, tokens: Vec<Token>) {
     let mut lexer = Lexer::new(input.as_bytes());

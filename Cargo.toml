@@ -4,7 +4,6 @@ members = [
 	"belalang",
 	"belalang_allocator",
 	"belalang_compiler",
-	"belalang_core",
 	"belalang_vm",
 
 	# internal

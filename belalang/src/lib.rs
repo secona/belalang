@@ -3,8 +3,8 @@ use std::fs;
 use std::path::PathBuf;
 
 use belalang_compiler::compiler::CompilerBuilder;
-use belalang_core::lexer::Lexer;
-use belalang_core::parser::Parser;
+use belalang_compiler::lexer::Lexer;
+use belalang_compiler::parser::Parser;
 use belalang_vm::vm::VMBuilder;
 
 pub fn execute_file(filename: PathBuf) -> Result<(), Box<dyn Error>> {

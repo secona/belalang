@@ -1,5 +1,5 @@
-use belalang_core::ast::{BlockExpression, Expression, Program, Statement};
-use belalang_core::token::Token;
+use crate::ast::{BlockExpression, Expression, Program, Statement};
+use crate::token::Token;
 use belalang_vm::builtins::BuiltinCollection;
 use belalang_vm::bytecode::Bytecode;
 use belalang_vm::object::{Function, Object};

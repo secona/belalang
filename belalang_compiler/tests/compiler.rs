@@ -3,8 +3,8 @@
 use std::error::Error;
 
 use belalang_compiler::compiler::CompilerBuilder;
-use belalang_core::parser::Parser;
-use belalang_core::lexer::Lexer;
+use belalang_compiler::parser::Parser;
+use belalang_compiler::lexer::Lexer;
 use belalang_vm::object::{Object, Function};
 use belalang_vm::opcode;
 use belalang_vm::bytecode::Bytecode;

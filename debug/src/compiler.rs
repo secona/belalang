@@ -2,7 +2,8 @@ use std::error::Error;
 
 use belalang_compiler::compiler::CompilerBuilder;
 use belalang_compiler::disassembly::disassemble;
-use belalang_core::{lexer::Lexer, parser::Parser};
+use belalang_compiler::parser::Parser;
+use belalang_compiler::lexer::Lexer;
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
 
