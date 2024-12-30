@@ -1,14 +1,9 @@
 #![allow(dead_code)]
 
-use belalang_core::{
-    ast,
-    lexer::{self, Lexer},
-    parser,
-    token::Token,
-};
+use belalang_core::{ast, lexer, parser};
 
 pub fn test_parse(input: &str) -> ast::Program {
-    let input = input.as_bytes().into();
+    let input = input.as_bytes();
     let lexer = lexer::Lexer::new(input);
     let mut parser = parser::Parser::new(lexer);
 
@@ -18,15 +13,6 @@ pub fn test_parse(input: &str) -> ast::Program {
 pub fn test_parse_to_string(input: &str, expected: &str) {
     let program = test_parse(input);
     assert_eq!(program.to_string(), expected);
-}
-
-pub fn test_tokens(input: &str, tokens: Vec<Token>) {
-    let mut lexer = Lexer::new(input.as_bytes());
-
-    for expected in tokens {
-        let tok = lexer.next_token().unwrap();
-        assert_eq!(tok, expected);
-    }
 }
 
 #[macro_export]

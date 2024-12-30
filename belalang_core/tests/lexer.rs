@@ -2,10 +2,20 @@
 mod common;
 
 use belalang_core::token::Token;
-use common::test_tokens;
+use belalang_core::lexer::Lexer;
+
+fn test_tokens(input: &str, tokens: Vec<Token>) {
+    let mut lexer = Lexer::new(input.as_bytes());
+
+    for expected in tokens {
+        let tok = lexer.next_token().unwrap();
+        assert_eq!(tok, expected);
+    }
+}
+
 
 #[test]
-fn tokens() {
+fn all_tokens() {
     test_tokens(
         "=+(){}[],;!-/*5;5 < 10 > 5;:= >= <= += -= /= %= *= || &&",
         vec![
@@ -46,21 +56,49 @@ fn tokens() {
 }
 
 #[test]
-fn strings_idents_nums() {
+fn string_tokens() {
     test_tokens(
-        r#""Hello, World";1230;x"#,
+        r#""Hello, World"; "Test""#,
         vec![
             Token::String("Hello, World".into()),
             Token::Semicolon,
-            Token::Int("1230".into()),
-            Token::Semicolon,
-            Token::Ident("x".into()),
+            Token::String("Test".into()),
         ],
     );
 }
 
 #[test]
-fn escape_strings() {
+fn integer_tokens() {
+    test_tokens(
+        "123; 456; 789 + 1",
+        vec![
+            Token::Int("123".into()),
+            Token::Semicolon,
+            Token::Int("456".into()),
+            Token::Semicolon,
+            Token::Int("789".into()),
+            Token::Add,
+            Token::Int("1".into()),
+        ],
+    );
+}
+
+#[test]
+fn identifier_tokens() {
+    test_tokens(
+        "x; x + y",
+        vec![
+            Token::Ident("x".into()),
+            Token::Semicolon,
+            Token::Ident("x".into()),
+            Token::Add,
+            Token::Ident("y".into()),
+        ]
+    )
+}
+
+#[test]
+fn escape_strings_tokens() {
     test_tokens(r#""\n""#, vec![Token::String("\n".into())]);
     test_tokens(r#""\r""#, vec![Token::String("\r".into())]);
     test_tokens(r#""\t""#, vec![Token::String("\t".into())]);
