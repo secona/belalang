@@ -9,7 +9,7 @@ pub struct BlockMeta {
 }
 
 impl BlockMeta {
-    pub fn new(block_ptr: *const u8) -> Self {
+    pub unsafe fn new(block_ptr: *const u8) -> Self {
         let mut bm = Self {
             lines: unsafe { block_ptr.add(BLOCK_CAPACITY) as *mut u8 },
         };
@@ -88,7 +88,7 @@ mod tests {
     #[test]
     fn find_next_hole() {
         let block = Block::new(BLOCK_SIZE).unwrap();
-        let mut meta = BlockMeta::new(block.as_ptr());
+        let mut meta = unsafe { BlockMeta::new(block.as_ptr()) };
 
         meta.mark_line(0);
         meta.mark_line(1);
@@ -105,7 +105,7 @@ mod tests {
     #[test]
     fn find_next_hole_at_zero() {
         let block = Block::new(BLOCK_SIZE).unwrap();
-        let mut meta = BlockMeta::new(block.as_ptr());
+        let mut meta = unsafe { BlockMeta::new(block.as_ptr()) };
 
         meta.mark_line(3);
         meta.mark_line(4);

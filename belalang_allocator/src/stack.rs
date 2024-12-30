@@ -9,12 +9,18 @@ pub struct StackAllocator {
     size: usize,
 }
 
+impl Default for StackAllocator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl StackAllocator {
     pub fn new() -> Self {
         let layout = Layout::array::<u8>(STACK_SIZE).unwrap();
         let ptr = unsafe { alloc::alloc(layout) };
 
-        let ptr = match NonNull::new(ptr as *mut u8) {
+        let ptr = match NonNull::new(ptr) {
             Some(p) => p,
             None => alloc::handle_alloc_error(layout),
         };

@@ -16,7 +16,7 @@ macro_rules! digits {
 macro_rules! identifiers {
     () => {
         letters!() | digits!()
-    }
+    };
 }
 
 pub fn hex_byte_to_u8(byte: u8) -> Option<u8> {

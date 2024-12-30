@@ -22,8 +22,8 @@ pub struct VM {
 
 impl VM {
     pub fn run(&mut self, code: Bytecode) -> Result<(), RuntimeError> {
-        self.constants.extend(code.constants.into_iter());
-        self.instructions.extend(code.instructions.into_iter());
+        self.constants.extend(code.constants);
+        self.instructions.extend(code.instructions);
 
         while self.ip < self.instructions.len() {
             let op = self.instructions[self.ip];

@@ -22,7 +22,7 @@ pub struct FrameStack {
 
 impl FrameStack {
     pub fn top_level(&self) -> bool {
-        self.frames.len() == 0
+        self.frames.is_empty()
     }
 
     fn current(&self) -> &Frame {

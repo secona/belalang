@@ -7,7 +7,7 @@ pub enum AllocError {
     OutOfMemory,
 }
 
-pub const MAX_ALLOC_SIZE: usize = std::u32::MAX as usize;
+pub const MAX_ALLOC_SIZE: usize = u32::MAX as usize;
 pub const SM_MIN: usize = 1;
 pub const SM_MAX: usize = LINE_SIZE;
 pub const MD_MIN: usize = SM_MAX + 1;

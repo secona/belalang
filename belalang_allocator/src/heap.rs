@@ -112,7 +112,7 @@ impl<H: AllocHeader> AllocRaw for Heap<H> {
         let header = Self::Header::new::<T>(object_size, size, Mark::Allocated);
         unsafe { std::ptr::write(ptr, header) };
 
-        let object_ptr = unsafe { ptr.offset(header_size as isize) } as *mut T;
+        let object_ptr = unsafe { ptr.add(header_size) } as *mut T;
         unsafe { std::ptr::write(object_ptr, object) };
 
         unsafe { Ok(NonNull::new_unchecked(object_ptr)) }
@@ -131,7 +131,7 @@ impl<H: AllocHeader> AllocRaw for Heap<H> {
         let header = Self::Header::new_array(array_size, size, Mark::Allocated);
         unsafe { std::ptr::write(ptr, header) };
 
-        let array_space = unsafe { ptr.offset(header_size as isize) } as *mut u8;
+        let array_space = unsafe { ptr.add(header_size) } as *mut u8;
         let array = unsafe { std::slice::from_raw_parts_mut(array_space, array_size) };
 
         for byte in array {

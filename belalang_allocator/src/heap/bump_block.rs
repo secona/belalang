@@ -11,11 +11,17 @@ pub struct BumpBlock {
     meta: BlockMeta,
 }
 
+impl Default for BumpBlock {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BumpBlock {
     pub fn new() -> Self {
         let block = Block::new(BLOCK_SIZE).unwrap();
         let ptr = block.as_ptr();
-        let meta = BlockMeta::new(ptr);
+        let meta = unsafe { BlockMeta::new(ptr) };
 
         let cursor = unsafe { NonNull::new_unchecked(ptr.add(BLOCK_CAPACITY)) };
         let limit = unsafe { NonNull::new_unchecked(ptr) };
