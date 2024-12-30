@@ -1,5 +1,3 @@
-use belalang_core::token::Token;
-
 use crate::object::Object;
 
 #[derive(thiserror::Error, Debug)]
@@ -14,7 +12,7 @@ pub enum RuntimeError {
     UnknownBuiltinFunction,
 
     #[error("invalid operation: {0} {1} {2}")]
-    InvalidOperation(Object, Token, Object),
+    InvalidOperation(Object, String, Object),
 
     #[error("attempt to call non-function")]
     NotAFunction,

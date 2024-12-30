@@ -85,7 +85,6 @@ dependencies = [
 name = "belalang_vm"
 version = "0.1.0"
 dependencies = [
- "belalang_core",
  "indexmap",
  "thiserror",
 ]

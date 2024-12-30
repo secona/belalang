@@ -1,7 +1,5 @@
 use std::fmt::Display;
 
-use belalang_core::token::Token;
-
 use crate::error::RuntimeError;
 
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -61,7 +59,7 @@ impl Object {
             (l, Self::String(r)) => Ok(Self::String(format!("{l}{r}"))),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Add, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "+".into(), r)),
         }
     }
 
@@ -76,7 +74,7 @@ impl Object {
             (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(l - r as f64)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Sub, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "-".into(), r)),
         }
     }
 
@@ -92,7 +90,7 @@ impl Object {
             }
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Mul, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "*".into(), r)),
         }
     }
 
@@ -107,7 +105,7 @@ impl Object {
             (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(l / r as f64)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Div, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "/".into(), r)),
         }
     }
 
@@ -122,7 +120,7 @@ impl Object {
             (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(l % r as f64)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Mod, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "%".into(), r)),
         }
     }
 
@@ -138,7 +136,7 @@ impl Object {
             (Self::Float(l), Self::Integer(r)) => Ok(Self::Boolean(l < (r as f64))),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "<".into(), r)),
         }
     }
 
@@ -154,7 +152,7 @@ impl Object {
             (Self::Float(l), Self::Integer(r)) => Ok(Self::Boolean(l <= (r as f64))),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "<=".into(), r)),
         }
     }
 
@@ -164,7 +162,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l & r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "&".into(), r)),
         }
     }
 
@@ -174,7 +172,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l | r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "|".into(), r)),
         }
     }
 
@@ -184,7 +182,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l ^ r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "^".into(), r)),
         }
     }
 
@@ -194,7 +192,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l << r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, "<<".into(), r)),
         }
     }
 
@@ -204,7 +202,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l >> r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, Token::Lt, r)),
+            (l, r) => Err(RuntimeError::InvalidOperation(l, ">>".into(), r)),
         }
     }
 }
