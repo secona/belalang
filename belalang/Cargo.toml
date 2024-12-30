@@ -10,4 +10,3 @@ belalang_core = { path = "../belalang_core" }
 belalang_compiler = { path = "../belalang_compiler" }
 belalang_vm = { path = "../belalang_vm" }
 clap = { version = "4.5.4", features = ["derive"] }
-rustyline = "14.0.0"

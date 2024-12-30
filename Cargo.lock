@@ -59,7 +59,6 @@ dependencies = [
  "belalang_core",
  "belalang_vm",
  "clap",
- "rustyline",
 ]
 
 [[package]]

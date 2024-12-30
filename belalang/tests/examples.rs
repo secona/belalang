@@ -4,6 +4,6 @@ use std::fs;
 fn examples_work() {
     for filename in fs::read_dir("../examples").unwrap() {
         let filename = filename.unwrap().path();
-        belalang::run_file(filename).unwrap();
+        belalang::execute_file(filename).unwrap();
     }
 }

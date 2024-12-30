@@ -15,7 +15,6 @@ struct FunctionBuffer {
 }
 
 pub struct Compiler {
-    incremental: bool,
     prev_constants: usize,
     function_buffers: Vec<FunctionBuffer>,
 
@@ -31,9 +30,7 @@ impl Compiler {
 
         let mut instructions: Vec<_> = self.scope.main_scope.instructions.drain(..).collect();
 
-        if !self.incremental {
-            instructions.push(opcode::RETURN_VALUE);
-        }
+        instructions.push(opcode::RETURN_VALUE);
 
         for buffer in std::mem::take(&mut self.function_buffers) {
             let pointer = instructions.len();
@@ -47,13 +44,8 @@ impl Compiler {
             })
         }
 
-        let constants = if self.incremental {
-            let constants = self.constants[self.prev_constants..].to_vec();
-            self.prev_constants = self.constants.len();
-            constants
-        } else {
-            self.constants.drain(..).collect()
-        };
+        let constants = self.constants[self.prev_constants..].to_vec();
+        self.prev_constants = self.constants.len();
 
         Ok(Bytecode {
             instructions,
@@ -441,16 +433,10 @@ impl Compiler {
 
 #[derive(Default)]
 pub struct CompilerBuilder {
-    incremental: bool,
     builtin_collection: Option<BuiltinCollection>,
 }
 
 impl CompilerBuilder {
-    pub fn incremental(mut self, incremental: bool) -> Self {
-        self.incremental = incremental;
-        self
-    }
-
     pub fn builtin_collection(mut self, builtin_collection: BuiltinCollection) -> Self {
         self.builtin_collection = Some(builtin_collection);
         self
@@ -462,7 +448,6 @@ impl CompilerBuilder {
             .build();
 
         Compiler {
-            incremental: self.incremental,
             scope: scope_manager,
             constants: Vec::new(),
             function_buffers: Vec::new(),
