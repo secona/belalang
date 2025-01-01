@@ -3,7 +3,7 @@ use std::io::{self, Write};
 
 use belalang_compiler::codegen::CompilerBuilder;
 use belalang_compiler::codegen::disassembler::disassemble;
-use belalang_compiler::parser::Parser;
+use belalang_compiler::ast::Parser;
 use belalang_compiler::lexer::Lexer;
 
 fn compile(line: String) -> Result<(), Box<dyn Error>> {
