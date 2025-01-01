@@ -1,7 +1,5 @@
-pub mod tokens;
-
+use crate::tokens::Token;
 use crate::error::SyntaxError;
-use self::tokens::Token;
 
 macro_rules! letters {
     () => {

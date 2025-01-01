@@ -1,12 +1,12 @@
 #![allow(dead_code)]
 
-use belalang_compiler::lexer;
+use belalang_compiler::tokens::Lexer;
 use belalang_compiler::ast;
 use belalang_compiler::ast::Parser;
 
 pub fn test_parse(input: &str) -> ast::Program {
     let input = input.as_bytes();
-    let lexer = lexer::Lexer::new(input);
+    let lexer = Lexer::new(input);
     let mut parser = Parser::new(lexer);
 
     parser.parse_program().expect("parser errors")

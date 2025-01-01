@@ -1,4 +1,4 @@
-use crate::lexer::tokens::Token;
+use crate::tokens::Token;
 
 use super::{BlockExpression, Expression};
 

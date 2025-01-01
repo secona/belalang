@@ -3,7 +3,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use belalang_compiler::codegen::CompilerBuilder;
-use belalang_compiler::lexer::Lexer;
+use belalang_compiler::tokens::Lexer;
 use belalang_compiler::ast::Parser;
 use belalang_vm::vm::VMBuilder;
 

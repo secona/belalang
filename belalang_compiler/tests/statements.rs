@@ -2,7 +2,7 @@
 mod common;
 
 use belalang_compiler::ast;
-use belalang_compiler::lexer::tokens::Token;
+use belalang_compiler::tokens::Token;
 use common::test_parse;
 
 #[test]

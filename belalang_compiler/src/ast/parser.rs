@@ -1,9 +1,11 @@
 use crate::ast::{self, Expression, Statement};
 use crate::error::SyntaxError;
-use crate::lexer;
-use crate::lexer::tokens::{
-    arithmetic_tokens, assignment_tokens, bitwise_tokens, comparison_tokens, Token,
-};
+use crate::tokens::Lexer;
+use crate::tokens::Token;
+use crate::tokens::comparison_tokens;
+use crate::tokens::bitwise_tokens;
+use crate::tokens::assignment_tokens;
+use crate::tokens::arithmetic_tokens;
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
@@ -72,7 +74,7 @@ macro_rules! optional_peek {
 pub(super) use optional_peek;
 
 pub struct Parser<'a> {
-    lexer: lexer::Lexer<'a>,
+    lexer: Lexer<'a>,
     curr_token: Token,
     peek_token: Token,
 
@@ -81,7 +83,7 @@ pub struct Parser<'a> {
 }
 
 impl Parser<'_> {
-    pub fn new(lexer: lexer::Lexer<'_>) -> Parser {
+    pub fn new(lexer: Lexer<'_>) -> Parser {
         Parser {
             lexer,
             curr_token: Token::default(),

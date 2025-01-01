@@ -1,3 +1,7 @@
+mod lexer;
+
+pub use lexer::Lexer;
+
 macro_rules! arithmetic_tokens {
     () => {
         Token::Add

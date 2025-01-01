@@ -2,7 +2,7 @@ pub mod disassembler;
 mod scope;
 
 use crate::ast::{BlockExpression, Expression, Program, Statement};
-use crate::lexer::tokens::Token;
+use crate::tokens::Token;
 use belalang_vm::builtins::BuiltinCollection;
 use belalang_vm::bytecode::Bytecode;
 use belalang_vm::object::{Function, Object};
