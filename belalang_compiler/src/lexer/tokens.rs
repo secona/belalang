@@ -1,58 +1,58 @@
 macro_rules! arithmetic_tokens {
     () => {
-        crate::token::Token::Add
-            | crate::token::Token::Sub
-            | crate::token::Token::Mul
-            | crate::token::Token::Div
-            | crate::token::Token::Mod
+        Token::Add
+            | Token::Sub
+            | Token::Mul
+            | Token::Div
+            | Token::Mod
     };
 }
 
-pub(super) use arithmetic_tokens;
+pub(crate) use arithmetic_tokens;
 
 macro_rules! comparison_tokens {
     () => {
-        crate::token::Token::Eq
-            | crate::token::Token::Ne
-            | crate::token::Token::Gt
-            | crate::token::Token::Ge
-            | crate::token::Token::Lt
-            | crate::token::Token::Le
+        Token::Eq
+            | Token::Ne
+            | Token::Gt
+            | Token::Ge
+            | Token::Lt
+            | Token::Le
     };
 }
 
-pub(super) use comparison_tokens;
+pub(crate) use comparison_tokens;
 
 macro_rules! assignment_tokens {
     () => {
-        crate::token::Token::Assign
-            | crate::token::Token::ColonAssign
-            | crate::token::Token::AddAssign
-            | crate::token::Token::SubAssign
-            | crate::token::Token::MulAssign
-            | crate::token::Token::DivAssign
-            | crate::token::Token::ModAssign
-            | crate::token::Token::BitAndAssign
-            | crate::token::Token::BitOrAssign
-            | crate::token::Token::BitXorAssign
-            | crate::token::Token::ShiftLeftAssign
-            | crate::token::Token::ShiftRightAssign
+        Token::Assign
+            | Token::ColonAssign
+            | Token::AddAssign
+            | Token::SubAssign
+            | Token::MulAssign
+            | Token::DivAssign
+            | Token::ModAssign
+            | Token::BitAndAssign
+            | Token::BitOrAssign
+            | Token::BitXorAssign
+            | Token::ShiftLeftAssign
+            | Token::ShiftRightAssign
     };
 }
 
-pub(super) use assignment_tokens;
+pub(crate) use assignment_tokens;
 
 macro_rules! bitwise_tokens {
     () => {
-        crate::token::Token::BitAnd
-            | crate::token::Token::BitOr
-            | crate::token::Token::BitXor
-            | crate::token::Token::ShiftLeft
-            | crate::token::Token::ShiftRight
+        Token::BitAnd
+            | Token::BitOr
+            | Token::BitXor
+            | Token::ShiftLeft
+            | Token::ShiftRight
     };
 }
 
-pub(super) use bitwise_tokens;
+pub(crate) use bitwise_tokens;
 
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub enum Token {

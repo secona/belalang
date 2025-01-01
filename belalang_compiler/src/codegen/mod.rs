@@ -1,12 +1,15 @@
+pub mod disassembler;
+mod scope;
+
 use crate::ast::{BlockExpression, Expression, Program, Statement};
-use crate::token::Token;
+use crate::lexer::tokens::Token;
 use belalang_vm::builtins::BuiltinCollection;
 use belalang_vm::bytecode::Bytecode;
 use belalang_vm::object::{Function, Object};
 use belalang_vm::opcode;
 
 use crate::error::CompileError;
-use crate::scope::{CompilationScope, ScopeLevel, ScopeManager, ScopeManagerBuilder};
+use scope::{CompilationScope, ScopeLevel, ScopeManager, ScopeManagerBuilder};
 
 struct FunctionBuffer {
     scope: CompilationScope,

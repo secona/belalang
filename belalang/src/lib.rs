@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 
-use belalang_compiler::compiler::CompilerBuilder;
+use belalang_compiler::codegen::CompilerBuilder;
 use belalang_compiler::lexer::Lexer;
 use belalang_compiler::parser::Parser;
 use belalang_vm::vm::VMBuilder;

@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::io::{self, Write};
 
-use belalang_compiler::token::Token;
+use belalang_compiler::lexer::tokens::Token;
 use belalang_compiler::lexer::Lexer;
 
 fn main() -> Result<(), Box<dyn Error>> {

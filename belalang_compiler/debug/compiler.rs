@@ -1,8 +1,8 @@
 use std::error::Error;
 use std::io::{self, Write};
 
-use belalang_compiler::compiler::CompilerBuilder;
-use belalang_compiler::disassembly::disassemble;
+use belalang_compiler::codegen::CompilerBuilder;
+use belalang_compiler::codegen::disassembler::disassemble;
 use belalang_compiler::parser::Parser;
 use belalang_compiler::lexer::Lexer;
 

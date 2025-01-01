@@ -1,7 +1,7 @@
 use crate::ast::{self, Expression, Statement};
 use crate::error::SyntaxError;
 use crate::lexer;
-use crate::token::{
+use crate::lexer::tokens::{
     arithmetic_tokens, assignment_tokens, bitwise_tokens, comparison_tokens, Token,
 };
 

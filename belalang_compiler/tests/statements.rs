@@ -1,7 +1,8 @@
 #[macro_use]
 mod common;
 
-use belalang_compiler::{ast, token};
+use belalang_compiler::ast;
+use belalang_compiler::lexer::tokens::Token;
 use common::test_parse;
 
 #[test]
@@ -21,7 +22,7 @@ fn block() {
 
     let int_0 = as_variant!(&expr_0.expression, ast::Expression::Integer);
 
-    assert_eq!(int_0.token, token::Token::Int("12".into()));
+    assert_eq!(int_0.token, Token::Int("12".into()));
     assert_eq!(int_0.value, 12);
 
     // second statement
@@ -29,7 +30,7 @@ fn block() {
 
     let int_1 = as_variant!(&expr_1.expression, ast::Expression::Integer);
 
-    assert_eq!(int_1.token, token::Token::Int("14".into()));
+    assert_eq!(int_1.token, Token::Int("14".into()));
     assert_eq!(int_1.value, 14);
 
     // third statement
@@ -37,7 +38,7 @@ fn block() {
 
     expr_variant!(&expr_2.expression, Infix => (
         ast::Expression::Integer = 1,
-        token::Token::Add,
+        Token::Add,
         ast::Expression::Integer = 2
     ));
 }
@@ -50,11 +51,11 @@ fn r#return() {
 
     let ret = as_variant!(&program.statements[0], ast::Statement::Return);
 
-    assert_eq!(ret.token, token::Token::Return);
+    assert_eq!(ret.token, Token::Return);
 
     let val = as_variant!(&ret.return_value, ast::Expression::Integer);
 
-    assert_eq!(val.token, token::Token::Int("12".into()));
+    assert_eq!(val.token, Token::Int("12".into()));
     assert_eq!(val.value, 12);
 }
 

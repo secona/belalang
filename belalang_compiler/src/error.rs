@@ -1,4 +1,4 @@
-use crate::token::Token;
+use crate::lexer::tokens::Token;
 use crate::ast::Expression;
 
 #[derive(thiserror::Error, Debug)]

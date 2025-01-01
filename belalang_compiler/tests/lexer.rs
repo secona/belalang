@@ -1,7 +1,7 @@
 #[macro_use]
 mod common;
 
-use belalang_compiler::token::Token;
+use belalang_compiler::lexer::tokens::Token;
 use belalang_compiler::lexer::Lexer;
 
 fn test_tokens(input: &str, tokens: Vec<Token>) {
