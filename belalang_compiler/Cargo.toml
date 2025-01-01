@@ -5,6 +5,24 @@ edition = "2021"
 publish = false
 license = "Apache-2.0"
 
+[[bin]]
+name = "debug_lexer"
+path = "debug/lexer.rs"
+required-features = ["debug"]
+
+[[bin]]
+name = "debug_parser"
+path = "debug/parser.rs"
+required-features = ["debug"]
+
+[[bin]]
+name = "debug_compiler"
+path = "debug/compiler.rs"
+required-features = ["debug"]
+
+[features]
+debug = []
+
 [dependencies]
 belalang_vm =  { path = "../belalang_vm" }
 thiserror = "1.0.61"

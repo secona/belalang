@@ -1,11 +1,10 @@
 use std::error::Error;
+use std::io::{self, Write};
 
 use belalang_compiler::compiler::CompilerBuilder;
 use belalang_compiler::disassembly::disassemble;
 use belalang_compiler::parser::Parser;
 use belalang_compiler::lexer::Lexer;
-use rustyline::error::ReadlineError;
-use rustyline::DefaultEditor;
 
 fn compile(line: String) -> Result<(), Box<dyn Error>> {
     let lexer = Lexer::new(line.as_bytes());
@@ -30,23 +29,17 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut rl = DefaultEditor::new()?;
+    let mut input = String::new();
 
     loop {
-        match rl.readline(">> ") {
-            Ok(line) => {
-                if let Err(err) = compile(line) {
-                    println!("ERROR: {}", err);
-                }
-            }
-            Err(ReadlineError::Interrupted) => (),
-            Err(ReadlineError::Eof) => break,
-            Err(err) => {
-                println!("error reading line: {:?}", err);
-                break;
-            }
+        print!(">> ");
+        io::stdout().flush().unwrap();
+
+        input.clear();
+        io::stdin().read_line(&mut input).unwrap();
+
+        if let Err(error) = compile(input.clone()) {
+            println!("ERROR: {}", error);
         }
     }
-
-    Ok(())
 }
