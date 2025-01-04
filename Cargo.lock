@@ -61,10 +61,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "belalang_allocator"
-version = "0.1.0"
-
-[[package]]
 name = "belalang_compiler"
 version = "0.1.0"
 dependencies = [

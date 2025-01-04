@@ -2,7 +2,6 @@
 resolver = "2"
 members = [
 	"belalang",
-	"belalang_allocator",
 	"belalang_compiler",
 	"belalang_vm",
 ]
