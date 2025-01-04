@@ -5,7 +5,7 @@ use crate::object::Object;
 use crate::opcode;
 
 use crate::error::RuntimeError;
-use crate::frame::{Frame, FrameStack};
+use crate::frame::FrameStack;
 use crate::stack::Stack;
 
 pub struct VM {
@@ -210,15 +210,6 @@ impl VM {
 
                 opcode::CALL => {
                     match self.stack.pop_take()? {
-                        Object::Function(function) => {
-                            let new_ip = function.pointer;
-                            let args = self.stack.pop_take_n(function.arity)?;
-
-                            self.frame.push(Frame::new(self.ip, function, args));
-                            self.ip = new_ip;
-
-                            continue; // continue because we dont want to increment the ip
-                        }
                         Object::Builtin(index) => {
                             let args = (0..self.builtin_collection.get_arity(index)?)
                                 .map(|_| self.stack.pop_take())
@@ -245,24 +236,24 @@ impl VM {
                 }
 
                 opcode::ARRAY => {
-                    let len = self.read_u16();
-                    let mut arr = Vec::new();
-
-                    for _ in 0..len {
-                        arr.push(self.stack.pop_take()?);
-                    }
-
-                    self.stack.push(Object::Array(arr))?;
+                    // let len = self.read_u16();
+                    // let mut arr = Vec::new();
+                    //
+                    // for _ in 0..len {
+                    //     arr.push(self.stack.pop_take()?);
+                    // }
+                    //
+                    // self.stack.push(Object::Array(arr))?;
                 }
 
                 opcode::INDEX => {
-                    let index = self.stack.pop_take()?;
-                    let arr = self.stack.pop_take()?;
-
-                    if let (Object::Array(arr), Object::Integer(index)) = (arr, index) {
-                        let obj = arr.get(index as usize).unwrap_or(&Object::Null);
-                        self.stack.push(obj.clone())?;
-                    }
+                    // let index = self.stack.pop_take()?;
+                    // let arr = self.stack.pop_take()?;
+                    //
+                    // if let (Object::Array(arr), Object::Integer(index)) = (arr, index) {
+                    //     let obj = arr.get(index as usize).unwrap_or(&Object::Null);
+                    //     self.stack.push(obj.clone())?;
+                    // }
                 }
 
                 _ => return Err(RuntimeError::UnknownInstruction(op)),

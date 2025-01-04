@@ -5,21 +5,14 @@ use crate::ast::{BlockExpression, Expression, Program, Statement};
 use crate::tokens::Token;
 use belalang_vm::builtins::BuiltinCollection;
 use belalang_vm::bytecode::Bytecode;
-use belalang_vm::object::{Function, Object};
+use belalang_vm::object::Object;
 use belalang_vm::opcode;
 
 use crate::error::CompileError;
-use scope::{CompilationScope, ScopeLevel, ScopeManager, ScopeManagerBuilder};
-
-struct FunctionBuffer {
-    scope: CompilationScope,
-    constant_index: usize,
-    arity: usize,
-}
+use scope::{ScopeLevel, ScopeManager, ScopeManagerBuilder};
 
 pub struct Compiler {
     prev_constants: usize,
-    function_buffers: Vec<FunctionBuffer>,
 
     pub constants: Vec<Object>,
     pub scope: ScopeManager,
@@ -34,18 +27,6 @@ impl Compiler {
         let mut instructions: Vec<_> = self.scope.main_scope.instructions.drain(..).collect();
 
         instructions.push(opcode::RETURN_VALUE);
-
-        for buffer in std::mem::take(&mut self.function_buffers) {
-            let pointer = instructions.len();
-
-            instructions.extend(buffer.scope.instructions);
-
-            self.constants[buffer.constant_index] = Object::Function(Function {
-                arity: buffer.arity,
-                locals_count: buffer.scope.symbol_count,
-                pointer,
-            })
-        }
 
         let constants = self.constants[self.prev_constants..].to_vec();
         self.prev_constants = self.constants.len();
@@ -115,31 +96,35 @@ impl Compiler {
             }
 
             Expression::Float(float) => {
-                let float = Object::Float(float.value);
-                let index = self.add_constant(float) as u16;
-                self.add_instruction(opcode::constant(index).to_vec());
+                panic!("Float compilation is temporarily disabled!");
+                // let float = Object::Float(float.value);
+                // let index = self.add_constant(float) as u16;
+                // self.add_instruction(opcode::constant(index).to_vec());
             }
 
             Expression::String(string) => {
-                let string = Object::String(string.value);
-                let index = self.add_constant(string) as u16;
-                self.add_instruction(opcode::constant(index).to_vec());
+                panic!("String compilation is temporarily disabled!");
+                // let string = Object::String(string.value);
+                // let index = self.add_constant(string) as u16;
+                // self.add_instruction(opcode::constant(index).to_vec());
             }
 
             Expression::Null(_) => {
-                let null = Object::Null;
-                let index = self.add_constant(null) as u16;
-                self.add_instruction(opcode::constant(index).to_vec());
+                panic!("Null compilation is temporarily disabled!");
+                // let null = Object::Null;
+                // let index = self.add_constant(null) as u16;
+                // self.add_instruction(opcode::constant(index).to_vec());
             }
 
             Expression::Array(array) => {
-                let array_len = array.elements.len() as u16;
-
-                for element in array.elements.into_iter().rev() {
-                    self.compile_expression(element)?;
-                }
-
-                self.add_instruction(opcode::array(array_len).to_vec());
+                panic!("Array compilation is temporarily disabled!");
+                // let array_len = array.elements.len() as u16;
+                //
+                // for element in array.elements.into_iter().rev() {
+                //     self.compile_expression(element)?;
+                // }
+                //
+                // self.add_instruction(opcode::array(array_len).to_vec());
             }
 
             Expression::Var(var) => match var.token {
@@ -234,35 +219,7 @@ impl Compiler {
             }
 
             Expression::Function(mut function) => {
-                self.scope.enter();
-
-                let arity = function.params.len();
-
-                for param in function.params.drain(..) {
-                    self.scope.define(param.value)?;
-                }
-
-                for statement in function.body.statements {
-                    self.compile_statement(statement)?;
-                }
-
-                let mut scope = self.scope.leave();
-
-                match scope.instructions.last() {
-                    Some(&opcode::RETURN_VALUE) => (),
-                    _ => scope.instructions.push(opcode::RETURN_VALUE),
-                };
-
-                let constant_index = self.constants.len();
-                let index = self.add_constant(Object::Null) as u16;
-
-                self.function_buffers.push(FunctionBuffer {
-                    scope,
-                    constant_index,
-                    arity,
-                });
-
-                self.add_instruction(opcode::constant(index).to_vec());
+                todo!()
             }
 
             Expression::Identifier(ident) => {
@@ -453,7 +410,6 @@ impl CompilerBuilder {
         Compiler {
             scope: scope_manager,
             constants: Vec::new(),
-            function_buffers: Vec::new(),
             prev_constants: 0,
         }
     }

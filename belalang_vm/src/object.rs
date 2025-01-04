@@ -14,12 +14,8 @@ pub enum Object {
     #[default]
     Null,
     Integer(i64),
-    Float(f64),
     Boolean(bool),
-    String(String),
-    Function(Function),
     Builtin(usize),
-    Array(Vec<Object>),
 }
 
 impl Display for Object {
@@ -27,19 +23,8 @@ impl Display for Object {
         match self {
             Object::Null => write!(f, "null"),
             Object::Integer(i) => write!(f, "{i}"),
-            Object::Float(fl) => write!(f, "{fl}"),
             Object::Boolean(b) => write!(f, "{b}"),
-            Object::String(s) => write!(f, r#""{s}""#),
-            Object::Function(_) => write!(f, "<fn>"),
             Object::Builtin(_) => write!(f, "<builtin fn>"),
-            Object::Array(v) => write!(
-                f,
-                "[{}]",
-                v.iter()
-                    .map(|e| e.to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ),
         }
     }
 }
@@ -49,14 +34,6 @@ impl Object {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l + r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(l + r)),
-
-            // different types
-            (Self::Integer(i), Self::Float(f)) | (Self::Float(f), Self::Integer(i)) => {
-                Ok(Self::Float(i as f64 + f))
-            }
-            (Self::String(l), r) => Ok(Self::String(format!("{l}{r}"))),
-            (l, Self::String(r)) => Ok(Self::String(format!("{l}{r}"))),
 
             // unsupported
             (l, r) => Err(RuntimeError::InvalidOperation(l, "+".into(), r)),
@@ -67,11 +44,6 @@ impl Object {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l - r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(l - r)),
-
-            // different types
-            (Self::Integer(l), Self::Float(r)) => Ok(Self::Float(l as f64 - r)),
-            (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(l - r as f64)),
 
             // unsupported
             (l, r) => Err(RuntimeError::InvalidOperation(l, "-".into(), r)),
@@ -82,12 +54,6 @@ impl Object {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l * r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(l * r)),
-
-            // strings
-            (Self::String(s), Self::Integer(i)) | (Self::Integer(i), Self::String(s)) => {
-                Ok(Self::String(s.repeat(i as usize)))
-            }
 
             // unsupported
             (l, r) => Err(RuntimeError::InvalidOperation(l, "*".into(), r)),
@@ -98,11 +64,6 @@ impl Object {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l / r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(l / r)),
-
-            // different types
-            (Self::Integer(l), Self::Float(r)) => Ok(Self::Float(l as f64 / r)),
-            (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(l / r as f64)),
 
             // unsupported
             (l, r) => Err(RuntimeError::InvalidOperation(l, "/".into(), r)),
@@ -113,11 +74,6 @@ impl Object {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l % r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Float(l % r)),
-
-            // different types
-            (Self::Integer(l), Self::Float(r)) => Ok(Self::Float(l as f64 % r)),
-            (Self::Float(l), Self::Integer(r)) => Ok(Self::Float(l % r as f64)),
 
             // unsupported
             (l, r) => Err(RuntimeError::InvalidOperation(l, "%".into(), r)),
@@ -128,12 +84,6 @@ impl Object {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Boolean(l < r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Boolean(l < r)),
-            (Self::String(l), Self::String(r)) => Ok(Self::Boolean(l < r)),
-
-            // different types
-            (Self::Integer(l), Self::Float(r)) => Ok(Self::Boolean((l as f64) < r)),
-            (Self::Float(l), Self::Integer(r)) => Ok(Self::Boolean(l < (r as f64))),
 
             // unsupported
             (l, r) => Err(RuntimeError::InvalidOperation(l, "<".into(), r)),
@@ -144,12 +94,6 @@ impl Object {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Boolean(l <= r)),
-            (Self::Float(l), Self::Float(r)) => Ok(Self::Boolean(l <= r)),
-            (Self::String(l), Self::String(r)) => Ok(Self::Boolean(l <= r)),
-
-            // different types
-            (Self::Integer(l), Self::Float(r)) => Ok(Self::Boolean((l as f64) <= r)),
-            (Self::Float(l), Self::Integer(r)) => Ok(Self::Boolean(l <= (r as f64))),
 
             // unsupported
             (l, r) => Err(RuntimeError::InvalidOperation(l, "<=".into(), r)),
