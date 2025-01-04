@@ -8,3 +8,6 @@ license = "Apache-2.0"
 [dependencies]
 indexmap = "2.2.6"
 thiserror = "1.0.61"
+
+[dev-dependencies]
+test-case = "3.3.1"

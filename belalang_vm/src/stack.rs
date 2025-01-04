@@ -51,4 +51,8 @@ impl Stack {
 
         Ok(())
     }
+
+    pub fn size(&self) -> usize {
+        self.stack.len()
+    }
 }
