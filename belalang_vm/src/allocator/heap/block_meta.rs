@@ -9,6 +9,9 @@ pub struct BlockMeta {
 }
 
 impl BlockMeta {
+    /// # Safety
+    ///
+    /// Declaring a new block meta is unsafe
     pub unsafe fn new(block_ptr: *const u8) -> Self {
         let mut bm = Self {
             lines: unsafe { block_ptr.add(BLOCK_CAPACITY) as *mut u8 },
@@ -81,7 +84,7 @@ impl BlockMeta {
 
 #[cfg(test)]
 mod tests {
-    use crate::heap::block::Block;
+    use crate::allocator::heap::block::Block;
 
     use super::{BlockMeta, BLOCK_SIZE, LINE_SIZE};
 

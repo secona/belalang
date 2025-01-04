@@ -1,6 +1,6 @@
 use belalang_vm::opcode;
 
-fn read_u16(bytes: &Vec<u8>, i: &mut usize) -> (u16, usize) {
+fn read_u16(bytes: &[u8], i: &mut usize) -> (u16, usize) {
     let hi = bytes[*i + 1];
     let lo = bytes[*i + 2];
     *i += 2;
@@ -8,7 +8,7 @@ fn read_u16(bytes: &Vec<u8>, i: &mut usize) -> (u16, usize) {
     ((hi as u16) << 8 | lo as u16, *i - 2)
 }
 
-fn read_u8(bytes: &Vec<u8>, i: &mut usize) -> (u16, usize) {
+fn read_u8(bytes: &[u8], i: &mut usize) -> (u16, usize) {
     let value = bytes[*i + 1];
     *i += 1;
 
