@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::io::{self, Write};
 
-use belalang_compiler::codegen::CompilerBuilder;
+use belalang_compiler::codegen::Compiler;
 use belalang_compiler::codegen::disassembler::disassemble;
 use belalang_compiler::ast::Parser;
 use belalang_compiler::tokens::Lexer;
@@ -11,7 +11,7 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program()?;
 
-    let mut compiler = CompilerBuilder::default().build();
+    let mut compiler = Compiler::default();
     let code = compiler.compile_program(program)?;
 
     let disassembled = disassemble(code.instructions);

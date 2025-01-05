@@ -5,7 +5,7 @@ use test_case::test_case;
 use belalang_vm::bytecode::Bytecode;
 use belalang_vm::object::Object;
 use belalang_vm::opcode;
-use belalang_vm::vm::VMBuilder;
+use belalang_vm::vm::VM;
 
 mod stack_op {
     use super::*;
@@ -18,7 +18,7 @@ mod stack_op {
         instructions.extend(opcode::constant(1));
         instructions.push(opcode::POP);
 
-        let mut vm = VMBuilder::default().build();
+        let mut vm = VM::default();
 
         let _ = vm.run(Bytecode {
             instructions,
@@ -43,7 +43,7 @@ fn arithmetic_op(a: i64, b: i64, op: u8) -> i64 {
     instructions.extend(opcode::constant(1));
     instructions.push(op);
 
-    let mut vm = VMBuilder::default().build();
+    let mut vm = VM::default();
 
     let _ = vm.run(Bytecode {
         instructions,
@@ -71,7 +71,7 @@ fn number_comparison_op(a: i64, b: i64, op: u8) -> bool {
     instructions.extend(opcode::constant(1));
     instructions.push(op);
 
-    let mut vm = VMBuilder::default().build();
+    let mut vm = VM::default();
 
     let _ = vm.run(Bytecode {
         instructions,
@@ -97,7 +97,7 @@ fn logical_op(a: bool, b: bool, op: u8) -> bool {
     instructions.extend(opcode::constant(1));
     instructions.push(op);
 
-    let mut vm = VMBuilder::default().build();
+    let mut vm = VM::default();
 
     let _ = vm.run(Bytecode {
         instructions,
@@ -126,7 +126,7 @@ fn bitwise_op(a: i64, b: i64, op: u8) -> i64 {
     instructions.extend(opcode::constant(1));
     instructions.push(op);
 
-    let mut vm = VMBuilder::default().build();
+    let mut vm = VM::default();
 
     let _ = vm.run(Bytecode {
         instructions,
@@ -154,7 +154,7 @@ mod jump_op {
         instructions.push(opcode::TRUE);
         instructions.push(opcode::FALSE);
 
-        let mut vm = VMBuilder::default().build();
+        let mut vm = VM::default();
 
         let _ = vm.run(Bytecode {
             instructions,
@@ -175,7 +175,7 @@ mod jump_op {
         instructions.push(opcode::TRUE);
         instructions.push(opcode::FALSE);
 
-        let mut vm = VMBuilder::default().build();
+        let mut vm = VM::default();
 
         let _ = vm.run(Bytecode {
             instructions,
@@ -199,7 +199,7 @@ mod unary_op {
         instructions.push(opcode::TRUE);
         instructions.push(opcode::BANG);
 
-        let mut vm = VMBuilder::default().build();
+        let mut vm = VM::default();
 
         let _ = vm.run(Bytecode {
             instructions,
@@ -218,7 +218,7 @@ mod unary_op {
         instructions.extend(opcode::constant(0));
         instructions.push(opcode::MINUS);
 
-        let mut vm = VMBuilder::default().build();
+        let mut vm = VM::default();
 
         let _ = vm.run(Bytecode {
             instructions,

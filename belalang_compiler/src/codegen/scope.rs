@@ -1,7 +1,6 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
-use belalang_vm::builtins::BuiltinCollection;
 use belalang_vm::opcode;
 
 use crate::error::CompileError;
@@ -51,6 +50,34 @@ pub struct ScopeManager {
     scope_store: Vec<CompilationScope>,
 }
 
+impl Default for ScopeManager {
+    fn default() -> Self {
+        let mut sm = Self {
+            main_scope: CompilationScope {
+                scope: ScopeLevel::Global,
+                instructions: Vec::new(),
+                symbol_store: HashMap::new(),
+                symbol_count: 0,
+            },
+            scope_store: Vec::new(),
+        };
+
+        for (key, _) in belalang_vm::builtins::BUILTIN_FUNCTIONS {
+            sm.main_scope.symbol_store.insert(
+                key.to_string(),
+                Symbol {
+                    scope: ScopeLevel::Builtin,
+                    index: sm.main_scope.symbol_count,
+                },
+            );
+
+            sm.main_scope.symbol_count += 1;
+        }
+
+        sm
+    }
+}
+
 impl ScopeManager {
     pub fn enter(&mut self) {
         self.scope_store.push(CompilationScope {
@@ -94,45 +121,5 @@ impl ScopeManager {
         self.main_scope
             .resolve(&name)
             .ok_or(CompileError::UnknownSymbol(name))
-    }
-}
-
-#[derive(Default)]
-pub struct ScopeManagerBuilder {
-    builtin_collection: Option<BuiltinCollection>,
-}
-
-impl ScopeManagerBuilder {
-    pub fn builtin_collection(mut self, builtin_collection: BuiltinCollection) -> Self {
-        self.builtin_collection = Some(builtin_collection);
-        self
-    }
-
-    pub fn build(self) -> ScopeManager {
-        let mut sm = ScopeManager {
-            main_scope: CompilationScope {
-                scope: ScopeLevel::Global,
-                instructions: Vec::new(),
-                symbol_store: HashMap::new(),
-                symbol_count: 0,
-            },
-            scope_store: Vec::new(),
-        };
-
-        let builtins = self.builtin_collection.unwrap_or_default();
-
-        for key in builtins.keys() {
-            sm.main_scope.symbol_store.insert(
-                key.to_string(),
-                Symbol {
-                    scope: ScopeLevel::Builtin,
-                    index: sm.main_scope.symbol_count,
-                },
-            );
-
-            sm.main_scope.symbol_count += 1;
-        }
-
-        sm
     }
 }

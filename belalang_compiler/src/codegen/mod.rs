@@ -3,14 +3,14 @@ mod scope;
 
 use crate::ast::{BlockExpression, Expression, Program, Statement};
 use crate::tokens::Token;
-use belalang_vm::builtins::BuiltinCollection;
 use belalang_vm::bytecode::Bytecode;
 use belalang_vm::object::Object;
 use belalang_vm::opcode;
 
 use crate::error::CompileError;
-use scope::{ScopeLevel, ScopeManager, ScopeManagerBuilder};
+use scope::{ScopeLevel, ScopeManager};
 
+#[derive(Default)]
 pub struct Compiler {
     prev_constants: usize,
 
@@ -95,14 +95,14 @@ impl Compiler {
                 self.add_instruction(opcode::constant(index).to_vec());
             }
 
-            Expression::Float(float) => {
+            Expression::Float(_float) => {
                 panic!("Float compilation is temporarily disabled!");
                 // let float = Object::Float(float.value);
                 // let index = self.add_constant(float) as u16;
                 // self.add_instruction(opcode::constant(index).to_vec());
             }
 
-            Expression::String(string) => {
+            Expression::String(_string) => {
                 panic!("String compilation is temporarily disabled!");
                 // let string = Object::String(string.value);
                 // let index = self.add_constant(string) as u16;
@@ -116,7 +116,7 @@ impl Compiler {
                 // self.add_instruction(opcode::constant(index).to_vec());
             }
 
-            Expression::Array(array) => {
+            Expression::Array(_array) => {
                 panic!("Array compilation is temporarily disabled!");
                 // let array_len = array.elements.len() as u16;
                 //
@@ -218,7 +218,7 @@ impl Compiler {
                 self.add_bytecode(opcode::INDEX);
             }
 
-            Expression::Function(mut function) => {
+            Expression::Function(_function) => {
                 todo!()
             }
 
@@ -387,30 +387,6 @@ impl Compiler {
             ScopeLevel::Global => self.add_instruction(opcode::set_global(index as u16).to_vec()),
             ScopeLevel::Local => self.add_instruction(opcode::set_local(index as u8).to_vec()),
             ScopeLevel::Builtin => 0,
-        }
-    }
-}
-
-#[derive(Default)]
-pub struct CompilerBuilder {
-    builtin_collection: Option<BuiltinCollection>,
-}
-
-impl CompilerBuilder {
-    pub fn builtin_collection(mut self, builtin_collection: BuiltinCollection) -> Self {
-        self.builtin_collection = Some(builtin_collection);
-        self
-    }
-
-    pub fn build(self) -> Compiler {
-        let scope_manager = ScopeManagerBuilder::default()
-            .builtin_collection(self.builtin_collection.unwrap_or_default())
-            .build();
-
-        Compiler {
-            scope: scope_manager,
-            constants: Vec::new(),
-            prev_constants: 0,
         }
     }
 }

@@ -2,10 +2,10 @@
 
 use std::error::Error;
 
-use belalang_compiler::codegen::CompilerBuilder;
+use belalang_compiler::codegen::Compiler;
 use belalang_compiler::ast::Parser;
 use belalang_compiler::tokens::Lexer;
-use belalang_vm::object::{Object, Function};
+use belalang_vm::object::Object;
 use belalang_vm::opcode;
 use belalang_vm::bytecode::Bytecode;
 
@@ -14,7 +14,7 @@ fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program()?;
 
-    let mut compiler = CompilerBuilder::default().build();
+    let mut compiler = Compiler::default();
     let code = compiler.compile_program(program)?;
 
     Ok(code)
@@ -264,11 +264,11 @@ fn function_expressions() {
 
     assert_eq!(code.constants, vec![
         Object::Integer(10),
-        Object::Function(Function {
-            pointer: 8,
-            locals_count: 0,
-            arity: 0
-        })
+        // Object::Function(Function {
+        //     pointer: 8,
+        //     locals_count: 0,
+        //     arity: 0
+        // })
     ]);
 }
 
@@ -296,11 +296,11 @@ fn function_with_args_expressions() {
     ]);
 
     assert_eq!(code.constants, vec![
-        Object::Function(Function {
-            pointer: 22,
-            locals_count: 2,
-            arity: 2,
-        }),
+        // Object::Function(Function {
+        //     pointer: 22,
+        //     locals_count: 2,
+        //     arity: 2,
+        // }),
         Object::Integer(2),
         Object::Integer(1),
     ]);

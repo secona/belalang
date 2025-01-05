@@ -1,4 +1,3 @@
-use crate::builtins::BuiltinCollection;
 use crate::bytecode::Bytecode;
 use crate::globals::Globals;
 use crate::object::Object;
@@ -16,8 +15,22 @@ pub struct VM {
     pub frame: FrameStack,
     pub stack: Stack,
     pub globals: Globals,
+}
 
-    pub builtin_collection: BuiltinCollection,
+impl Default for VM {
+    fn default() -> Self {
+        let globals_offset = crate::builtins::BUILTIN_FUNCTIONS.len(); // temporary fix
+
+        VM {
+            ip: 0,
+            instructions: Vec::new(),
+            constants: Vec::new(),
+
+            frame: FrameStack::default(),
+            stack: Stack::default(),
+            globals: Globals::with_offset(globals_offset),
+        }
+    }
 }
 
 impl VM {
@@ -205,34 +218,5 @@ impl VM {
         self.ip += 1;
 
         v
-    }
-}
-
-#[derive(Default)]
-pub struct VMBuilder {
-    builtin_collection: Option<BuiltinCollection>,
-}
-
-impl VMBuilder {
-    pub fn builtin_collection(mut self, builtin_collection: BuiltinCollection) -> Self {
-        self.builtin_collection = Some(builtin_collection);
-        self
-    }
-
-    pub fn build(self) -> VM {
-        let builtin_collection = self.builtin_collection.unwrap_or_default();
-        let globals_offset = builtin_collection.keys().len(); // temporary fix
-
-        VM {
-            ip: 0,
-            instructions: Vec::new(),
-            constants: Vec::new(),
-
-            frame: FrameStack::default(),
-            stack: Stack::default(),
-            globals: Globals::with_offset(globals_offset),
-
-            builtin_collection,
-        }
     }
 }
