@@ -6,7 +6,7 @@ use belalang_vm::opcode;
 use belalang_vm::vm::VMBuilder;
 
 #[test]
-fn push_and_pop() {
+fn stack_pop() {
     let constants = vec![Object::Integer(12), Object::Integer(5)];
 
     let mut instructions = Vec::new();
@@ -30,7 +30,7 @@ fn push_and_pop() {
 #[test_case(12, 5, opcode::MUL => 60; "multiplication")]
 #[test_case(12, 5, opcode::DIV => 2; "division")]
 #[test_case(12, 5, opcode::MOD => 2; "modulo")]
-fn arithmetic(a: i64, b: i64, op: u8) -> i64 {
+fn arithmetic_op(a: i64, b: i64, op: u8) -> i64 {
     let constants = vec![Object::Integer(a), Object::Integer(b)];
 
     let mut instructions = Vec::new();
@@ -58,7 +58,7 @@ fn arithmetic(a: i64, b: i64, op: u8) -> i64 {
 #[test_case(12, 12, opcode::NOT_EQUAL => false; "not equal")]
 #[test_case(12, 13, opcode::LESS_THAN => true; "less than")]
 #[test_case(12, 12, opcode::LESS_THAN_EQUAL => true; "less than equal")]
-fn number_equality(a: i64, b: i64, op: u8) -> bool {
+fn number_comparison_op(a: i64, b: i64, op: u8) -> bool {
     let constants = vec![Object::Integer(a), Object::Integer(b)];
 
     let mut instructions = Vec::new();
@@ -84,7 +84,7 @@ fn number_equality(a: i64, b: i64, op: u8) -> bool {
 
 #[test_case(true, false, opcode::AND => false; "and")]
 #[test_case(true, false, opcode::OR => true; "or")]
-fn logical(a: bool, b: bool, op: u8) -> bool {
+fn logical_op(a: bool, b: bool, op: u8) -> bool {
     let constants = vec![Object::Boolean(a), Object::Boolean(b)];
 
     let mut instructions = Vec::new();
@@ -106,4 +106,75 @@ fn logical(a: bool, b: bool, op: u8) -> bool {
     }
 
     panic!("Not an Boolean!");
+}
+
+#[test_case(12, 1, opcode::BIT_AND => 0 ; "bit and")]
+#[test_case(12, 1, opcode::BIT_OR => 13; "bit or")]
+#[test_case(12, 1, opcode::BIT_XOR => 13; "bit xor")]
+#[test_case(12, 1, opcode::BIT_SL => 24; "bit sl")]
+#[test_case(12, 1, opcode::BIT_SR => 6; "bit sr")]
+fn bitwise_op(a: i64, b: i64, op: u8) -> i64 {
+    let constants = vec![Object::Integer(a), Object::Integer(b)];
+
+    let mut instructions = Vec::new();
+    instructions.extend(opcode::constant(0));
+    instructions.extend(opcode::constant(1));
+    instructions.push(op);
+
+    let mut vm = VMBuilder::default().build();
+
+    let _ = vm.run(Bytecode {
+        instructions,
+        constants,
+    });
+
+    assert_eq!(vm.stack.size(), 1);
+
+    if let Object::Integer(result) = vm.stack.top().unwrap() {
+        return *result;
+    }
+
+    panic!("Not an Integer!");
+}
+
+#[test]
+fn jump_op() {
+    let constants = Vec::new();
+
+    let mut instructions = Vec::new();
+    instructions.extend(opcode::jump(1));
+    instructions.push(opcode::TRUE);
+    instructions.push(opcode::FALSE);
+
+    let mut vm = VMBuilder::default().build();
+
+    let _ = vm.run(Bytecode {
+        instructions,
+        constants,
+    });
+
+    assert_eq!(vm.stack.size(), 1);
+    assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(false)));
+}
+
+#[test]
+fn jump_if_false_op() {
+    let constants = Vec::new();
+
+    let mut instructions = Vec::new();
+    instructions.push(opcode::TRUE);
+    instructions.extend(opcode::jump_if_false(1));
+    instructions.push(opcode::TRUE);
+    instructions.push(opcode::FALSE);
+
+    let mut vm = VMBuilder::default().build();
+
+    let _ = vm.run(Bytecode {
+        instructions,
+        constants,
+    });
+
+    assert_eq!(vm.stack.size(), 2);
+    assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(false)));
+    assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(true)));
 }
