@@ -1,3 +1,5 @@
+#![allow(clippy::vec_init_then_push)]
+
 use test_case::test_case;
 
 use belalang_vm::bytecode::Bytecode;
@@ -5,24 +7,27 @@ use belalang_vm::object::Object;
 use belalang_vm::opcode;
 use belalang_vm::vm::VMBuilder;
 
-#[test]
-fn stack_pop() {
-    let constants = vec![Object::Integer(12), Object::Integer(5)];
+mod stack_op {
+    use super::*;
+    #[test]
+    fn pop() {
+        let constants = vec![Object::Integer(12), Object::Integer(5)];
 
-    let mut instructions = Vec::new();
-    instructions.extend(opcode::constant(0));
-    instructions.extend(opcode::constant(1));
-    instructions.push(opcode::POP);
+        let mut instructions = Vec::new();
+        instructions.extend(opcode::constant(0));
+        instructions.extend(opcode::constant(1));
+        instructions.push(opcode::POP);
 
-    let mut vm = VMBuilder::default().build();
+        let mut vm = VMBuilder::default().build();
 
-    let _ = vm.run(Bytecode {
-        instructions,
-        constants,
-    });
+        let _ = vm.run(Bytecode {
+            instructions,
+            constants,
+        });
 
-    assert_eq!(vm.stack.size(), 1);
-    assert!(matches!(vm.stack.top().unwrap(), Object::Integer(12)));
+        assert_eq!(vm.stack.size(), 1);
+        assert!(matches!(vm.stack.top().unwrap(), Object::Integer(12)));
+    }
 }
 
 #[test_case(12, 5, opcode::ADD => 17; "addition")]
@@ -137,44 +142,90 @@ fn bitwise_op(a: i64, b: i64, op: u8) -> i64 {
     panic!("Not an Integer!");
 }
 
-#[test]
-fn jump_op() {
-    let constants = Vec::new();
+mod jump_op {
+    use super::*;
 
-    let mut instructions = Vec::new();
-    instructions.extend(opcode::jump(1));
-    instructions.push(opcode::TRUE);
-    instructions.push(opcode::FALSE);
+    #[test]
+    fn jump() {
+        let constants = Vec::new();
 
-    let mut vm = VMBuilder::default().build();
+        let mut instructions = Vec::new();
+        instructions.extend(opcode::jump(1));
+        instructions.push(opcode::TRUE);
+        instructions.push(opcode::FALSE);
 
-    let _ = vm.run(Bytecode {
-        instructions,
-        constants,
-    });
+        let mut vm = VMBuilder::default().build();
 
-    assert_eq!(vm.stack.size(), 1);
-    assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(false)));
+        let _ = vm.run(Bytecode {
+            instructions,
+            constants,
+        });
+
+        assert_eq!(vm.stack.size(), 1);
+        assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(false)));
+    }
+
+    #[test]
+    fn jump_if_false_op() {
+        let constants = Vec::new();
+
+        let mut instructions = Vec::new();
+        instructions.push(opcode::TRUE);
+        instructions.extend(opcode::jump_if_false(1));
+        instructions.push(opcode::TRUE);
+        instructions.push(opcode::FALSE);
+
+        let mut vm = VMBuilder::default().build();
+
+        let _ = vm.run(Bytecode {
+            instructions,
+            constants,
+        });
+
+        assert_eq!(vm.stack.size(), 2);
+        assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(false)));
+        assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(true)));
+    }
 }
 
-#[test]
-fn jump_if_false_op() {
-    let constants = Vec::new();
+mod unary_op {
+    use super::*;
 
-    let mut instructions = Vec::new();
-    instructions.push(opcode::TRUE);
-    instructions.extend(opcode::jump_if_false(1));
-    instructions.push(opcode::TRUE);
-    instructions.push(opcode::FALSE);
+    #[test]
+    fn bang() {
+        let constants = Vec::new();
 
-    let mut vm = VMBuilder::default().build();
+        let mut instructions = Vec::new();
+        instructions.push(opcode::TRUE);
+        instructions.push(opcode::BANG);
 
-    let _ = vm.run(Bytecode {
-        instructions,
-        constants,
-    });
+        let mut vm = VMBuilder::default().build();
 
-    assert_eq!(vm.stack.size(), 2);
-    assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(false)));
-    assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(true)));
+        let _ = vm.run(Bytecode {
+            instructions,
+            constants,
+        });
+
+        assert_eq!(vm.stack.size(), 1);
+        assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(false)));
+    }
+
+    #[test]
+    fn minus() {
+        let constants = vec![Object::Integer(12)];
+
+        let mut instructions = Vec::new();
+        instructions.extend(opcode::constant(0));
+        instructions.push(opcode::MINUS);
+
+        let mut vm = VMBuilder::default().build();
+
+        let _ = vm.run(Bytecode {
+            instructions,
+            constants,
+        });
+
+        assert_eq!(vm.stack.size(), 1);
+        assert!(matches!(vm.stack.pop_take().unwrap(), Object::Integer(-12)));
+    }
 }
