@@ -84,7 +84,7 @@ impl BlockMeta {
 
 #[cfg(test)]
 mod tests {
-    use crate::allocator::heap::block::Block;
+    use crate::mem::heap::block::Block;
 
     use super::{BlockMeta, BLOCK_SIZE, LINE_SIZE};
 
