@@ -1,12 +1,9 @@
-use std::alloc::{self, Layout};
-use std::ptr::{self, NonNull};
-
 const STACK_SIZE: usize = 4096;
 
 pub struct StackAllocator {
-    start: NonNull<u8>,
-    top: NonNull<u8>,
-    size: usize,
+    stack: [u8; STACK_SIZE],
+    cap: usize,
+    sp: usize,
 }
 
 impl Default for StackAllocator {
@@ -17,54 +14,42 @@ impl Default for StackAllocator {
 
 impl StackAllocator {
     pub fn new() -> Self {
-        let layout = Layout::array::<u8>(STACK_SIZE).unwrap();
-        let ptr = unsafe { alloc::alloc(layout) };
-
-        let ptr = match NonNull::new(ptr) {
-            Some(p) => p,
-            None => alloc::handle_alloc_error(layout),
-        };
-
         Self {
-            start: ptr,
-            top: ptr,
-            size: STACK_SIZE,
+            stack: [0; STACK_SIZE],
+            cap: STACK_SIZE,
+            sp: 0,
         }
     }
 
     pub fn push(&mut self, elem: u8) {
-        let top = self.top.as_ptr();
-        let start = self.start.as_ptr();
-
-        if unsafe { top.offset_from(start) } > self.size as isize {
+        if self.sp >= self.cap {
             panic!("stack overflow");
         }
 
-        self.top = unsafe { NonNull::new_unchecked(top.add(1)) };
-        unsafe { ptr::write(top, elem) }
+        self.stack[self.sp] = elem;
+        self.sp += 1;
     }
 
     pub fn pop(&mut self) -> Option<u8> {
-        if self.start == self.top {
+        if self.sp == 0 {
             None
         } else {
-            self.top = unsafe { NonNull::new_unchecked(self.top.as_ptr().sub(1)) };
-            Some(unsafe { ptr::read(self.top.as_ptr()) })
+            self.sp -= 1;
+            Some(self.stack[self.sp])
         }
     }
-}
 
-impl Drop for StackAllocator {
-    fn drop(&mut self) {
-        let layout = Layout::array::<u8>(self.size).unwrap();
-        unsafe { alloc::dealloc(self.start.as_ptr(), layout) }
+    pub fn top(&mut self) -> Option<u8> {
+        if self.sp == 0 {
+            None
+        } else {
+            Some(self.stack[self.sp - 1])
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::ptr;
-
     use super::StackAllocator;
 
     #[test]
@@ -73,8 +58,7 @@ mod tests {
 
         allocator.push(10);
 
-        let elem = unsafe { ptr::read(allocator.start.as_ptr()) };
-        assert_eq!(elem, 10);
+        assert_eq!(allocator.top(), Some(10));
     }
 
     #[test]
@@ -89,14 +73,5 @@ mod tests {
         assert_eq!(allocator.pop(), Some(11));
         assert_eq!(allocator.pop(), Some(10));
         assert_eq!(allocator.pop(), None);
-    }
-
-    #[test]
-    fn allocator_drop() {
-        let mut allocator = StackAllocator::new();
-
-        allocator.push(10);
-
-        drop(allocator)
     }
 }
