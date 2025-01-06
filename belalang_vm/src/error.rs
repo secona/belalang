@@ -1,9 +1,12 @@
 use crate::object::Object;
 
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, Debug, PartialEq)]
 pub enum RuntimeError {
     #[error("stack underflow")]
     StackUnderflow,
+
+    #[error("stack overflow")]
+    StackOverflow,
 
     #[error("unknown instruction: {0}")]
     UnknownInstruction(u8),
