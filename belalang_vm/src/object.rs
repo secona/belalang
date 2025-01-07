@@ -1,12 +1,23 @@
+pub mod integer;
+pub mod boolean;
+
 use std::fmt::Display;
 
 use crate::error::RuntimeError;
 
-#[derive(Debug, Default, Clone, PartialEq)]
-pub struct Function {
-    pub arity: usize,
-    pub pointer: usize,
-    pub locals_count: usize,
+pub trait ObjTrait: Sized + Display {
+    fn try_add(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_sub(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_mul(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_div(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_mod(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_less_than(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_less_than_equal(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_bit_and(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_bit_or(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_bit_xor(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_bit_sl(self, rhs: Self) -> Result<Self, RuntimeError>;
+    fn try_bit_sr(self, rhs: Self) -> Result<Self, RuntimeError>;
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -27,8 +38,8 @@ impl Display for Object {
     }
 }
 
-impl Object {
-    pub fn try_add(self, rhs: Self) -> Result<Self, RuntimeError> {
+impl ObjTrait for Object {
+    fn try_add(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l + r)),
@@ -38,7 +49,7 @@ impl Object {
         }
     }
 
-    pub fn try_sub(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_sub(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l - r)),
@@ -48,7 +59,7 @@ impl Object {
         }
     }
 
-    pub fn try_mul(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_mul(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l * r)),
@@ -58,7 +69,7 @@ impl Object {
         }
     }
 
-    pub fn try_div(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_div(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l / r)),
@@ -68,7 +79,7 @@ impl Object {
         }
     }
 
-    pub fn try_mod(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_mod(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l % r)),
@@ -78,7 +89,7 @@ impl Object {
         }
     }
 
-    pub fn try_less_than(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_less_than(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Boolean(l < r)),
@@ -88,7 +99,7 @@ impl Object {
         }
     }
 
-    pub fn try_less_than_equal(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_less_than_equal(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Boolean(l <= r)),
@@ -98,7 +109,7 @@ impl Object {
         }
     }
 
-    pub fn try_bit_and(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_bit_and(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l & r)),
@@ -108,7 +119,7 @@ impl Object {
         }
     }
 
-    pub fn try_bit_or(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_bit_or(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l | r)),
@@ -118,7 +129,7 @@ impl Object {
         }
     }
 
-    pub fn try_bit_xor(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_bit_xor(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l ^ r)),
@@ -128,7 +139,7 @@ impl Object {
         }
     }
 
-    pub fn try_bit_sl(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_bit_sl(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l << r)),
@@ -138,7 +149,7 @@ impl Object {
         }
     }
 
-    pub fn try_bit_sr(self, rhs: Self) -> Result<Self, RuntimeError> {
+    fn try_bit_sr(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l >> r)),

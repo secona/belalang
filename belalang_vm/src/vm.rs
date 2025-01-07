@@ -1,6 +1,6 @@
 use crate::bytecode::Bytecode;
 use crate::globals::Globals;
-use crate::object::Object;
+use crate::object::{Object, ObjTrait};
 use crate::opcode;
 
 use crate::error::RuntimeError;
