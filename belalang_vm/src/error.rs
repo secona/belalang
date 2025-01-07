@@ -19,4 +19,7 @@ pub enum RuntimeError {
 
     #[error("attempt to call non-function")]
     NotAFunction,
+
+    #[error("Integer overflow")]
+    IntegerOverflow,
 }

@@ -2,7 +2,9 @@
 
 use std::fmt::Display;
 
-use super::ObjTrait;
+use crate::error::RuntimeError;
+
+use super::{Add, BelalangType};
 
 #[derive(Debug)]
 pub struct BelalangInteger(pub i64);
@@ -13,52 +15,18 @@ impl Display for BelalangInteger {
     }
 }
 
-impl ObjTrait for BelalangInteger {
-    fn try_add(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        Ok(Self(self.0 + rhs.0))
+impl BelalangType for BelalangInteger {
+    fn type_name(&self) -> &str {
+        "Integer"
     }
+}
 
-    fn try_sub(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        Ok(Self(self.0 - rhs.0))
-    }
+impl Add<BelalangInteger> for BelalangInteger {
+    type Output = BelalangInteger;
 
-    fn try_mul(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        Ok(Self(self.0 * rhs.0))
-    }
-
-    fn try_div(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        Ok(Self(self.0 / rhs.0))
-    }
-
-    fn try_mod(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        Ok(Self(self.0 % rhs.0))
-    }
-
-    fn try_less_than(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        todo!()
-    }
-
-    fn try_less_than_equal(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        todo!()
-    }
-
-    fn try_bit_and(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        Ok(Self(self.0 & rhs.0))
-    }
-
-    fn try_bit_or(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        Ok(Self(self.0 | rhs.0))
-    }
-
-    fn try_bit_xor(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        Ok(Self(self.0 ^ rhs.0))
-    }
-
-    fn try_bit_sl(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        Ok(Self(self.0 << rhs.0))
-    }
-
-    fn try_bit_sr(self, rhs: Self) -> Result<Self, crate::error::RuntimeError> {
-        Ok(Self(self.0 >> rhs.0))
+    fn add(&self, other: &BelalangInteger) -> Result<Self::Output, RuntimeError> {
+        self.0.checked_add(other.0)
+            .map(Self)
+            .ok_or(RuntimeError::IntegerOverflow)
     }
 }
