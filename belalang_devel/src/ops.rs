@@ -2,72 +2,86 @@ use std::error::Error;
 
 use crate::BelalangType;
 
-pub trait Add<Rhs: BelalangType>: BelalangType {
+pub trait Add: BelalangType {
     type Output: BelalangType;
-    fn add(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn add(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait Sub<Rhs: BelalangType>: BelalangType {
+pub trait Sub: BelalangType {
     type Output: BelalangType;
-    fn sub(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn sub(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait Mul<Rhs: BelalangType>: BelalangType {
+pub trait Mul: BelalangType {
     type Output: BelalangType;
-    fn mul(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn mul(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait Div<Rhs: BelalangType>: BelalangType {
+pub trait Div: BelalangType {
     type Output: BelalangType;
-    fn div(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn div(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait Mod<Rhs: BelalangType>: BelalangType {
+pub trait Mod: BelalangType {
     type Output: BelalangType;
-    fn r#mod(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn r#mod(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait Lt<Rhs: BelalangType>: BelalangType {
+pub trait Lt: BelalangType {
     type Output: BelalangType;
-    fn lt(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn lt(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait Le<Rhs: BelalangType>: BelalangType {
+pub trait Le: BelalangType {
     type Output: BelalangType;
-    fn le(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn le(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait And<Rhs: BelalangType>: BelalangType {
+pub trait And: BelalangType {
     type Output: BelalangType;
-    fn and(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn and(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait Or<Rhs: BelalangType>: BelalangType {
+pub trait Or: BelalangType {
     type Output: BelalangType;
-    fn and(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn and(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait BitAnd<Rhs: BelalangType>: BelalangType {
+pub trait BitAnd: BelalangType {
     type Output: BelalangType;
-    fn bit_and(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn bit_and(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait BitOr<Rhs: BelalangType>: BelalangType {
+pub trait BitOr: BelalangType {
     type Output: BelalangType;
-    fn bit_or(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn bit_or(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait BitXor<Rhs: BelalangType>: BelalangType {
+pub trait BitXor: BelalangType {
     type Output: BelalangType;
-    fn bit_xor(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn bit_xor(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait BitSl<Rhs: BelalangType>: BelalangType {
+pub trait BitSl: BelalangType {
     type Output: BelalangType;
-    fn bit_sl(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn bit_sl(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
-pub trait BitSr<Rhs: BelalangType>: BelalangType {
+pub trait BitSr: BelalangType {
     type Output: BelalangType;
-    fn bit_sr(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    type Rhs: BelalangType;
+    fn bit_sr(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }

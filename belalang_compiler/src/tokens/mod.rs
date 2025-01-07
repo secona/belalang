@@ -4,11 +4,7 @@ pub use lexer::Lexer;
 
 macro_rules! arithmetic_tokens {
     () => {
-        Token::Add
-            | Token::Sub
-            | Token::Mul
-            | Token::Div
-            | Token::Mod
+        Token::Add | Token::Sub | Token::Mul | Token::Div | Token::Mod
     };
 }
 
@@ -16,12 +12,7 @@ pub(crate) use arithmetic_tokens;
 
 macro_rules! comparison_tokens {
     () => {
-        Token::Eq
-            | Token::Ne
-            | Token::Gt
-            | Token::Ge
-            | Token::Lt
-            | Token::Le
+        Token::Eq | Token::Ne | Token::Gt | Token::Ge | Token::Lt | Token::Le
     };
 }
 
@@ -48,11 +39,7 @@ pub(crate) use assignment_tokens;
 
 macro_rules! bitwise_tokens {
     () => {
-        Token::BitAnd
-            | Token::BitOr
-            | Token::BitXor
-            | Token::ShiftLeft
-            | Token::ShiftRight
+        Token::BitAnd | Token::BitOr | Token::BitXor | Token::ShiftLeft | Token::ShiftRight
     };
 }
 

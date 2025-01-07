@@ -2,9 +2,9 @@ use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 
+use belalang_compiler::ast::Parser;
 use belalang_compiler::codegen::Compiler;
 use belalang_compiler::tokens::Lexer;
-use belalang_compiler::ast::Parser;
 use belalang_vm::vm::VM;
 
 pub fn execute_file(filename: PathBuf) -> Result<(), Box<dyn Error>> {

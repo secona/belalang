@@ -1,8 +1,8 @@
 use std::error::Error;
 use std::io::{self, Write};
 
-use belalang_compiler::tokens::Token;
 use belalang_compiler::tokens::Lexer;
+use belalang_compiler::tokens::Token;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut input = String::new();

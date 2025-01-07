@@ -1,5 +1,5 @@
-pub mod integer;
 pub mod boolean;
+pub mod integer;
 
 use std::fmt::Display;
 
@@ -15,58 +15,58 @@ pub trait Add<Rhs: BelalangType>: BelalangType {
 }
 
 pub trait Sub<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn sub(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn sub(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 pub trait Mul<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn mul(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn mul(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 pub trait Div<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn div(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn div(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 pub trait Mod<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn r#mod(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn r#mod(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 pub trait Lt<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn lt(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn lt(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 pub trait Le<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn le(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn le(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 pub trait BitAnd<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn bit_and(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn bit_and(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 pub trait BitOr<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn bit_or(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn bit_or(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 pub trait BitXor<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn bit_xor(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn bit_xor(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 pub trait BitSl<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn bit_sl(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn bit_sl(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 pub trait BitSr<Rhs: BelalangType>: BelalangType {
-	type Output: BelalangType;
-	fn bit_sr(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
+    type Output: BelalangType;
+    fn bit_sr(&self, other: &Rhs) -> Result<Self::Output, RuntimeError>;
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]

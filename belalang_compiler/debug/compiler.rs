@@ -1,9 +1,9 @@
 use std::error::Error;
 use std::io::{self, Write};
 
-use belalang_compiler::codegen::Compiler;
-use belalang_compiler::codegen::disassembler::disassemble;
 use belalang_compiler::ast::Parser;
+use belalang_compiler::codegen::disassembler::disassemble;
+use belalang_compiler::codegen::Compiler;
 use belalang_compiler::tokens::Lexer;
 
 fn compile(line: String) -> Result<(), Box<dyn Error>> {

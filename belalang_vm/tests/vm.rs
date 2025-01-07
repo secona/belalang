@@ -162,7 +162,10 @@ mod jump_op {
         });
 
         assert_eq!(vm.stack.size(), 1);
-        assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(false)));
+        assert!(matches!(
+            vm.stack.pop_take().unwrap(),
+            Object::Boolean(false)
+        ));
     }
 
     #[test]
@@ -183,8 +186,14 @@ mod jump_op {
         });
 
         assert_eq!(vm.stack.size(), 2);
-        assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(false)));
-        assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(true)));
+        assert!(matches!(
+            vm.stack.pop_take().unwrap(),
+            Object::Boolean(false)
+        ));
+        assert!(matches!(
+            vm.stack.pop_take().unwrap(),
+            Object::Boolean(true)
+        ));
     }
 }
 
@@ -207,7 +216,10 @@ mod unary_op {
         });
 
         assert_eq!(vm.stack.size(), 1);
-        assert!(matches!(vm.stack.pop_take().unwrap(), Object::Boolean(false)));
+        assert!(matches!(
+            vm.stack.pop_take().unwrap(),
+            Object::Boolean(false)
+        ));
     }
 
     #[test]

@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
-use belalang_compiler::tokens::Lexer;
 use belalang_compiler::ast;
 use belalang_compiler::ast::Parser;
+use belalang_compiler::tokens::Lexer;
 
 pub fn test_parse(input: &str) -> ast::Program {
     let input = input.as_bytes();

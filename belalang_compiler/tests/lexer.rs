@@ -1,8 +1,8 @@
 #[macro_use]
 mod common;
 
-use belalang_compiler::tokens::Token;
 use belalang_compiler::tokens::Lexer;
+use belalang_compiler::tokens::Token;
 
 fn test_tokens(input: &str, tokens: Vec<Token>) {
     let mut lexer = Lexer::new(input.as_bytes());
@@ -12,7 +12,6 @@ fn test_tokens(input: &str, tokens: Vec<Token>) {
         assert_eq!(tok, expected);
     }
 }
-
 
 #[test]
 fn all_tokens() {
@@ -93,7 +92,7 @@ fn identifier_tokens() {
             Token::Ident("x".into()),
             Token::Add,
             Token::Ident("y".into()),
-        ]
+        ],
     )
 }
 

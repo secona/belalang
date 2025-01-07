@@ -1,5 +1,5 @@
-use crate::tokens::Token;
 use crate::error::SyntaxError;
+use crate::tokens::Token;
 
 macro_rules! letters {
     () => {

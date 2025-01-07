@@ -1,11 +1,11 @@
 use crate::ast::{self, Expression, Statement};
 use crate::error::SyntaxError;
+use crate::tokens::arithmetic_tokens;
+use crate::tokens::assignment_tokens;
+use crate::tokens::bitwise_tokens;
+use crate::tokens::comparison_tokens;
 use crate::tokens::Lexer;
 use crate::tokens::Token;
-use crate::tokens::comparison_tokens;
-use crate::tokens::bitwise_tokens;
-use crate::tokens::assignment_tokens;
-use crate::tokens::arithmetic_tokens;
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
