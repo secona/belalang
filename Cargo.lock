@@ -69,9 +69,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "belalang_devel"
+version = "0.1.0"
+
+[[package]]
 name = "belalang_vm"
 version = "0.1.0"
 dependencies = [
+ "belalang_devel",
  "test-case",
  "thiserror",
 ]
