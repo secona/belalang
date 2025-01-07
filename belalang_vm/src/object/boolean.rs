@@ -1,8 +1,9 @@
 #![allow(unused_variables)]
 
-use std::fmt::Display;
+use std::{error::Error, fmt::Display};
 
-use super::BelalangType;
+use belalang_devel::BelalangType;
+use belalang_devel::ops::{And, Or};
 
 #[derive(Debug)]
 pub struct BelalangBoolean(bool);
@@ -16,5 +17,21 @@ impl Display for BelalangBoolean {
 impl BelalangType for BelalangBoolean {
     fn type_name(&self) -> &str {
         "Boolean"
+    }
+}
+
+impl And<BelalangBoolean> for BelalangBoolean {
+    type Output = BelalangBoolean;
+
+    fn and(&self, other: &BelalangBoolean) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangBoolean(self.0 && other.0))
+    }
+}
+
+impl Or<BelalangBoolean> for BelalangBoolean {
+    type Output = BelalangBoolean;
+
+    fn and(&self, other: &BelalangBoolean) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangBoolean(self.0 || other.0))
     }
 }

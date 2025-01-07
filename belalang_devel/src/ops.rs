@@ -37,6 +37,16 @@ pub trait Le<Rhs: BelalangType>: BelalangType {
     fn le(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
+pub trait And<Rhs: BelalangType>: BelalangType {
+    type Output: BelalangType;
+    fn and(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+}
+
+pub trait Or<Rhs: BelalangType>: BelalangType {
+    type Output: BelalangType;
+    fn and(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
+}
+
 pub trait BitAnd<Rhs: BelalangType>: BelalangType {
     type Output: BelalangType;
     fn bit_and(&self, other: &Rhs) -> Result<Self::Output, Box<dyn Error>>;
