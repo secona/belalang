@@ -38,8 +38,8 @@ impl Display for Object {
     }
 }
 
-impl ObjTrait for Object {
-    fn try_add(self, rhs: Self) -> Result<Self, RuntimeError> {
+impl Object {
+    pub fn try_add(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l + r)),
@@ -49,7 +49,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_sub(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_sub(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l - r)),
@@ -59,7 +59,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_mul(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_mul(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l * r)),
@@ -69,7 +69,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_div(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_div(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l / r)),
@@ -79,7 +79,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_mod(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_mod(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l % r)),
@@ -89,7 +89,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_less_than(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_less_than(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Boolean(l < r)),
@@ -99,7 +99,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_less_than_equal(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_less_than_equal(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Boolean(l <= r)),
@@ -109,7 +109,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_bit_and(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_bit_and(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l & r)),
@@ -119,7 +119,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_bit_or(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_bit_or(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l | r)),
@@ -129,7 +129,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_bit_xor(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_bit_xor(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l ^ r)),
@@ -139,7 +139,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_bit_sl(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_bit_sl(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l << r)),
@@ -149,7 +149,7 @@ impl ObjTrait for Object {
         }
     }
 
-    fn try_bit_sr(self, rhs: Self) -> Result<Self, RuntimeError> {
+    pub fn try_bit_sr(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
             // same type
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l >> r)),
