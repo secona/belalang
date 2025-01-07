@@ -15,7 +15,6 @@ pub enum Object {
     Null,
     Integer(i64),
     Boolean(bool),
-    Builtin(usize),
 }
 
 impl Display for Object {
@@ -24,7 +23,6 @@ impl Display for Object {
             Object::Null => write!(f, "null"),
             Object::Integer(i) => write!(f, "{i}"),
             Object::Boolean(b) => write!(f, "{b}"),
-            Object::Builtin(_) => write!(f, "<builtin fn>"),
         }
     }
 }
