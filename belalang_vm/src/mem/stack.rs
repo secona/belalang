@@ -2,20 +2,20 @@ use crate::error::RuntimeError;
 
 const STACK_SIZE: usize = 4096;
 
-pub struct StackAllocator {
+pub struct Stack {
     stack: [u8; STACK_SIZE],
     cap: usize,
     sp: usize,
     fp: usize,
 }
 
-impl Default for StackAllocator {
+impl Default for Stack {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl StackAllocator {
+impl Stack {
     pub fn new() -> Self {
         Self {
             stack: [0; STACK_SIZE],
@@ -77,56 +77,56 @@ mod tests {
     use super::*;
 
     #[test]
-    fn allocator_push() {
-        let mut allocator = StackAllocator::new();
+    fn push() {
+        let mut stack = Stack::new();
 
-        allocator.push(10).unwrap();
+        stack.push(10).unwrap();
 
-        assert_eq!(allocator.top(), Some(10));
+        assert_eq!(stack.top(), Some(10));
     }
 
     #[test]
-    fn allocator_pop() {
-        let mut allocator = StackAllocator::new();
+    fn pop() {
+        let mut stack = Stack::new();
 
-        allocator.push(10).unwrap();
-        allocator.push(11).unwrap();
-        allocator.push(12).unwrap();
+        stack.push(10).unwrap();
+        stack.push(11).unwrap();
+        stack.push(12).unwrap();
 
-        assert_eq!(allocator.pop(), Ok(12));
-        assert_eq!(allocator.pop(), Ok(11));
-        assert_eq!(allocator.pop(), Ok(10));
-        assert_eq!(allocator.pop(), Err(RuntimeError::StackUnderflow));
+        assert_eq!(stack.pop(), Ok(12));
+        assert_eq!(stack.pop(), Ok(11));
+        assert_eq!(stack.pop(), Ok(10));
+        assert_eq!(stack.pop(), Err(RuntimeError::StackUnderflow));
     }
 
     #[test]
-    fn allocator_push_frame() {
-        let mut allocator = StackAllocator::new();
+    fn push_frame() {
+        let mut stack = Stack::new();
 
-        allocator.push_frame(3, 12).unwrap();
+        stack.push_frame(3, 12).unwrap();
 
-        assert_eq!(allocator.fp, 2);
-        assert_eq!(allocator.sp, 5);
+        assert_eq!(stack.fp, 2);
+        assert_eq!(stack.sp, 5);
 
-        assert_eq!(allocator.pop(), Ok(0)); // local 1
-        assert_eq!(allocator.pop(), Ok(0)); // local 2
-        assert_eq!(allocator.pop(), Ok(0)); // local 3
+        assert_eq!(stack.pop(), Ok(0)); // local 1
+        assert_eq!(stack.pop(), Ok(0)); // local 2
+        assert_eq!(stack.pop(), Ok(0)); // local 3
 
-        assert_eq!(allocator.pop(), Ok(0)); // fp
+        assert_eq!(stack.pop(), Ok(0)); // fp
 
-        assert_eq!(allocator.pop(), Ok(12)); // return address
+        assert_eq!(stack.pop(), Ok(12)); // return address
 
-        assert_eq!(allocator.pop(), Err(RuntimeError::StackUnderflow)); // bottom of stack
+        assert_eq!(stack.pop(), Err(RuntimeError::StackUnderflow)); // bottom of stack
     }
 
     #[test]
-    fn allocator_pop_frame() {
-        let mut allocator = StackAllocator::new();
+    fn pop_frame() {
+        let mut stack = Stack::new();
 
-        allocator.push_frame(3, 12).unwrap();
-        allocator.pop_frame().unwrap();
+        stack.push_frame(3, 12).unwrap();
+        stack.pop_frame().unwrap();
 
-        assert_eq!(allocator.sp, 0);
-        assert_eq!(allocator.fp, 0);
+        assert_eq!(stack.sp, 0);
+        assert_eq!(stack.fp, 0);
     }
 }
