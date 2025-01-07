@@ -4,7 +4,6 @@ use crate::object::Object;
 use crate::opcode;
 
 use crate::error::RuntimeError;
-use crate::frame::FrameStack;
 use crate::stack::Stack;
 
 pub struct VM {
@@ -12,7 +11,6 @@ pub struct VM {
     pub instructions: Vec<u8>,
     pub constants: Vec<Object>,
 
-    pub frame: FrameStack,
     pub stack: Stack,
     pub globals: Globals,
 }
@@ -26,7 +24,6 @@ impl Default for VM {
             instructions: Vec::new(),
             constants: Vec::new(),
 
-            frame: FrameStack::default(),
             stack: Stack::default(),
             globals: Globals::with_offset(globals_offset),
         }
