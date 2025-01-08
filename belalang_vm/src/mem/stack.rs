@@ -39,6 +39,10 @@ impl Stack {
         }
     }
 
+    pub fn size(&self) -> usize {
+        self.sp
+    }
+
     pub fn push(&mut self, elem: StackObject) -> Result<(), RuntimeError> {
         if self.sp >= self.cap {
             return Err(RuntimeError::StackOverflow);
@@ -111,7 +115,9 @@ mod tests {
     fn push() {
         let mut stack = Stack::new();
 
-        stack.push(StackObject::Object(Box::new(BelalangInteger(10)))).unwrap();
+        stack
+            .push(StackObject::Object(Box::new(BelalangInteger(10))))
+            .unwrap();
 
         assert_belalang_integer!(stack.top().unwrap(), 10);
     }
@@ -120,9 +126,15 @@ mod tests {
     fn pop() {
         let mut stack = Stack::new();
 
-        stack.push(StackObject::Object(Box::new(BelalangInteger(10)))).unwrap();
-        stack.push(StackObject::Object(Box::new(BelalangInteger(11)))).unwrap();
-        stack.push(StackObject::Object(Box::new(BelalangInteger(12)))).unwrap();
+        stack
+            .push(StackObject::Object(Box::new(BelalangInteger(10))))
+            .unwrap();
+        stack
+            .push(StackObject::Object(Box::new(BelalangInteger(11))))
+            .unwrap();
+        stack
+            .push(StackObject::Object(Box::new(BelalangInteger(12))))
+            .unwrap();
 
         assert_belalang_integer!(&stack.pop().unwrap(), 12);
         assert_belalang_integer!(&stack.pop().unwrap(), 11);

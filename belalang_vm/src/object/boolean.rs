@@ -18,6 +18,10 @@ impl BelalangType for BelalangBoolean {
     fn type_name(&self) -> &str {
         "Boolean"
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 impl And for BelalangBoolean {
