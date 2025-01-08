@@ -2,6 +2,7 @@ use belalang_devel::ops::*;
 
 use crate::bytecode::Bytecode;
 use crate::globals::Globals;
+use crate::macros::downcast;
 use crate::object::boolean::BelalangBoolean;
 use crate::object::integer::BelalangInteger;
 use crate::object::Object;
@@ -60,12 +61,8 @@ impl VM {
                         return Err(RuntimeError::IntegerOverflow);
                     };
 
-                    let Some(right) = right.as_any().downcast_ref::<BelalangInteger>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
-                    let Some(left) = left.as_any().downcast_ref::<BelalangInteger>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.add(right) else {
                         return Err(RuntimeError::IntegerOverflow);
@@ -85,12 +82,8 @@ impl VM {
                         return Err(RuntimeError::IntegerOverflow);
                     };
 
-                    let Some(right) = right.as_any().downcast_ref::<BelalangInteger>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
-                    let Some(left) = left.as_any().downcast_ref::<BelalangInteger>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.sub(right) else {
                         return Err(RuntimeError::IntegerOverflow);
@@ -110,12 +103,8 @@ impl VM {
                         return Err(RuntimeError::IntegerOverflow);
                     };
 
-                    let Some(right) = right.as_any().downcast_ref::<BelalangInteger>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
-                    let Some(left) = left.as_any().downcast_ref::<BelalangInteger>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.mul(right) else {
                         return Err(RuntimeError::IntegerOverflow);
@@ -135,12 +124,8 @@ impl VM {
                         return Err(RuntimeError::IntegerOverflow);
                     };
 
-                    let Some(right) = right.as_any().downcast_ref::<BelalangInteger>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
-                    let Some(left) = left.as_any().downcast_ref::<BelalangInteger>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.div(right) else {
                         return Err(RuntimeError::IntegerOverflow);
@@ -160,12 +145,8 @@ impl VM {
                         return Err(RuntimeError::IntegerOverflow);
                     };
 
-                    let Some(right) = right.as_any().downcast_ref::<BelalangInteger>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
-                    let Some(left) = left.as_any().downcast_ref::<BelalangInteger>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.r#mod(right) else {
                         return Err(RuntimeError::IntegerOverflow);
@@ -238,12 +219,8 @@ impl VM {
                         return Err(RuntimeError::IntegerOverflow);
                     };
 
-                    let Some(right) = right.as_any().downcast_ref::<BelalangBoolean>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
-                    let Some(left) = left.as_any().downcast_ref::<BelalangBoolean>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
+                    let right = downcast!(right, BelalangBoolean);
+                    let left = downcast!(left, BelalangBoolean);
 
                     let Ok(result) = left.and(right) else {
                         return Err(RuntimeError::IntegerOverflow);
@@ -263,12 +240,8 @@ impl VM {
                         return Err(RuntimeError::IntegerOverflow);
                     };
 
-                    let Some(right) = right.as_any().downcast_ref::<BelalangBoolean>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
-                    let Some(left) = left.as_any().downcast_ref::<BelalangBoolean>() else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
+                    let right = downcast!(right, BelalangBoolean);
+                    let left = downcast!(left, BelalangBoolean);
 
                     let Ok(result) = left.or(right) else {
                         return Err(RuntimeError::IntegerOverflow);
