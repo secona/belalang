@@ -66,15 +66,42 @@ fn arithmetic_op(a: i64, b: i64, op: u8) -> i64 {
     int.0
 }
 
-// NOTE: Currently, there is only number_comparison_op. Next one to test
-// is boolean_comparison_op, etc.
-
 #[test_case(12, 12, opcode::EQUAL => true; "equal")]
 #[test_case(12, 12, opcode::NOT_EQUAL => false; "not equal")]
 #[test_case(12, 13, opcode::LESS_THAN => true; "less than")]
 #[test_case(12, 12, opcode::LESS_THAN_EQUAL => true; "less than equal")]
 fn number_comparison_op(a: i64, b: i64, op: u8) -> bool {
     let constants = vec![Object::Integer(a), Object::Integer(b)];
+
+    let mut instructions = Vec::new();
+    instructions.extend(opcode::constant(0));
+    instructions.extend(opcode::constant(1));
+    instructions.push(op);
+
+    let mut vm = VM::default();
+
+    let _ = vm.run(Bytecode {
+        instructions,
+        constants,
+    });
+
+    assert_eq!(vm.stack.size(), 1);
+
+    let Ok(obj) = vm.stack.pop() else { panic!() };
+    let StackObject::Object(object) = obj else {
+        panic!()
+    };
+    let Some(boolean) = object.as_any().downcast_ref::<BelalangBoolean>() else {
+        panic!()
+    };
+
+    boolean.0
+}
+
+#[test_case(true, true, opcode::EQUAL => true; "equal")]
+#[test_case(true, false, opcode::NOT_EQUAL => true; "not equal")]
+fn boolean_comparison_op(a: bool, b: bool, op: u8) -> bool {
+    let constants = vec![Object::Boolean(a), Object::Boolean(b)];
 
     let mut instructions = Vec::new();
     instructions.extend(opcode::constant(0));
