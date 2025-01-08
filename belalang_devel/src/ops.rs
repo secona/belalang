@@ -53,7 +53,7 @@ pub trait And: BelalangType {
 pub trait Or: BelalangType {
     type Output: BelalangType;
     type Rhs: BelalangType;
-    fn and(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
+    fn or(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
 pub trait BitAnd: BelalangType {

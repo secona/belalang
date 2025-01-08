@@ -2,6 +2,7 @@ use belalang_devel::ops::*;
 
 use crate::bytecode::Bytecode;
 use crate::globals::Globals;
+use crate::object::boolean::BelalangBoolean;
 use crate::object::integer::BelalangInteger;
 use crate::object::Object;
 use crate::opcode;
@@ -175,28 +176,33 @@ impl VM {
 
                 opcode::CONSTANT => {
                     let index = self.read_u16();
-                    let object = self.constants[index as usize].clone();
+                    let constant = self.constants[index as usize].clone();
 
-                    let Object::Integer(int) = object else {
-                        todo!()
+                    let object = match constant {
+                        Object::Integer(int) => {
+                            StackObject::Object(Box::new(BelalangInteger(int)))
+                        }
+                        Object::Boolean(boolean) => {
+                            StackObject::Object(Box::new(BelalangBoolean(boolean)))
+                        }
+                        _ => panic!(),
                     };
 
-                    self.stack
-                        .push(StackObject::Object(Box::new(BelalangInteger(int))))?;
+                    self.stack.push(object)?;
                 }
 
-                // opcode::TRUE => {
-                //     self.stack.push(Object::Boolean(true))?;
-                // }
-                //
-                // opcode::FALSE => {
-                //     self.stack.push(Object::Boolean(false))?;
-                // }
-                //
-                // opcode::NULL => {
-                //     self.stack.push(Object::Null)?;
-                // }
-                //
+                opcode::TRUE => {
+                    self.stack.push(StackObject::Object(Box::new(BelalangBoolean(true))))?;
+                }
+
+                opcode::FALSE => {
+                    self.stack.push(StackObject::Object(Box::new(BelalangBoolean(false))))?;
+                }
+
+                opcode::NULL => {
+                    self.stack.push(StackObject::Null)?;
+                }
+
                 // opcode::EQUAL => {
                 //     let right = self.stack.pop_take()?;
                 //     let left = self.stack.pop_take()?;
@@ -220,23 +226,57 @@ impl VM {
                 //     let left = self.stack.pop_take()?;
                 //     self.stack.push(left.try_less_than_equal(right)?)?;
                 // }
-                //
-                // opcode::AND => {
-                //     if let (Object::Boolean(right), Object::Boolean(left)) =
-                //         (self.stack.pop_take()?, self.stack.pop_take()?)
-                //     {
-                //         self.stack.push(Object::Boolean(right && left))?;
-                //     }
-                // }
-                //
-                // opcode::OR => {
-                //     if let (Object::Boolean(right), Object::Boolean(left)) =
-                //         (self.stack.pop_take()?, self.stack.pop_take()?)
-                //     {
-                //         self.stack.push(Object::Boolean(right || left))?;
-                //     }
-                // }
-                //
+
+                opcode::AND => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let Some(right) = right.as_any().downcast_ref::<BelalangBoolean>() else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let Some(left) = left.as_any().downcast_ref::<BelalangBoolean>() else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let Ok(result) = left.and(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
+                opcode::OR => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let Some(right) = right.as_any().downcast_ref::<BelalangBoolean>() else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let Some(left) = left.as_any().downcast_ref::<BelalangBoolean>() else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let Ok(result) = left.or(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
                 // opcode::BIT_AND => {
                 //     let right = self.stack.pop_take()?;
                 //     let left = self.stack.pop_take()?;

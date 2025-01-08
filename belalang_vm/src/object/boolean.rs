@@ -6,7 +6,7 @@ use belalang_devel::ops::{And, Or};
 use belalang_devel::BelalangType;
 
 #[derive(Debug, Clone)]
-pub struct BelalangBoolean(bool);
+pub struct BelalangBoolean(pub bool);
 
 impl Display for BelalangBoolean {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -37,7 +37,7 @@ impl Or for BelalangBoolean {
     type Output = BelalangBoolean;
     type Rhs = BelalangBoolean;
 
-    fn and(&self, other: &BelalangBoolean) -> Result<Self::Output, Box<dyn Error>> {
+    fn or(&self, other: &BelalangBoolean) -> Result<Self::Output, Box<dyn Error>> {
         Ok(BelalangBoolean(self.0 || other.0))
     }
 }
