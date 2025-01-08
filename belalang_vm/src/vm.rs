@@ -189,10 +189,6 @@ impl VM {
                     self.stack.push(StackObject::Null)?;
                 }
 
-                // NOTE: Currently equality only works for Integers because I
-                // hardcoded them. This is unintended behaviour that I intend
-                // to change in the future.
-
                 opcode::EQUAL => {
                     let right = self.stack.pop()?;
                     let left = self.stack.pop()?;
@@ -204,13 +200,7 @@ impl VM {
                         return Err(RuntimeError::IntegerOverflow);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.eq(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
-
+                    let result = BelalangBoolean(left == right);
                     self.stack.push(StackObject::Object(Box::new(result)))?;
                 }
 
@@ -225,13 +215,7 @@ impl VM {
                         return Err(RuntimeError::IntegerOverflow);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.ne(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
-                    };
-
+                    let result = BelalangBoolean(left != right);
                     self.stack.push(StackObject::Object(Box::new(result)))?;
                 }
 

@@ -6,13 +6,15 @@ pub mod ops;
 pub trait BelalangType: Display + Debug {
     fn type_name(&self) -> &str;
     fn as_any(&self) -> &dyn Any;
+
+    fn equal_type(&self, other: &dyn BelalangType) -> bool {
+        self.type_name() == other.type_name()
+    }
 }
 
 impl PartialEq for dyn BelalangType {
     fn eq(&self, other: &Self) -> bool {
-        // Ensure the types are the same
-        self.type_name() == other.type_name()
-            // Delegate to the underlying `PartialEq` implementation
-            && format!("{}", self) == format!("{}", other)
+        // Temporary implementation
+        self.equal_type(other) && format!("{}", self) == format!("{}", other)
     }
 }
