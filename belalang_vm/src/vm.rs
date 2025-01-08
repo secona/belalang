@@ -1,7 +1,6 @@
 use belalang_devel::ops::*;
 
 use crate::bytecode::Bytecode;
-use crate::globals::Globals;
 use crate::macros::downcast;
 use crate::object::boolean::BelalangBoolean;
 use crate::object::integer::BelalangInteger;
@@ -11,28 +10,13 @@ use crate::opcode;
 use crate::error::RuntimeError;
 use crate::mem::stack::{Stack, StackObject};
 
+#[derive(Default)]
 pub struct VM {
     pub ip: usize,
     pub instructions: Vec<u8>,
     pub constants: Vec<Object>,
 
     pub stack: Stack,
-    pub globals: Globals,
-}
-
-impl Default for VM {
-    fn default() -> Self {
-        let globals_offset = crate::builtins::BUILTIN_FUNCTIONS.len(); // temporary fix
-
-        VM {
-            ip: 0,
-            instructions: Vec::new(),
-            constants: Vec::new(),
-
-            stack: Stack::default(),
-            globals: Globals::with_offset(globals_offset),
-        }
-    }
 }
 
 impl VM {
