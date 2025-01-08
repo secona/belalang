@@ -440,19 +440,27 @@ impl VM {
                     self.stack.push(StackObject::Object(Box::new(result)))?;
                 }
 
-                // opcode::JUMP => {
-                //     let relative = self.read_u16() as i16;
-                //     self.increment_ip(relative as usize);
-                // }
-                //
-                // opcode::JUMP_IF_FALSE => {
-                //     let relative = self.read_u16() as i16;
-                //     let value = self.stack.pop_take()?;
-                //
-                //     if let Object::Boolean(false) = value {
-                //         self.increment_ip(relative as usize);
-                //     }
-                // }
+                opcode::JUMP => {
+                    let relative = self.read_u16() as i16;
+                    self.increment_ip(relative as usize);
+                }
+
+                opcode::JUMP_IF_FALSE => {
+                    let relative = self.read_u16() as i16;
+
+                    let right = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let value = downcast!(right, BelalangBoolean);
+
+                    if !value.0 {
+                        self.increment_ip(relative as usize);
+                    }
+                }
+
                 _ => return Err(RuntimeError::UnknownInstruction(op)),
             };
 
