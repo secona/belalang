@@ -97,3 +97,13 @@ pub trait BitSr: BelalangType {
     type Rhs: BelalangType;
     fn bit_sr(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
+
+pub trait Neg: BelalangType {
+    type Output: BelalangType;
+    fn neg(&self) -> Result<Self::Output, Box<dyn Error>>;
+}
+
+pub trait Not: BelalangType {
+    type Output: BelalangType;
+    fn not(&self) -> Result<Self::Output, Box<dyn Error>>;
+}

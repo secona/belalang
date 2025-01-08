@@ -2,7 +2,7 @@
 
 use std::{error::Error, fmt::Display};
 
-use belalang_devel::ops::{And, Or};
+use belalang_devel::ops::{And, Not, Or};
 use belalang_devel::BelalangType;
 
 #[derive(Debug, Clone)]
@@ -39,5 +39,13 @@ impl Or for BelalangBoolean {
 
     fn or(&self, other: &BelalangBoolean) -> Result<Self::Output, Box<dyn Error>> {
         Ok(BelalangBoolean(self.0 || other.0))
+    }
+}
+
+impl Not for BelalangBoolean {
+    type Output = BelalangBoolean;
+
+    fn not(&self) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangBoolean(!self.0))
     }
 }

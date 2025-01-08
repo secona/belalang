@@ -1,4 +1,5 @@
 #![allow(clippy::vec_init_then_push)]
+#![allow(clippy::bool_assert_comparison)]
 
 use belalang_vm::mem::stack::StackObject;
 use belalang_vm::object::boolean::BelalangBoolean;
@@ -245,48 +246,63 @@ fn bitwise_op(a: i64, b: i64, op: u8) -> i64 {
 //         ));
 //     }
 // }
-//
-// mod unary_op {
-//     use super::*;
-//
-//     #[test]
-//     fn bang() {
-//         let constants = Vec::new();
-//
-//         let mut instructions = Vec::new();
-//         instructions.push(opcode::TRUE);
-//         instructions.push(opcode::BANG);
-//
-//         let mut vm = VM::default();
-//
-//         let _ = vm.run(Bytecode {
-//             instructions,
-//             constants,
-//         });
-//
-//         assert_eq!(vm.stack.size(), 1);
-//         assert!(matches!(
-//             vm.stack.pop_take().unwrap(),
-//             Object::Boolean(false)
-//         ));
-//     }
-//
-//     #[test]
-//     fn minus() {
-//         let constants = vec![Object::Integer(12)];
-//
-//         let mut instructions = Vec::new();
-//         instructions.extend(opcode::constant(0));
-//         instructions.push(opcode::MINUS);
-//
-//         let mut vm = VM::default();
-//
-//         let _ = vm.run(Bytecode {
-//             instructions,
-//             constants,
-//         });
-//
-//         assert_eq!(vm.stack.size(), 1);
-//         assert!(matches!(vm.stack.pop_take().unwrap(), Object::Integer(-12)));
-//     }
-// }
+
+mod unary_op {
+    use super::*;
+
+    #[test]
+    fn bang() {
+        let constants = Vec::new();
+
+        let mut instructions = Vec::new();
+        instructions.push(opcode::TRUE);
+        instructions.push(opcode::BANG);
+
+        let mut vm = VM::default();
+
+        let _ = vm.run(Bytecode {
+            instructions,
+            constants,
+        });
+
+        assert_eq!(vm.stack.size(), 1);
+
+        let Ok(obj) = vm.stack.pop() else { panic!() };
+        let StackObject::Object(object) = obj else {
+            panic!()
+        };
+        let Some(boolean) = object.as_any().downcast_ref::<BelalangBoolean>() else {
+            panic!()
+        };
+
+        assert_eq!(boolean.0, false);
+    }
+
+    #[test]
+    fn minus() {
+        let constants = vec![Object::Integer(12)];
+
+        let mut instructions = Vec::new();
+        instructions.extend(opcode::constant(0));
+        instructions.push(opcode::MINUS);
+
+        let mut vm = VM::default();
+
+        let _ = vm.run(Bytecode {
+            instructions,
+            constants,
+        });
+
+        assert_eq!(vm.stack.size(), 1);
+
+        let Ok(obj) = vm.stack.pop() else { panic!() };
+        let StackObject::Object(object) = obj else {
+            panic!()
+        };
+        let Some(int) = object.as_any().downcast_ref::<BelalangInteger>() else {
+            panic!()
+        };
+
+        assert_eq!(int.0, -12);
+    }
+}

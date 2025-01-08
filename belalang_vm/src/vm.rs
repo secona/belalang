@@ -408,18 +408,38 @@ impl VM {
                     self.stack.push(StackObject::Object(Box::new(result)))?;
                 }
 
-                // opcode::BANG => {
-                //     if let Object::Boolean(b) = self.stack.pop_take()? {
-                //         self.stack.push(Object::Boolean(!b))?;
-                //     }
-                // }
-                //
-                // opcode::MINUS => {
-                //     if let Object::Integer(i) = self.stack.pop_take()? {
-                //         self.stack.push(Object::Integer(-i))?;
-                //     }
-                // }
-                //
+                opcode::BANG => {
+                    let right = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangBoolean);
+
+                    let Ok(result) = right.not() else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
+                opcode::MINUS => {
+                    let right = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangInteger);
+
+                    let Ok(result) = right.neg() else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
                 // opcode::JUMP => {
                 //     let relative = self.read_u16() as i16;
                 //     self.increment_ip(relative as usize);

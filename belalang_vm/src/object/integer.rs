@@ -5,7 +5,7 @@ use std::fmt::Display;
 
 use crate::error::RuntimeError;
 
-use belalang_devel::ops::{Add, BitAnd, BitOr, BitSl, BitSr, BitXor, Div, Eq, Le, Lt, Mod, Mul, Ne, Sub};
+use belalang_devel::ops::{Add, BitAnd, BitOr, BitSl, BitSr, BitXor, Div, Eq, Le, Lt, Mod, Mul, Ne, Neg, Sub};
 use belalang_devel::BelalangType;
 
 use super::boolean::BelalangBoolean;
@@ -185,5 +185,13 @@ impl BitSr for BelalangInteger {
 
     fn bit_sr(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
         Ok(BelalangInteger(self.0 >> other.0))
+    }
+}
+
+impl Neg for BelalangInteger {
+    type Output = BelalangInteger;
+
+    fn neg(&self) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangInteger(-self.0))
     }
 }
