@@ -22,4 +22,7 @@ pub enum RuntimeError {
 
     #[error("Integer overflow")]
     IntegerOverflow,
+
+    #[error("type error")]
+    TypeError,
 }

@@ -34,27 +34,22 @@ impl VM {
                     self.stack.pop()?;
                 }
 
-                // NOTE: The RuntimeError used is IntegerOverflow. However,
-                // this is incorrect. I am too lazy to come up with names
-                // so I just used an easy existing one. I will change this
-                // in the future.
-
                 opcode::ADD => {
                     let right = self.stack.pop()?;
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.add(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -65,17 +60,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.sub(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -86,17 +81,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.mul(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -107,17 +102,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.div(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -128,17 +123,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.r#mod(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -178,10 +173,10 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let result = BelalangBoolean(left == right);
@@ -193,10 +188,10 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let result = BelalangBoolean(left != right);
@@ -208,17 +203,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.lt(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -229,17 +224,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.le(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -250,17 +245,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangBoolean);
                     let left = downcast!(left, BelalangBoolean);
 
                     let Ok(result) = left.and(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -271,17 +266,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangBoolean);
                     let left = downcast!(left, BelalangBoolean);
 
                     let Ok(result) = left.or(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -292,17 +287,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.bit_and(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -313,17 +308,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.bit_or(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -334,17 +329,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.bit_xor(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -355,17 +350,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.bit_sl(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -376,17 +371,17 @@ impl VM {
                     let left = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
                     let StackObject::Object(left) = left else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
                     let left = downcast!(left, BelalangInteger);
 
                     let Ok(result) = left.bit_sr(right) else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -396,13 +391,13 @@ impl VM {
                     let right = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangBoolean);
 
                     let Ok(result) = right.not() else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -412,13 +407,13 @@ impl VM {
                     let right = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let right = downcast!(right, BelalangInteger);
 
                     let Ok(result) = right.neg() else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     self.stack.push(StackObject::Object(Box::new(result)))?;
@@ -435,7 +430,7 @@ impl VM {
                     let right = self.stack.pop()?;
 
                     let StackObject::Object(right) = right else {
-                        return Err(RuntimeError::IntegerOverflow);
+                        return Err(RuntimeError::TypeError);
                     };
 
                     let value = downcast!(right, BelalangBoolean);
