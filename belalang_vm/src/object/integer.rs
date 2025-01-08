@@ -5,7 +5,7 @@ use std::fmt::Display;
 
 use crate::error::RuntimeError;
 
-use belalang_devel::ops::{Add, Div, Eq, Le, Lt, Mod, Mul, Ne, Sub};
+use belalang_devel::ops::{Add, BitAnd, BitOr, BitSl, BitSr, BitXor, Div, Eq, Le, Lt, Mod, Mul, Ne, Sub};
 use belalang_devel::BelalangType;
 
 use super::boolean::BelalangBoolean;
@@ -135,5 +135,55 @@ impl Le for BelalangInteger {
 
     fn le(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
         Ok(BelalangBoolean(self.0 <= other.0))
+    }
+}
+
+impl BitAnd for BelalangInteger {
+    type Output = BelalangInteger;
+
+    type Rhs = BelalangInteger;
+
+    fn bit_and(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangInteger(self.0 & other.0))
+    }
+}
+
+impl BitOr for BelalangInteger {
+    type Output = BelalangInteger;
+
+    type Rhs = BelalangInteger;
+
+    fn bit_or(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangInteger(self.0 | other.0))
+    }
+}
+
+impl BitXor for BelalangInteger {
+    type Output = BelalangInteger;
+
+    type Rhs = BelalangInteger;
+
+    fn bit_xor(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangInteger(self.0 ^ other.0))
+    }
+}
+
+impl BitSl for BelalangInteger {
+    type Output = BelalangInteger;
+
+    type Rhs = BelalangInteger;
+
+    fn bit_sl(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangInteger(self.0 << other.0))
+    }
+}
+
+impl BitSr for BelalangInteger {
+    type Output = BelalangInteger;
+
+    type Rhs = BelalangInteger;
+
+    fn bit_sr(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangInteger(self.0 >> other.0))
     }
 }

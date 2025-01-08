@@ -303,36 +303,111 @@ impl VM {
                     self.stack.push(StackObject::Object(Box::new(result)))?;
                 }
 
-                // opcode::BIT_AND => {
-                //     let right = self.stack.pop_take()?;
-                //     let left = self.stack.pop_take()?;
-                //     self.stack.push(left.try_bit_and(right)?)?;
-                // }
-                //
-                // opcode::BIT_OR => {
-                //     let right = self.stack.pop_take()?;
-                //     let left = self.stack.pop_take()?;
-                //     self.stack.push(left.try_bit_or(right)?)?;
-                // }
-                //
-                // opcode::BIT_XOR => {
-                //     let right = self.stack.pop_take()?;
-                //     let left = self.stack.pop_take()?;
-                //     self.stack.push(left.try_bit_xor(right)?)?;
-                // }
-                //
-                // opcode::BIT_SL => {
-                //     let right = self.stack.pop_take()?;
-                //     let left = self.stack.pop_take()?;
-                //     self.stack.push(left.try_bit_sl(right)?)?;
-                // }
-                //
-                // opcode::BIT_SR => {
-                //     let right = self.stack.pop_take()?;
-                //     let left = self.stack.pop_take()?;
-                //     self.stack.push(left.try_bit_sr(right)?)?;
-                // }
-                //
+                opcode::BIT_AND => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
+
+                    let Ok(result) = left.bit_and(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
+                opcode::BIT_OR => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
+
+                    let Ok(result) = left.bit_or(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
+                opcode::BIT_XOR => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
+
+                    let Ok(result) = left.bit_xor(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
+                opcode::BIT_SL => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
+
+                    let Ok(result) = left.bit_sl(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
+                opcode::BIT_SR => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
+
+                    let Ok(result) = left.bit_sr(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
                 // opcode::BANG => {
                 //     if let Object::Boolean(b) = self.stack.pop_take()? {
                 //         self.stack.push(Object::Boolean(!b))?;

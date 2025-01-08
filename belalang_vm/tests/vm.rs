@@ -158,35 +158,39 @@ fn logical_op(a: bool, b: bool, op: u8) -> bool {
     boolean.0
 }
 
-// #[test_case(12, 1, opcode::BIT_AND => 0 ; "bit and")]
-// #[test_case(12, 1, opcode::BIT_OR => 13; "bit or")]
-// #[test_case(12, 1, opcode::BIT_XOR => 13; "bit xor")]
-// #[test_case(12, 1, opcode::BIT_SL => 24; "bit sl")]
-// #[test_case(12, 1, opcode::BIT_SR => 6; "bit sr")]
-// fn bitwise_op(a: i64, b: i64, op: u8) -> i64 {
-//     let constants = vec![Object::Integer(a), Object::Integer(b)];
-//
-//     let mut instructions = Vec::new();
-//     instructions.extend(opcode::constant(0));
-//     instructions.extend(opcode::constant(1));
-//     instructions.push(op);
-//
-//     let mut vm = VM::default();
-//
-//     let _ = vm.run(Bytecode {
-//         instructions,
-//         constants,
-//     });
-//
-//     assert_eq!(vm.stack.size(), 1);
-//
-//     if let Object::Integer(result) = vm.stack.top().unwrap() {
-//         return *result;
-//     }
-//
-//     panic!("Not an Integer!");
-// }
-//
+#[test_case(12, 1, opcode::BIT_AND => 0; "bit and")]
+#[test_case(12, 1, opcode::BIT_OR => 13; "bit or")]
+#[test_case(12, 1, opcode::BIT_XOR => 13; "bit xor")]
+#[test_case(12, 1, opcode::BIT_SL => 24; "bit sl")]
+#[test_case(12, 1, opcode::BIT_SR => 6; "bit sr")]
+fn bitwise_op(a: i64, b: i64, op: u8) -> i64 {
+    let constants = vec![Object::Integer(a), Object::Integer(b)];
+
+    let mut instructions = Vec::new();
+    instructions.extend(opcode::constant(0));
+    instructions.extend(opcode::constant(1));
+    instructions.push(op);
+
+    let mut vm = VM::default();
+
+    let _ = vm.run(Bytecode {
+        instructions,
+        constants,
+    });
+
+    assert_eq!(vm.stack.size(), 1);
+
+    let Ok(obj) = vm.stack.pop() else { panic!() };
+    let StackObject::Object(object) = obj else {
+        panic!()
+    };
+    let Some(int) = object.as_any().downcast_ref::<BelalangInteger>() else {
+        panic!()
+    };
+
+    int.0
+}
+
 // mod jump_op {
 //     use super::*;
 //
