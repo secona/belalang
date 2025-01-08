@@ -32,6 +32,18 @@ pub trait Mod: BelalangType {
     fn r#mod(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
 }
 
+pub trait Eq: BelalangType {
+    type Output: BelalangType;
+    type Rhs: BelalangType;
+    fn eq(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
+}
+
+pub trait Ne: BelalangType {
+    type Output: BelalangType;
+    type Rhs: BelalangType;
+    fn ne(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>>;
+}
+
 pub trait Lt: BelalangType {
     type Output: BelalangType;
     type Rhs: BelalangType;

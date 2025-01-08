@@ -5,8 +5,10 @@ use std::fmt::Display;
 
 use crate::error::RuntimeError;
 
-use belalang_devel::ops::{Add, Div, Mod, Mul, Sub};
+use belalang_devel::ops::{Add, Div, Eq, Le, Lt, Mod, Mul, Ne, Sub};
 use belalang_devel::BelalangType;
+
+use super::boolean::BelalangBoolean;
 
 #[derive(Debug, Clone)]
 pub struct BelalangInteger(pub i64);
@@ -91,5 +93,47 @@ impl Mod for BelalangInteger {
 
     fn r#mod(&self, other: &BelalangInteger) -> Result<Self::Output, Box<dyn Error>> {
         Ok(Self(self.0 % other.0))
+    }
+}
+
+impl Eq for BelalangInteger {
+    type Output = BelalangBoolean;
+
+    // This is a temporary fix. It should be replaced with BelalangType.
+    type Rhs = BelalangInteger;
+
+    fn eq(&self, other: &BelalangInteger) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangBoolean(self.0 == other.0))
+    }
+}
+
+impl Ne for BelalangInteger {
+    type Output = BelalangBoolean;
+
+    // This is a temporary fix. It should be replaced with BelalangType.
+    type Rhs = BelalangInteger;
+
+    fn ne(&self, other: &BelalangInteger) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangBoolean(self.0 != other.0))
+    }
+}
+
+impl Lt for BelalangInteger {
+    type Output = BelalangBoolean;
+
+    type Rhs = BelalangInteger;
+
+    fn lt(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangBoolean(self.0 < other.0))
+    }
+}
+
+impl Le for BelalangInteger {
+    type Output = BelalangBoolean;
+
+    type Rhs = BelalangInteger;
+
+    fn le(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
+        Ok(BelalangBoolean(self.0 <= other.0))
     }
 }

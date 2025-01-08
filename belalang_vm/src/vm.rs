@@ -50,6 +50,11 @@ impl VM {
                     self.stack.pop()?;
                 }
 
+                // NOTE: The RuntimeError used is IntegerOverflow. However,
+                // this is incorrect. I am too lazy to come up with names
+                // so I just used an easy existing one. I will change this
+                // in the future.
+
                 opcode::ADD => {
                     let right = self.stack.pop()?;
                     let left = self.stack.pop()?;
@@ -184,29 +189,93 @@ impl VM {
                     self.stack.push(StackObject::Null)?;
                 }
 
-                // opcode::EQUAL => {
-                //     let right = self.stack.pop_take()?;
-                //     let left = self.stack.pop_take()?;
-                //     self.stack.push(Object::Boolean(right == left))?;
-                // }
-                //
-                // opcode::NOT_EQUAL => {
-                //     let right = self.stack.pop_take()?;
-                //     let left = self.stack.pop_take()?;
-                //     self.stack.push(Object::Boolean(right != left))?;
-                // }
-                //
-                // opcode::LESS_THAN => {
-                //     let right = self.stack.pop_take()?;
-                //     let left = self.stack.pop_take()?;
-                //     self.stack.push(left.try_less_than(right)?)?;
-                // }
-                //
-                // opcode::LESS_THAN_EQUAL => {
-                //     let right = self.stack.pop_take()?;
-                //     let left = self.stack.pop_take()?;
-                //     self.stack.push(left.try_less_than_equal(right)?)?;
-                // }
+                // NOTE: Currently equality only works for Integers because I
+                // hardcoded them. This is unintended behaviour that I intend
+                // to change in the future.
+
+                opcode::EQUAL => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
+
+                    let Ok(result) = left.eq(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
+                opcode::NOT_EQUAL => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
+
+                    let Ok(result) = left.ne(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
+                opcode::LESS_THAN => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
+
+                    let Ok(result) = left.lt(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
+
+                opcode::LESS_THAN_EQUAL => {
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
+
+                    let StackObject::Object(right) = right else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+                    let StackObject::Object(left) = left else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    let right = downcast!(right, BelalangInteger);
+                    let left = downcast!(left, BelalangInteger);
+
+                    let Ok(result) = left.le(right) else {
+                        return Err(RuntimeError::IntegerOverflow);
+                    };
+
+                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                }
 
                 opcode::AND => {
                     let right = self.stack.pop()?;
