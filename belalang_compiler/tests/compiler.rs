@@ -5,9 +5,8 @@ use std::error::Error;
 use belalang_compiler::codegen::Compiler;
 use belalang_compiler::ast::Parser;
 use belalang_compiler::tokens::Lexer;
-use belalang_vm::object::Object;
 use belalang_vm::opcode;
-use belalang_vm::bytecode::Bytecode;
+use belalang_vm::bytecode::{Bytecode, Constant};
 
 fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
     let lexer = Lexer::new(input.as_bytes());
@@ -35,9 +34,9 @@ fn integer_literals() {
     ]);
 
     assert_eq!(code.constants, vec![
-        Object::Integer(1),
-        Object::Integer(2),
-        Object::Integer(3),
+        Constant::Integer(1),
+        Constant::Integer(2),
+        Constant::Integer(3),
     ]);
 }
 
@@ -70,13 +69,13 @@ fn test_compile_infix(op: &str, code: u8, reversed: bool) {
 
     assert_eq!(compiled.constants, if reversed {
         vec![
-            Object::Integer(3),
-            Object::Integer(1),
+            Constant::Integer(3),
+            Constant::Integer(1),
         ]
     } else {
         vec![
-            Object::Integer(1),
-            Object::Integer(3),
+            Constant::Integer(1),
+            Constant::Integer(3),
         ]
     });
 }
@@ -108,7 +107,7 @@ fn prefix_expressions() {
     ]);
 
     assert_eq!(code.constants, vec![
-        Object::Integer(5),
+        Constant::Integer(5),
     ]);
 }
 
@@ -131,10 +130,10 @@ fn if_expressions() {
     ]);
 
     assert_eq!(code.constants, vec![
-        Object::Integer(1),
-        Object::Integer(1),
-        Object::Integer(10),
-        Object::Integer(9),
+        Constant::Integer(1),
+        Constant::Integer(1),
+        Constant::Integer(10),
+        Constant::Integer(9),
     ]);
 }
 
@@ -153,8 +152,8 @@ fn if_else_expressions() {
     ]);
 
     assert_eq!(code.constants, vec![
-        Object::Integer(10),
-        Object::Integer(11),
+        Constant::Integer(10),
+        Constant::Integer(11),
     ]);
 }
 
@@ -181,9 +180,9 @@ fn if_else_if_expressions() {
     ]);
 
     assert_eq!(code.constants, vec![
-        Object::Integer(10),
-        Object::Integer(11),
-        Object::Integer(12),
+        Constant::Integer(10),
+        Constant::Integer(11),
+        Constant::Integer(12),
     ]);
 }
 
@@ -204,8 +203,8 @@ fn var() {
     ]);
 
     assert_eq!(code.constants, vec![
-        Object::Integer(12),
-        Object::Integer(11),
+        Constant::Integer(12),
+        Constant::Integer(11),
     ]);
 }
 
@@ -226,8 +225,8 @@ fn var_assignment_ops() {
     ]);
 
     assert_eq!(code.constants, vec![
-        Object::Integer(1),
-        Object::Integer(1),
+        Constant::Integer(1),
+        Constant::Integer(1),
     ]);
 }
 
@@ -243,7 +242,7 @@ fn block_expression() {
     ]);
 
     assert_eq!(code.constants, vec![
-        Object::Integer(12),
+        Constant::Integer(12),
     ]);
 }
 
@@ -263,8 +262,8 @@ fn function_expressions() {
     ]);
 
     assert_eq!(code.constants, vec![
-        Object::Integer(10),
-        // Object::Function(Function {
+        Constant::Integer(10),
+        // Constant::Function(Function {
         //     pointer: 8,
         //     locals_count: 0,
         //     arity: 0
@@ -296,12 +295,12 @@ fn function_with_args_expressions() {
     ]);
 
     assert_eq!(code.constants, vec![
-        // Object::Function(Function {
+        // Constant::Function(Function {
         //     pointer: 22,
         //     locals_count: 2,
         //     arity: 2,
         // }),
-        Object::Integer(2),
-        Object::Integer(1),
+        Constant::Integer(2),
+        Constant::Integer(1),
     ]);
 }

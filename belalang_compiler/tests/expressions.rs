@@ -1,3 +1,5 @@
+#![allow(clippy::bool_assert_comparison)]
+
 #[macro_use]
 mod common;
 
