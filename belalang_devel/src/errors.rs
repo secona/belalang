@@ -23,4 +23,7 @@ pub enum RuntimeError {
 
     #[error("type error")]
     TypeError,
+
+    #[error("allocation failed")]
+    AllocationFailed,
 }

@@ -1,5 +1,7 @@
 use std::alloc::{alloc, Layout};
-use std::ptr::null_mut;
+use std::ptr::NonNull;
+
+use belalang_devel::errors::RuntimeError;
 
 #[derive(Debug, PartialEq)]
 pub struct ObjectHeader {
@@ -10,33 +12,42 @@ pub struct ObjectHeader {
 #[derive(Debug, PartialEq)]
 pub struct Object {
     pub header: ObjectHeader,
-    pub next: *mut Object,
+    pub next: Option<NonNull<Object>>,
 }
 
 pub struct Heap {
-    pub start: *mut Object,
+    pub start: Option<NonNull<Object>>,
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for Heap {
     fn default() -> Self {
         Self {
-            start: null_mut(),
+            start: None,
         }
     }
 }
 
 impl Heap {
-    pub fn alloc(&mut self, object_type_id: u32) {
+    pub fn alloc(&mut self, object_type_id: u32) -> Result<(), RuntimeError> {
         let layout = Layout::new::<Object>();
 
         let object_ptr = unsafe {
             let object_ptr = alloc(layout) as *mut Object;
+
+            if object_ptr.is_null() {
+                return Err(RuntimeError::AllocationFailed);
+            }
+
             (*object_ptr).header.type_id = object_type_id;
             (*object_ptr).next = self.start;
-            object_ptr
+
+            NonNull::new_unchecked(object_ptr)
         };
 
-        self.start = object_ptr;
+        self.start = Some(object_ptr);
+
+        Ok(())
     }
 }
 
@@ -49,11 +60,11 @@ mod tests {
     fn heap_alloc() {
         let mut heap = Heap::default();
 
-        heap.alloc(123);
+        heap.alloc(123).unwrap();
 
-        assert!(!heap.start.is_null());
+        assert!(heap.start.is_some());
 
-        let object = unsafe { heap.start.read() };
+        let object = unsafe { heap.start.unwrap().read() };
         assert_eq!(object.header.type_id, 123);
         assert_eq!(object.header.marked, false);
     }
