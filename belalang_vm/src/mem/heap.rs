@@ -54,18 +54,29 @@ impl Heap {
 #[cfg(test)]
 #[allow(clippy::bool_assert_comparison)]
 mod tests {
+    use test_case::test_case;
+
     use super::*;
 
-    #[test]
-    fn heap_alloc() {
+    #[test_case(vec![1, 2, 3])]
+    fn heap_alloc(data: Vec<u32>) {
         let mut heap = Heap::default();
 
-        heap.alloc(123).unwrap();
+        for d in &data {
+            heap.alloc(*d).unwrap();
+        }
 
-        assert!(heap.start.is_some());
+        let mut current = heap.start;
 
-        let object = unsafe { heap.start.unwrap().read() };
-        assert_eq!(object.header.type_id, 123);
-        assert_eq!(object.header.marked, false);
+        for d in data.iter().rev() {
+            let object = unsafe { current.unwrap().read() };
+
+            assert_eq!(object.header.type_id, *d);
+            assert_eq!(object.header.marked, false);
+
+            current = object.next;
+        }
+
+        assert!(current.is_none());
     }
 }
