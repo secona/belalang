@@ -1,5 +1,3 @@
-use crate::object::Object;
-
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum RuntimeError {
     #[error("stack underflow")]
@@ -14,8 +12,8 @@ pub enum RuntimeError {
     #[error("unknown builtin function")]
     UnknownBuiltinFunction,
 
-    #[error("invalid operation: {0} {1} {2}")]
-    InvalidOperation(Object, String, Object),
+    // #[error("invalid operation: {0} {1} {2}")]
+    // InvalidOperation(Object, String, Object),
 
     #[error("attempt to call non-function")]
     NotAFunction,

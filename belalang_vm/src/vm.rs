@@ -1,4 +1,5 @@
 use belalang_devel::ops::*;
+use belalang_devel::errors::RuntimeError;
 
 use crate::bytecode::Bytecode;
 use crate::macros::downcast;
@@ -7,7 +8,6 @@ use crate::object::integer::BelalangInteger;
 use crate::object::Object;
 use crate::opcode;
 
-use crate::error::RuntimeError;
 use crate::mem::stack::{Stack, StackObject};
 
 #[derive(Default)]

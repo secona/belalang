@@ -2,6 +2,7 @@ use std::any::Any;
 use std::fmt::{Debug, Display};
 
 pub mod ops;
+pub mod errors;
 
 pub trait BelalangType: Display + Debug {
     fn type_name(&self) -> &str;

@@ -3,8 +3,7 @@
 use std::error::Error;
 use std::fmt::Display;
 
-use crate::error::RuntimeError;
-
+use belalang_devel::errors::RuntimeError;
 use belalang_devel::ops::{Add, BitAnd, BitOr, BitSl, BitSr, BitXor, Div, Eq, Le, Lt, Mod, Mul, Ne, Neg, Sub};
 use belalang_devel::BelalangType;
 

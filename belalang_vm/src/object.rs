@@ -3,7 +3,7 @@ pub mod integer;
 
 use std::fmt::Display;
 
-use crate::error::RuntimeError;
+use belalang_devel::errors::RuntimeError;
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub enum Object {
@@ -23,6 +23,7 @@ impl Display for Object {
     }
 }
 
+#[allow(unused_variables)]
 impl Object {
     pub fn try_add(self, rhs: Self) -> Result<Self, RuntimeError> {
         match (self, rhs) {
@@ -30,7 +31,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l + r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "+".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -40,7 +41,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l - r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "-".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -50,7 +51,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l * r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "*".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -60,7 +61,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l / r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "/".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -70,7 +71,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l % r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "%".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -80,7 +81,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Boolean(l < r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "<".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -90,7 +91,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Boolean(l <= r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "<=".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -100,7 +101,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l & r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "&".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -110,7 +111,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l | r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "|".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -120,7 +121,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l ^ r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "^".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -130,7 +131,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l << r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, "<<".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 
@@ -140,7 +141,7 @@ impl Object {
             (Self::Integer(l), Self::Integer(r)) => Ok(Self::Integer(l >> r)),
 
             // unsupported
-            (l, r) => Err(RuntimeError::InvalidOperation(l, ">>".into(), r)),
+            (l, r) => Err(RuntimeError::TypeError),
         }
     }
 }
