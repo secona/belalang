@@ -3,8 +3,7 @@ mod scope;
 
 use crate::ast::{BlockExpression, Expression, Program, Statement};
 use crate::tokens::Token;
-use belalang_vm::bytecode::Bytecode;
-use belalang_vm::object::Object;
+use belalang_vm::bytecode::{Bytecode, Constant};
 use belalang_vm::opcode;
 
 use crate::error::CompileError;
@@ -14,7 +13,7 @@ use scope::{ScopeLevel, ScopeManager};
 pub struct Compiler {
     prev_constants: usize,
 
-    pub constants: Vec<Object>,
+    pub constants: Vec<Constant>,
     pub scope: ScopeManager,
 }
 
@@ -90,7 +89,7 @@ impl Compiler {
             }
 
             Expression::Integer(integer) => {
-                let integer = Object::Integer(integer.value);
+                let integer = Constant::Integer(integer.value);
                 let index = self.add_constant(integer) as u16;
                 self.add_instruction(opcode::constant(index).to_vec());
             }
@@ -345,7 +344,7 @@ impl Compiler {
         Ok(())
     }
 
-    pub fn add_constant(&mut self, obj: Object) -> usize {
+    pub fn add_constant(&mut self, obj: Constant) -> usize {
         self.constants.push(obj);
         self.constants.len() - 1
     }

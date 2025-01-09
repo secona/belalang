@@ -1,10 +1,9 @@
 use belalang_devel::errors::RuntimeError;
 
-use crate::bytecode::Bytecode;
+use crate::bytecode::{Bytecode, Constant};
 use crate::macros::downcast;
 use crate::object::boolean::BelalangBoolean;
 use crate::object::integer::BelalangInteger;
-use crate::object::Object;
 use crate::opcode;
 
 use crate::mem::stack::{Stack, StackObject};
@@ -13,7 +12,7 @@ use crate::mem::stack::{Stack, StackObject};
 pub struct VM {
     pub ip: usize,
     pub instructions: Vec<u8>,
-    pub constants: Vec<Object>,
+    pub constants: Vec<Constant>,
 
     pub stack: Stack,
 }
@@ -113,10 +112,10 @@ impl VM {
                     let constant = self.constants[index as usize].clone();
 
                     let object = match constant {
-                        Object::Integer(int) => {
+                        Constant::Integer(int) => {
                             StackObject::Object(Box::new(BelalangInteger(int)))
                         }
-                        Object::Boolean(boolean) => {
+                        Constant::Boolean(boolean) => {
                             StackObject::Object(Box::new(BelalangBoolean(boolean)))
                         }
                         _ => panic!(),

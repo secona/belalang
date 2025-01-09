@@ -6,16 +6,16 @@ use belalang_vm::object::boolean::BelalangBoolean;
 use belalang_vm::object::integer::BelalangInteger;
 use test_case::test_case;
 
-use belalang_vm::bytecode::Bytecode;
-use belalang_vm::object::Object;
+use belalang_vm::bytecode::{Bytecode, Constant};
 use belalang_vm::opcode;
 use belalang_vm::vm::VM;
 
 mod stack_op {
     use super::*;
+
     #[test]
     fn pop() {
-        let constants = vec![Object::Integer(12), Object::Integer(5)];
+        let constants = vec![Constant::Integer(12), Constant::Integer(5)];
 
         let mut instructions = Vec::new();
         instructions.extend(opcode::constant(0));
@@ -49,7 +49,7 @@ mod stack_op {
 #[test_case(12, 5, opcode::DIV => 2; "division")]
 #[test_case(12, 5, opcode::MOD => 2; "modulo")]
 fn arithmetic_op(a: i64, b: i64, op: u8) -> i64 {
-    let constants = vec![Object::Integer(a), Object::Integer(b)];
+    let constants = vec![Constant::Integer(a), Constant::Integer(b)];
 
     let mut instructions = Vec::new();
     instructions.extend(opcode::constant(0));
@@ -81,7 +81,7 @@ fn arithmetic_op(a: i64, b: i64, op: u8) -> i64 {
 #[test_case(12, 13, opcode::LESS_THAN => true; "less than")]
 #[test_case(12, 12, opcode::LESS_THAN_EQUAL => true; "less than equal")]
 fn number_comparison_op(a: i64, b: i64, op: u8) -> bool {
-    let constants = vec![Object::Integer(a), Object::Integer(b)];
+    let constants = vec![Constant::Integer(a), Constant::Integer(b)];
 
     let mut instructions = Vec::new();
     instructions.extend(opcode::constant(0));
@@ -111,7 +111,7 @@ fn number_comparison_op(a: i64, b: i64, op: u8) -> bool {
 #[test_case(true, true, opcode::EQUAL => true; "equal")]
 #[test_case(true, false, opcode::NOT_EQUAL => true; "not equal")]
 fn boolean_comparison_op(a: bool, b: bool, op: u8) -> bool {
-    let constants = vec![Object::Boolean(a), Object::Boolean(b)];
+    let constants = vec![Constant::Boolean(a), Constant::Boolean(b)];
 
     let mut instructions = Vec::new();
     instructions.extend(opcode::constant(0));
@@ -141,7 +141,7 @@ fn boolean_comparison_op(a: bool, b: bool, op: u8) -> bool {
 #[test_case(true, false, opcode::AND => false; "and")]
 #[test_case(true, false, opcode::OR => true; "or")]
 fn logical_op(a: bool, b: bool, op: u8) -> bool {
-    let constants = vec![Object::Boolean(a), Object::Boolean(b)];
+    let constants = vec![Constant::Boolean(a), Constant::Boolean(b)];
 
     let mut instructions = Vec::new();
     instructions.extend(opcode::constant(0));
@@ -174,7 +174,7 @@ fn logical_op(a: bool, b: bool, op: u8) -> bool {
 #[test_case(12, 1, opcode::BIT_SL => 24; "bit sl")]
 #[test_case(12, 1, opcode::BIT_SR => 6; "bit sr")]
 fn bitwise_op(a: i64, b: i64, op: u8) -> i64 {
-    let constants = vec![Object::Integer(a), Object::Integer(b)];
+    let constants = vec![Constant::Integer(a), Constant::Integer(b)];
 
     let mut instructions = Vec::new();
     instructions.extend(opcode::constant(0));
@@ -307,7 +307,7 @@ mod unary_op {
 
     #[test]
     fn minus() {
-        let constants = vec![Object::Integer(12)];
+        let constants = vec![Constant::Integer(12)];
 
         let mut instructions = Vec::new();
         instructions.extend(opcode::constant(0));
