@@ -1,10 +1,14 @@
-use crate::object::Object;
+use belalang_devel::BelalangType;
 
-pub type BuiltinFn = fn(&[Object]) -> Object;
+use crate::object::integer::BelalangInteger;
+
+pub type BuiltinFn = fn(&[Box<dyn BelalangType>]) -> Box<dyn BelalangType>;
 
 pub static BUILTIN_FUNCTIONS: &[(&str, BuiltinFn)] = &[("print", |args| {
+    // TODO: handle null values
+
     println!("{}", args.first().unwrap());
-    Object::Null
+    Box::new(BelalangInteger(0))
 })];
 
 pub fn lookup_builtin(name: &str) -> Option<BuiltinFn> {
