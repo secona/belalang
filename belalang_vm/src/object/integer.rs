@@ -1,10 +1,6 @@
-#![allow(unused_variables)]
-
-use std::error::Error;
 use std::fmt::Display;
 
 use belalang_devel::errors::RuntimeError;
-use belalang_devel::ops::{Add, BitAnd, BitOr, BitSl, BitSr, BitXor, Div, Eq, Le, Lt, Mod, Mul, Ne, Neg, Sub};
 use belalang_devel::BelalangType;
 
 use super::boolean::BelalangBoolean;
@@ -26,171 +22,140 @@ impl BelalangType for BelalangInteger {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
-}
 
-impl Add for BelalangInteger {
-    type Output = BelalangInteger;
+    fn add(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    // This is a temporary fix. It should be replaced with BelalangType.
-    type Rhs = BelalangInteger;
-
-    fn add(&self, other: &BelalangInteger) -> Result<Self::Output, Box<dyn Error>> {
         self.0
             .checked_add(other.0)
             .map(Self)
-            .ok_or(Box::new(RuntimeError::IntegerOverflow))
+            .map(|v| Box::new(v) as _)
+            .ok_or(RuntimeError::IntegerOverflow)
     }
-}
 
-impl Sub for BelalangInteger {
-    type Output = BelalangInteger;
+    fn sub(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    // This is a temporary fix. It should be replaced with BelalangType.
-    type Rhs = BelalangInteger;
-
-    fn sub(&self, other: &BelalangInteger) -> Result<Self::Output, Box<dyn Error>> {
         self.0
             .checked_sub(other.0)
             .map(Self)
-            .ok_or(Box::new(RuntimeError::IntegerOverflow))
+            .map(|v| Box::new(v) as _)
+            .ok_or(RuntimeError::IntegerOverflow)
     }
-}
 
-impl Mul for BelalangInteger {
-    type Output = BelalangInteger;
+    fn mul(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    // This is a temporary fix. It should be replaced with BelalangType.
-    type Rhs = BelalangInteger;
-
-    fn mul(&self, other: &BelalangInteger) -> Result<Self::Output, Box<dyn Error>> {
         self.0
             .checked_mul(other.0)
             .map(Self)
-            .ok_or(Box::new(RuntimeError::IntegerOverflow))
+            .map(|v| Box::new(v) as _)
+            .ok_or(RuntimeError::IntegerOverflow)
     }
-}
 
-impl Div for BelalangInteger {
-    type Output = BelalangInteger;
+    fn div(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    // This is a temporary fix. It should be replaced with BelalangType.
-    type Rhs = BelalangInteger;
-
-    fn div(&self, other: &BelalangInteger) -> Result<Self::Output, Box<dyn Error>> {
         self.0
             .checked_div(other.0)
             .map(Self)
-            .ok_or(Box::new(RuntimeError::IntegerOverflow))
+            .map(|v| Box::new(v) as _)
+            .ok_or(RuntimeError::IntegerOverflow)
     }
-}
 
-impl Mod for BelalangInteger {
-    type Output = BelalangInteger;
+    fn r#mod(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    // This is a temporary fix. It should be replaced with BelalangType.
-    type Rhs = BelalangInteger;
-
-    fn r#mod(&self, other: &BelalangInteger) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(Self(self.0 % other.0))
+        self.0
+            .checked_rem(other.0)
+            .map(Self)
+            .map(|v| Box::new(v) as _)
+            .ok_or(RuntimeError::IntegerOverflow)
     }
-}
 
-impl Eq for BelalangInteger {
-    type Output = BelalangBoolean;
+    fn eq(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    // This is a temporary fix. It should be replaced with BelalangType.
-    type Rhs = BelalangInteger;
-
-    fn eq(&self, other: &BelalangInteger) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangBoolean(self.0 == other.0))
+        Ok(Box::new(BelalangBoolean(self.0 == other.0)))
     }
-}
 
-impl Ne for BelalangInteger {
-    type Output = BelalangBoolean;
+    fn ne(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    // This is a temporary fix. It should be replaced with BelalangType.
-    type Rhs = BelalangInteger;
-
-    fn ne(&self, other: &BelalangInteger) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangBoolean(self.0 != other.0))
+        Ok(Box::new(BelalangBoolean(self.0 != other.0)))
     }
-}
 
-impl Lt for BelalangInteger {
-    type Output = BelalangBoolean;
+    fn lt(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    type Rhs = BelalangInteger;
-
-    fn lt(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangBoolean(self.0 < other.0))
+        Ok(Box::new(BelalangBoolean(self.0 < other.0)))
     }
-}
 
-impl Le for BelalangInteger {
-    type Output = BelalangBoolean;
+    fn le(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    type Rhs = BelalangInteger;
-
-    fn le(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangBoolean(self.0 <= other.0))
+        Ok(Box::new(BelalangBoolean(self.0 <= other.0)))
     }
-}
 
-impl BitAnd for BelalangInteger {
-    type Output = BelalangInteger;
+    fn bit_and(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    type Rhs = BelalangInteger;
-
-    fn bit_and(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangInteger(self.0 & other.0))
+        Ok(Box::new(BelalangInteger(self.0 & other.0)))
     }
-}
 
-impl BitOr for BelalangInteger {
-    type Output = BelalangInteger;
+    fn bit_or(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    type Rhs = BelalangInteger;
-
-    fn bit_or(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangInteger(self.0 | other.0))
+        Ok(Box::new(BelalangInteger(self.0 | other.0)))
     }
-}
 
-impl BitXor for BelalangInteger {
-    type Output = BelalangInteger;
+    fn bit_xor(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    type Rhs = BelalangInteger;
-
-    fn bit_xor(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangInteger(self.0 ^ other.0))
+        Ok(Box::new(BelalangInteger(self.0 ^ other.0)))
     }
-}
 
-impl BitSl for BelalangInteger {
-    type Output = BelalangInteger;
+    fn bit_sl(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    type Rhs = BelalangInteger;
-
-    fn bit_sl(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangInteger(self.0 << other.0))
+        Ok(Box::new(BelalangInteger(self.0 << other.0)))
     }
-}
 
-impl BitSr for BelalangInteger {
-    type Output = BelalangInteger;
+    fn bit_sr(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    type Rhs = BelalangInteger;
-
-    fn bit_sr(&self, other: &Self::Rhs) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangInteger(self.0 >> other.0))
+        Ok(Box::new(BelalangInteger(self.0 >> other.0)))
     }
-}
 
-impl Neg for BelalangInteger {
-    type Output = BelalangInteger;
-
-    fn neg(&self) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangInteger(-self.0))
+    fn neg(&self) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        Ok(Box::new(BelalangInteger(-self.0)))
     }
 }

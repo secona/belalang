@@ -1,8 +1,6 @@
-#![allow(unused_variables)]
+use std::fmt::Display;
 
-use std::{error::Error, fmt::Display};
-
-use belalang_devel::ops::{And, Not, Or};
+use belalang_devel::errors::RuntimeError;
 use belalang_devel::BelalangType;
 
 #[derive(Debug, Clone)]
@@ -22,30 +20,24 @@ impl BelalangType for BelalangBoolean {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
-}
 
-impl And for BelalangBoolean {
-    type Output = BelalangBoolean;
-    type Rhs = BelalangBoolean;
+    fn and(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, belalang_devel::errors::RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangBoolean>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    fn and(&self, other: &BelalangBoolean) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangBoolean(self.0 && other.0))
+        Ok(Box::new(BelalangBoolean(self.0 && other.0)))
     }
-}
 
-impl Or for BelalangBoolean {
-    type Output = BelalangBoolean;
-    type Rhs = BelalangBoolean;
+    fn or(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        let Some(other) = other.as_any().downcast_ref::<BelalangBoolean>() else {
+            return Err(RuntimeError::TypeError);
+        };
 
-    fn or(&self, other: &BelalangBoolean) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangBoolean(self.0 || other.0))
+        Ok(Box::new(BelalangBoolean(self.0 || other.0)))
     }
-}
 
-impl Not for BelalangBoolean {
-    type Output = BelalangBoolean;
-
-    fn not(&self) -> Result<Self::Output, Box<dyn Error>> {
-        Ok(BelalangBoolean(!self.0))
+    fn not(&self) -> Result<Box<dyn BelalangType>, RuntimeError> {
+        Ok(Box::new(BelalangBoolean(!self.0)))
     }
 }

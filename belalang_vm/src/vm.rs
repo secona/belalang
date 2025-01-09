@@ -1,4 +1,3 @@
-use belalang_devel::ops::*;
 use belalang_devel::errors::RuntimeError;
 
 use crate::bytecode::Bytecode;
@@ -45,14 +44,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.add(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.add(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::SUB => {
@@ -66,14 +59,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.sub(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.sub(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::MUL => {
@@ -87,14 +74,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.mul(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.mul(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::DIV => {
@@ -108,14 +89,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.div(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.div(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::MOD => {
@@ -129,14 +104,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.r#mod(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.r#mod(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::CONSTANT => {
@@ -209,14 +178,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.lt(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.lt(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::LESS_THAN_EQUAL => {
@@ -230,14 +193,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.le(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.le(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::AND => {
@@ -251,14 +208,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangBoolean);
-                    let left = downcast!(left, BelalangBoolean);
-
-                    let Ok(result) = left.and(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.and(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::OR => {
@@ -272,14 +223,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangBoolean);
-                    let left = downcast!(left, BelalangBoolean);
-
-                    let Ok(result) = left.or(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.or(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BIT_AND => {
@@ -293,14 +238,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.bit_and(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.bit_and(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BIT_OR => {
@@ -314,14 +253,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.bit_or(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.bit_or(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BIT_XOR => {
@@ -335,14 +268,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.bit_xor(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.bit_xor(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BIT_SL => {
@@ -356,14 +283,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.bit_sl(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.bit_sl(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BIT_SR => {
@@ -377,14 +298,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-                    let left = downcast!(left, BelalangInteger);
-
-                    let Ok(result) = left.bit_sr(right) else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = left.bit_sr(&*right)?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BANG => {
@@ -394,13 +309,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangBoolean);
-
-                    let Ok(result) = right.not() else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = right.not()?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::MINUS => {
@@ -410,13 +320,8 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let right = downcast!(right, BelalangInteger);
-
-                    let Ok(result) = right.neg() else {
-                        return Err(RuntimeError::TypeError);
-                    };
-
-                    self.stack.push(StackObject::Object(Box::new(result)))?;
+                    let result = right.neg()?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::JUMP => {
@@ -432,6 +337,11 @@ impl VM {
                     let StackObject::Object(right) = right else {
                         return Err(RuntimeError::TypeError);
                     };
+
+                    // TODO: Remove this downcast macro. I am thinking of
+                    // having a `truthy` method for dyn BelalangType. Whenever
+                    // I need to check for truthyness I can just call the
+                    // `truthy` method.
 
                     let value = downcast!(right, BelalangBoolean);
 
