@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
-use belalang_devel::errors::RuntimeError;
-use belalang_devel::BelalangType;
+use crate::errors::RuntimeError;
+use crate::types::BelalangType;
 
 #[derive(Debug, Clone)]
 pub struct BelalangBoolean(pub bool);
@@ -21,7 +21,7 @@ impl BelalangType for BelalangBoolean {
         self
     }
 
-    fn and(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, belalang_devel::errors::RuntimeError> {
+    fn and(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
         let Some(other) = other.as_any().downcast_ref::<BelalangBoolean>() else {
             return Err(RuntimeError::TypeError);
         };

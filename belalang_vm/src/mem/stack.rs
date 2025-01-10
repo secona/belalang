@@ -1,5 +1,5 @@
-use belalang_devel::BelalangType;
-use belalang_devel::errors::RuntimeError;
+use crate::types::BelalangType;
+use crate::errors::RuntimeError;
 
 const STACK_SIZE: usize = 4096;
 

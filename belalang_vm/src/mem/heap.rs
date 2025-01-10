@@ -1,7 +1,7 @@
 use std::alloc::{alloc, Layout};
 use std::ptr::NonNull;
 
-use belalang_devel::errors::RuntimeError;
+use crate::errors::RuntimeError;
 
 #[derive(Debug, PartialEq)]
 pub struct ObjectHeader {

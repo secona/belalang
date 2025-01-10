@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
-use belalang_devel::errors::RuntimeError;
-use belalang_devel::BelalangType;
+use crate::errors::RuntimeError;
+use crate::types::BelalangType;
 
 use super::boolean::BelalangBoolean;
 
