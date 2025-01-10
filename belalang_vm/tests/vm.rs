@@ -2,8 +2,8 @@
 #![allow(clippy::bool_assert_comparison)]
 
 use belalang_vm::mem::stack::StackObject;
-use belalang_vm::object::boolean::BelalangBoolean;
-use belalang_vm::object::integer::BelalangInteger;
+use belalang_vm::types::boolean::BelalangBoolean;
+use belalang_vm::types::integer::BelalangInteger;
 use test_case::test_case;
 
 use belalang_vm::bytecode::{Bytecode, Constant};

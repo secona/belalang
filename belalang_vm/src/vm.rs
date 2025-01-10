@@ -2,8 +2,8 @@ use belalang_devel::errors::RuntimeError;
 
 use crate::bytecode::{Bytecode, Constant};
 use crate::macros::downcast;
-use crate::object::boolean::BelalangBoolean;
-use crate::object::integer::BelalangInteger;
+use crate::types::boolean::BelalangBoolean;
+use crate::types::integer::BelalangInteger;
 use crate::opcode;
 
 use crate::mem::stack::{Stack, StackObject};
