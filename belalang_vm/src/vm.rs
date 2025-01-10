@@ -1,6 +1,5 @@
 use crate::errors::RuntimeError;
 use crate::bytecode::{Bytecode, Constant};
-use crate::macros::downcast;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::integer::BelalangInteger;
 use crate::opcode;
@@ -335,14 +334,7 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    // TODO: Remove this downcast macro. I am thinking of
-                    // having a `truthy` method for dyn BelalangType. Whenever
-                    // I need to check for truthyness I can just call the
-                    // `truthy` method.
-
-                    let value = downcast!(right, BelalangBoolean);
-
-                    if !value.0 {
+                    if !right.truthy() {
                         self.increment_ip(relative as usize);
                     }
                 }

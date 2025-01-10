@@ -23,6 +23,10 @@ impl BelalangType for BelalangInteger {
         self
     }
 
+    fn truthy(&self) -> bool {
+        self.0 != 0
+    }
+
     fn add(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
         let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
             return Err(RuntimeError::TypeError);

@@ -16,6 +16,10 @@ pub trait BelalangType: Display + Debug {
         self.type_name() == other.type_name()
     }
 
+    fn truthy(&self) -> bool {
+        false
+    }
+
     fn add(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
