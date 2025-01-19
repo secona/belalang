@@ -1,4 +1,7 @@
-use std::{any::Any, fmt::{Debug, Display}};
+use std::any::Any;
+use std::fmt::{Debug, Display};
+use std::hash::DefaultHasher;
+use std::hash::{Hash, Hasher};
 
 use crate::errors::RuntimeError;
 
@@ -11,6 +14,13 @@ pub mod integer;
 pub trait BelalangType: Display + Debug {
     fn type_name(&self) -> &str;
     fn as_any(&self) -> &dyn Any;
+
+    fn type_id(&self) -> u32 {
+        let mut hasher = DefaultHasher::new();
+        self.type_name().hash(&mut hasher);
+        let hash = hasher.finish();
+        hash as u32
+    }
 
     fn equal_type(&self, other: &dyn BelalangType) -> bool {
         self.type_name() == other.type_name()
