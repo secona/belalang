@@ -44,29 +44,39 @@ impl Heap {
         Ok(())
     }
 
-    pub fn dealloc<T>(&mut self, ptr: NonNull<T>) -> Result<(), RuntimeError> {
+    /// # Safety
+    /// 
+    /// This function is unsafe because:
+    /// - It deallocates memory pointed to by `ptr`, which must have been previously allocated by this allocator
+    /// - The pointer must be valid and properly aligned for type T
+    /// - After deallocation, the memory must not be accessed or freed again
+    /// - No references to the freed memory may exist after this call
+    /// 
+    /// Caller must ensure:
+    /// - The pointer was allocated using this allocator's corresponding allocation method
+    /// - The type T matches the type that was originally allocated
+    /// - No other parts of the program retain references to this memory after deallocation
+    pub unsafe fn dealloc<T>(&mut self, ptr: NonNull<T>) -> Result<(), RuntimeError> {
         let layout = Layout::new::<T>();
 
         let object_ptr = ptr.as_ptr() as *mut BelalangObject;
 
-        unsafe {
-            if let Some(start) = self.start {
-                if start.as_ptr() == object_ptr {
-                    self.start = (*object_ptr).next;
-                } else {
-                    let mut current = start;
-                    while let Some(next) = (*current.as_ptr()).next {
-                        if next.as_ptr() == object_ptr {
-                            (*current.as_ptr()).next = (*object_ptr).next;
-                            break;
-                        }
-                        current = next;
+        if let Some(start) = self.start {
+            if start.as_ptr() == object_ptr {
+                self.start = (*object_ptr).next;
+            } else {
+                let mut current = start;
+                while let Some(next) = (*current.as_ptr()).next {
+                    if next.as_ptr() == object_ptr {
+                        (*current.as_ptr()).next = (*object_ptr).next;
+                        break;
                     }
+                    current = next;
                 }
             }
-
-            dealloc(ptr.as_ptr() as *mut u8, layout);
         }
+
+        dealloc(ptr.as_ptr() as *mut u8, layout);
 
         Ok(())
     }
@@ -227,7 +237,7 @@ mod tests {
 
             assert_eq!(integer.value, *d);
 
-            heap.dealloc(c).unwrap();
+            unsafe { heap.dealloc(c).unwrap() };
 
             current = object.next;
         }
