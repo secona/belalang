@@ -89,12 +89,13 @@ impl Drop for Heap {
 mod tests {
     use test_case::test_case;
 
+    use crate::types::boolean::BelalangBoolean;
     use crate::types::BelalangType;
     use crate::types::integer::BelalangInteger;
 
     use super::*;
 
-    #[test_case(vec![1, 2, 3])]
+    #[test_case(vec![1, 2, 3]; "1")]
     fn heap_alloc(data: Vec<i64>) {
         let mut heap = Heap::default();
 
@@ -130,7 +131,74 @@ mod tests {
         assert!(current.is_none());
     }
 
-    #[test_case(vec![1, 2, 3])]
+    #[derive(Debug)]
+    enum Type {
+        Integer(i64),
+        Boolean(bool),
+    }
+
+    #[test_case(vec![Type::Integer(1), Type::Boolean(true)]; "1")]
+    #[test_case(vec![Type::Integer(1), Type::Boolean(true), Type::Boolean(false)]; "2")]
+    #[test_case(vec![Type::Integer(1), Type::Boolean(true), Type::Integer(100)]; "3")]
+    fn heap_alloc_multiple_types(data: Vec<Type>) {
+        let mut heap = Heap::default();
+
+        for i in &data {
+            match i {
+                Type::Integer(integer) => {
+                    let value = BelalangInteger::new(*integer);
+                    heap.alloc(value).unwrap();
+                },
+                Type::Boolean(boolean) => {
+                    let value = BelalangBoolean::new(*boolean);
+                    heap.alloc(value).unwrap();
+                }
+            };
+        }
+
+        let mut current = heap.start;
+
+        for d in data.iter().rev() {
+            let Some(c) = current else {
+                panic!("Error: Unexpected None at heap.start");
+            };
+
+            let object = unsafe {
+                let ptr = c.as_ptr() as *const BelalangObject;
+                ptr.read()
+            };
+
+            match d {
+                Type::Integer(integer) => {
+                    assert_eq!(object.obj_type, BelalangInteger::r#type());
+
+                    let object = unsafe {
+                        let ptr = c.as_ptr() as *const BelalangInteger;
+                        ptr.read()
+                    };
+
+                    assert_eq!(object.value, *integer);
+                },
+                Type::Boolean(boolean) => {
+                    assert_eq!(object.obj_type, BelalangBoolean::r#type());
+
+                    let object = unsafe {
+                        let ptr = c.as_ptr() as *const BelalangBoolean;
+                        ptr.read()
+                    };
+
+                    assert_eq!(object.value, *boolean);
+                }
+            };
+
+
+            current = object.next;
+        }
+
+        assert!(current.is_none());
+    }
+
+    #[test_case(vec![1, 2, 3]; "1")]
     fn heap_dealloc(data: Vec<i64>) {
         let mut heap = Heap::default();
 
