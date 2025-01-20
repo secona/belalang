@@ -1,22 +1,38 @@
 use std::fmt::Display;
 
-use crate::errors::RuntimeError;
-use crate::types::BelalangType;
+use crate::{errors::RuntimeError, types::BelalangType};
 
-use super::boolean::BelalangBoolean;
+use super::{boolean::BelalangBoolean, BelalangObject};
 
-#[derive(Debug, Clone)]
-pub struct BelalangInteger(pub i64);
+#[repr(C)]
+#[derive(Debug)]
+pub struct BelalangInteger {
+    pub base: BelalangObject,
+    pub value: i64,
+}
+
+impl BelalangInteger {
+    pub fn new(value: i64) -> Self {
+        Self {
+            base: BelalangObject {
+                obj_type: Self::r#type(),
+                is_marked: false,
+                next: std::ptr::null_mut(),
+            },
+            value,
+        }
+    }
+}
 
 impl Display for BelalangInteger {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{}", self.value)
     }
 }
 
 impl BelalangType for BelalangInteger {
-    fn type_name(&self) -> &str {
-        "Integer"
+    fn type_name() -> String {
+        "Integer".into()
     }
 
     fn as_any(&self) -> &dyn std::any::Any {
@@ -24,7 +40,7 @@ impl BelalangType for BelalangInteger {
     }
 
     fn truthy(&self) -> bool {
-        self.0 != 0
+        self.value != 0
     }
 
     fn add(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -32,9 +48,9 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        self.0
-            .checked_add(other.0)
-            .map(Self)
+        self.value
+            .checked_add(other.value)
+            .map(Self::new)
             .map(|v| Box::new(v) as _)
             .ok_or(RuntimeError::IntegerOverflow)
     }
@@ -44,9 +60,9 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        self.0
-            .checked_sub(other.0)
-            .map(Self)
+        self.value
+            .checked_sub(other.value)
+            .map(Self::new)
             .map(|v| Box::new(v) as _)
             .ok_or(RuntimeError::IntegerOverflow)
     }
@@ -56,9 +72,9 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        self.0
-            .checked_mul(other.0)
-            .map(Self)
+        self.value
+            .checked_mul(other.value)
+            .map(Self::new)
             .map(|v| Box::new(v) as _)
             .ok_or(RuntimeError::IntegerOverflow)
     }
@@ -68,9 +84,9 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        self.0
-            .checked_div(other.0)
-            .map(Self)
+        self.value
+            .checked_div(other.value)
+            .map(Self::new)
             .map(|v| Box::new(v) as _)
             .ok_or(RuntimeError::IntegerOverflow)
     }
@@ -80,9 +96,9 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        self.0
-            .checked_rem(other.0)
-            .map(Self)
+        self.value
+            .checked_rem(other.value)
+            .map(Self::new)
             .map(|v| Box::new(v) as _)
             .ok_or(RuntimeError::IntegerOverflow)
     }
@@ -92,7 +108,7 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangBoolean(self.0 == other.0)))
+        Ok(Box::new(BelalangBoolean::new(self.value == other.value)))
     }
 
     fn ne(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -100,7 +116,7 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangBoolean(self.0 != other.0)))
+        Ok(Box::new(BelalangBoolean::new(self.value != other.value)))
     }
 
     fn lt(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -108,7 +124,7 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangBoolean(self.0 < other.0)))
+        Ok(Box::new(BelalangBoolean::new(self.value < other.value)))
     }
 
     fn le(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -116,7 +132,7 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangBoolean(self.0 <= other.0)))
+        Ok(Box::new(BelalangBoolean::new(self.value <= other.value)))
     }
 
     fn bit_and(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -124,7 +140,7 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangInteger(self.0 & other.0)))
+        Ok(Box::new(BelalangInteger::new(self.value & other.value)))
     }
 
     fn bit_or(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -132,7 +148,7 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangInteger(self.0 | other.0)))
+        Ok(Box::new(BelalangInteger::new(self.value | other.value)))
     }
 
     fn bit_xor(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -140,7 +156,7 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangInteger(self.0 ^ other.0)))
+        Ok(Box::new(BelalangInteger::new(self.value ^ other.value)))
     }
 
     fn bit_sl(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -148,7 +164,7 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangInteger(self.0 << other.0)))
+        Ok(Box::new(BelalangInteger::new(self.value << other.value)))
     }
 
     fn bit_sr(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -156,10 +172,10 @@ impl BelalangType for BelalangInteger {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangInteger(self.0 >> other.0)))
+        Ok(Box::new(BelalangInteger::new(self.value >> other.value)))
     }
 
     fn neg(&self) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        Ok(Box::new(BelalangInteger(-self.0)))
+        Ok(Box::new(BelalangInteger::new(-self.value)))
     }
 }

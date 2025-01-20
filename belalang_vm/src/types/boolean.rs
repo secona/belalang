@@ -1,20 +1,38 @@
 use std::fmt::Display;
 
-use crate::errors::RuntimeError;
-use crate::types::BelalangType;
+use crate::{errors::RuntimeError, types::BelalangType};
 
-#[derive(Debug, Clone)]
-pub struct BelalangBoolean(pub bool);
+use super::BelalangObject;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct BelalangBoolean {
+    pub base: BelalangObject,
+    pub value: bool,
+}
+
+impl BelalangBoolean {
+    pub fn new(value: bool) -> Self {
+        Self {
+            base: BelalangObject {
+                obj_type: Self::r#type(),
+                is_marked: false,
+                next: std::ptr::null_mut(),
+            },
+            value,
+        }
+    }
+}
 
 impl Display for BelalangBoolean {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{}", self.value)
     }
 }
 
 impl BelalangType for BelalangBoolean {
-    fn type_name(&self) -> &str {
-        "Boolean"
+    fn type_name() -> String {
+        "Boolean".into()
     }
 
     fn as_any(&self) -> &dyn std::any::Any {
@@ -22,7 +40,7 @@ impl BelalangType for BelalangBoolean {
     }
 
     fn truthy(&self) -> bool {
-        self.0
+        self.value
     }
 
     fn and(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -30,7 +48,7 @@ impl BelalangType for BelalangBoolean {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangBoolean(self.0 && other.0)))
+        Ok(Box::new(BelalangBoolean::new(self.value && other.value)))
     }
 
     fn or(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
@@ -38,10 +56,10 @@ impl BelalangType for BelalangBoolean {
             return Err(RuntimeError::TypeError);
         };
 
-        Ok(Box::new(BelalangBoolean(self.0 || other.0)))
+        Ok(Box::new(BelalangBoolean::new(self.value || other.value)))
     }
 
     fn not(&self) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        Ok(Box::new(BelalangBoolean(!self.0)))
+        Ok(Box::new(BelalangBoolean::new(!self.value)))
     }
 }

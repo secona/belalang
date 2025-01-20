@@ -39,7 +39,7 @@ mod stack_op {
             panic!()
         };
 
-        assert_eq!(int.0, 12);
+        assert_eq!(int.value, 12);
     }
 }
 
@@ -65,15 +65,19 @@ fn arithmetic_op(a: i64, b: i64, op: u8) -> i64 {
 
     assert_eq!(vm.stack.size(), 1);
 
-    let Ok(obj) = vm.stack.pop() else { panic!() };
-    let StackObject::Object(object) = obj else {
-        panic!()
-    };
-    let Some(int) = object.as_any().downcast_ref::<BelalangInteger>() else {
-        panic!()
+    let Ok(obj) = vm.stack.pop() else {
+        panic!("Failed popping from the stack!");
     };
 
-    int.0
+    let StackObject::Object(object) = obj else {
+        panic!("TOS is not an Object!");
+    };
+
+    let Some(int) = object.as_any().downcast_ref::<BelalangInteger>() else {
+        panic!("Failed downcasting to BelalangInteger!");
+    };
+
+    int.value
 }
 
 #[test_case(12, 12, opcode::EQUAL => true; "equal")]
@@ -105,7 +109,7 @@ fn number_comparison_op(a: i64, b: i64, op: u8) -> bool {
         panic!()
     };
 
-    boolean.0
+    boolean.value
 }
 
 #[test_case(true, true, opcode::EQUAL => true; "equal")]
@@ -135,7 +139,7 @@ fn boolean_comparison_op(a: bool, b: bool, op: u8) -> bool {
         panic!()
     };
 
-    boolean.0
+    boolean.value
 }
 
 #[test_case(true, false, opcode::AND => false; "and")]
@@ -165,7 +169,7 @@ fn logical_op(a: bool, b: bool, op: u8) -> bool {
         panic!()
     };
 
-    boolean.0
+    boolean.value
 }
 
 #[test_case(12, 1, opcode::BIT_AND => 0; "bit and")]
@@ -198,7 +202,7 @@ fn bitwise_op(a: i64, b: i64, op: u8) -> i64 {
         panic!()
     };
 
-    int.0
+    int.value
 }
 
 mod jump_op {
@@ -230,7 +234,7 @@ mod jump_op {
             panic!()
         };
 
-        assert_eq!(boolean.0, false);
+        assert_eq!(boolean.value, false);
     }
 
     #[test]
@@ -260,7 +264,7 @@ mod jump_op {
             panic!()
         };
 
-        assert_eq!(boolean.0, false);
+        assert_eq!(boolean.value, false);
 
         let Ok(obj) = vm.stack.pop() else { panic!() };
         let StackObject::Object(object) = obj else {
@@ -270,7 +274,7 @@ mod jump_op {
             panic!()
         };
 
-        assert_eq!(boolean.0, true);
+        assert_eq!(boolean.value, true);
     }
 }
 
@@ -302,7 +306,7 @@ mod unary_op {
             panic!()
         };
 
-        assert_eq!(boolean.0, false);
+        assert_eq!(boolean.value, false);
     }
 
     #[test]
@@ -330,6 +334,6 @@ mod unary_op {
             panic!()
         };
 
-        assert_eq!(int.0, -12);
+        assert_eq!(int.value, -12);
     }
 }

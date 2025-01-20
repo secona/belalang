@@ -105,7 +105,7 @@ mod tests {
         ($top:expr, $value:expr) => {
             assert!(matches!(
                 $top,
-                StackObject::Object(obj) if *obj == Box::new(BelalangInteger($value))
+                StackObject::Object(obj) if *obj == Box::new(BelalangInteger::new($value))
             ));
         };
     }
@@ -115,7 +115,7 @@ mod tests {
         let mut stack = Stack::new();
 
         stack
-            .push(StackObject::Object(Box::new(BelalangInteger(10))))
+            .push(StackObject::Object(Box::new(BelalangInteger::new(10))))
             .unwrap();
 
         assert_belalang_integer!(stack.top().unwrap(), 10);
@@ -126,13 +126,13 @@ mod tests {
         let mut stack = Stack::new();
 
         stack
-            .push(StackObject::Object(Box::new(BelalangInteger(10))))
+            .push(StackObject::Object(Box::new(BelalangInteger::new(10))))
             .unwrap();
         stack
-            .push(StackObject::Object(Box::new(BelalangInteger(11))))
+            .push(StackObject::Object(Box::new(BelalangInteger::new(11))))
             .unwrap();
         stack
-            .push(StackObject::Object(Box::new(BelalangInteger(12))))
+            .push(StackObject::Object(Box::new(BelalangInteger::new(12))))
             .unwrap();
 
         assert_belalang_integer!(&stack.pop().unwrap(), 12);

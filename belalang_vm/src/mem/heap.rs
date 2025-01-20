@@ -19,7 +19,6 @@ use crate::types::BelalangType;
 #[derive(Debug, PartialEq)]
 pub struct ObjectHeader {
     pub marked: bool,
-    pub type_id: u32,
 }
 
 #[derive(Debug, PartialEq)]
@@ -58,7 +57,6 @@ impl<T: BelalangType> Heap<T> {
             object_ptr.write(Object {
                 header: ObjectHeader {
                     marked: false,
-                    type_id: data.type_id(),
                 },
                 data,
                 next: self.start,
@@ -87,7 +85,7 @@ mod tests {
         let mut heap = Heap::default();
 
         for i in &data {
-            let value = BelalangInteger(*i);
+            let value = BelalangInteger::new(*i);
             heap.alloc(value).unwrap();
         }
 
@@ -97,7 +95,7 @@ mod tests {
             let object = unsafe { current.unwrap().read() };
 
             assert_eq!(object.header.marked, false);
-            assert_eq!(object.data.0, *d);
+            assert_eq!(object.data.value, *d);
 
             current = object.next;
         }

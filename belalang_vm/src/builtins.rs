@@ -7,7 +7,7 @@ pub static BUILTIN_FUNCTIONS: &[(&str, BuiltinFn)] = &[("print", |args| {
     // TODO: handle null values
 
     println!("{}", args.first().unwrap());
-    Box::new(BelalangInteger(0))
+    Box::new(BelalangInteger::new(0))
 })];
 
 pub fn lookup_builtin(name: &str) -> Option<BuiltinFn> {

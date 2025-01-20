@@ -8,23 +8,26 @@ use crate::errors::RuntimeError;
 pub mod boolean;
 pub mod integer;
 
-// I allow unused_variables to prevent the `other` variable
-// of needing an underscore at the start.
+#[repr(C)]
+#[derive(Debug)]
+pub struct BelalangObject {
+    obj_type: u32,
+    is_marked: bool,
+    next: *mut BelalangObject,
+}
+
 #[allow(unused_variables)]
 pub trait BelalangType: Display + Debug {
-    fn type_name(&self) -> &str;
-    fn as_any(&self) -> &dyn Any;
+    fn type_name() -> String where Self: Sized;
 
-    fn type_id(&self) -> u32 {
+    fn r#type() -> u32 where Self: Sized {
         let mut hasher = DefaultHasher::new();
-        self.type_name().hash(&mut hasher);
+        Self::type_name().hash(&mut hasher);
         let hash = hasher.finish();
         hash as u32
     }
 
-    fn equal_type(&self, other: &dyn BelalangType) -> bool {
-        self.type_name() == other.type_name()
-    }
+    fn as_any(&self) -> &dyn Any;
 
     fn truthy(&self) -> bool {
         false
@@ -105,7 +108,7 @@ pub trait BelalangType: Display + Debug {
 
 impl PartialEq for dyn BelalangType {
     fn eq(&self, other: &Self) -> bool {
-        // Temporary implementation
-        self.equal_type(other) && format!("{}", self) == format!("{}", other)
+        // TODO: Fix this!
+        format!("{}", self) == format!("{}", other)
     }
 }

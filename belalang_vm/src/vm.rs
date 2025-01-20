@@ -110,10 +110,10 @@ impl VM {
 
                     let object = match constant {
                         Constant::Integer(int) => {
-                            StackObject::Object(Box::new(BelalangInteger(int)))
+                            StackObject::Object(Box::new(BelalangInteger::new(int)))
                         }
                         Constant::Boolean(boolean) => {
-                            StackObject::Object(Box::new(BelalangBoolean(boolean)))
+                            StackObject::Object(Box::new(BelalangBoolean::new(boolean)))
                         }
                         _ => panic!(),
                     };
@@ -122,11 +122,11 @@ impl VM {
                 }
 
                 opcode::TRUE => {
-                    self.stack.push(StackObject::Object(Box::new(BelalangBoolean(true))))?;
+                    self.stack.push(StackObject::Object(Box::new(BelalangBoolean::new(true))))?;
                 }
 
                 opcode::FALSE => {
-                    self.stack.push(StackObject::Object(Box::new(BelalangBoolean(false))))?;
+                    self.stack.push(StackObject::Object(Box::new(BelalangBoolean::new(false))))?;
                 }
 
                 opcode::NULL => {
@@ -144,7 +144,7 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let result = BelalangBoolean(left == right);
+                    let result = BelalangBoolean::new(left == right);
                     self.stack.push(StackObject::Object(Box::new(result)))?;
                 }
 
@@ -159,7 +159,7 @@ impl VM {
                         return Err(RuntimeError::TypeError);
                     };
 
-                    let result = BelalangBoolean(left != right);
+                    let result = BelalangBoolean::new(left != right);
                     self.stack.push(StackObject::Object(Box::new(result)))?;
                 }
 
