@@ -2,6 +2,7 @@ use std::any::Any;
 use std::fmt::{Debug, Display};
 use std::hash::DefaultHasher;
 use std::hash::{Hash, Hasher};
+use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
 
@@ -11,9 +12,9 @@ pub mod integer;
 #[repr(C)]
 #[derive(Debug)]
 pub struct BelalangObject {
-    obj_type: u32,
-    is_marked: bool,
-    next: *mut BelalangObject,
+    pub obj_type: u32,
+    pub is_marked: bool,
+    pub next: Option<NonNull<BelalangObject>>,
 }
 
 #[allow(unused_variables)]

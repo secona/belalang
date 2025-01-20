@@ -17,7 +17,7 @@ impl BelalangInteger {
             base: BelalangObject {
                 obj_type: Self::r#type(),
                 is_marked: false,
-                next: std::ptr::null_mut(),
+                next: None,
             },
             value,
         }
