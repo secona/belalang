@@ -72,6 +72,18 @@ impl Heap {
     }
 }
 
+impl Drop for Heap {
+    fn drop(&mut self) {
+        while let Some(ptr) = self.start {
+            unsafe {
+                let layout = Layout::new::<BelalangObject>();
+                self.start = (*ptr.as_ptr()).next;
+                dealloc(ptr.as_ptr() as *mut u8, layout);
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 #[allow(clippy::bool_assert_comparison)]
 mod tests {
@@ -154,5 +166,12 @@ mod tests {
         }
 
         assert!(current.is_none());
+    }
+
+    #[test]
+    fn heap_drop() {
+        let mut heap = Heap::default();
+        heap.alloc(BelalangInteger::new(1)).unwrap();
+        drop(heap);
     }
 }
