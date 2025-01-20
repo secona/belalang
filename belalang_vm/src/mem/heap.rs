@@ -1,22 +1,13 @@
-use std::alloc::{alloc, Layout};
+use std::alloc::{alloc, dealloc, Layout};
+use std::marker::PhantomData;
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
 use crate::types::BelalangObject;
 
-/* The implementation is still wrong. Currently, the heap can only store one
- * type of value. This is clearly not the end goal: the heap needs to be able
- * to store multiple types of values.
- *
- * I think the BelalangType implementation can be at blame here. Using trait
- * objects is a bit tricky to say the least. I am thinking of using dynamic
- * dispatch, where the alloc function is implemented as a struct method.
- * This approach makes sense considering each type may have different ways
- * to allocate their memory.
- */
-
 pub struct Heap {
     pub start: Option<NonNull<BelalangObject>>,
+    _marker: PhantomData<BelalangObject>,
 }
 
 #[allow(clippy::derivable_impls)]
@@ -24,6 +15,7 @@ impl Default for Heap {
     fn default() -> Self {
         Self {
             start: None,
+            _marker: PhantomData,
         }
     }
 }
@@ -48,6 +40,33 @@ impl Heap {
         };
 
         self.start = Some(object_ptr);
+
+        Ok(())
+    }
+
+    pub fn dealloc<T>(&mut self, ptr: NonNull<T>) -> Result<(), RuntimeError> {
+        let layout = Layout::new::<T>();
+
+        let object_ptr = ptr.as_ptr() as *mut BelalangObject;
+
+        unsafe {
+            if let Some(start) = self.start {
+                if start.as_ptr() == object_ptr {
+                    self.start = (*object_ptr).next;
+                } else {
+                    let mut current = start;
+                    while let Some(next) = (*current.as_ptr()).next {
+                        if next.as_ptr() == object_ptr {
+                            (*current.as_ptr()).next = (*object_ptr).next;
+                            break;
+                        }
+                        current = next;
+                    }
+                }
+            }
+
+            dealloc(ptr.as_ptr() as *mut u8, layout);
+        }
 
         Ok(())
     }
@@ -92,6 +111,44 @@ mod tests {
             };
 
             assert_eq!(integer.value, *d);
+
+            current = object.next;
+        }
+
+        assert!(current.is_none());
+    }
+
+    #[test_case(vec![1, 2, 3])]
+    fn heap_dealloc(data: Vec<i64>) {
+        let mut heap = Heap::default();
+
+        for i in &data {
+            let value = BelalangInteger::new(*i);
+            heap.alloc(value).unwrap();
+        }
+
+        let mut current = heap.start;
+
+        for d in data.iter().rev() {
+            let Some(c) = current else {
+                panic!("Error: Unexpected None at heap.start");
+            };
+
+            let object = unsafe {
+                let ptr = c.as_ptr() as *const BelalangObject;
+                ptr.read()
+            };
+
+            assert_eq!(object.obj_type, BelalangInteger::r#type());
+
+            let integer = unsafe {
+                let ptr = c.as_ptr() as *const BelalangInteger;
+                ptr.read()
+            };
+
+            assert_eq!(integer.value, *d);
+            
+            heap.dealloc(c).unwrap();
 
             current = object.next;
         }
