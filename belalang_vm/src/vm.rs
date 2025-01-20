@@ -1,9 +1,9 @@
-use crate::errors::RuntimeError;
 use crate::bytecode::{Bytecode, Constant};
+use crate::errors::RuntimeError;
+use crate::mem::stack::{Stack, StackObject};
+use crate::opcode;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::integer::BelalangInteger;
-use crate::opcode;
-use crate::mem::stack::{Stack, StackObject};
 
 #[derive(Default)]
 pub struct VM {
@@ -122,11 +122,13 @@ impl VM {
                 }
 
                 opcode::TRUE => {
-                    self.stack.push(StackObject::Object(Box::new(BelalangBoolean::new(true))))?;
+                    self.stack
+                        .push(StackObject::Object(Box::new(BelalangBoolean::new(true))))?;
                 }
 
                 opcode::FALSE => {
-                    self.stack.push(StackObject::Object(Box::new(BelalangBoolean::new(false))))?;
+                    self.stack
+                        .push(StackObject::Object(Box::new(BelalangBoolean::new(false))))?;
                 }
 
                 opcode::NULL => {

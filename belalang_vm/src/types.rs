@@ -19,9 +19,14 @@ pub struct BelalangObject {
 
 #[allow(unused_variables)]
 pub trait BelalangType: Display + Debug {
-    fn type_name() -> String where Self: Sized;
+    fn type_name() -> String
+    where
+        Self: Sized;
 
-    fn r#type() -> u32 where Self: Sized {
+    fn r#type() -> u32
+    where
+        Self: Sized,
+    {
         let mut hasher = DefaultHasher::new();
         Self::type_name().hash(&mut hasher);
         let hash = hasher.finish();
@@ -113,3 +118,26 @@ impl PartialEq for dyn BelalangType {
         format!("{}", self) == format!("{}", other)
     }
 }
+
+macro_rules! match_belalang_type {
+    ($other:expr, $($type:ty => $body:expr),* $(,)?) => {
+        match $other.as_any() {
+            $(
+                x if x.is::<$type>() => {
+                    let other = $other
+                        .as_any()
+                        .downcast_ref::<$type>()
+                        .expect("Type check succeeded but downcast failed");
+                    $body(other)
+                },
+            )*
+            _ => Err(RuntimeError::TypeError),
+        }
+    };
+
+    ($other:expr, $($type:ty => $body:expr),*) => {
+        match_belalang_type!($other, $($type => $body),*,)
+    };
+}
+
+pub(crate) use match_belalang_type;

@@ -14,7 +14,6 @@ pub enum RuntimeError {
 
     // #[error("invalid operation: {0} {1} {2}")]
     // InvalidOperation(Object, String, Object),
-
     #[error("attempt to call non-function")]
     NotAFunction,
 

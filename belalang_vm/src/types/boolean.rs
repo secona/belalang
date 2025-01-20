@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
-use crate::{errors::RuntimeError, types::BelalangType};
+use crate::errors::RuntimeError;
+use crate::types::{match_belalang_type, BelalangType};
 
 use super::BelalangObject;
 
@@ -44,19 +45,19 @@ impl BelalangType for BelalangBoolean {
     }
 
     fn and(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangBoolean>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangBoolean::new(self.value && other.value)))
+        match_belalang_type!(other,
+            BelalangBoolean => |other: &BelalangBoolean| {
+                Ok(Box::new(BelalangBoolean::new(self.value && other.value)) as _)
+            },
+        )
     }
 
     fn or(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangBoolean>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangBoolean::new(self.value || other.value)))
+        match_belalang_type!(other,
+            BelalangBoolean => |other: &BelalangBoolean| {
+                Ok(Box::new(BelalangBoolean::new(self.value || other.value)) as _)
+            },
+        )
     }
 
     fn not(&self) -> Result<Box<dyn BelalangType>, RuntimeError> {

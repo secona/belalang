@@ -90,8 +90,8 @@ mod tests {
     use test_case::test_case;
 
     use crate::types::boolean::BelalangBoolean;
-    use crate::types::BelalangType;
     use crate::types::integer::BelalangInteger;
+    use crate::types::BelalangType;
 
     use super::*;
 
@@ -148,7 +148,7 @@ mod tests {
                 Type::Integer(integer) => {
                     let value = BelalangInteger::new(*integer);
                     heap.alloc(value).unwrap();
-                },
+                }
                 Type::Boolean(boolean) => {
                     let value = BelalangBoolean::new(*boolean);
                     heap.alloc(value).unwrap();
@@ -178,7 +178,7 @@ mod tests {
                     };
 
                     assert_eq!(object.value, *integer);
-                },
+                }
                 Type::Boolean(boolean) => {
                     assert_eq!(object.obj_type, BelalangBoolean::r#type());
 
@@ -190,7 +190,6 @@ mod tests {
                     assert_eq!(object.value, *boolean);
                 }
             };
-
 
             current = object.next;
         }
@@ -227,7 +226,7 @@ mod tests {
             };
 
             assert_eq!(integer.value, *d);
-            
+
             heap.dealloc(c).unwrap();
 
             current = object.next;

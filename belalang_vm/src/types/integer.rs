@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::{errors::RuntimeError, types::BelalangType};
 
-use super::{boolean::BelalangBoolean, BelalangObject};
+use super::{boolean::BelalangBoolean, match_belalang_type, BelalangObject};
 
 #[repr(C)]
 #[derive(Debug)]
@@ -44,135 +44,125 @@ impl BelalangType for BelalangInteger {
     }
 
     fn add(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        self.value
-            .checked_add(other.value)
-            .map(Self::new)
-            .map(|v| Box::new(v) as _)
-            .ok_or(RuntimeError::IntegerOverflow)
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| self.value
+                .checked_add(other.value)
+                .map(Self::new)
+                .map(|v| Box::new(v) as _)
+                .ok_or(RuntimeError::IntegerOverflow)
+        )
     }
 
     fn sub(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        self.value
-            .checked_sub(other.value)
-            .map(Self::new)
-            .map(|v| Box::new(v) as _)
-            .ok_or(RuntimeError::IntegerOverflow)
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| self.value
+                .checked_sub(other.value)
+                .map(Self::new)
+                .map(|v| Box::new(v) as _)
+                .ok_or(RuntimeError::IntegerOverflow)
+        )
     }
 
     fn mul(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        self.value
-            .checked_mul(other.value)
-            .map(Self::new)
-            .map(|v| Box::new(v) as _)
-            .ok_or(RuntimeError::IntegerOverflow)
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| self.value
+                .checked_mul(other.value)
+                .map(Self::new)
+                .map(|v| Box::new(v) as _)
+                .ok_or(RuntimeError::IntegerOverflow)
+        )
     }
 
     fn div(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        self.value
-            .checked_div(other.value)
-            .map(Self::new)
-            .map(|v| Box::new(v) as _)
-            .ok_or(RuntimeError::IntegerOverflow)
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| self.value
+                .checked_div(other.value)
+                .map(Self::new)
+                .map(|v| Box::new(v) as _)
+                .ok_or(RuntimeError::IntegerOverflow)
+        )
     }
 
     fn r#mod(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        self.value
-            .checked_rem(other.value)
-            .map(Self::new)
-            .map(|v| Box::new(v) as _)
-            .ok_or(RuntimeError::IntegerOverflow)
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| self.value
+                .checked_rem(other.value)
+                .map(Self::new)
+                .map(|v| Box::new(v) as _)
+                .ok_or(RuntimeError::IntegerOverflow)
+        )
     }
 
     fn eq(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangBoolean::new(self.value == other.value)))
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                Ok(Box::new(BelalangBoolean::new(self.value == other.value)) as _)
+            }
+        )
     }
 
     fn ne(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangBoolean::new(self.value != other.value)))
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                Ok(Box::new(BelalangBoolean::new(self.value != other.value)) as _)
+            }
+        )
     }
 
     fn lt(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangBoolean::new(self.value < other.value)))
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                Ok(Box::new(BelalangBoolean::new(self.value < other.value)) as _)
+            }
+        )
     }
 
     fn le(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangBoolean::new(self.value <= other.value)))
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                Ok(Box::new(BelalangBoolean::new(self.value <= other.value)) as _)
+            }
+        )
     }
 
     fn bit_and(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangInteger::new(self.value & other.value)))
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                Ok(Box::new(BelalangInteger::new(self.value & other.value)) as _)
+            }
+        )
     }
 
     fn bit_or(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangInteger::new(self.value | other.value)))
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                Ok(Box::new(BelalangInteger::new(self.value | other.value)) as _)
+            }
+        )
     }
 
     fn bit_xor(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangInteger::new(self.value ^ other.value)))
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                Ok(Box::new(BelalangInteger::new(self.value ^ other.value)) as _)
+            }
+        )
     }
 
     fn bit_sl(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangInteger::new(self.value << other.value)))
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                Ok(Box::new(BelalangInteger::new(self.value << other.value)) as _)
+            }
+        )
     }
 
     fn bit_sr(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        let Some(other) = other.as_any().downcast_ref::<BelalangInteger>() else {
-            return Err(RuntimeError::TypeError);
-        };
-
-        Ok(Box::new(BelalangInteger::new(self.value >> other.value)))
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                Ok(Box::new(BelalangInteger::new(self.value >> other.value)) as _)
+            }
+        )
     }
 
     fn neg(&self) -> Result<Box<dyn BelalangType>, RuntimeError> {

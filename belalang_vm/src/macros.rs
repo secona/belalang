@@ -5,11 +5,9 @@ macro_rules! downcast {
     ($obj:ident, $type:ty) => {
         match $obj.as_any().downcast_ref::<$type>() {
             Some(obj) => obj,
-            // TODO: Change this to the correct runtime error
-            _ => return Err(RuntimeError::IntegerOverflow),
+            _ => return Err(RuntimeError::TypeError),
         }
     };
 }
 
 pub(crate) use downcast;
-

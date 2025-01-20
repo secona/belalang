@@ -1,5 +1,5 @@
-use crate::types::BelalangType;
 use crate::errors::RuntimeError;
+use crate::types::BelalangType;
 
 const STACK_SIZE: usize = 4096;
 
