@@ -2,26 +2,12 @@ use std::any::Any;
 use std::fmt::{Debug, Display};
 use std::hash::DefaultHasher;
 use std::hash::{Hash, Hasher};
-use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
 
 pub mod boolean;
 pub mod integer;
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct BelalangObject {
-    pub obj_type: u32,
-    pub is_marked: bool,
-    pub next: Option<NonNull<BelalangObject>>,
-}
-
-impl PartialEq for BelalangObject {
-    fn eq(&self, other: &Self) -> bool {
-        self.obj_type == other.obj_type
-    }
-}
+pub mod object;
 
 #[allow(unused_variables)]
 pub trait BelalangType: Display + Debug {

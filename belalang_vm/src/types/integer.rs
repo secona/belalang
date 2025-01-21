@@ -1,8 +1,10 @@
 use std::fmt::Display;
 
-use crate::{errors::RuntimeError, types::BelalangType};
-
-use super::{boolean::BelalangBoolean, match_belalang_type, BelalangObject};
+use crate::errors::RuntimeError;
+use crate::types::boolean::BelalangBoolean;
+use crate::types::match_belalang_type;
+use crate::types::object::BelalangObject;
+use crate::types::BelalangType;
 
 #[repr(C)]
 #[derive(Debug)]

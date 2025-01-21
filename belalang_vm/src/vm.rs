@@ -7,7 +7,8 @@ use crate::mem::stack::{Stack, StackObject};
 use crate::opcode;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::integer::BelalangInteger;
-use crate::types::{BelalangObject, BelalangType};
+use crate::types::object::BelalangObject;
+use crate::types::BelalangType;
 
 #[derive(Default)]
 pub struct VM {
@@ -37,7 +38,6 @@ impl VM {
                 // NOTE: Next up, change the `Box::into_raw` into a call to
                 // `self.heap.alloc`. I am using `Box::into_raw` because the
                 // type implementation hasn't been updated.
-
                 opcode::ADD => {
                     let StackObject::Object(right) = self.stack.pop()? else {
                         return Err(RuntimeError::TypeError);
@@ -59,7 +59,8 @@ impl VM {
 
                     let result = left.add(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::SUB => {
@@ -83,7 +84,8 @@ impl VM {
 
                     let result = left.sub(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::MUL => {
@@ -107,7 +109,8 @@ impl VM {
 
                     let result = left.mul(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::DIV => {
@@ -131,7 +134,8 @@ impl VM {
 
                     let result = left.div(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::MOD => {
@@ -155,7 +159,8 @@ impl VM {
 
                     let result = left.r#mod(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::CONSTANT => {
@@ -194,7 +199,6 @@ impl VM {
                 // NOTE: The EQUAL and NOT_EQUAL operator are currently
                 // comparing types only. I still have no idea on how to
                 // implement value comparison.
-
                 opcode::EQUAL => {
                     let StackObject::Object(right) = self.stack.pop()? else {
                         return Err(RuntimeError::TypeError);
@@ -262,7 +266,8 @@ impl VM {
 
                     let result = left.lt(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::LESS_THAN_EQUAL => {
@@ -286,7 +291,8 @@ impl VM {
 
                     let result = left.le(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::AND => {
@@ -310,7 +316,8 @@ impl VM {
 
                     let result = left.and(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::OR => {
@@ -334,7 +341,8 @@ impl VM {
 
                     let result = left.or(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::BIT_AND => {
@@ -358,7 +366,8 @@ impl VM {
 
                     let result = left.bit_and(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::BIT_OR => {
@@ -382,7 +391,8 @@ impl VM {
 
                     let result = left.bit_or(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::BIT_XOR => {
@@ -406,7 +416,8 @@ impl VM {
 
                     let result = left.bit_xor(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::BIT_SL => {
@@ -430,7 +441,8 @@ impl VM {
 
                     let result = left.bit_sl(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::BIT_SR => {
@@ -454,7 +466,8 @@ impl VM {
 
                     let result = left.bit_sr(&right)?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::BANG => {
@@ -469,7 +482,8 @@ impl VM {
 
                     let result = right.not()?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::MINUS => {
@@ -484,7 +498,8 @@ impl VM {
 
                     let result = right.neg()?;
                     let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack.push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack
+                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
                 }
 
                 opcode::JUMP => {

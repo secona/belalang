@@ -1,7 +1,7 @@
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
-use crate::types::BelalangObject;
+use crate::types::object::BelalangObject;
 
 const STACK_SIZE: usize = 4096;
 

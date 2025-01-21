@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
-use crate::types::BelalangObject;
+use crate::types::object::BelalangObject;
 
 pub struct Heap {
     pub start: Option<NonNull<BelalangObject>>,
@@ -45,13 +45,13 @@ impl Heap {
     }
 
     /// # Safety
-    /// 
+    ///
     /// This function is unsafe because:
     /// - It deallocates memory pointed to by `ptr`, which must have been previously allocated by this allocator
     /// - The pointer must be valid and properly aligned for type T
     /// - After deallocation, the memory must not be accessed or freed again
     /// - No references to the freed memory may exist after this call
-    /// 
+    ///
     /// Caller must ensure:
     /// - The pointer was allocated using this allocator's corresponding allocation method
     /// - The type T matches the type that was originally allocated
@@ -118,7 +118,12 @@ mod tests {
 
         let mut current = heap.start;
 
-        for (i, (d, ptr)) in data.iter().rev().zip(allocated_ptrs.into_iter().rev()).enumerate() {
+        for (i, (d, ptr)) in data
+            .iter()
+            .rev()
+            .zip(allocated_ptrs.into_iter().rev())
+            .enumerate()
+        {
             let Some(c) = current else {
                 panic!("Error: Unexpected None at heap.start");
             };
@@ -174,7 +179,12 @@ mod tests {
 
         let mut current = heap.start;
 
-        for (i, (d, ptr)) in data.iter().rev().zip(allocated_ptrs.into_iter().rev()).enumerate() {
+        for (i, (d, ptr)) in data
+            .iter()
+            .rev()
+            .zip(allocated_ptrs.into_iter().rev())
+            .enumerate()
+        {
             let Some(c) = current else {
                 panic!("Error: Unexpected None at heap.start");
             };
@@ -228,7 +238,12 @@ mod tests {
 
         let mut current = heap.start;
 
-        for (i, (d, ptr)) in data.iter().rev().zip(allocated_ptrs.into_iter().rev()).enumerate() {
+        for (i, (d, ptr)) in data
+            .iter()
+            .rev()
+            .zip(allocated_ptrs.into_iter().rev())
+            .enumerate()
+        {
             let Some(c) = current else {
                 panic!("Error: Unexpected None at heap.start");
             };
