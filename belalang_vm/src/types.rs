@@ -17,6 +17,12 @@ pub struct BelalangObject {
     pub next: Option<NonNull<BelalangObject>>,
 }
 
+impl PartialEq for BelalangObject {
+    fn eq(&self, other: &Self) -> bool {
+        self.obj_type == other.obj_type
+    }
+}
+
 #[allow(unused_variables)]
 pub trait BelalangType: Display + Debug {
     fn type_name() -> String
@@ -38,6 +44,9 @@ pub trait BelalangType: Display + Debug {
     fn truthy(&self) -> bool {
         false
     }
+
+    // NOTE: I am thinking of changing these methods to take in pointers
+    // to BelalangObject and returning pointers to BelalangObject.
 
     fn add(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)

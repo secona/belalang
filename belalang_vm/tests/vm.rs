@@ -31,13 +31,15 @@ mod stack_op {
 
         assert_eq!(vm.stack.size(), 1);
 
-        let Ok(obj) = vm.stack.pop() else { panic!() };
+        let Ok(obj) = vm.stack.pop() else {
+            panic!("Failed popping from the stack!");
+        };
+
         let StackObject::Object(object) = obj else {
-            panic!()
+            panic!("TOS is not an Object!");
         };
-        let Some(int) = object.as_any().downcast_ref::<BelalangInteger>() else {
-            panic!()
-        };
+
+        let int = unsafe { (object.as_ptr() as *mut BelalangInteger).read() };
 
         assert_eq!(int.value, 12);
     }
@@ -63,7 +65,7 @@ fn arithmetic_op(a: i64, b: i64, op: u8) -> i64 {
         constants,
     });
 
-    assert_eq!(vm.stack.size(), 1);
+    assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
 
     let Ok(obj) = vm.stack.pop() else {
         panic!("Failed popping from the stack!");
@@ -73,11 +75,7 @@ fn arithmetic_op(a: i64, b: i64, op: u8) -> i64 {
         panic!("TOS is not an Object!");
     };
 
-    let Some(int) = object.as_any().downcast_ref::<BelalangInteger>() else {
-        panic!("Failed downcasting to BelalangInteger!");
-    };
-
-    int.value
+    unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value
 }
 
 #[test_case(12, 12, opcode::EQUAL => true; "equal")]
@@ -101,15 +99,15 @@ fn number_comparison_op(a: i64, b: i64, op: u8) -> bool {
 
     assert_eq!(vm.stack.size(), 1);
 
-    let Ok(obj) = vm.stack.pop() else { panic!() };
-    let StackObject::Object(object) = obj else {
-        panic!()
-    };
-    let Some(boolean) = object.as_any().downcast_ref::<BelalangBoolean>() else {
-        panic!()
+    let Ok(obj) = vm.stack.pop() else {
+        panic!("Failed popping from the stack!");
     };
 
-    boolean.value
+    let StackObject::Object(object) = obj else {
+        panic!("TOS is not an Object!");
+    };
+
+    unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value
 }
 
 #[test_case(true, true, opcode::EQUAL => true; "equal")]
@@ -131,15 +129,15 @@ fn boolean_comparison_op(a: bool, b: bool, op: u8) -> bool {
 
     assert_eq!(vm.stack.size(), 1);
 
-    let Ok(obj) = vm.stack.pop() else { panic!() };
-    let StackObject::Object(object) = obj else {
-        panic!()
-    };
-    let Some(boolean) = object.as_any().downcast_ref::<BelalangBoolean>() else {
-        panic!()
+    let Ok(obj) = vm.stack.pop() else {
+        panic!("Failed popping from the stack!");
     };
 
-    boolean.value
+    let StackObject::Object(object) = obj else {
+        panic!("TOS is not an Object!");
+    };
+
+    unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value
 }
 
 #[test_case(true, false, opcode::AND => false; "and")]
@@ -161,15 +159,15 @@ fn logical_op(a: bool, b: bool, op: u8) -> bool {
 
     assert_eq!(vm.stack.size(), 1);
 
-    let Ok(obj) = vm.stack.pop() else { panic!() };
-    let StackObject::Object(object) = obj else {
-        panic!()
-    };
-    let Some(boolean) = object.as_any().downcast_ref::<BelalangBoolean>() else {
-        panic!()
+    let Ok(obj) = vm.stack.pop() else {
+        panic!("Failed popping from the stack!");
     };
 
-    boolean.value
+    let StackObject::Object(object) = obj else {
+        panic!("TOS is not an Object!");
+    };
+
+    unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value
 }
 
 #[test_case(12, 1, opcode::BIT_AND => 0; "bit and")]
@@ -194,15 +192,15 @@ fn bitwise_op(a: i64, b: i64, op: u8) -> i64 {
 
     assert_eq!(vm.stack.size(), 1);
 
-    let Ok(obj) = vm.stack.pop() else { panic!() };
-    let StackObject::Object(object) = obj else {
-        panic!()
-    };
-    let Some(int) = object.as_any().downcast_ref::<BelalangInteger>() else {
-        panic!()
+    let Ok(obj) = vm.stack.pop() else {
+        panic!("Failed popping from the stack!");
     };
 
-    int.value
+    let StackObject::Object(object) = obj else {
+        panic!("TOS is not an Object!");
+    };
+
+    unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value
 }
 
 mod jump_op {
@@ -226,14 +224,15 @@ mod jump_op {
 
         assert_eq!(vm.stack.size(), 1);
 
-        let Ok(obj) = vm.stack.pop() else { panic!() };
-        let StackObject::Object(object) = obj else {
-            panic!()
-        };
-        let Some(boolean) = object.as_any().downcast_ref::<BelalangBoolean>() else {
-            panic!()
+        let Ok(obj) = vm.stack.pop() else {
+            panic!("Failed popping from the stack!");
         };
 
+        let StackObject::Object(object) = obj else {
+            panic!("TOS is not an Object!");
+        };
+
+        let boolean = unsafe { (object.as_ptr() as *mut BelalangBoolean).read() };
         assert_eq!(boolean.value, false);
     }
 
@@ -256,23 +255,27 @@ mod jump_op {
 
         assert_eq!(vm.stack.size(), 2);
 
-        let Ok(obj) = vm.stack.pop() else { panic!() };
+        let Ok(obj) = vm.stack.pop() else {
+            panic!("Failed popping from the stack!");
+        };
+
         let StackObject::Object(object) = obj else {
-            panic!()
+            panic!("TOS is not an Object!");
         };
-        let Some(boolean) = object.as_any().downcast_ref::<BelalangBoolean>() else {
-            panic!()
-        };
+
+        let boolean = unsafe { (object.as_ptr() as *mut BelalangBoolean).read() };
 
         assert_eq!(boolean.value, false);
 
-        let Ok(obj) = vm.stack.pop() else { panic!() };
+        let Ok(obj) = vm.stack.pop() else {
+            panic!("Failed popping from the stack!");
+        };
+
         let StackObject::Object(object) = obj else {
-            panic!()
+            panic!("TOS is not an Object!");
         };
-        let Some(boolean) = object.as_any().downcast_ref::<BelalangBoolean>() else {
-            panic!()
-        };
+
+        let boolean = unsafe { (object.as_ptr() as *mut BelalangBoolean).read() };
 
         assert_eq!(boolean.value, true);
     }
@@ -298,13 +301,15 @@ mod unary_op {
 
         assert_eq!(vm.stack.size(), 1);
 
-        let Ok(obj) = vm.stack.pop() else { panic!() };
+        let Ok(obj) = vm.stack.pop() else {
+            panic!("Failed popping from the stack!");
+        };
+
         let StackObject::Object(object) = obj else {
-            panic!()
+            panic!("TOS is not an Object!");
         };
-        let Some(boolean) = object.as_any().downcast_ref::<BelalangBoolean>() else {
-            panic!()
-        };
+
+        let boolean = unsafe { (object.as_ptr() as *mut BelalangBoolean).read() };
 
         assert_eq!(boolean.value, false);
     }
@@ -326,13 +331,15 @@ mod unary_op {
 
         assert_eq!(vm.stack.size(), 1);
 
-        let Ok(obj) = vm.stack.pop() else { panic!() };
+        let Ok(obj) = vm.stack.pop() else {
+            panic!("Failed popping from the stack!");
+        };
+
         let StackObject::Object(object) = obj else {
-            panic!()
+            panic!("TOS is not an Object!");
         };
-        let Some(int) = object.as_any().downcast_ref::<BelalangInteger>() else {
-            panic!()
-        };
+
+        let int = unsafe { (object.as_ptr() as *mut BelalangInteger).read() };
 
         assert_eq!(int.value, -12);
     }
