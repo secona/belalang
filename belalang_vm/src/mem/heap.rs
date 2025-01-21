@@ -21,7 +21,7 @@ impl Default for Heap {
 }
 
 impl Heap {
-    pub fn alloc<T>(&mut self, object: T) -> Result<(), RuntimeError> {
+    pub fn alloc<T>(&mut self, object: T) -> Result<NonNull<BelalangObject>, RuntimeError> {
         let layout = Layout::new::<T>();
 
         let object_ptr = unsafe {
@@ -41,7 +41,7 @@ impl Heap {
 
         self.start = Some(object_ptr);
 
-        Ok(())
+        Ok(object_ptr)
     }
 
     /// # Safety
@@ -108,18 +108,22 @@ mod tests {
     #[test_case(vec![1, 2, 3]; "1")]
     fn heap_alloc(data: Vec<i64>) {
         let mut heap = Heap::default();
+        let mut allocated_ptrs = Vec::new();
 
         for i in &data {
             let value = BelalangInteger::new(*i);
-            heap.alloc(value).unwrap();
+            let ptr = heap.alloc(value).unwrap();
+            allocated_ptrs.push(ptr);
         }
 
         let mut current = heap.start;
 
-        for d in data.iter().rev() {
+        for (i, (d, ptr)) in data.iter().rev().zip(allocated_ptrs.into_iter().rev()).enumerate() {
             let Some(c) = current else {
                 panic!("Error: Unexpected None at heap.start");
             };
+
+            assert_eq!(c, ptr, "Pointer mismatch at position {}", i);
 
             let object = unsafe {
                 let ptr = c.as_ptr() as *const BelalangObject;
@@ -152,26 +156,30 @@ mod tests {
     #[test_case(vec![Type::Integer(1), Type::Boolean(true), Type::Integer(100)]; "3")]
     fn heap_alloc_multiple_types(data: Vec<Type>) {
         let mut heap = Heap::default();
+        let mut allocated_ptrs = Vec::new();
 
         for i in &data {
-            match i {
+            let ptr = match i {
                 Type::Integer(integer) => {
                     let value = BelalangInteger::new(*integer);
-                    heap.alloc(value).unwrap();
+                    heap.alloc(value).unwrap()
                 }
                 Type::Boolean(boolean) => {
                     let value = BelalangBoolean::new(*boolean);
-                    heap.alloc(value).unwrap();
+                    heap.alloc(value).unwrap()
                 }
             };
+            allocated_ptrs.push(ptr);
         }
 
         let mut current = heap.start;
 
-        for d in data.iter().rev() {
+        for (i, (d, ptr)) in data.iter().rev().zip(allocated_ptrs.into_iter().rev()).enumerate() {
             let Some(c) = current else {
                 panic!("Error: Unexpected None at heap.start");
             };
+
+            assert_eq!(c, ptr, "Pointer mismatch at position {}", i);
 
             let object = unsafe {
                 let ptr = c.as_ptr() as *const BelalangObject;
@@ -210,18 +218,22 @@ mod tests {
     #[test_case(vec![1, 2, 3]; "1")]
     fn heap_dealloc(data: Vec<i64>) {
         let mut heap = Heap::default();
+        let mut allocated_ptrs = Vec::new();
 
         for i in &data {
             let value = BelalangInteger::new(*i);
-            heap.alloc(value).unwrap();
+            let ptr = heap.alloc(value).unwrap();
+            allocated_ptrs.push(ptr);
         }
 
         let mut current = heap.start;
 
-        for d in data.iter().rev() {
+        for (i, (d, ptr)) in data.iter().rev().zip(allocated_ptrs.into_iter().rev()).enumerate() {
             let Some(c) = current else {
                 panic!("Error: Unexpected None at heap.start");
             };
+
+            assert_eq!(c, ptr, "Pointer mismatch at position {}", i);
 
             let object = unsafe {
                 let ptr = c.as_ptr() as *const BelalangObject;
