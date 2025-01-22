@@ -2,7 +2,7 @@ use std::any::Any;
 use std::fmt::Display;
 use std::ptr::NonNull;
 
-use crate::register_belalang_type;
+use crate::types::registry::register_belalang_type;
 
 use super::BelalangType;
 

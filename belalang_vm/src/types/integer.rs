@@ -2,10 +2,10 @@ use std::fmt::Display;
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
-use crate::register_belalang_type;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::match_belalang_type;
 use crate::types::object::BelalangObject;
+use crate::types::registry::register_belalang_type;
 use crate::types::BelalangType;
 use crate::vm::VM;
 
@@ -49,7 +49,11 @@ impl BelalangType for BelalangInteger {
         self.value != 0
     }
 
-    fn add(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn add(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let Some(result) = self.value.checked_add(other.value) else {
@@ -64,7 +68,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn sub(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn sub(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let Some(result) = self.value.checked_sub(other.value) else {
@@ -79,7 +87,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn mul(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn mul(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let Some(result) = self.value.checked_mul(other.value) else {
@@ -94,7 +106,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn div(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn div(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let Some(result) = self.value.checked_div(other.value) else {
@@ -109,7 +125,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn r#mod(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn r#mod(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let Some(result) = self.value.checked_rem(other.value) else {
@@ -124,7 +144,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn eq(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn eq(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let result = BelalangBoolean::new(self.value == other.value);
@@ -135,7 +159,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn ne(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn ne(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let result = BelalangBoolean::new(self.value != other.value);
@@ -146,7 +174,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn lt(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn lt(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let result = BelalangBoolean::new(self.value < other.value);
@@ -157,7 +189,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn le(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn le(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let result = BelalangBoolean::new(self.value <= other.value);
@@ -168,7 +204,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn bit_and(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn bit_and(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let result = BelalangInteger::new(self.value & other.value);
@@ -179,7 +219,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn bit_or(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn bit_or(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let result = BelalangInteger::new(self.value | other.value);
@@ -190,7 +234,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn bit_xor(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn bit_xor(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let result = BelalangInteger::new(self.value ^ other.value);
@@ -201,7 +249,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn bit_sl(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn bit_sl(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let result = BelalangInteger::new(self.value << other.value);
@@ -212,7 +264,11 @@ impl BelalangType for BelalangInteger {
         )
     }
 
-    fn bit_sr(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn bit_sr(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let result = BelalangInteger::new(self.value >> other.value);
