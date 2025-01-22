@@ -6,6 +6,7 @@ publish = false
 license = "Apache-2.0"
 
 [dependencies]
+belalang_macros = { path = "../belalang_macros" }
 thiserror = "1.0.61"
 ctor = "0.2.9"
 

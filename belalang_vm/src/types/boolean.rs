@@ -1,20 +1,20 @@
 use std::fmt::Display;
 use std::ptr::NonNull;
 
+use belalang_macros::belalang_type;
+
 use crate::errors::RuntimeError;
 use crate::types::match_belalang_type;
 use crate::types::object::BelalangObject;
-use crate::types::registry::register_belalang_type;
 use crate::types::BelalangType;
 use crate::vm::VM;
 
-#[repr(C)]
-#[derive(Debug)]
+use crate::prelude::*;
+
+#[belalang_type]
 pub struct BelalangBoolean {
-    pub base: BelalangObject,
     pub value: bool,
 }
-register_belalang_type!(BelalangBoolean);
 
 impl BelalangBoolean {
     pub fn new(value: bool) -> Self {

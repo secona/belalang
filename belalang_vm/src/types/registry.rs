@@ -9,6 +9,7 @@ pub type CastFn = fn(*const BelalangObject) -> Option<*const dyn BelalangType>;
 pub static TYPE_REGISTRY: LazyLock<Mutex<HashMap<u32, CastFn>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
+#[macro_export]
 macro_rules! register_belalang_type {
     ($type:ty) => {
         const _: () = {
@@ -25,7 +26,7 @@ macro_rules! register_belalang_type {
     };
 }
 
-pub(crate) use register_belalang_type;
+pub use register_belalang_type;
 
 /// # Safety
 ///
