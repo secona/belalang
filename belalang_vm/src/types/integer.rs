@@ -10,8 +10,6 @@ use crate::types::object::BelalangObject;
 use crate::types::BelalangType;
 use crate::vm::VM;
 
-use crate::prelude::*;
-
 #[belalang_type]
 pub struct BelalangInteger {
     pub value: i64,

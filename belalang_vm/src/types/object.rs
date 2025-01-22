@@ -2,18 +2,16 @@ use std::any::Any;
 use std::fmt::Display;
 use std::ptr::NonNull;
 
-use crate::types::registry::register_belalang_type;
+use belalang_macros::register_belalang_type;
 
 use super::BelalangType;
 
-#[repr(C)]
-#[derive(Debug)]
+#[register_belalang_type]
 pub struct BelalangObject {
     pub obj_type: u32,
     pub is_marked: bool,
     pub next: Option<NonNull<BelalangObject>>,
 }
-register_belalang_type!(BelalangObject);
 
 impl Display for BelalangObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

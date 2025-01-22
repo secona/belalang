@@ -1,6 +1,5 @@
 use std::any::Any;
-use std::fmt::{Debug, Display};
-use std::hash::DefaultHasher;
+use std::fmt::{Debug, Display}; use std::hash::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::ptr::NonNull;
 
