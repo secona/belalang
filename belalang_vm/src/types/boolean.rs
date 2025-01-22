@@ -7,12 +7,15 @@ use crate::types::object::BelalangObject;
 use crate::types::BelalangType;
 use crate::vm::VM;
 
+use super::registry::register_belalang_type;
+
 #[repr(C)]
 #[derive(Debug)]
 pub struct BelalangBoolean {
     pub base: BelalangObject,
     pub value: bool,
 }
+register_belalang_type!(BelalangBoolean);
 
 impl BelalangBoolean {
     pub fn new(value: bool) -> Self {

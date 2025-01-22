@@ -2,6 +2,8 @@ use std::any::Any;
 use std::fmt::Display;
 use std::ptr::NonNull;
 
+use crate::register_belalang_type;
+
 use super::BelalangType;
 
 #[repr(C)]
@@ -11,6 +13,7 @@ pub struct BelalangObject {
     pub is_marked: bool,
     pub next: Option<NonNull<BelalangObject>>,
 }
+register_belalang_type!(BelalangObject);
 
 impl Display for BelalangObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

@@ -5,7 +5,7 @@ use crate::mem::stack::{Stack, StackObject};
 use crate::opcode;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::integer::BelalangInteger;
-use crate::types::registry::{cast_type, register_type};
+use crate::types::registry::cast_type;
 
 macro_rules! pop_object {
     ($self:expr) => {
@@ -29,9 +29,6 @@ pub struct VM {
 
 impl VM {
     pub fn run(&mut self, code: Bytecode) -> Result<(), RuntimeError> {
-        register_type::<BelalangInteger>();
-        register_type::<BelalangBoolean>();
-
         self.constants.extend(code.constants);
         self.instructions.extend(code.instructions);
 

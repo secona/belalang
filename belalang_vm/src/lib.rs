@@ -7,3 +7,5 @@ pub mod types;
 pub mod vm;
 
 pub(crate) mod macros;
+
+pub use types::registry::*;

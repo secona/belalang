@@ -2,6 +2,7 @@ use std::fmt::Display;
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
+use crate::register_belalang_type;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::match_belalang_type;
 use crate::types::object::BelalangObject;
@@ -14,6 +15,7 @@ pub struct BelalangInteger {
     pub base: BelalangObject,
     pub value: i64,
 }
+register_belalang_type!(BelalangInteger);
 
 impl BelalangInteger {
     pub fn new(value: i64) -> Self {

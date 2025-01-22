@@ -7,6 +7,7 @@ license = "Apache-2.0"
 
 [dependencies]
 thiserror = "1.0.61"
+ctor = "0.2.9"
 
 [dev-dependencies]
 test-case = "3.3.1"
