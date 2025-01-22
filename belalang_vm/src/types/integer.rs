@@ -1,10 +1,12 @@
 use std::fmt::Display;
+use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::match_belalang_type;
 use crate::types::object::BelalangObject;
 use crate::types::BelalangType;
+use crate::vm::VM;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -45,129 +47,184 @@ impl BelalangType for BelalangInteger {
         self.value != 0
     }
 
-    fn add(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        match_belalang_type!(other,
-            BelalangInteger => |other: &BelalangInteger| self.value
-                .checked_add(other.value)
-                .map(Self::new)
-                .map(|v| Box::new(v) as _)
-                .ok_or(RuntimeError::IntegerOverflow)
-        )
-    }
-
-    fn sub(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        match_belalang_type!(other,
-            BelalangInteger => |other: &BelalangInteger| self.value
-                .checked_sub(other.value)
-                .map(Self::new)
-                .map(|v| Box::new(v) as _)
-                .ok_or(RuntimeError::IntegerOverflow)
-        )
-    }
-
-    fn mul(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        match_belalang_type!(other,
-            BelalangInteger => |other: &BelalangInteger| self.value
-                .checked_mul(other.value)
-                .map(Self::new)
-                .map(|v| Box::new(v) as _)
-                .ok_or(RuntimeError::IntegerOverflow)
-        )
-    }
-
-    fn div(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        match_belalang_type!(other,
-            BelalangInteger => |other: &BelalangInteger| self.value
-                .checked_div(other.value)
-                .map(Self::new)
-                .map(|v| Box::new(v) as _)
-                .ok_or(RuntimeError::IntegerOverflow)
-        )
-    }
-
-    fn r#mod(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        match_belalang_type!(other,
-            BelalangInteger => |other: &BelalangInteger| self.value
-                .checked_rem(other.value)
-                .map(Self::new)
-                .map(|v| Box::new(v) as _)
-                .ok_or(RuntimeError::IntegerOverflow)
-        )
-    }
-
-    fn eq(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+    fn add(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
-                Ok(Box::new(BelalangBoolean::new(self.value == other.value)) as _)
+                let Some(result) = self.value.checked_add(other.value) else {
+                    return Err(RuntimeError::TypeError);
+                };
+
+                let result = Self::new(result);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
             }
         )
     }
 
-    fn ne(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+    fn sub(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
-                Ok(Box::new(BelalangBoolean::new(self.value != other.value)) as _)
+                let Some(result) = self.value.checked_sub(other.value) else {
+                    return Err(RuntimeError::TypeError);
+                };
+
+                let result = Self::new(result);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
             }
         )
     }
 
-    fn lt(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+    fn mul(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
-                Ok(Box::new(BelalangBoolean::new(self.value < other.value)) as _)
+                let Some(result) = self.value.checked_mul(other.value) else {
+                    return Err(RuntimeError::TypeError);
+                };
+
+                let result = Self::new(result);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
             }
         )
     }
 
-    fn le(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+    fn div(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
-                Ok(Box::new(BelalangBoolean::new(self.value <= other.value)) as _)
+                let Some(result) = self.value.checked_div(other.value) else {
+                    return Err(RuntimeError::TypeError);
+                };
+
+                let result = Self::new(result);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
             }
         )
     }
 
-    fn bit_and(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+    fn r#mod(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
-                Ok(Box::new(BelalangInteger::new(self.value & other.value)) as _)
+                let Some(result) = self.value.checked_rem(other.value) else {
+                    return Err(RuntimeError::TypeError);
+                };
+
+                let result = Self::new(result);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
             }
         )
     }
 
-    fn bit_or(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+    fn eq(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
-                Ok(Box::new(BelalangInteger::new(self.value | other.value)) as _)
+                let result = BelalangBoolean::new(self.value == other.value);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
             }
         )
     }
 
-    fn bit_xor(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+    fn ne(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
-                Ok(Box::new(BelalangInteger::new(self.value ^ other.value)) as _)
+                let result = BelalangBoolean::new(self.value != other.value);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
             }
         )
     }
 
-    fn bit_sl(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+    fn lt(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
-                Ok(Box::new(BelalangInteger::new(self.value << other.value)) as _)
+                let result = BelalangBoolean::new(self.value < other.value);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
             }
         )
     }
 
-    fn bit_sr(&self, other: &dyn BelalangType) -> Result<Box<dyn BelalangType>, RuntimeError> {
+    fn le(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
-                Ok(Box::new(BelalangInteger::new(self.value >> other.value)) as _)
+                let result = BelalangBoolean::new(self.value <= other.value);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
             }
         )
     }
 
-    fn neg(&self) -> Result<Box<dyn BelalangType>, RuntimeError> {
-        Ok(Box::new(BelalangInteger::new(-self.value)))
+    fn bit_and(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                let result = BelalangInteger::new(self.value & other.value);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
+            }
+        )
+    }
+
+    fn bit_or(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                let result = BelalangInteger::new(self.value | other.value);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
+            }
+        )
+    }
+
+    fn bit_xor(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                let result = BelalangInteger::new(self.value ^ other.value);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
+            }
+        )
+    }
+
+    fn bit_sl(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                let result = BelalangInteger::new(self.value << other.value);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
+            }
+        )
+    }
+
+    fn bit_sr(&self, vm: &mut VM, other: &dyn BelalangType) -> Result<NonNull<BelalangObject>, RuntimeError> {
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                let result = BelalangInteger::new(self.value >> other.value);
+                let ptr = vm.heap.alloc(result)?;
+
+                Ok(ptr)
+            }
+        )
+    }
+
+    fn neg(&self, vm: &mut VM) -> Result<NonNull<BelalangObject>, RuntimeError> {
+        let result = BelalangInteger::new(-self.value);
+        let ptr = vm.heap.alloc(result)?;
+
+        Ok(ptr)
     }
 }

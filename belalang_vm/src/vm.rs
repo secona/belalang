@@ -1,5 +1,3 @@
-use std::ptr::NonNull;
-
 use crate::bytecode::{Bytecode, Constant};
 use crate::errors::RuntimeError;
 use crate::mem::heap::Heap;
@@ -7,8 +5,17 @@ use crate::mem::stack::{Stack, StackObject};
 use crate::opcode;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::integer::BelalangInteger;
-use crate::types::object::BelalangObject;
-use crate::types::BelalangType;
+use crate::types::registry::{cast_type, register_type};
+
+macro_rules! pop_object {
+    ($self:expr) => {
+        if let StackObject::Object(ptr) = $self.stack.pop()? {
+            unsafe { cast_type(ptr.as_ptr()).unwrap() }
+        } else {
+            return Err(RuntimeError::TypeError);
+        }
+    };
+}
 
 #[derive(Default)]
 pub struct VM {
@@ -22,6 +29,9 @@ pub struct VM {
 
 impl VM {
     pub fn run(&mut self, code: Bytecode) -> Result<(), RuntimeError> {
+        register_type::<BelalangInteger>();
+        register_type::<BelalangBoolean>();
+
         self.constants.extend(code.constants);
         self.instructions.extend(code.instructions);
 
@@ -35,132 +45,49 @@ impl VM {
                     self.stack.pop()?;
                 }
 
-                // NOTE: Next up, change the `Box::into_raw` into a call to
-                // `self.heap.alloc`. I am using `Box::into_raw` because the
-                // type implementation hasn't been updated.
                 opcode::ADD => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).add(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.add(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::SUB => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).sub(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.sub(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::MUL => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).mul(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.mul(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::DIV => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).div(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.div(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::MOD => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).r#mod(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.r#mod(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::CONSTANT => {
@@ -196,310 +123,119 @@ impl VM {
                     self.stack.push(StackObject::Null)?;
                 }
 
-                // NOTE: The EQUAL and NOT_EQUAL operator are currently
-                // comparing types only. I still have no idea on how to
-                // implement value comparison.
                 opcode::EQUAL => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).eq(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangObject;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangObject;
-                        ptr.read()
-                    };
-
-                    let ptr = self.heap.alloc(BelalangBoolean::new(right == left))?;
-                    self.stack.push(StackObject::Object(ptr))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::NOT_EQUAL => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).ne(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangObject;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangObject;
-                        ptr.read()
-                    };
-
-                    let ptr = self.heap.alloc(BelalangBoolean::new(right != left))?;
-                    self.stack.push(StackObject::Object(ptr))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::LESS_THAN => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).lt(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.lt(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::LESS_THAN_EQUAL => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).le(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.le(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::AND => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).and(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangBoolean;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangBoolean;
-                        ptr.read()
-                    };
-
-                    let result = left.and(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::OR => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).or(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangBoolean;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangBoolean;
-                        ptr.read()
-                    };
-
-                    let result = left.or(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BIT_AND => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).bit_and(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.bit_and(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BIT_OR => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).bit_or(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.bit_or(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BIT_XOR => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).bit_xor(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.bit_xor(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BIT_SL => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).bit_sl(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.bit_sl(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BIT_SR => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
+                    let left = pop_object!(self);
 
-                    let StackObject::Object(left) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let result = unsafe { (*left).bit_sr(self, &*right) }?;
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let left = unsafe {
-                        let ptr = left.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
-                    let result = left.bit_sr(&right)?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::BANG => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangBoolean;
-                        ptr.read()
-                    };
+                    let result = unsafe { (*right).not(self) }?;
 
-                    let result = right.not()?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::MINUS => {
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
+                    let result = unsafe { (*right).neg(self) }?;
 
-                    let result = right.neg()?;
-                    let ptr = Box::into_raw(result) as *mut BelalangObject;
-                    self.stack
-                        .push(StackObject::Object(NonNull::new(ptr).unwrap()))?;
+                    self.stack.push(StackObject::Object(result))?;
                 }
 
                 opcode::JUMP => {
@@ -510,16 +246,9 @@ impl VM {
                 opcode::JUMP_IF_FALSE => {
                     let relative = self.read_u16() as i16;
 
-                    let StackObject::Object(right) = self.stack.pop()? else {
-                        return Err(RuntimeError::TypeError);
-                    };
+                    let right = pop_object!(self);
 
-                    let right = unsafe {
-                        let ptr = right.as_ptr() as *const BelalangBoolean;
-                        ptr.read()
-                    };
-
-                    if !right.truthy() {
+                    if unsafe { !(*right).truthy() } {
                         self.increment_ip(relative as usize);
                     }
                 }
