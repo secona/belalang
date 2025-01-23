@@ -11,10 +11,10 @@ pub fn belalang_type(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let Fields::Named(fields) = &input.fields else {
         return syn::Error::new_spanned(
             input,
-            "belalang_type attribute only supports structs with named fields"
+            "belalang_type attribute only supports structs with named fields",
         )
         .to_compile_error()
-        .into()
+        .into();
     };
 
     let struct_name = &input.ident;
@@ -53,10 +53,10 @@ pub fn register_belalang_type(_attr: TokenStream, item: TokenStream) -> TokenStr
     let Fields::Named(fields) = &input.fields else {
         return syn::Error::new_spanned(
             input,
-            "belalang_type attribute only supports structs with named fields"
+            "belalang_type attribute only supports structs with named fields",
         )
         .to_compile_error()
-        .into()
+        .into();
     };
 
     let struct_name = &input.ident;

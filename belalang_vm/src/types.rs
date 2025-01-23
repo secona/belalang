@@ -1,10 +1,13 @@
 use std::any::Any;
-use std::fmt::{Debug, Display}; use std::hash::DefaultHasher;
+use std::fmt::{Debug, Display};
+use std::hash::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
 use crate::vm::VM;
+
+use object::BelalangObject;
 
 pub mod boolean;
 pub mod integer;
@@ -170,13 +173,6 @@ pub trait BelalangType: Display + Debug {
     }
 }
 
-impl PartialEq for dyn BelalangType {
-    fn eq(&self, other: &Self) -> bool {
-        // TODO: Fix this!
-        format!("{}", self) == format!("{}", other)
-    }
-}
-
 macro_rules! match_belalang_type {
     ($other:expr, $($type:ty => $body:expr),* $(,)?) => {
         match $other.as_any() {
@@ -199,4 +195,3 @@ macro_rules! match_belalang_type {
 }
 
 pub(crate) use match_belalang_type;
-use object::BelalangObject;
