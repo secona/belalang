@@ -1,3 +1,4 @@
+use std::alloc::{alloc, Layout};
 use std::fmt::Display;
 
 use belalang_macros::belalang_type;
@@ -5,31 +6,50 @@ use belalang_macros::belalang_type;
 use crate::types::object::BelalangObject;
 use crate::types::BelalangType;
 
-// NOTE: I don't know whether or not it is better to implement my own strings
-// from scratch with pointers and len and etc, or to just use Rust's builtin
-// strings.
-
 #[belalang_type]
 pub struct BelalangString {
-    pub string: String,
+    pub ptr: *mut u8,
+    pub len: usize,
+    pub cap: usize,
 }
 
 impl BelalangString {
-    pub fn new(string: String) -> Self {
+    pub fn new(string: &'static str) -> Self {
+        let len = string.len();
+        let cap = string.len();
+
+        let ptr = unsafe {
+            let layout = Layout::from_size_align(len, align_of::<u8>()).unwrap();
+            let ptr = alloc(layout);
+
+            if ptr.is_null() {
+                panic!("Failed to allocate memory for BelalangString");
+            }
+
+            std::ptr::copy_nonoverlapping(string.as_ptr(), ptr, len);
+
+            ptr
+        };
+
         Self {
             base: BelalangObject {
                 obj_type: Self::r#type(),
                 is_marked: false,
                 next: None,
             },
-            string,
+            ptr,
+            len,
+            cap,
         }
     }
 }
 
 impl Display for BelalangString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.string)
+        write!(f, "{}", unsafe {
+            let slice = std::slice::from_raw_parts(self.ptr, self.len);
+            std::str::from_utf8(slice).expect("Invalid UTF-8")
+        })
     }
 }
 

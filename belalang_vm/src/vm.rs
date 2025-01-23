@@ -102,7 +102,6 @@ impl VM {
                             StackObject::Object(ptr)
                         }
                         Constant::String(string) => {
-                            let string = String::from(string);
                             let ptr = self.heap.alloc(BelalangString::new(string))?;
                             StackObject::Object(ptr)
                         }
