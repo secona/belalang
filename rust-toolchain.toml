@@ -1,0 +1,11 @@
+[toolchain]
+channel = "stable"
+components = [
+  "rustfmt",
+  "rustc",
+  "rust-analyzer",
+  "cargo",
+  "clippy",
+]
+targets = ["x86_64-unknown-linux-gnu"]
+profile = "minimal"
