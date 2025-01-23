@@ -6,6 +6,7 @@ use crate::opcode;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::integer::BelalangInteger;
 use crate::types::registry::cast_type;
+use crate::types::string::BelalangString;
 
 macro_rules! pop_object {
     ($self:expr) => {
@@ -100,7 +101,12 @@ impl VM {
                             let ptr = self.heap.alloc(BelalangBoolean::new(boolean))?;
                             StackObject::Object(ptr)
                         }
-                        _ => panic!(),
+                        Constant::String(string) => {
+                            let string = String::from(string);
+                            let ptr = self.heap.alloc(BelalangString::new(string))?;
+                            StackObject::Object(ptr)
+                        }
+                        Constant::Null => todo!(),
                     };
 
                     self.stack.push(object)?;

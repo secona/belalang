@@ -13,6 +13,7 @@ pub mod boolean;
 pub mod integer;
 pub mod object;
 pub mod registry;
+pub mod string;
 
 #[allow(unused_variables)]
 pub trait BelalangType: Display + Debug {
@@ -150,9 +151,7 @@ pub trait BelalangType: Display + Debug {
 
     fn bit_sl(
         &self,
-        vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+        vm: &mut VM, other: &dyn BelalangType,) -> Result<NonNull<BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 

@@ -4,6 +4,7 @@ pub enum Constant {
     Null,
     Integer(i64),
     Boolean(bool),
+    String(&'static str),
 }
 
 pub struct Bytecode {

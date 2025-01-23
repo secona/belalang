@@ -4,6 +4,7 @@
 use belalang_vm::mem::stack::StackObject;
 use belalang_vm::types::boolean::BelalangBoolean;
 use belalang_vm::types::integer::BelalangInteger;
+use belalang_vm::types::string::BelalangString;
 use test_case::test_case;
 
 use belalang_vm::bytecode::{Bytecode, Constant};
@@ -343,4 +344,32 @@ mod unary_op {
 
         assert_eq!(int.value, -12);
     }
+}
+
+#[test]
+fn string() {
+    let constants = vec![Constant::String("Hello")];
+
+    let mut instructions = Vec::new();
+    instructions.extend(opcode::constant(0));
+
+    let mut vm = VM::default();
+
+    let _ = vm.run(Bytecode {
+        instructions,
+        constants,
+    });
+
+    assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
+
+    let Ok(obj) = vm.stack.pop() else {
+        panic!("Failed popping from the stack!");
+    };
+
+    let StackObject::Object(object) = obj else {
+        panic!("TOS is not an Object!");
+    };
+
+    let string = unsafe { (object.as_ptr() as *mut BelalangString).read() };
+    assert_eq!(format!("{string}"), "Hello");
 }
