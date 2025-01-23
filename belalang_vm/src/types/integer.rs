@@ -18,11 +18,7 @@ pub struct BelalangInteger {
 impl BelalangInteger {
     pub fn new(value: i64) -> Self {
         Self {
-            base: BelalangObject {
-                obj_type: Self::r#type(),
-                is_marked: false,
-                next: None,
-            },
+            base: BelalangObject::new::<Self>(),
             value,
         }
     }

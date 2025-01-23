@@ -13,6 +13,16 @@ pub struct BelalangObject {
     pub next: Option<NonNull<BelalangObject>>,
 }
 
+impl BelalangObject {
+    pub fn new<T: BelalangType>() -> Self {
+        Self {
+            obj_type: T::r#type(),
+            is_marked: false,
+            next: None,
+        }
+    }
+}
+
 impl Display for BelalangObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Object")
@@ -29,11 +39,5 @@ impl BelalangType for BelalangObject {
 
     fn as_any(&self) -> &dyn Any {
         self
-    }
-}
-
-impl PartialEq for BelalangObject {
-    fn eq(&self, other: &Self) -> bool {
-        self.obj_type == other.obj_type
     }
 }

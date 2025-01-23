@@ -17,11 +17,7 @@ pub struct BelalangBoolean {
 impl BelalangBoolean {
     pub fn new(value: bool) -> Self {
         Self {
-            base: BelalangObject {
-                obj_type: Self::r#type(),
-                is_marked: false,
-                next: None,
-            },
+            base: BelalangObject::new::<Self>(),
             value,
         }
     }

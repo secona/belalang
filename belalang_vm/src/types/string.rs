@@ -32,11 +32,7 @@ impl BelalangString {
         };
 
         Self {
-            base: BelalangObject {
-                obj_type: Self::r#type(),
-                is_marked: false,
-                next: None,
-            },
+            base: BelalangObject::new::<Self>(),
             ptr,
             len,
             cap,
