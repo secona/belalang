@@ -373,3 +373,37 @@ fn string() {
     let string = unsafe { (object.as_ptr() as *mut BelalangString).read() };
     assert_eq!(format!("{string}"), "Hello");
 }
+
+#[test_case("Hello", -1 => (String::from(""), 0); "mul neg 1")]
+#[test_case("Hello", 0 => (String::from(""), 0); "mul 0")]
+#[test_case("Hello", 1 => (String::from("Hello"), 5); "mul 1")]
+#[test_case("Hello", 3 => (String::from("HelloHelloHello"), 15); "mul 3")]
+fn string_mul(string: &'static str, num: i64) -> (String, usize) {
+    let constants = vec![Constant::String(string), Constant::Integer(num)];
+
+    let mut instructions = Vec::new();
+    instructions.extend(opcode::constant(0));
+    instructions.extend(opcode::constant(1));
+    instructions.push(opcode::MUL);
+
+    let mut vm = VM::default();
+
+    let _ = vm.run(Bytecode {
+        instructions,
+        constants,
+    });
+
+    assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
+
+    let Ok(obj) = vm.stack.pop() else {
+        panic!("Failed popping from the stack!");
+    };
+
+    let StackObject::Object(object) = obj else {
+        panic!("TOS is not an Object!");
+    };
+
+    let string = unsafe { (object.as_ptr() as *mut BelalangString).read() };
+
+    (format!("{string}"), string.len)
+}

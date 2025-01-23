@@ -1,10 +1,16 @@
 use std::alloc::{alloc, Layout};
 use std::fmt::Display;
+use std::ptr::NonNull;
 
 use belalang_macros::belalang_type;
 
+use crate::errors::RuntimeError;
+use crate::types::integer::BelalangInteger;
 use crate::types::object::BelalangObject;
 use crate::types::BelalangType;
+use crate::vm::VM;
+
+use super::match_belalang_type;
 
 #[belalang_type]
 pub struct BelalangString {
@@ -59,5 +65,41 @@ impl BelalangType for BelalangString {
 
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+
+    fn mul(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+        match_belalang_type!(other,
+            BelalangInteger => |other: &BelalangInteger| {
+                let value = other.value.max(0) as usize;
+                let len = self.len * value;
+                let cap = self.cap * value;
+
+                let ptr = unsafe {
+                    let layout = Layout::from_size_align(len, align_of::<u8>()).unwrap();
+                    let ptr = alloc(layout);
+
+                    if ptr.is_null() {
+                        panic!("Failed to allocate memory for BelalangString");
+                    }
+
+                    for i in 0..value {
+                        std::ptr::copy_nonoverlapping(self.ptr, ptr.add(i * self.len), len);
+                    }
+
+                    ptr
+                };
+
+                vm.heap.alloc(Self {
+                    base: BelalangObject::new::<Self>(),
+                    ptr,
+                    len,
+                    cap,
+                })
+            }
+        )
     }
 }
