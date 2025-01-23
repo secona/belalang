@@ -67,6 +67,40 @@ impl BelalangType for BelalangString {
         self
     }
 
+    fn add(
+        &self,
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+        match_belalang_type!(other,
+            BelalangString => |other: &BelalangString| {
+                let len = self.len + other.len;
+                let cap = len;
+
+                let ptr = unsafe {
+                    let layout = Layout::from_size_align(len, align_of::<u8>()).unwrap();
+                    let ptr = alloc(layout);
+
+                    if ptr.is_null() {
+                        panic!("Failed to allocate memory for BelalangString");
+                    }
+
+                    std::ptr::copy_nonoverlapping(self.ptr, ptr, self.len);
+                    std::ptr::copy_nonoverlapping(other.ptr, ptr.add(self.len), other.len);
+
+                    ptr
+                };
+
+                vm.heap.alloc(Self {
+                    base: BelalangObject::new::<Self>(),
+                    ptr,
+                    len,
+                    cap,
+                })
+            }
+        )
+    }
+
     fn mul(
         &self,
         vm: &mut VM,
@@ -87,7 +121,7 @@ impl BelalangType for BelalangString {
                     }
 
                     for i in 0..value {
-                        std::ptr::copy_nonoverlapping(self.ptr, ptr.add(i * self.len), len);
+                        std::ptr::copy_nonoverlapping(self.ptr, ptr.add(i * self.len), self.len);
                     }
 
                     ptr
