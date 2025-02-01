@@ -6,9 +6,9 @@ use belalang_macros::belalang_type;
 
 use crate::errors::RuntimeError;
 use crate::types::integer::BelalangInteger;
-use crate::types::object::BelalangObject;
 use crate::types::BelalangType;
 use crate::vm::VM;
+use crate::BelalangBase;
 
 use super::match_belalang_type;
 
@@ -38,7 +38,7 @@ impl BelalangString {
         };
 
         Self {
-            base: BelalangObject::new::<Self>(),
+            base: BelalangBase::new::<Self>(),
             ptr,
             len,
             cap,
@@ -71,7 +71,7 @@ impl BelalangType for BelalangString {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         match_belalang_type!(other,
             BelalangString => |other: &BelalangString| {
                 let len = self.len + other.len;
@@ -92,7 +92,7 @@ impl BelalangType for BelalangString {
                 };
 
                 vm.heap.alloc(Self {
-                    base: BelalangObject::new::<Self>(),
+                    base: BelalangBase::new::<Self>(),
                     ptr,
                     len,
                     cap,
@@ -105,7 +105,7 @@ impl BelalangType for BelalangString {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let value = other.value.max(0) as usize;
@@ -128,7 +128,7 @@ impl BelalangType for BelalangString {
                 };
 
                 vm.heap.alloc(Self {
-                    base: BelalangObject::new::<Self>(),
+                    base: BelalangBase::new::<Self>(),
                     ptr,
                     len,
                     cap,

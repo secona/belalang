@@ -61,10 +61,10 @@ fn arithmetic_op(a: i64, b: i64, op: u8) -> i64 {
 
     let mut vm = VM::default();
 
-    let _ = vm.run(Bytecode {
+    vm.run(Bytecode {
         instructions,
         constants,
-    });
+    }).unwrap();
 
     assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
 

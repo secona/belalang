@@ -1,2 +1,1 @@
-pub use crate::types::registry::TYPE_REGISTRY;
-pub use ctor::ctor;
+pub use crate::types::base::BelalangBase;

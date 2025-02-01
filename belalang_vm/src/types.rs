@@ -7,12 +7,9 @@ use std::ptr::NonNull;
 use crate::errors::RuntimeError;
 use crate::vm::VM;
 
-use object::BelalangObject;
-
+pub mod base;
 pub mod boolean;
 pub mod integer;
-pub mod object;
-pub mod registry;
 pub mod string;
 
 #[allow(unused_variables)]
@@ -41,7 +38,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -49,7 +46,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -57,7 +54,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -65,7 +62,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -73,7 +70,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -81,7 +78,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -89,7 +86,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -97,7 +94,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -105,7 +102,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -113,7 +110,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -121,7 +118,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -129,7 +126,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -137,7 +134,7 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -145,13 +142,13 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn bit_sl(
         &self,
-        vm: &mut VM, other: &dyn BelalangType,) -> Result<NonNull<BelalangObject>, RuntimeError> {
+        vm: &mut VM, other: &dyn BelalangType,) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
@@ -159,15 +156,15 @@ pub trait BelalangType: Display + Debug {
         &self,
         vm: &mut VM,
         other: &dyn BelalangType,
-    ) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
-    fn neg(&self, vm: &mut VM) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn neg(&self, vm: &mut VM) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
-    fn not(&self, vm: &mut VM) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    fn not(&self, vm: &mut VM) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 }

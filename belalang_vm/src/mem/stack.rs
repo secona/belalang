@@ -1,13 +1,13 @@
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
-use crate::types::object::BelalangObject;
+use crate::types::BelalangType;
 
 const STACK_SIZE: usize = 4096;
 
 #[derive(Default, Debug)]
 pub enum StackObject {
-    Object(NonNull<BelalangObject>),
+    Object(NonNull<dyn BelalangType>),
     Ptr(u8),
     #[default]
     Null,

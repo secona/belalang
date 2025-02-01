@@ -2,16 +2,16 @@ use crate::bytecode::{Bytecode, Constant};
 use crate::errors::RuntimeError;
 use crate::mem::heap::Heap;
 use crate::mem::stack::{Stack, StackObject};
+use crate::types::BelalangType;
 use crate::opcode;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::integer::BelalangInteger;
-use crate::types::registry::cast_type;
 use crate::types::string::BelalangString;
 
 macro_rules! pop_object {
     ($self:expr) => {
-        if let StackObject::Object(ptr) = $self.stack.pop()? {
-            unsafe { cast_type(ptr.as_ptr()).unwrap() }
+        if let Ok(StackObject::Object(obj)) = $self.stack.pop() {
+            obj.as_ptr() as *const dyn BelalangType
         } else {
             return Err(RuntimeError::TypeError);
         }

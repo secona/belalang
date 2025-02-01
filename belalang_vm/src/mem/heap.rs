@@ -3,11 +3,12 @@ use std::marker::PhantomData;
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
-use crate::types::object::BelalangObject;
+use crate::types::BelalangType;
+use crate::BelalangBase;
 
 pub struct Heap {
-    pub start: Option<NonNull<BelalangObject>>,
-    _marker: PhantomData<BelalangObject>,
+    pub start: Option<NonNull<BelalangBase>>,
+    _marker: PhantomData<BelalangBase>,
 }
 
 #[allow(clippy::derivable_impls)]
@@ -21,27 +22,29 @@ impl Default for Heap {
 }
 
 impl Heap {
-    pub fn alloc<T>(&mut self, object: T) -> Result<NonNull<BelalangObject>, RuntimeError> {
+    pub fn alloc<T: BelalangType>(&mut self, object: T) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         let layout = Layout::new::<T>();
 
-        let object_ptr = unsafe {
-            let object_ptr = alloc(layout) as *mut T;
+        let base_ptr: *mut T = unsafe {
+            let ptr = alloc(layout) as *mut T;
 
-            if object_ptr.is_null() {
+            if ptr.is_null() {
                 return Err(RuntimeError::AllocationFailed);
             }
 
-            object_ptr.write(object);
+            ptr.write(object);
 
-            let ptr = object_ptr as *mut BelalangObject;
-            (*ptr).next = self.start;
-
-            NonNull::new_unchecked(object_ptr as *mut BelalangObject)
+            ptr
         };
 
-        self.start = Some(object_ptr);
+        unsafe {
+            let ptr = base_ptr as *mut BelalangBase;
+            (*ptr).next = self.start;
 
-        Ok(object_ptr)
+            self.start = Some(NonNull::new_unchecked(ptr));
+        }
+
+        unsafe { Ok(NonNull::new_unchecked(base_ptr as *mut dyn BelalangType)) }
     }
 
     /// # Safety
@@ -59,16 +62,16 @@ impl Heap {
     pub unsafe fn dealloc<T>(&mut self, ptr: NonNull<T>) -> Result<(), RuntimeError> {
         let layout = Layout::new::<T>();
 
-        let object_ptr = ptr.as_ptr() as *mut BelalangObject;
+        let base_ptr = ptr.as_ptr() as *mut BelalangBase;
 
         if let Some(start) = self.start {
-            if start.as_ptr() == object_ptr {
-                self.start = (*object_ptr).next;
+            if start.as_ptr() == base_ptr {
+                self.start = (*base_ptr).next;
             } else {
                 let mut current = start;
                 while let Some(next) = (*current.as_ptr()).next {
-                    if next.as_ptr() == object_ptr {
-                        (*current.as_ptr()).next = (*object_ptr).next;
+                    if next.as_ptr() == base_ptr {
+                        (*current.as_ptr()).next = (*base_ptr).next;
                         break;
                     }
                     current = next;
@@ -86,7 +89,7 @@ impl Drop for Heap {
     fn drop(&mut self) {
         while let Some(ptr) = self.start {
             unsafe {
-                let layout = Layout::new::<BelalangObject>();
+                let layout = Layout::new::<BelalangBase>();
                 self.start = (*ptr.as_ptr()).next;
                 dealloc(ptr.as_ptr() as *mut u8, layout);
             }
@@ -128,14 +131,19 @@ mod tests {
                 panic!("Error: Unexpected None at heap.start");
             };
 
-            assert_eq!(c, ptr, "Pointer mismatch at position {}", i);
+            assert_eq!(
+                c.as_ptr() as *const (),
+                ptr.as_ptr() as *const (),
+                "Pointer mismatch at position {}",
+                i
+            );
 
-            let object = unsafe {
-                let ptr = c.as_ptr() as *const BelalangObject;
+            let base = unsafe {
+                let ptr = c.as_ptr() as *const BelalangBase;
                 ptr.read()
             };
 
-            assert_eq!(object.obj_type, BelalangInteger::r#type());
+            assert_eq!(base.obj_type, BelalangInteger::r#type());
 
             let integer = unsafe {
                 let ptr = c.as_ptr() as *const BelalangInteger;
@@ -144,7 +152,7 @@ mod tests {
 
             assert_eq!(integer.value, *d);
 
-            current = object.next;
+            current = base.next;
         }
 
         assert!(current.is_none());
@@ -189,16 +197,21 @@ mod tests {
                 panic!("Error: Unexpected None at heap.start");
             };
 
-            assert_eq!(c, ptr, "Pointer mismatch at position {}", i);
+            assert_eq!(
+                c.as_ptr() as *const (),
+                ptr.as_ptr() as *const (),
+                "Pointer mismatch at position {}",
+                i
+            );
 
-            let object = unsafe {
-                let ptr = c.as_ptr() as *const BelalangObject;
+            let base = unsafe {
+                let ptr = c.as_ptr() as *const BelalangBase;
                 ptr.read()
             };
 
             match d {
                 Type::Integer(integer) => {
-                    assert_eq!(object.obj_type, BelalangInteger::r#type());
+                    assert_eq!(base.obj_type, BelalangInteger::r#type());
 
                     let object = unsafe {
                         let ptr = c.as_ptr() as *const BelalangInteger;
@@ -208,7 +221,7 @@ mod tests {
                     assert_eq!(object.value, *integer);
                 }
                 Type::Boolean(boolean) => {
-                    assert_eq!(object.obj_type, BelalangBoolean::r#type());
+                    assert_eq!(base.obj_type, BelalangBoolean::r#type());
 
                     let object = unsafe {
                         let ptr = c.as_ptr() as *const BelalangBoolean;
@@ -219,7 +232,7 @@ mod tests {
                 }
             };
 
-            current = object.next;
+            current = base.next;
         }
 
         assert!(current.is_none());
@@ -248,14 +261,19 @@ mod tests {
                 panic!("Error: Unexpected None at heap.start");
             };
 
-            assert_eq!(c, ptr, "Pointer mismatch at position {}", i);
+            assert_eq!(
+                c.as_ptr() as *const (),
+                ptr.as_ptr() as *const (),
+                "Pointer mismatch at position {}",
+                i
+            );
 
-            let object = unsafe {
-                let ptr = c.as_ptr() as *const BelalangObject;
+            let base = unsafe {
+                let ptr = c.as_ptr() as *const BelalangBase;
                 ptr.read()
             };
 
-            assert_eq!(object.obj_type, BelalangInteger::r#type());
+            assert_eq!(base.obj_type, BelalangInteger::r#type());
 
             let integer = unsafe {
                 let ptr = c.as_ptr() as *const BelalangInteger;
@@ -266,7 +284,7 @@ mod tests {
 
             unsafe { heap.dealloc(c).unwrap() };
 
-            current = object.next;
+            current = base.next;
         }
 
         assert!(current.is_none());
