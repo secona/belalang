@@ -93,79 +93,82 @@ impl Stack {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     #![allow(unused_allocation)]
-//
-//     use crate::types::integer::BelalangInteger;
-//
-//     use super::*;
-//
-//     macro_rules! assert_belalang_integer {
-//         ($top:expr, $value:expr) => {
-//             assert!(matches!(
-//                 $top,
-//                 StackObject::Object(obj) if *obj == Box::new(BelalangInteger::new($value))
-//             ));
-//         };
-//     }
-//
-//     #[test]
-//     fn push() {
-//         let mut stack = Stack::new();
-//
-//         stack
-//             .push(StackObject::Object(Box::new(BelalangInteger::new(10))))
-//             .unwrap();
-//
-//         assert_belalang_integer!(stack.top().unwrap(), 10);
-//     }
-//
-//     #[test]
-//     fn pop() {
-//         let mut stack = Stack::new();
-//
-//         stack
-//             .push(StackObject::Object(Box::new(BelalangInteger::new(10))))
-//             .unwrap();
-//         stack
-//             .push(StackObject::Object(Box::new(BelalangInteger::new(11))))
-//             .unwrap();
-//         stack
-//             .push(StackObject::Object(Box::new(BelalangInteger::new(12))))
-//             .unwrap();
-//
-//         assert_belalang_integer!(&stack.pop().unwrap(), 12);
-//         assert_belalang_integer!(&stack.pop().unwrap(), 11);
-//         assert_belalang_integer!(&stack.pop().unwrap(), 10);
-//         assert!(matches!(stack.pop(), Err(RuntimeError::StackUnderflow)));
-//     }
-//
-//     #[test]
-//     fn push_frame() {
-//         let mut stack = Stack::new();
-//
-//         stack.push_frame(3, 12).unwrap();
-//
-//         assert_eq!(stack.fp, 2);
-//         assert_eq!(stack.sp, 5);
-//
-//         assert!(matches!(stack.pop().unwrap(), StackObject::Null)); // local 1
-//         assert!(matches!(stack.pop().unwrap(), StackObject::Null)); // local 2
-//         assert!(matches!(stack.pop().unwrap(), StackObject::Null)); // local 3
-//         assert!(matches!(stack.pop().unwrap(), StackObject::Ptr(0))); // fp
-//         assert!(matches!(stack.pop().unwrap(), StackObject::Ptr(12))); // return address
-//         assert!(matches!(stack.pop(), Err(RuntimeError::StackUnderflow))); // bottom of stack
-//     }
-//
-//     #[test]
-//     fn pop_frame() {
-//         let mut stack = Stack::new();
-//
-//         stack.push_frame(3, 12).unwrap();
-//         stack.pop_frame().unwrap();
-//
-//         assert_eq!(stack.sp, 0);
-//         assert_eq!(stack.fp, 0);
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    #![allow(unused_allocation)]
+
+    use crate::{mem::heap::Heap, types::integer::BelalangInteger};
+
+    use super::*;
+
+    macro_rules! assert_belalang_integer {
+        ($top:expr, $value:expr) => {
+            let StackObject::Object(obj) = $top else {
+                panic!("Not a StackObject::Object");
+            };
+
+            let int = unsafe { (obj.as_ptr() as *const BelalangInteger).read() };
+            assert_eq!(int.value, $value);
+        };
+    }
+
+    #[test]
+    fn push() {
+        let mut stack = Stack::new();
+        let mut heap = Heap::default();
+
+        let ptr = heap.alloc(BelalangInteger::new(10)).unwrap();
+        stack.push(StackObject::Object(ptr)).unwrap();
+
+        assert_belalang_integer!(&stack.top().unwrap(), 10);
+    }
+
+    #[test]
+    fn pop() {
+        let mut stack = Stack::new();
+        let mut heap = Heap::default();
+
+        let ptr = heap.alloc(BelalangInteger::new(10)).unwrap();
+        stack.push(StackObject::Object(ptr)).unwrap();
+
+        let ptr = heap.alloc(BelalangInteger::new(11)).unwrap();
+        stack.push(StackObject::Object(ptr)).unwrap();
+
+        let ptr = heap.alloc(BelalangInteger::new(12)).unwrap();
+        stack.push(StackObject::Object(ptr)).unwrap();
+
+        assert_belalang_integer!(&stack.pop().unwrap(), 12);
+        assert_belalang_integer!(&stack.pop().unwrap(), 11);
+        assert_belalang_integer!(&stack.pop().unwrap(), 10);
+
+        assert!(matches!(stack.pop(), Err(RuntimeError::StackUnderflow)));
+    }
+
+    #[test]
+    fn push_frame() {
+        let mut stack = Stack::new();
+
+        stack.push_frame(3, 12).unwrap();
+
+        assert_eq!(stack.fp, 2);
+        assert_eq!(stack.sp, 5);
+
+        assert!(matches!(stack.pop().unwrap(), StackObject::Null)); // local 1
+        assert!(matches!(stack.pop().unwrap(), StackObject::Null)); // local 2
+        assert!(matches!(stack.pop().unwrap(), StackObject::Null)); // local 3
+        assert!(matches!(stack.pop().unwrap(), StackObject::Ptr(0))); // fp
+        assert!(matches!(stack.pop().unwrap(), StackObject::Ptr(12))); // return address
+        assert!(matches!(stack.pop(), Err(RuntimeError::StackUnderflow))); // bottom of stack
+    }
+
+    #[test]
+    fn pop_frame() {
+        let mut stack = Stack::new();
+
+        stack.push_frame(3, 12).unwrap();
+        stack.pop_frame().unwrap();
+
+        assert_eq!(stack.sp, 0);
+        assert_eq!(stack.fp, 0);
+    }
+}
