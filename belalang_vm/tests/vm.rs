@@ -1,11 +1,11 @@
 #![allow(clippy::vec_init_then_push)]
 #![allow(clippy::bool_assert_comparison)]
 
+use belalang_vm::bytecode::{Bytecode, Constant};
 use belalang_vm::mem::stack::StackObject;
+use belalang_vm::opcode;
 use belalang_vm::types::boolean::BelalangBoolean;
 use belalang_vm::types::integer::BelalangInteger;
-use belalang_vm::bytecode::{Bytecode, Constant};
-use belalang_vm::opcode;
 use belalang_vm::vm::VM;
 
 mod stack_op {
@@ -25,7 +25,8 @@ mod stack_op {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1);
 
@@ -60,7 +61,8 @@ mod jump_op {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1);
 
@@ -91,7 +93,8 @@ mod jump_op {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 2);
 

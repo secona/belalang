@@ -2,12 +2,12 @@ use crate::bytecode::{Bytecode, Constant};
 use crate::errors::RuntimeError;
 use crate::mem::heap::Heap;
 use crate::mem::stack::{Stack, StackObject};
-use crate::types::array::BelalangArray;
-use crate::types::BelalangType;
 use crate::opcode;
+use crate::types::array::BelalangArray;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::integer::BelalangInteger;
 use crate::types::string::BelalangString;
+use crate::types::BelalangType;
 
 macro_rules! pop_object {
     ($self:expr) => {
@@ -246,7 +246,12 @@ impl VM {
                     let array = self.heap.alloc(BelalangArray::with_capacity(cap))?;
 
                     for i in 0..cap {
-                        unsafe { (*(array.as_ptr() as *mut BelalangArray)).ptr.add(i).write(pop_object!(self)) };
+                        unsafe {
+                            (*(array.as_ptr() as *mut BelalangArray))
+                                .ptr
+                                .add(i)
+                                .write(pop_object!(self))
+                        };
                     }
 
                     self.stack.push(StackObject::Object(array))?;

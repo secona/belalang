@@ -22,7 +22,10 @@ impl Default for Heap {
 }
 
 impl Heap {
-    pub fn alloc<T: BelalangType>(&mut self, object: T) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+    pub fn alloc<T: BelalangType>(
+        &mut self,
+        object: T,
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         let layout = Layout::new::<T>();
 
         let base_ptr: *mut T = unsafe {

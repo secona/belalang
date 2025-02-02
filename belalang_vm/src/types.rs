@@ -149,7 +149,9 @@ pub trait BelalangType: Display + Debug {
 
     fn bit_sl(
         &self,
-        vm: &mut VM, other: &dyn BelalangType,) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        vm: &mut VM,
+        other: &dyn BelalangType,
+    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 

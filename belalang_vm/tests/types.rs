@@ -1,12 +1,12 @@
 #![allow(clippy::vec_init_then_push)]
 #![allow(clippy::bool_assert_comparison)]
 
+use belalang_vm::bytecode::{Bytecode, Constant};
 use belalang_vm::mem::stack::StackObject;
+use belalang_vm::opcode;
 use belalang_vm::types::boolean::BelalangBoolean;
 use belalang_vm::types::integer::BelalangInteger;
 use belalang_vm::types::string::BelalangString;
-use belalang_vm::bytecode::{Bytecode, Constant};
-use belalang_vm::opcode;
 use belalang_vm::vm::VM;
 
 mod number {
@@ -31,7 +31,8 @@ mod number {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
 
@@ -63,7 +64,8 @@ mod number {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1);
 
@@ -96,7 +98,8 @@ mod number {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1);
 
@@ -124,7 +127,8 @@ mod number {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1);
 
@@ -161,7 +165,8 @@ mod boolean {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1);
 
@@ -191,7 +196,8 @@ mod boolean {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1);
 
@@ -206,7 +212,6 @@ mod boolean {
         unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value
     }
 
-
     #[test]
     fn bang() {
         let constants = Vec::new();
@@ -220,7 +225,8 @@ mod boolean {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1);
 
@@ -254,7 +260,8 @@ mod string {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
 
@@ -287,7 +294,8 @@ mod string {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
 
@@ -318,7 +326,8 @@ mod string {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
 
@@ -358,6 +367,7 @@ mod array {
         vm.run(Bytecode {
             instructions,
             constants,
-        }).unwrap();
+        })
+        .unwrap();
     }
 }

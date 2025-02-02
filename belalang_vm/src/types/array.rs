@@ -3,8 +3,8 @@ use std::fmt::Display;
 
 use belalang_macros::belalang_type;
 
-use crate::BelalangBase;
 use crate::types::BelalangType;
+use crate::BelalangBase;
 
 #[belalang_type]
 pub struct BelalangArray {
@@ -76,7 +76,8 @@ impl BelalangArray {
 impl BelalangType for BelalangArray {
     fn type_name() -> String
     where
-        Self: Sized {
+        Self: Sized,
+    {
         "Array".into()
     }
 

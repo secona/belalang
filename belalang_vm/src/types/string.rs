@@ -58,7 +58,7 @@ impl Display for BelalangString {
 impl BelalangType for BelalangString {
     fn type_name() -> String
     where
-        Self: Sized
+        Self: Sized,
     {
         "String".into()
     }
