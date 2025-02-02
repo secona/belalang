@@ -6,13 +6,11 @@ use belalang_macros::belalang_type;
 
 use crate::errors::RuntimeError;
 use crate::types::integer::BelalangInteger;
-use crate::types::BelalangType;
+use crate::types::{match_belalang_type, BelalangOperators, BelalangType};
 use crate::vm::VM;
 use crate::BelalangBase;
 
-use super::match_belalang_type;
-
-#[belalang_type]
+#[belalang_type(name = "String")]
 pub struct BelalangString {
     pub ptr: *mut u8,
     pub len: usize,
@@ -55,18 +53,7 @@ impl Display for BelalangString {
     }
 }
 
-impl BelalangType for BelalangString {
-    fn type_name() -> String
-    where
-        Self: Sized,
-    {
-        "String".into()
-    }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
+impl BelalangOperators for BelalangString {
     fn add(
         &self,
         vm: &mut VM,

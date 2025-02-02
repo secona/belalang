@@ -5,11 +5,11 @@ use belalang_macros::belalang_type;
 
 use crate::errors::RuntimeError;
 use crate::types::match_belalang_type;
-use crate::types::BelalangType;
+use crate::types::{BelalangOperators, BelalangType};
 use crate::vm::VM;
 use crate::BelalangBase;
 
-#[belalang_type]
+#[belalang_type(name = "Boolean")]
 pub struct BelalangBoolean {
     pub value: bool,
 }
@@ -29,15 +29,7 @@ impl Display for BelalangBoolean {
     }
 }
 
-impl BelalangType for BelalangBoolean {
-    fn type_name() -> String {
-        "Boolean".into()
-    }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
+impl BelalangOperators for BelalangBoolean {
     fn truthy(&self) -> bool {
         self.value
     }

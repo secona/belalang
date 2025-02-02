@@ -6,11 +6,11 @@ use belalang_macros::belalang_type;
 use crate::errors::RuntimeError;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::match_belalang_type;
-use crate::types::BelalangType;
+use crate::types::{BelalangOperators, BelalangType};
 use crate::vm::VM;
 use crate::BelalangBase;
 
-#[belalang_type]
+#[belalang_type(name = "Integer")]
 pub struct BelalangInteger {
     pub value: i64,
 }
@@ -30,15 +30,7 @@ impl Display for BelalangInteger {
     }
 }
 
-impl BelalangType for BelalangInteger {
-    fn type_name() -> String {
-        "Integer".into()
-    }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
+impl BelalangOperators for BelalangInteger {
     fn truthy(&self) -> bool {
         self.value != 0
     }

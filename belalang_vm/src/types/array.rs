@@ -3,10 +3,10 @@ use std::fmt::Display;
 
 use belalang_macros::belalang_type;
 
-use crate::types::BelalangType;
+use crate::types::{BelalangOperators, BelalangType};
 use crate::BelalangBase;
 
-#[belalang_type]
+#[belalang_type(name = "Array")]
 pub struct BelalangArray {
     pub ptr: *mut *mut dyn BelalangType,
     pub len: usize,
@@ -73,15 +73,4 @@ impl BelalangArray {
     }
 }
 
-impl BelalangType for BelalangArray {
-    fn type_name() -> String
-    where
-        Self: Sized,
-    {
-        "Array".into()
-    }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-}
+impl BelalangOperators for BelalangArray {}

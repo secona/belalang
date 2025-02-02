@@ -13,8 +13,7 @@ pub mod boolean;
 pub mod integer;
 pub mod string;
 
-#[allow(unused_variables)]
-pub trait BelalangType: Display + Debug {
+pub trait BelalangType: BelalangOperators + Display + Debug {
     fn type_name() -> String
     where
         Self: Sized;
@@ -30,7 +29,10 @@ pub trait BelalangType: Display + Debug {
     }
 
     fn as_any(&self) -> &dyn Any;
+}
 
+#[allow(unused_variables)]
+pub trait BelalangOperators {
     fn truthy(&self) -> bool {
         false
     }
