@@ -89,9 +89,8 @@ impl Drop for Heap {
     fn drop(&mut self) {
         while let Some(ptr) = self.start {
             unsafe {
-                let layout = Layout::new::<BelalangBase>();
                 self.start = (*ptr.as_ptr()).next;
-                dealloc(ptr.as_ptr() as *mut u8, layout);
+                self.dealloc::<BelalangBase>(ptr).unwrap();
             }
         }
     }

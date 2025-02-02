@@ -93,8 +93,8 @@ pub fn get_builtin(v: u8) -> [u8; 2] {
     [GET_BUILTIN, v]
 }
 
-pub fn array(v: u16) -> [u8; 3] {
-    [ARRAY, (v >> 8) as u8, (v & 0xFF) as u8]
+pub fn array(v: u8) -> [u8; 2] {
+    [ARRAY, v]
 }
 
 #[cfg(test)]

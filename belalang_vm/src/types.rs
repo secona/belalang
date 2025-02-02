@@ -7,6 +7,7 @@ use std::ptr::NonNull;
 use crate::errors::RuntimeError;
 use crate::vm::VM;
 
+pub mod array;
 pub mod base;
 pub mod boolean;
 pub mod integer;

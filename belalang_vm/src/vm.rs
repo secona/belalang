@@ -2,6 +2,7 @@ use crate::bytecode::{Bytecode, Constant};
 use crate::errors::RuntimeError;
 use crate::mem::heap::Heap;
 use crate::mem::stack::{Stack, StackObject};
+use crate::types::array::BelalangArray;
 use crate::types::BelalangType;
 use crate::opcode;
 use crate::types::boolean::BelalangBoolean;
@@ -11,7 +12,7 @@ use crate::types::string::BelalangString;
 macro_rules! pop_object {
     ($self:expr) => {
         if let Ok(StackObject::Object(obj)) = $self.stack.pop() {
-            obj.as_ptr() as *const dyn BelalangType
+            obj.as_ptr() as *mut dyn BelalangType
         } else {
             return Err(RuntimeError::TypeError);
         }
@@ -238,6 +239,17 @@ impl VM {
                     let result = unsafe { (*right).neg(self) }?;
 
                     self.stack.push(StackObject::Object(result))?;
+                }
+
+                opcode::ARRAY => {
+                    let cap: usize = self.read_u8().into();
+                    let array = self.heap.alloc(BelalangArray::with_capacity(cap))?;
+
+                    for i in 0..cap {
+                        unsafe { (*(array.as_ptr() as *mut BelalangArray)).ptr.add(i).write(pop_object!(self)) };
+                    }
+
+                    self.stack.push(StackObject::Object(array))?;
                 }
 
                 opcode::JUMP => {
