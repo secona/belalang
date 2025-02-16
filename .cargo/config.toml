@@ -1,0 +1,6 @@
+[alias]
+belalang = "run -p belalang"
+
+debug-lexer = "run --bin debug_lexer -F debug"
+debug-parser = "run --bin debug_parser -F debug"
+debug-compiler = "run --bin debug_compiler -F debug"
