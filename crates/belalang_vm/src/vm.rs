@@ -3,11 +3,12 @@ use crate::errors::RuntimeError;
 use crate::mem::heap::Heap;
 use crate::mem::stack::{Stack, StackObject};
 use crate::opcode;
-use crate::types::array::BelalangArray;
-use crate::types::boolean::BelalangBoolean;
-use crate::types::integer::BelalangInteger;
-use crate::types::string::BelalangString;
-use crate::types::BelalangObject;
+
+use crate::objects::array::BelalangArray;
+use crate::objects::boolean::BelalangBoolean;
+use crate::objects::integer::BelalangInteger;
+use crate::objects::string::BelalangString;
+use crate::objects::BelalangObject;
 
 macro_rules! pop_object {
     ($self:expr) => {

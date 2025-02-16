@@ -1,5 +1,5 @@
-use crate::types::integer::BelalangInteger;
-use crate::types::BelalangObject;
+use crate::objects::integer::BelalangInteger;
+use crate::objects::BelalangObject;
 
 pub type BuiltinFn = fn(&[Box<dyn BelalangObject>]) -> Box<dyn BelalangObject>;
 

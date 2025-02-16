@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use belalang_macros::belalang_object;
 
-use crate::types::{BelalangOperators, BelalangObject};
+use crate::objects::{BelalangOperators, BelalangObject};
 use crate::BelalangBase;
 
 #[belalang_object(name = "Array")]

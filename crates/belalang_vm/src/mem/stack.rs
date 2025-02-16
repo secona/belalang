@@ -1,7 +1,7 @@
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
-use crate::types::BelalangObject;
+use crate::objects::BelalangObject;
 
 const STACK_SIZE: usize = 4096;
 
@@ -97,7 +97,8 @@ impl Stack {
 mod tests {
     #![allow(unused_allocation)]
 
-    use crate::{mem::heap::Heap, types::integer::BelalangInteger};
+    use crate::objects::integer::BelalangInteger;
+    use crate::mem::heap::Heap;
 
     use super::*;
 

@@ -5,8 +5,8 @@ use std::ptr::NonNull;
 use belalang_macros::belalang_object;
 
 use crate::errors::RuntimeError;
-use crate::types::integer::BelalangInteger;
-use crate::types::{match_belalang_type, BelalangOperators, BelalangObject};
+use crate::objects::integer::BelalangInteger;
+use crate::objects::{match_belalang_type, BelalangOperators, BelalangObject};
 use crate::vm::VM;
 use crate::BelalangBase;
 

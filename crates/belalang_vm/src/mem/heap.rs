@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
-use crate::types::BelalangObject;
+use crate::objects::BelalangObject;
 use crate::BelalangBase;
 
 pub struct Heap {
@@ -104,9 +104,9 @@ impl Drop for Heap {
 mod tests {
     use test_case::test_case;
 
-    use crate::types::boolean::BelalangBoolean;
-    use crate::types::integer::BelalangInteger;
-    use crate::types::BelalangObject;
+    use crate::objects::boolean::BelalangBoolean;
+    use crate::objects::integer::BelalangInteger;
+    use crate::objects::BelalangObject;
 
     use super::*;
 
