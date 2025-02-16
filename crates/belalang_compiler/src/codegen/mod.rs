@@ -95,28 +95,24 @@ impl Compiler {
             }
 
             Expression::Float(_float) => {
-                panic!("Float compilation is temporarily disabled!");
                 // let float = Object::Float(float.value);
                 // let index = self.add_constant(float) as u16;
                 // self.add_instruction(opcode::constant(index).to_vec());
             }
 
             Expression::String(_string) => {
-                panic!("String compilation is temporarily disabled!");
                 // let string = Object::String(string.value);
                 // let index = self.add_constant(string) as u16;
                 // self.add_instruction(opcode::constant(index).to_vec());
             }
 
             Expression::Null(_) => {
-                panic!("Null compilation is temporarily disabled!");
                 // let null = Object::Null;
                 // let index = self.add_constant(null) as u16;
                 // self.add_instruction(opcode::constant(index).to_vec());
             }
 
             Expression::Array(_array) => {
-                panic!("Array compilation is temporarily disabled!");
                 // let array_len = array.elements.len() as u16;
                 //
                 // for element in array.elements.into_iter().rev() {

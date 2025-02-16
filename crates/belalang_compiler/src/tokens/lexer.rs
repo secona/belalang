@@ -36,7 +36,7 @@ pub struct Lexer<'a> {
 }
 
 impl<'a> Lexer<'a> {
-    pub fn new(input: &'a [u8]) -> Lexer {
+    pub fn new(input: &'a [u8]) -> Lexer<'a> {
         Lexer {
             input,
             position: 0,
