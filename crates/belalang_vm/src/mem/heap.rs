@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
-use crate::types::BelalangType;
+use crate::types::BelalangObject;
 use crate::BelalangBase;
 
 pub struct Heap {
@@ -22,10 +22,10 @@ impl Default for Heap {
 }
 
 impl Heap {
-    pub fn alloc<T: BelalangType>(
+    pub fn alloc<T: BelalangObject>(
         &mut self,
         object: T,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         let layout = Layout::new::<T>();
 
         let base_ptr: *mut T = unsafe {
@@ -47,7 +47,7 @@ impl Heap {
             self.start = Some(NonNull::new_unchecked(ptr));
         }
 
-        unsafe { Ok(NonNull::new_unchecked(base_ptr as *mut dyn BelalangType)) }
+        unsafe { Ok(NonNull::new_unchecked(base_ptr as *mut dyn BelalangObject)) }
     }
 
     /// # Safety
@@ -106,7 +106,7 @@ mod tests {
 
     use crate::types::boolean::BelalangBoolean;
     use crate::types::integer::BelalangInteger;
-    use crate::types::BelalangType;
+    use crate::types::BelalangObject;
 
     use super::*;
 

@@ -1,14 +1,14 @@
 use std::alloc::{alloc, dealloc, Layout};
 use std::fmt::Display;
 
-use belalang_macros::belalang_type;
+use belalang_macros::belalang_object;
 
-use crate::types::{BelalangOperators, BelalangType};
+use crate::types::{BelalangOperators, BelalangObject};
 use crate::BelalangBase;
 
-#[belalang_type(name = "Array")]
+#[belalang_object(name = "Array")]
 pub struct BelalangArray {
-    pub ptr: *mut *mut dyn BelalangType,
+    pub ptr: *mut *mut dyn BelalangObject,
     pub len: usize,
     pub cap: usize,
 }
@@ -34,14 +34,14 @@ impl BelalangArray {
         let cap = string.len();
 
         let ptr = unsafe {
-            let layout = Layout::from_size_align(len, align_of::<*mut dyn BelalangType>()).unwrap();
+            let layout = Layout::from_size_align(len, align_of::<*mut dyn BelalangObject>()).unwrap();
             let ptr = alloc(layout);
 
             if ptr.is_null() {
                 panic!("Failed to allocate memory for BelalangArray");
             }
 
-            ptr as *mut *mut dyn BelalangType
+            ptr as *mut *mut dyn BelalangObject
         };
 
         Self {
@@ -54,14 +54,14 @@ impl BelalangArray {
 
     pub fn with_capacity(cap: usize) -> Self {
         let ptr = unsafe {
-            let layout = Layout::from_size_align(cap, align_of::<*mut dyn BelalangType>()).unwrap();
+            let layout = Layout::from_size_align(cap, align_of::<*mut dyn BelalangObject>()).unwrap();
             let ptr = alloc(layout);
 
             if ptr.is_null() {
                 panic!("Failed to allocate memory for BelalangArray");
             }
 
-            ptr as *mut *mut dyn BelalangType
+            ptr as *mut *mut dyn BelalangObject
         };
 
         Self {

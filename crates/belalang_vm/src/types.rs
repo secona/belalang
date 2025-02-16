@@ -13,7 +13,7 @@ pub mod boolean;
 pub mod integer;
 pub mod string;
 
-pub trait BelalangType: BelalangOperators + Display + Debug {
+pub trait BelalangObject: BelalangOperators + Display + Debug {
     fn type_name() -> String
     where
         Self: Sized;
@@ -40,136 +40,136 @@ pub trait BelalangOperators {
     fn add(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn sub(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn mul(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn div(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn r#mod(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn eq(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn ne(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn lt(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn le(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn and(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn or(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn bit_and(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn bit_or(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn bit_xor(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn bit_sl(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
     fn bit_sr(
         &self,
         vm: &mut VM,
-        other: &dyn BelalangType,
-    ) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+        other: &dyn BelalangObject,
+    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
-    fn neg(&self, vm: &mut VM) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+    fn neg(&self, vm: &mut VM) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 
-    fn not(&self, vm: &mut VM) -> Result<NonNull<dyn BelalangType>, RuntimeError> {
+    fn not(&self, vm: &mut VM) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
         Err(RuntimeError::TypeError)
     }
 }

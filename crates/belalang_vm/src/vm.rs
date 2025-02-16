@@ -7,12 +7,12 @@ use crate::types::array::BelalangArray;
 use crate::types::boolean::BelalangBoolean;
 use crate::types::integer::BelalangInteger;
 use crate::types::string::BelalangString;
-use crate::types::BelalangType;
+use crate::types::BelalangObject;
 
 macro_rules! pop_object {
     ($self:expr) => {
         if let Ok(StackObject::Object(obj)) = $self.stack.pop() {
-            obj.as_ptr() as *mut dyn BelalangType
+            obj.as_ptr() as *mut dyn BelalangObject
         } else {
             return Err(RuntimeError::TypeError);
         }

@@ -1,6 +1,6 @@
 use std::ptr::NonNull;
 
-use super::BelalangType;
+use super::BelalangObject;
 
 #[derive(Debug)]
 pub struct BelalangBase {
@@ -10,7 +10,7 @@ pub struct BelalangBase {
 }
 
 impl BelalangBase {
-    pub fn new<T: BelalangType>() -> Self {
+    pub fn new<T: BelalangObject>() -> Self {
         Self {
             obj_type: T::r#type(),
             is_marked: false,

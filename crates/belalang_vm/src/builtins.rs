@@ -1,7 +1,7 @@
 use crate::types::integer::BelalangInteger;
-use crate::types::BelalangType;
+use crate::types::BelalangObject;
 
-pub type BuiltinFn = fn(&[Box<dyn BelalangType>]) -> Box<dyn BelalangType>;
+pub type BuiltinFn = fn(&[Box<dyn BelalangObject>]) -> Box<dyn BelalangObject>;
 
 pub static BUILTIN_FUNCTIONS: &[(&str, BuiltinFn)] = &[("print", |args| {
     // TODO: handle null values

@@ -1,2 +1,2 @@
 pub use crate::types::base::BelalangBase;
-pub use crate::types::BelalangType;
+pub use crate::types::BelalangObject;

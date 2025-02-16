@@ -5,11 +5,11 @@ use syn::{parse_macro_input, Fields, ItemStruct, Token};
 
 // TODO: add documentation and clear namings
 
-struct BelalangTypeArgs {
+struct BelalangObjectArgs {
     name: syn::LitStr,
 }
 
-impl Parse for BelalangTypeArgs {
+impl Parse for BelalangObjectArgs {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut name = None;
 
@@ -32,16 +32,16 @@ impl Parse for BelalangTypeArgs {
             }
         }
 
-        Ok(BelalangTypeArgs {
+        Ok(BelalangObjectArgs {
             name: name.ok_or_else(|| syn::Error::new(input.span(), "missing `name` argument"))?,
         })
     }
 }
 
 #[proc_macro_attribute]
-pub fn belalang_type(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn belalang_object(attr: TokenStream, item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item as ItemStruct);
-    let args = parse_macro_input!(attr as BelalangTypeArgs);
+    let args = parse_macro_input!(attr as BelalangObjectArgs);
 
     let Fields::Named(fields) = &input.fields else {
         return syn::Error::new_spanned(
@@ -68,7 +68,7 @@ pub fn belalang_type(attr: TokenStream, item: TokenStream) -> TokenStream {
             #named_fields
         }
 
-        impl crate::BelalangType for #struct_name {
+        impl crate::BelalangObject for #struct_name {
             fn type_name() -> String {
                 #type_name.into()
             }
