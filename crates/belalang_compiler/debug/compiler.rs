@@ -15,15 +15,19 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
     let code = compiler.compile_program(program)?;
 
     let disassembled = disassemble(code.instructions);
+
+    println!("===== BYTECODE =====");
     print!("{disassembled}");
 
-    println!("\n[constants]");
+    println!("\n===== CONSTANTS =====");
     for (i, constant) in code.constants.iter().enumerate() {
         println!("{:#04x}: {:?}", i, constant);
     }
 
-    println!("\n[symbols]");
+    println!("\n===== SYMBOLS =====");
     println!("{:#?}", compiler.scope.current().symbol_store);
+
+    println!();
 
     Ok(())
 }
@@ -37,6 +41,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         input.clear();
         io::stdin().read_line(&mut input).unwrap();
+
+        if input.trim().is_empty() {
+            println!();
+            continue;
+        }
 
         if let Err(error) = compile(input.clone()) {
             println!("ERROR: {}", error);

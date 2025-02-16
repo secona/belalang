@@ -14,6 +14,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         input.clear();
         io::stdin().read_line(&mut input).unwrap();
 
+        if input.trim().is_empty() {
+            println!();
+            continue;
+        }
+
         let lexer = Lexer::new(input.as_bytes());
         let mut parser = Parser::new(lexer);
 
@@ -21,5 +26,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Ok(program) => println!("{:#?}", program.statements),
             Err(err) => println!("ERROR: {}", err),
         }
+
+        println!();
     }
 }
