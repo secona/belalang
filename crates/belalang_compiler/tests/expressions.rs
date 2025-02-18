@@ -8,9 +8,12 @@ use belalang_compiler::tokens::Token;
 use common::test_parse;
 use common::test_parse_to_string;
 
-#[test]
-fn boolean_true() {
-    let program = test_parse("true;");
+use test_case::test_case;
+
+#[test_case("true;" => (Token::True, true); "_true")]
+#[test_case("false;" => (Token::False, false); "_false")]
+fn booleans(input: &str) -> (Token, bool) {
+    let program = test_parse(input);
 
     assert_eq!(program.statements.len(), 1);
 
@@ -18,22 +21,7 @@ fn boolean_true() {
 
     let bool_expr = as_variant!(&expr.expression, ast::Expression::Boolean);
 
-    assert_eq!(bool_expr.value, true);
-    assert_eq!(bool_expr.token, Token::True);
-}
-
-#[test]
-fn boolean_false() {
-    let program = test_parse("false;");
-
-    assert_eq!(program.statements.len(), 1);
-
-    let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
-
-    let bool_expr = as_variant!(&expr.expression, ast::Expression::Boolean);
-
-    assert_eq!(bool_expr.value, false);
-    assert_eq!(bool_expr.token, Token::False);
+    (bool_expr.token.clone(), bool_expr.value)
 }
 
 #[test]
@@ -157,26 +145,19 @@ fn function() {
         )
     );
 }
-#[test]
-fn function_params() {
-    let tests: [(&str, Vec<&str>); 4] = [
-        ("fn() {};", [].into()),
-        ("fn(x) {};", ["x"].into()),
-        ("fn(x, y) {};", ["x", "y"].into()),
-        ("fn(x, y, z) {};", ["x", "y", "z"].into()),
-    ];
 
-    for test in tests {
-        let program = test_parse(test.0);
+#[test_case("fn() {};" => Vec::<String>::new(); "no params")]
+#[test_case("fn(x) {};" => vec!["x"]; "one params")]
+#[test_case("fn(x, y) {};" => vec!["x", "y"]; "two params")]
+#[test_case("fn(x, y, z) {};" => vec!["x", "y", "z"]; "three params")]
+fn function_params(input: &str) -> Vec<String> {
+    let program = test_parse(input);
 
-        let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
+    let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
 
-        let function = as_variant!(&stmt.expression, ast::Expression::Function);
+    let function = as_variant!(&stmt.expression, ast::Expression::Function);
 
-        for (i, exp) in test.1.iter().enumerate() {
-            ident_has_name!(function.params[i], *exp);
-        }
-    }
+    function.params.iter().map(|param| param.value.clone()).collect::<Vec<String>>()
 }
 
 #[test]
