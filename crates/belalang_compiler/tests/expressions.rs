@@ -157,7 +157,11 @@ fn function_params(input: &str) -> Vec<String> {
 
     let function = as_variant!(&stmt.expression, ast::Expression::Function);
 
-    function.params.iter().map(|param| param.value.clone()).collect::<Vec<String>>()
+    function
+        .params
+        .iter()
+        .map(|param| param.value.clone())
+        .collect::<Vec<String>>()
 }
 
 #[test]

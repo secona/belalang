@@ -97,8 +97,8 @@ impl Stack {
 mod tests {
     #![allow(unused_allocation)]
 
-    use crate::objects::integer::BelalangInteger;
     use crate::mem::heap::Heap;
+    use crate::objects::integer::BelalangInteger;
 
     use super::*;
 

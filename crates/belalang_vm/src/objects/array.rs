@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use belalang_macros::belalang_object;
 
-use crate::objects::{BelalangOperators, BelalangObject};
+use crate::objects::{BelalangObject, BelalangOperators};
 use crate::BelalangBase;
 
 #[belalang_object(name = "Array")]
@@ -34,7 +34,8 @@ impl BelalangArray {
         let cap = string.len();
 
         let ptr = unsafe {
-            let layout = Layout::from_size_align(len, align_of::<*mut dyn BelalangObject>()).unwrap();
+            let layout =
+                Layout::from_size_align(len, align_of::<*mut dyn BelalangObject>()).unwrap();
             let ptr = alloc(layout);
 
             if ptr.is_null() {
@@ -54,7 +55,8 @@ impl BelalangArray {
 
     pub fn with_capacity(cap: usize) -> Self {
         let ptr = unsafe {
-            let layout = Layout::from_size_align(cap, align_of::<*mut dyn BelalangObject>()).unwrap();
+            let layout =
+                Layout::from_size_align(cap, align_of::<*mut dyn BelalangObject>()).unwrap();
             let ptr = alloc(layout);
 
             if ptr.is_null() {
