@@ -16,39 +16,44 @@
     };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    rust-overlay,
-    naersk,
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      overlays = [ (import rust-overlay) ];
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      rust-overlay,
+      naersk,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        overlays = [ (import rust-overlay) ];
 
-      pkgs = import nixpkgs {
-        inherit system overlays;
-      };
+        pkgs = import nixpkgs { inherit system overlays; };
 
-      toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
-      naersk' = pkgs.callPackage naersk {
-        cargo = toolchain;
-        rustc = toolchain;
-        clippy = toolchain;
-      };
+        naersk' = pkgs.callPackage naersk {
+          cargo = toolchain;
+          rustc = toolchain;
+          clippy = toolchain;
+        };
 
-      belalang = naersk'.buildPackage {
-        name = "belalang";
-        version = "0.1.0";
-        src = ./.;
-      };
-    in {
-      packages.default = belalang;
+        belalang = naersk'.buildPackage {
+          name = "belalang";
+          version = "0.1.0";
+          src = ./.;
+        };
+      in
+      {
+        formatter = pkgs.nixfmt-rfc-style;
 
-      devShells.default = pkgs.mkShell {
-        name = "belalang";
-        buildInputs = [toolchain];
-      };
-    });
+        packages.default = belalang;
+
+        devShells.default = pkgs.mkShell {
+          name = "belalang";
+          buildInputs = [ toolchain pkgs.cargo-nextest ];
+        };
+      }
+    );
 }
