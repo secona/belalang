@@ -21,18 +21,16 @@ impl BelalangPtr {
 
 impl Drop for BelalangPtr {
     fn drop(&mut self) {
-        let inner = unsafe {
-            let ptr = self.ptr.as_ptr() as *const BelalangBase;
-            ptr.read()
+        unsafe {
+            let base_ptr = self.ptr.as_ptr() as *mut BelalangBase;
+            let ref_count = (*base_ptr).ref_count.get();
+
+            if ref_count == 1 {
+                drop_in_place(self.ptr.as_ptr());
+            } else {
+                (*base_ptr).ref_count.set(ref_count - 1);
+            }
         };
-
-        let ref_count = inner.ref_count.get();
-
-        if ref_count == 1 {
-            unsafe { drop_in_place(self.ptr.as_ptr()) };
-        } else {
-            inner.ref_count.set(ref_count - 1);
-        }
     }
 }
 
@@ -51,12 +49,11 @@ mod tests {
         let int = heap.alloc(BelalangInteger::new(1)).unwrap();
         let ptr = BelalangPtr::new(int);
 
-        let base = unsafe {
-            let ptr = int.as_ptr() as *const BelalangBase;
-            ptr.read()
+        let ref_count = unsafe {
+            let base_ptr = int.as_ptr() as *const BelalangBase;
+            (*base_ptr).ref_count.get()
         };
-
-        assert_eq!(base.ref_count.get(), 1);
+        assert_eq!(ref_count, 1);
     }
 
     #[test]
@@ -67,11 +64,33 @@ mod tests {
         let ptr1 = BelalangPtr::new(int);
         let ptr2 = BelalangPtr::new(int);
 
-        let base = unsafe {
-            let ptr = int.as_ptr() as *const BelalangBase;
-            ptr.read()
+        let ref_count = unsafe {
+            let base_ptr = int.as_ptr() as *const BelalangBase;
+            (*base_ptr).ref_count.get()
         };
+        assert_eq!(ref_count, 2);
+    }
 
-        assert_eq!(base.ref_count.get(), 2);
+    #[test]
+    fn drop_decrements_ref_count() {
+        let mut heap = Heap::default();
+
+        let int = heap.alloc(BelalangInteger::new(1)).unwrap();
+        let ptr1 = BelalangPtr::new(int);
+        let ptr2 = BelalangPtr::new(int);
+
+        let ref_count = unsafe {
+            let base_ptr = int.as_ptr() as *const BelalangBase;
+            (*base_ptr).ref_count.get()
+        };
+        assert_eq!(ref_count, 2);
+
+        drop(ptr2);
+
+        let ref_count = unsafe {
+            let base_ptr = int.as_ptr() as *const BelalangBase;
+            (*base_ptr).ref_count.get()
+        };
+        assert_eq!(ref_count, 1);
     }
 }
