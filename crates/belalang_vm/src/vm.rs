@@ -8,12 +8,11 @@ use crate::objects::array::BelalangArray;
 use crate::objects::boolean::BelalangBoolean;
 use crate::objects::integer::BelalangInteger;
 use crate::objects::string::BelalangString;
-use crate::objects::BelalangObject;
 
 macro_rules! pop_object {
     ($self:expr) => {
         if let Ok(StackObject::Object(obj)) = $self.stack.pop() {
-            obj.as_ptr() as *mut dyn BelalangObject
+            obj.as_ptr()
         } else {
             return Err(RuntimeError::TypeError);
         }
@@ -247,11 +246,15 @@ impl VM {
                     let array = self.heap.alloc(BelalangArray::with_capacity(cap))?;
 
                     for i in 0..cap {
+                        let Ok(StackObject::Object(obj)) = self.stack.pop() else {
+                            return Err(RuntimeError::TypeError);
+                        };
+
                         unsafe {
                             (*(array.as_ptr() as *mut BelalangArray))
                                 .ptr
                                 .add(i)
-                                .write(pop_object!(self))
+                                .write(obj.clone())
                         };
                     }
 
@@ -299,5 +302,15 @@ impl VM {
         self.ip += 1;
 
         v
+    }
+}
+
+impl Drop for VM {
+    fn drop(&mut self) {
+        self.instructions.clear();
+        self.constants.clear();
+
+        std::mem::drop(std::mem::take(&mut self.stack));
+        std::mem::drop(std::mem::take(&mut self.heap));
     }
 }
