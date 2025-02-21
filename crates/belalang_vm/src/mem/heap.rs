@@ -3,6 +3,7 @@ use std::marker::PhantomData;
 use std::ptr::NonNull;
 
 use crate::errors::RuntimeError;
+use crate::objects::ptr::BelalangPtr;
 use crate::objects::BelalangObject;
 use crate::BelalangBase;
 
@@ -22,10 +23,7 @@ impl Default for Heap {
 }
 
 impl Heap {
-    pub fn alloc<T: BelalangObject>(
-        &mut self,
-        object: T,
-    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
+    pub fn alloc<T: BelalangObject>(&mut self, object: T) -> Result<BelalangPtr, RuntimeError> {
         let layout = Layout::new::<T>();
 
         let base_ptr: *mut T = unsafe {
@@ -47,7 +45,9 @@ impl Heap {
             self.start = Some(NonNull::new_unchecked(ptr));
         }
 
-        unsafe { Ok(NonNull::new_unchecked(base_ptr as *mut dyn BelalangObject)) }
+        Ok(BelalangPtr::new(unsafe {
+            NonNull::new_unchecked(base_ptr as *mut dyn BelalangObject)
+        }))
     }
 
     /// # Safety
@@ -122,11 +122,10 @@ mod tests {
         }
 
         let mut current = heap.start;
-
         for (i, (d, ptr)) in data
             .iter()
             .rev()
-            .zip(allocated_ptrs.into_iter().rev())
+            .zip(allocated_ptrs.iter().rev())
             .enumerate()
         {
             let Some(c) = current else {

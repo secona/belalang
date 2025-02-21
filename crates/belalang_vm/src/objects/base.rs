@@ -4,6 +4,7 @@ use std::ptr::NonNull;
 use super::BelalangObject;
 
 #[derive(Debug)]
+#[repr(C)]
 pub struct BelalangBase {
     pub obj_type: u32,
     pub ref_count: Cell<usize>,

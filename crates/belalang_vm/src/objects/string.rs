@@ -1,6 +1,5 @@
 use std::alloc::{alloc, Layout};
 use std::fmt::Display;
-use std::ptr::NonNull;
 
 use belalang_macros::belalang_object;
 
@@ -9,6 +8,8 @@ use crate::objects::integer::BelalangInteger;
 use crate::objects::{match_belalang_type, BelalangObject, BelalangOperators};
 use crate::vm::VM;
 use crate::BelalangBase;
+
+use super::ptr::BelalangPtr;
 
 #[belalang_object(name = "String")]
 pub struct BelalangString {
@@ -54,11 +55,7 @@ impl Display for BelalangString {
 }
 
 impl BelalangOperators for BelalangString {
-    fn add(
-        &self,
-        vm: &mut VM,
-        other: &dyn BelalangObject,
-    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
+    fn add(&self, vm: &mut VM, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
         match_belalang_type!(other,
             BelalangString => |other: &BelalangString| {
                 let len = self.len + other.len;
@@ -88,11 +85,7 @@ impl BelalangOperators for BelalangString {
         )
     }
 
-    fn mul(
-        &self,
-        vm: &mut VM,
-        other: &dyn BelalangObject,
-    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
+    fn mul(&self, vm: &mut VM, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
         match_belalang_type!(other,
             BelalangInteger => |other: &BelalangInteger| {
                 let value = other.value.max(0) as usize;

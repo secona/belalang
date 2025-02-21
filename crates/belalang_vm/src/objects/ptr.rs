@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::ptr::{drop_in_place, NonNull};
 
 use crate::BelalangBase;
@@ -17,6 +18,27 @@ impl BelalangPtr {
 
         Self { ptr }
     }
+
+    pub fn as_ptr(&self) -> *mut dyn BelalangObject {
+        self.ptr.as_ptr()
+    }
+}
+
+impl Debug for BelalangPtr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.ptr)
+    }
+}
+
+impl Clone for BelalangPtr {
+    fn clone(&self) -> Self {
+        unsafe {
+            let base_ptr = self.ptr.as_ptr() as *mut BelalangBase;
+            (*base_ptr).ref_count.set((*base_ptr).ref_count.get() + 1);
+        };
+
+        Self { ptr: self.ptr }
+    }
 }
 
 impl Drop for BelalangPtr {
@@ -25,10 +47,11 @@ impl Drop for BelalangPtr {
             let base_ptr = self.ptr.as_ptr() as *mut BelalangBase;
             let ref_count = (*base_ptr).ref_count.get();
 
-            if ref_count == 1 {
+            let new_count = ref_count - 1;
+            (*base_ptr).ref_count.set(new_count);
+
+            if new_count == 0 {
                 drop_in_place(self.ptr.as_ptr());
-            } else {
-                (*base_ptr).ref_count.set(ref_count - 1);
             }
         };
     }
@@ -47,7 +70,6 @@ mod tests {
         let mut heap = Heap::default();
 
         let int = heap.alloc(BelalangInteger::new(1)).unwrap();
-        let ptr = BelalangPtr::new(int);
 
         let ref_count = unsafe {
             let base_ptr = int.as_ptr() as *const BelalangBase;
@@ -61,8 +83,7 @@ mod tests {
         let mut heap = Heap::default();
 
         let int = heap.alloc(BelalangInteger::new(1)).unwrap();
-        let ptr1 = BelalangPtr::new(int);
-        let ptr2 = BelalangPtr::new(int);
+        let int2 = int.clone();
 
         let ref_count = unsafe {
             let base_ptr = int.as_ptr() as *const BelalangBase;
@@ -76,8 +97,7 @@ mod tests {
         let mut heap = Heap::default();
 
         let int = heap.alloc(BelalangInteger::new(1)).unwrap();
-        let ptr1 = BelalangPtr::new(int);
-        let ptr2 = BelalangPtr::new(int);
+        let int2 = int.clone();
 
         let ref_count = unsafe {
             let base_ptr = int.as_ptr() as *const BelalangBase;
@@ -85,7 +105,7 @@ mod tests {
         };
         assert_eq!(ref_count, 2);
 
-        drop(ptr2);
+        drop(int2);
 
         let ref_count = unsafe {
             let base_ptr = int.as_ptr() as *const BelalangBase;

@@ -1,13 +1,11 @@
-use std::ptr::NonNull;
-
 use crate::errors::RuntimeError;
-use crate::objects::BelalangObject;
+use crate::objects::ptr::BelalangPtr;
 
 const STACK_SIZE: usize = 4096;
 
 #[derive(Default, Debug)]
 pub enum StackObject {
-    Object(NonNull<dyn BelalangObject>),
+    Object(BelalangPtr),
     Ptr(u8),
     #[default]
     Null,
@@ -25,6 +23,12 @@ pub struct Stack {
 impl Default for Stack {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl Drop for Stack {
+    fn drop(&mut self) {
+        while self.pop().is_ok() {}
     }
 }
 
@@ -122,6 +126,9 @@ mod tests {
         stack.push(StackObject::Object(ptr)).unwrap();
 
         assert_belalang_integer!(&stack.top().unwrap(), 10);
+
+        drop(stack);
+        drop(heap);
     }
 
     #[test]

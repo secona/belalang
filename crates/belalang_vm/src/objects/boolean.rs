@@ -1,5 +1,4 @@
 use std::fmt::Display;
-use std::ptr::NonNull;
 
 use belalang_macros::belalang_object;
 
@@ -8,6 +7,8 @@ use crate::objects::match_belalang_type;
 use crate::objects::{BelalangObject, BelalangOperators};
 use crate::vm::VM;
 use crate::BelalangBase;
+
+use super::ptr::BelalangPtr;
 
 #[belalang_object(name = "Boolean")]
 pub struct BelalangBoolean {
@@ -34,11 +35,7 @@ impl BelalangOperators for BelalangBoolean {
         self.value
     }
 
-    fn and(
-        &self,
-        vm: &mut VM,
-        other: &dyn BelalangObject,
-    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
+    fn and(&self, vm: &mut VM, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
         match_belalang_type!(other,
             BelalangBoolean => |other: &BelalangBoolean| {
                 let result = BelalangBoolean::new(self.value && other.value);
@@ -49,11 +46,7 @@ impl BelalangOperators for BelalangBoolean {
         )
     }
 
-    fn or(
-        &self,
-        vm: &mut VM,
-        other: &dyn BelalangObject,
-    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
+    fn or(&self, vm: &mut VM, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
         match_belalang_type!(other,
             BelalangBoolean => |other: &BelalangBoolean| {
                 let result = BelalangBoolean::new(self.value || other.value);
@@ -64,18 +57,14 @@ impl BelalangOperators for BelalangBoolean {
         )
     }
 
-    fn not(&self, vm: &mut VM) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
+    fn not(&self, vm: &mut VM) -> Result<BelalangPtr, RuntimeError> {
         let result = BelalangBoolean::new(!self.value);
         let ptr = vm.heap.alloc(result)?;
 
         Ok(ptr)
     }
 
-    fn eq(
-        &self,
-        vm: &mut VM,
-        other: &dyn BelalangObject,
-    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
+    fn eq(&self, vm: &mut VM, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
         match_belalang_type!(other,
             BelalangBoolean => |other: &BelalangBoolean| {
                 let result = BelalangBoolean::new(self.value == other.value);
@@ -86,11 +75,7 @@ impl BelalangOperators for BelalangBoolean {
         )
     }
 
-    fn ne(
-        &self,
-        vm: &mut VM,
-        other: &dyn BelalangObject,
-    ) -> Result<NonNull<dyn BelalangObject>, RuntimeError> {
+    fn ne(&self, vm: &mut VM, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
         match_belalang_type!(other,
             BelalangBoolean => |other: &BelalangBoolean| {
                 let result = BelalangBoolean::new(self.value != other.value);
