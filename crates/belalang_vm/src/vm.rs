@@ -254,7 +254,7 @@ impl VM {
                             (*(array.as_ptr() as *mut BelalangArray))
                                 .ptr
                                 .add(i)
-                                .write(obj.clone())
+                                .write(obj)
                         };
                     }
 
