@@ -46,7 +46,10 @@ impl Heap {
         }
 
         Ok(BelalangPtr::new(unsafe {
-            NonNull::new_unchecked(base_ptr as *mut dyn BelalangObject)
+            NonNull::new_unchecked(std::mem::transmute::<
+                *mut (dyn BelalangObject + '_),
+                *mut (dyn BelalangObject + 'static),
+            >(base_ptr))
         }))
     }
 
