@@ -146,10 +146,10 @@ pub fn jump_if_false(v: u16) -> [u8; 3] {
 }
 
 /// Encodes a [`SET_GLOBAL`] instruction with 16-bit global index
-/// 
+///
 /// # Arguments
 /// * `v` - Global variable index (0-65535)
-/// 
+///
 /// # Returns
 /// 3-byte array: [[`SET_GLOBAL`], hi_byte, lo_byte]
 pub fn set_global(v: u16) -> [u8; 3] {
@@ -157,10 +157,10 @@ pub fn set_global(v: u16) -> [u8; 3] {
 }
 
 /// Encodes a [`GET_GLOBAL`] instruction with 16-bit global index
-/// 
+///
 /// # Arguments
 /// * `v` - Global variable index (0-65535)
-/// 
+///
 /// # Returns
 /// 3-byte array: [[`GET_GLOBAL`], hi_byte, lo_byte]
 pub fn get_global(v: u16) -> [u8; 3] {
@@ -168,10 +168,10 @@ pub fn get_global(v: u16) -> [u8; 3] {
 }
 
 /// Encodes a [`SET_LOCAL`] instruction with 8-bit local index
-/// 
+///
 /// # Arguments
 /// * `v` - Local variable slot (0-255)
-/// 
+///
 /// # Returns
 /// 2-byte array: [[`SET_LOCAL`], index]
 pub fn set_local(v: u8) -> [u8; 2] {
@@ -179,10 +179,10 @@ pub fn set_local(v: u8) -> [u8; 2] {
 }
 
 /// Encodes a [`GET_LOCAL`] instruction with 8-bit local index
-/// 
+///
 /// # Arguments
 /// * `v` - Local variable slot (0-255)
-/// 
+///
 /// # Returns
 /// 2-byte array: [[`GET_LOCAL`], index]
 pub fn get_local(v: u8) -> [u8; 2] {
@@ -190,10 +190,10 @@ pub fn get_local(v: u8) -> [u8; 2] {
 }
 
 /// Encodes a [`GET_BUILTIN`] instruction with 8-bit function index
-/// 
+///
 /// # Arguments
 /// * `v` - Builtin function identifier (0-255)
-/// 
+///
 /// # Returns
 /// 2-byte array: [[`GET_BUILTIN`], index]
 pub fn get_builtin(v: u8) -> [u8; 2] {
@@ -201,10 +201,10 @@ pub fn get_builtin(v: u8) -> [u8; 2] {
 }
 
 /// Encodes an [`ARRAY`] instruction with 8-bit element count
-/// 
+///
 /// # Arguments
 /// * `v` - Number of elements to pop from stack (0-255)
-/// 
+///
 /// # Returns
 /// 2-byte array: [[`ARRAY`], count]
 pub fn array(v: u8) -> [u8; 2] {

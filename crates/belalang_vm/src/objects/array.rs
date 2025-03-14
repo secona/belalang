@@ -25,10 +25,7 @@ impl Drop for BelalangArray {
             }
 
             if !self.ptr.is_null() && self.cap > 0 {
-                let layout = Layout::from_size_align(
-                    self.cap,
-                    align_of::<BelalangPtr>()
-                ).unwrap();
+                let layout = Layout::from_size_align(self.cap, align_of::<BelalangPtr>()).unwrap();
                 dealloc(self.ptr as *mut u8, layout);
             }
         }
@@ -68,8 +65,7 @@ impl BelalangArray {
 
     pub fn with_capacity(cap: usize) -> Self {
         let ptr = unsafe {
-            let layout =
-                Layout::from_size_align(cap, align_of::<BelalangPtr>()).unwrap();
+            let layout = Layout::from_size_align(cap, align_of::<BelalangPtr>()).unwrap();
             let ptr = alloc(layout);
 
             if ptr.is_null() {

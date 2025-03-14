@@ -4,6 +4,7 @@ use std::hash::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
 use crate::errors::RuntimeError;
+use crate::objects::ptr::BelalangPtr;
 use crate::vm::VM;
 
 pub mod array;
@@ -140,4 +141,3 @@ macro_rules! match_belalang_type {
 }
 
 pub(crate) use match_belalang_type;
-use ptr::BelalangPtr;
