@@ -1,3 +1,5 @@
+//! Errors used by The Belalang Virtual Machine.
+
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum RuntimeError {
     #[error("stack underflow")]

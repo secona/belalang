@@ -1,3 +1,8 @@
+//! Builtin objects provided by The Belalang Virtual Machine.
+//!
+//! # Note
+//! This structure may change. See [`crate::builtins`]
+
 use std::any::Any;
 use std::fmt::{Debug, Display};
 use std::hash::DefaultHasher;

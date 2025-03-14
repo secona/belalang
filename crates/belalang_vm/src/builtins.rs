@@ -1,3 +1,10 @@
+//! Built-ins provided by The Belalang VM.
+//!
+//! # Note
+//! This structure may change to accommodate for different types of builtins,
+//! such as functions, types, and objects. Currently, objects live on their own
+//! module, [`crate::objects`].
+
 use crate::objects::integer::BelalangInteger;
 use crate::objects::BelalangObject;
 
