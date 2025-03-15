@@ -6,7 +6,7 @@ use crate::errors::RuntimeError;
 use crate::objects::boolean::BelalangBoolean;
 use crate::objects::match_belalang_type;
 use crate::objects::{BelalangObject, BelalangOperators};
-use crate::vm::VM;
+use crate::core::VM;
 use crate::BelalangBase;
 
 use super::ptr::BelalangPtr;

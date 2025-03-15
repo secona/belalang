@@ -10,7 +10,7 @@ use std::hash::{Hash, Hasher};
 
 use crate::errors::RuntimeError;
 use crate::objects::ptr::BelalangPtr;
-use crate::vm::VM;
+use crate::core::VM;
 
 pub mod array;
 pub mod base;

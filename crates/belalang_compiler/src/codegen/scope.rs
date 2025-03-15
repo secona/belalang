@@ -1,7 +1,7 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
-use belalang_vm::opcode;
+use belalang_vm::core::opcode;
 
 use crate::error::CompileError;
 

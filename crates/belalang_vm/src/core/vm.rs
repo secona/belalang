@@ -3,11 +3,11 @@
 //! The Belalang VM is a stack-based virtual machine that executes bytecode
 //! instructions.
 
-use crate::bytecode::{Bytecode, Constant};
+use crate::core::bytecode::{Bytecode, Constant};
+use crate::core::opcode;
 use crate::errors::RuntimeError;
 use crate::mem::heap::Heap;
 use crate::mem::stack::{Stack, StackObject};
-use crate::opcode;
 
 use crate::objects::array::BelalangArray;
 use crate::objects::boolean::BelalangBoolean;

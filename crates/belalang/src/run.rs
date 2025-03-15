@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use belalang_compiler::ast::Parser;
 use belalang_compiler::codegen::Compiler;
 use belalang_compiler::tokens::Lexer;
-use belalang_vm::vm::VM;
+use belalang_vm::core::VM;
 
 pub fn run(filename: PathBuf) -> Result<(), Box<dyn Error>> {
     let file = fs::read(filename).expect("Unable to read file!");

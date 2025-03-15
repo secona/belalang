@@ -3,8 +3,8 @@ mod scope;
 
 use crate::ast::{BlockExpression, Expression, Program, Statement};
 use crate::tokens::Token;
-use belalang_vm::bytecode::{Bytecode, Constant};
-use belalang_vm::opcode;
+use belalang_vm::core::bytecode::{Bytecode, Constant};
+use belalang_vm::core::opcode;
 
 use crate::error::CompileError;
 use scope::{ScopeLevel, ScopeManager};
