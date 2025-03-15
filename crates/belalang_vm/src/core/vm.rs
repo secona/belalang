@@ -1,8 +1,3 @@
-//! Core implementation of The Belalang Virtual Machine.
-//!
-//! The Belalang VM is a stack-based virtual machine that executes bytecode
-//! instructions.
-
 use crate::core::bytecode::{Bytecode, Constant};
 use crate::core::opcode;
 use crate::errors::RuntimeError;
