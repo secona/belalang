@@ -2,11 +2,11 @@ use std::fmt::Display;
 
 use belalang_macros::belalang_object;
 
+use crate::core::VM;
 use crate::errors::RuntimeError;
 use crate::objects::boolean::BelalangBoolean;
 use crate::objects::match_belalang_type;
 use crate::objects::{BelalangObject, BelalangOperators};
-use crate::core::VM;
 use crate::BelalangBase;
 
 use super::ptr::BelalangPtr;

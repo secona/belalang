@@ -8,9 +8,9 @@ use std::fmt::{Debug, Display};
 use std::hash::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
+use crate::core::VM;
 use crate::errors::RuntimeError;
 use crate::objects::ptr::BelalangPtr;
-use crate::core::VM;
 
 pub mod array;
 pub mod base;

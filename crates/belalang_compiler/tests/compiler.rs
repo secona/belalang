@@ -5,8 +5,8 @@ use std::error::Error;
 use belalang_compiler::codegen::Compiler;
 use belalang_compiler::ast::Parser;
 use belalang_compiler::tokens::Lexer;
-use belalang_vm::opcode;
-use belalang_vm::bytecode::{Bytecode, Constant};
+use belalang_vm::core::bytecode::{Bytecode, Constant};
+use belalang_vm::core::opcode;
 
 fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
     let lexer = Lexer::new(input.as_bytes());
