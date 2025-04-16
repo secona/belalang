@@ -23,10 +23,7 @@ impl<'a> Lexer<'a> {
         let mut chars = input.chars().peekable();
         let current = chars.next();
 
-        Lexer {
-            current,
-            chars,
-        }
+        Lexer { current, chars }
     }
 
     fn advance(&mut self) -> Option<char> {
@@ -70,7 +67,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Err(SyntaxError::UnknownToken(":".into())),
                 }
-            },
+            }
             Some('=') => {
                 self.advance();
                 match self.current {
@@ -80,7 +77,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::Assign),
                 }
-            },
+            }
             Some('!') => {
                 self.advance();
                 match self.current {
@@ -90,7 +87,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::Not),
                 }
-            },
+            }
             Some('&') => {
                 self.advance();
                 match self.current {
@@ -104,7 +101,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::BitAnd),
                 }
-            },
+            }
             Some('|') => {
                 self.advance();
                 match self.current {
@@ -118,7 +115,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::BitOr),
                 }
-            },
+            }
             Some('^') => {
                 self.advance();
                 match self.current {
@@ -128,7 +125,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::BitXor),
                 }
-            },
+            }
             Some('<') => {
                 self.advance();
                 match self.current {
@@ -148,7 +145,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::Lt),
                 }
-            },
+            }
             Some('>') => {
                 self.advance();
                 match self.current {
@@ -168,7 +165,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::Gt),
                 }
-            },
+            }
             Some('+') => {
                 self.advance();
                 match self.current {
@@ -178,7 +175,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::Add),
                 }
-            },
+            }
             Some('-') => {
                 self.advance();
                 match self.current {
@@ -188,7 +185,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::Sub),
                 }
-            },
+            }
             Some('*') => {
                 self.advance();
                 match self.current {
@@ -198,7 +195,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::Mul),
                 }
-            },
+            }
             Some('/') => {
                 self.advance();
                 match self.current {
@@ -208,7 +205,7 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::Div),
                 }
-            },
+            }
             Some('%') => {
                 self.advance();
                 match self.current {
@@ -218,16 +215,43 @@ impl<'a> Lexer<'a> {
                     }
                     _ => Ok(Token::Mod),
                 }
-            },
-            Some('(') => { self.advance(); Ok(Token::LeftParen) },
-            Some(')') => { self.advance(); Ok(Token::RightParen) },
-            Some('{') => { self.advance(); Ok(Token::LeftBrace) },
-            Some('}') => { self.advance(); Ok(Token::RightBrace) },
-            Some('[') => { self.advance(); Ok(Token::LeftBracket) },
-            Some(']') => { self.advance(); Ok(Token::RightBracket) },
-            Some(';') => { self.advance(); Ok(Token::Semicolon) },
-            Some(',') => { self.advance(); Ok(Token::Comma) },
-            Some('\\') => { self.advance(); Ok(Token::Backslash) },
+            }
+            Some('(') => {
+                self.advance();
+                Ok(Token::LeftParen)
+            }
+            Some(')') => {
+                self.advance();
+                Ok(Token::RightParen)
+            }
+            Some('{') => {
+                self.advance();
+                Ok(Token::LeftBrace)
+            }
+            Some('}') => {
+                self.advance();
+                Ok(Token::RightBrace)
+            }
+            Some('[') => {
+                self.advance();
+                Ok(Token::LeftBracket)
+            }
+            Some(']') => {
+                self.advance();
+                Ok(Token::RightBracket)
+            }
+            Some(';') => {
+                self.advance();
+                Ok(Token::Semicolon)
+            }
+            Some(',') => {
+                self.advance();
+                Ok(Token::Comma)
+            }
+            Some('\\') => {
+                self.advance();
+                Ok(Token::Backslash)
+            }
             Some('"') => self.read_string(),
             Some(c) if c.is_alphabetic() => Ok(self.read_identifier()?),
             Some(c) if c.is_numeric() => Ok(self.read_number()?),
@@ -328,14 +352,14 @@ impl<'a> Lexer<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::Token;
     use super::Lexer;
+    use super::Token;
 
     #[test]
     fn test_valid_utf8() {
         let mut lexer = Lexer::new("\"Hello\"");
         let result = lexer.read_string();
-        
+
         assert_eq!(result.unwrap(), Token::String("Hello".into()));
     }
 

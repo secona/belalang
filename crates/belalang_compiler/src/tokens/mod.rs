@@ -135,7 +135,7 @@ impl TryFrom<&str> for Token {
             "if" => Ok(Token::If),
             "else" => Ok(Token::Else),
             "return" => Ok(Token::Return),
-            _ => Ok(Token::Ident(value.to_string()))
+            _ => Ok(Token::Ident(value.to_string())),
         }
     }
 }
