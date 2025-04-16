@@ -261,7 +261,9 @@ impl<'a> Lexer<'a> {
             }
         }
 
-        Ok(Token::String(String::from_utf8(result).unwrap()))
+        String::from_utf8(result)
+            .map(Token::String)
+            .map_err(|_| SyntaxError::InvalidUtf8Character)
     }
 
     pub fn read_identifier(&mut self) -> Result<Token, SyntaxError> {
@@ -301,5 +303,48 @@ impl<'a> Lexer<'a> {
         } else {
             Token::Int(String::from(num))
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::assert_matches::assert_matches;
+
+    use crate::error::SyntaxError;
+
+    use super::Token;
+    use super::Lexer;
+
+    #[test]
+    fn test_invalid_utf8() {
+        // Invalid UTF-8 sequence
+        let utf8 = vec![0xC3, 0x28, 0x22];
+
+        let mut lexer = Lexer::new(&utf8);
+        let result = lexer.read_string();
+
+        assert_matches!(result.err(), Some(SyntaxError::InvalidUtf8Character));
+    }
+
+    #[test]
+    fn test_partially_valid_utf8() {
+        // Incomplete UTF-8 sequence
+        let utf8 = vec![0xE2, 0x82, 0x22];
+
+        let mut lexer = Lexer::new(&utf8);
+        let result = lexer.read_string();
+        
+        assert_matches!(result.err(), Some(SyntaxError::InvalidUtf8Character));
+    }
+
+    #[test]
+    fn test_valid_utf8() {
+        // Valid UTF-8 sequence for Hello"
+        let utf8: Vec<u8> = vec![72, 101, 108, 108, 111, 0x22];
+
+        let mut lexer = Lexer::new(&utf8);
+        let result = lexer.read_string();
+        
+        assert_eq!(result.unwrap(), Token::String("Hello".into()));
     }
 }

@@ -33,6 +33,9 @@ pub enum SyntaxError {
     #[error("invalid lhs: {0}")]
     InvalidLHS(Expression),
 
+    #[error("invalid utf-8 character in string")]
+    InvalidUtf8Character,
+
     #[error("error parsing integer: could not parse {0} as integer")]
     ParsingInteger(String),
 
