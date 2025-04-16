@@ -260,7 +260,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn read_string(&mut self) -> Result<Token, SyntaxError> {
+    fn read_string(&mut self) -> Result<Token, SyntaxError> {
         self.advance(); // consume the opening "
         let mut result = String::new();
 
@@ -310,7 +310,7 @@ impl<'a> Lexer<'a> {
         Ok(Token::String(result))
     }
 
-    pub fn read_identifier(&mut self) -> Result<Token, SyntaxError> {
+    fn read_identifier(&mut self) -> Result<Token, SyntaxError> {
         let mut identifier = String::new();
 
         while let Some(c) = self.current {
@@ -325,7 +325,7 @@ impl<'a> Lexer<'a> {
         Token::try_from(identifier.as_str())
     }
 
-    pub fn read_number(&mut self) -> Result<Token, SyntaxError> {
+    fn read_number(&mut self) -> Result<Token, SyntaxError> {
         let mut has_decimal = false;
         let mut number = String::new();
 
