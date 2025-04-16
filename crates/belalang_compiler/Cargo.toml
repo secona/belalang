@@ -26,6 +26,7 @@ debug = []
 [dependencies]
 belalang_vm.workspace = true
 thiserror.workspace = true
+unicode-ident = "1.0.18"
 
 [dev-dependencies]
 test-case.workspace = true

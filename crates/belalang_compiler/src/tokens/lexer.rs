@@ -1,6 +1,8 @@
 use std::iter::Peekable;
 use std::str::Chars;
 
+use unicode_ident::{is_xid_continue, is_xid_start};
+
 use crate::error::SyntaxError;
 use crate::tokens::Token;
 
@@ -253,9 +255,8 @@ impl<'a> Lexer<'a> {
                 Ok(Token::Backslash)
             }
             Some('"') => self.read_string(),
-            Some(c) if c.is_alphabetic() => Ok(self.read_identifier()?),
             Some(c) if c.is_numeric() => Ok(self.read_number()?),
-            Some(c) => Err(SyntaxError::UnknownToken(c.to_string())),
+            Some(_) => Ok(self.read_identifier()?),
             _ => unreachable!(),
         }
     }
@@ -311,18 +312,25 @@ impl<'a> Lexer<'a> {
     }
 
     fn read_identifier(&mut self) -> Result<Token, SyntaxError> {
-        let mut identifier = String::new();
-
-        while let Some(c) = self.current {
-            if c.is_alphanumeric() {
-                identifier.push(c);
+        match self.current {
+            Some(c) if is_xid_start(c) => {
+                let mut identifier = String::from(c);
                 self.advance();
-            } else {
-                break;
-            }
-        }
 
-        Token::try_from(identifier.as_str())
+                while let Some(c) = self.current {
+                    if is_xid_continue(c) {
+                        identifier.push(c);
+                        self.advance();
+                    } else {
+                        break;
+                    }
+                }
+
+                Token::try_from(identifier.as_str())
+            }
+            Some(c) => Err(SyntaxError::UnknownToken(c.to_string())),
+            _ => Ok(Token::EOF),
+        }
     }
 
     fn read_number(&mut self) -> Result<Token, SyntaxError> {
@@ -356,7 +364,7 @@ mod tests {
     use super::Token;
 
     #[test]
-    fn test_valid_utf8() {
+    fn str_ascii() {
         let mut lexer = Lexer::new("\"Hello\"");
         let result = lexer.read_string();
 
@@ -364,7 +372,7 @@ mod tests {
     }
 
     #[test]
-    fn test_japanese_chars() {
+    fn str_japanese_chars() {
         let mut lexer = Lexer::new("\"こんにちわ\"");
         let result = lexer.read_string();
 
@@ -372,7 +380,7 @@ mod tests {
     }
 
     #[test]
-    fn test_emojis() {
+    fn str_emojis() {
         let mut lexer = Lexer::new("\"🦗\"");
         let result = lexer.read_string();
 
@@ -380,7 +388,7 @@ mod tests {
     }
 
     #[test]
-    fn test_valid_utf8_ident() {
+    fn ident_ascii() {
         let mut lexer = Lexer::new("Hello");
         let result = lexer.read_identifier();
 
@@ -388,10 +396,34 @@ mod tests {
     }
 
     #[test]
-    fn test_japanese_ident() {
+    fn ident_japanese_chars() {
         let mut lexer = Lexer::new("こんにちわ");
         let result = lexer.read_identifier();
 
         assert_eq!(result.unwrap(), Token::Ident("こんにちわ".into()));
+    }
+
+    #[test]
+    fn ident_underscores() {
+        let mut lexer = Lexer::new("hel_lo_");
+        let result = lexer.read_identifier();
+
+        assert_eq!(result.unwrap(), Token::Ident("hel_lo_".into()));
+    }
+
+    #[test]
+    fn number_int_ascii() {
+        let mut lexer = Lexer::new("123");
+        let result = lexer.read_number();
+
+        assert_eq!(result.unwrap(), Token::Int("123".into()));
+    }
+
+    #[test]
+    fn number_float_ascii() {
+        let mut lexer = Lexer::new("123.123");
+        let result = lexer.read_number();
+
+        assert_eq!(result.unwrap(), Token::Float("123.123".into()));
     }
 }
