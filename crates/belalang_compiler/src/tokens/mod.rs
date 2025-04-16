@@ -45,6 +45,8 @@ macro_rules! bitwise_tokens {
 
 pub(crate) use bitwise_tokens;
 
+use crate::error::SyntaxError;
+
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub enum Token {
     #[default]
@@ -121,17 +123,21 @@ pub enum Token {
     Backslash, // \
 }
 
-impl From<&[u8]> for Token {
-    fn from(value: &[u8]) -> Self {
+impl TryFrom<&[u8]> for Token {
+    type Error = SyntaxError;
+
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
         match value {
-            b"fn" => Token::Function,
-            b"while" => Token::While,
-            b"true" => Token::True,
-            b"false" => Token::False,
-            b"if" => Token::If,
-            b"else" => Token::Else,
-            b"return" => Token::Return,
-            _ => Token::Ident(String::from_utf8(value.to_vec()).unwrap()),
+            b"fn" => Ok(Token::Function),
+            b"while" => Ok(Token::While),
+            b"true" => Ok(Token::True),
+            b"false" => Ok(Token::False),
+            b"if" => Ok(Token::If),
+            b"else" => Ok(Token::Else),
+            b"return" => Ok(Token::Return),
+            _ => String::from_utf8(value.to_vec())
+                .map(Token::Ident)
+                .map_err(|_| SyntaxError::InvalidUtf8Character),
         }
     }
 }

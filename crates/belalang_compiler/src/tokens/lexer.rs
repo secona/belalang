@@ -273,7 +273,7 @@ impl<'a> Lexer<'a> {
             self.read_char();
         }
 
-        Ok(Token::from(&self.input[position..self.read_position]))
+        Token::try_from(&self.input[position..self.read_position])
     }
 
     pub fn read_number(&mut self) -> Result<Token, SyntaxError> {
@@ -346,5 +346,46 @@ mod tests {
         let result = lexer.read_string();
         
         assert_eq!(result.unwrap(), Token::String("Hello".into()));
+    }
+
+    #[test]
+    fn test_japanese_chars() {
+        let string = "こんにちわ\"".as_bytes();
+
+        let mut lexer = Lexer::new(string);
+        let result = lexer.read_string();
+
+        assert_eq!(result.unwrap(), Token::String("こんにちわ".into()));
+    }
+
+    #[test]
+    fn test_emojis() {
+        let string = "🦗\"".as_bytes();
+
+        let mut lexer = Lexer::new(string);
+        let result = lexer.read_string();
+
+        assert_eq!(result.unwrap(), Token::String("🦗".into()));
+    }
+
+    #[test]
+    fn test_valid_utf8_ident() {
+        // Valid UTF-8 sequence for Hello
+        let utf8: Vec<u8> = vec![72, 101, 108, 108, 111];
+
+        let mut lexer = Lexer::new(&utf8);
+        let result = lexer.read_identifier();
+
+        assert_eq!(result.unwrap(), Token::Ident("Hello".into()));
+    }
+
+    #[test]
+    fn test_japanese_ident() {
+        let string = "こんにちわ".as_bytes();
+
+        let mut lexer = Lexer::new(string);
+        let result = lexer.read_identifier();
+
+        assert_eq!(result.unwrap(), Token::Ident("こんにちわ".into()));
     }
 }
