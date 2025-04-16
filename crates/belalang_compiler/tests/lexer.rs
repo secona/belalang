@@ -75,7 +75,7 @@ use test_case::test_case;
     ]; "escape_strings"
 )]
 fn tokens(input: &str) -> Vec<Token> {
-    let mut lexer = Lexer::new(input.as_bytes());
+    let mut lexer = Lexer::new(input);
     let mut result = Vec::new();
 
     while let Ok(token) = lexer.next_token() {

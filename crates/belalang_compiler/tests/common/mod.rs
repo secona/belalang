@@ -5,7 +5,6 @@ use belalang_compiler::ast::Parser;
 use belalang_compiler::tokens::Lexer;
 
 pub fn test_parse(input: &str) -> ast::Program {
-    let input = input.as_bytes();
     let lexer = Lexer::new(input);
     let mut parser = Parser::new(lexer);
 

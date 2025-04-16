@@ -8,9 +8,9 @@ use belalang_compiler::tokens::Lexer;
 use belalang_vm::core::VM;
 
 pub fn run(filename: PathBuf) -> Result<(), Box<dyn Error>> {
-    let file = fs::read(filename).expect("Unable to read file!");
+    let file = fs::read_to_string(filename).expect("Unable to read file!");
 
-    let lexer = Lexer::new(file.as_slice());
+    let lexer = Lexer::new(&file);
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program()?;
 

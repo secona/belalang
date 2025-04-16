@@ -9,7 +9,7 @@ use belalang_vm::core::bytecode::{Bytecode, Constant};
 use belalang_vm::core::opcode;
 
 fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
-    let lexer = Lexer::new(input.as_bytes());
+    let lexer = Lexer::new(input);
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program()?;
 

@@ -36,9 +36,9 @@ pub struct Lexer<'a> {
 }
 
 impl<'a> Lexer<'a> {
-    pub fn new(input: &'a [u8]) -> Lexer<'a> {
+    pub fn new(input: &'a str) -> Lexer<'a> {
         Lexer {
-            input,
+            input: input.as_bytes(),
             position: 0,
             read_position: 0,
             ch: 0,
@@ -303,41 +303,12 @@ impl<'a> Lexer<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::assert_matches::assert_matches;
-
-    use crate::error::SyntaxError;
-
     use super::Token;
     use super::Lexer;
 
     #[test]
-    fn test_invalid_utf8() {
-        // Invalid UTF-8 sequence
-        let utf8 = vec![0xC3, 0x28, 0x22];
-
-        let mut lexer = Lexer::new(&utf8);
-        let result = lexer.read_string();
-
-        assert_matches!(result.err(), Some(SyntaxError::InvalidUtf8Character));
-    }
-
-    #[test]
-    fn test_partially_valid_utf8() {
-        // Incomplete UTF-8 sequence
-        let utf8 = vec![0xE2, 0x82, 0x22];
-
-        let mut lexer = Lexer::new(&utf8);
-        let result = lexer.read_string();
-        
-        assert_matches!(result.err(), Some(SyntaxError::InvalidUtf8Character));
-    }
-
-    #[test]
     fn test_valid_utf8() {
-        // Valid UTF-8 sequence for Hello"
-        let utf8: Vec<u8> = vec![72, 101, 108, 108, 111, 0x22];
-
-        let mut lexer = Lexer::new(&utf8);
+        let mut lexer = Lexer::new("Hello\"");
         let result = lexer.read_string();
         
         assert_eq!(result.unwrap(), Token::String("Hello".into()));
@@ -345,9 +316,7 @@ mod tests {
 
     #[test]
     fn test_japanese_chars() {
-        let string = "こんにちわ\"".as_bytes();
-
-        let mut lexer = Lexer::new(string);
+        let mut lexer = Lexer::new("こんにちわ\"");
         let result = lexer.read_string();
 
         assert_eq!(result.unwrap(), Token::String("こんにちわ".into()));
@@ -355,9 +324,7 @@ mod tests {
 
     #[test]
     fn test_emojis() {
-        let string = "🦗\"".as_bytes();
-
-        let mut lexer = Lexer::new(string);
+        let mut lexer = Lexer::new("🦗\"");
         let result = lexer.read_string();
 
         assert_eq!(result.unwrap(), Token::String("🦗".into()));
@@ -365,10 +332,7 @@ mod tests {
 
     #[test]
     fn test_valid_utf8_ident() {
-        // Valid UTF-8 sequence for Hello
-        let utf8: Vec<u8> = vec![72, 101, 108, 108, 111];
-
-        let mut lexer = Lexer::new(&utf8);
+        let mut lexer = Lexer::new("Hello");
         let result = lexer.read_identifier();
 
         assert_eq!(result.unwrap(), Token::Ident("Hello".into()));
@@ -376,9 +340,7 @@ mod tests {
 
     #[test]
     fn test_japanese_ident() {
-        let string = "こんにちわ".as_bytes();
-
-        let mut lexer = Lexer::new(string);
+        let mut lexer = Lexer::new("こんにちわ");
         let result = lexer.read_identifier();
 
         assert_eq!(result.unwrap(), Token::Ident("こんにちわ".into()));
