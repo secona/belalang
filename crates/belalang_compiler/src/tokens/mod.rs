@@ -123,21 +123,19 @@ pub enum Token {
     Backslash, // \
 }
 
-impl TryFrom<&[u8]> for Token {
+impl TryFrom<&str> for Token {
     type Error = SyntaxError;
 
-    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
-            b"fn" => Ok(Token::Function),
-            b"while" => Ok(Token::While),
-            b"true" => Ok(Token::True),
-            b"false" => Ok(Token::False),
-            b"if" => Ok(Token::If),
-            b"else" => Ok(Token::Else),
-            b"return" => Ok(Token::Return),
-            _ => String::from_utf8(value.to_vec())
-                .map(Token::Ident)
-                .map_err(|_| SyntaxError::InvalidUtf8Character),
+            "fn" => Ok(Token::Function),
+            "while" => Ok(Token::While),
+            "true" => Ok(Token::True),
+            "false" => Ok(Token::False),
+            "if" => Ok(Token::If),
+            "else" => Ok(Token::Else),
+            "return" => Ok(Token::Return),
+            _ => Ok(Token::Ident(value.to_string()))
         }
     }
 }

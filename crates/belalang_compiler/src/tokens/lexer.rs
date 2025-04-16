@@ -1,303 +1,328 @@
+use std::iter::Peekable;
+use std::str::Chars;
+
 use crate::error::SyntaxError;
 use crate::tokens::Token;
 
-macro_rules! letters {
-    () => {
-        b'a'..=b'z' | b'A'..=b'Z' | b'_' | b'$'
-    };
-}
-
-macro_rules! digits {
-    () => {
-        b'0'..=b'9'
-    };
-}
-
-macro_rules! identifiers {
-    () => {
-        letters!() | digits!()
-    };
-}
-
-pub fn hex_byte_to_u8(byte: u8) -> Option<u8> {
-    match byte {
-        b'0'..=b'9' => Some(byte - b'0'),
-        b'a'..=b'f' => Some(byte - b'a' + 10),
-        b'A'..=b'F' => Some(byte - b'A' + 10),
+pub fn char_to_u8(c: char) -> Option<u8> {
+    match c {
+        '0'..='9' => Some(c as u8 - b'0'),
+        'a'..='f' => Some(c as u8 - b'a' + 10),
+        'A'..='F' => Some(c as u8 - b'A' + 10),
         _ => None,
     }
 }
 
 pub struct Lexer<'a> {
-    input: &'a [u8],
-    position: usize,
-    read_position: usize,
-    ch: u8,
+    current: Option<char>,
+    chars: Peekable<Chars<'a>>,
 }
 
 impl<'a> Lexer<'a> {
     pub fn new(input: &'a str) -> Lexer<'a> {
+        let mut chars = input.chars().peekable();
+        let current = chars.next();
+
         Lexer {
-            input: input.as_bytes(),
-            position: 0,
-            read_position: 0,
-            ch: 0,
+            current,
+            chars,
         }
+    }
+
+    fn advance(&mut self) -> Option<char> {
+        let result = self.current;
+        self.current = self.chars.next();
+        result
     }
 
     pub fn next_token(&mut self) -> Result<Token, SyntaxError> {
         loop {
-            match self.read_char() {
+            match self.current {
                 // skips all lines that start with `#`
-                Some(b'#') => {
-                    while let Some(ch) = self.read_char() {
-                        if ch == b'\n' {
+                Some('#') => {
+                    while let Some(c) = self.advance() {
+                        if c == '\n' {
+                            self.advance();
                             break;
                         }
                     }
                 }
                 // skips all empty whitespaces
-                Some(b' ' | b'\t' | b'\n' | b'\r') => (),
-                // early return if it reached the EOF
-                None => return Ok(Token::EOF),
+                Some(' ' | '\t' | '\n' | '\r') => {
+                    self.advance();
+                }
                 // break the loop if it isn't a whitespace or a comment
                 _ => break,
             };
         }
 
-        match self.ch {
-            b':' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::ColonAssign)
-                }
-                _ => Err(SyntaxError::UnknownToken(":".into())),
-            },
-            b'=' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::Eq)
-                }
-                _ => Ok(Token::Assign),
-            },
-            b'!' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::Ne)
-                }
-                _ => Ok(Token::Not),
-            },
-            b'&' => match self.peek_char() {
-                Some(b'&') => {
-                    self.read_char();
-                    Ok(Token::And)
-                }
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::BitAndAssign)
-                }
-                _ => Ok(Token::BitAnd),
-            },
-            b'|' => match self.peek_char() {
-                Some(b'|') => {
-                    self.read_char();
-                    Ok(Token::Or)
-                }
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::BitOrAssign)
-                }
-                _ => Ok(Token::BitOr),
-            },
-            b'^' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::BitXorAssign)
-                }
-                _ => Ok(Token::BitXor),
-            },
-            b'<' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::Le)
-                }
-                Some(b'<') => {
-                    self.read_char();
-                    match self.peek_char() {
-                        Some(b'=') => {
-                            self.read_char();
-                            Ok(Token::ShiftLeftAssign)
-                        }
-                        _ => Ok(Token::ShiftLeft),
+        if self.current.is_none() {
+            return Ok(Token::EOF);
+        }
+
+        match self.current {
+            Some(':') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::ColonAssign)
                     }
+                    _ => Err(SyntaxError::UnknownToken(":".into())),
                 }
-                _ => Ok(Token::Lt),
             },
-            b'>' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::Ge)
-                }
-                Some(b'>') => {
-                    self.read_char();
-                    match self.peek_char() {
-                        Some(b'=') => {
-                            self.read_char();
-                            Ok(Token::ShiftRightAssign)
-                        }
-                        _ => Ok(Token::ShiftRight),
+            Some('=') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::Eq)
                     }
+                    _ => Ok(Token::Assign),
                 }
-                _ => Ok(Token::Gt),
             },
-            b'+' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::AddAssign)
+            Some('!') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::Ne)
+                    }
+                    _ => Ok(Token::Not),
                 }
-                _ => Ok(Token::Add),
             },
-            b'-' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::SubAssign)
+            Some('&') => {
+                self.advance();
+                match self.current {
+                    Some('&') => {
+                        self.advance();
+                        Ok(Token::And)
+                    }
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::BitAndAssign)
+                    }
+                    _ => Ok(Token::BitAnd),
                 }
-                _ => Ok(Token::Sub),
             },
-            b'*' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::MulAssign)
+            Some('|') => {
+                self.advance();
+                match self.current {
+                    Some('|') => {
+                        self.advance();
+                        Ok(Token::Or)
+                    }
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::BitOrAssign)
+                    }
+                    _ => Ok(Token::BitOr),
                 }
-                _ => Ok(Token::Mul),
             },
-            b'/' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::DivAssign)
+            Some('^') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::BitXorAssign)
+                    }
+                    _ => Ok(Token::BitXor),
                 }
-                _ => Ok(Token::Div),
             },
-            b'%' => match self.peek_char() {
-                Some(b'=') => {
-                    self.read_char();
-                    Ok(Token::ModAssign)
+            Some('<') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::Le)
+                    }
+                    Some('<') => {
+                        self.advance();
+                        match self.chars.peek() {
+                            Some('=') => {
+                                self.advance();
+                                Ok(Token::ShiftLeftAssign)
+                            }
+                            _ => Ok(Token::ShiftLeft),
+                        }
+                    }
+                    _ => Ok(Token::Lt),
                 }
-                _ => Ok(Token::Mod),
             },
-            b'(' => Ok(Token::LeftParen),
-            b')' => Ok(Token::RightParen),
-            b'{' => Ok(Token::LeftBrace),
-            b'}' => Ok(Token::RightBrace),
-            b'[' => Ok(Token::LeftBracket),
-            b']' => Ok(Token::RightBracket),
-            b';' => Ok(Token::Semicolon),
-            b',' => Ok(Token::Comma),
-            b'\\' => Ok(Token::Backslash),
-            b'"' => self.read_string(),
-            letters!() => Ok(self.read_identifier()?),
-            digits!() => Ok(self.read_number()?),
-            _ => Err(SyntaxError::UnknownToken(
-                String::from_utf8(vec![self.ch]).unwrap(),
-            )),
+            Some('>') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::Ge)
+                    }
+                    Some('>') => {
+                        self.advance();
+                        match self.chars.peek() {
+                            Some('=') => {
+                                self.advance();
+                                Ok(Token::ShiftRightAssign)
+                            }
+                            _ => Ok(Token::ShiftRight),
+                        }
+                    }
+                    _ => Ok(Token::Gt),
+                }
+            },
+            Some('+') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::AddAssign)
+                    }
+                    _ => Ok(Token::Add),
+                }
+            },
+            Some('-') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::SubAssign)
+                    }
+                    _ => Ok(Token::Sub),
+                }
+            },
+            Some('*') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::MulAssign)
+                    }
+                    _ => Ok(Token::Mul),
+                }
+            },
+            Some('/') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::DivAssign)
+                    }
+                    _ => Ok(Token::Div),
+                }
+            },
+            Some('%') => {
+                self.advance();
+                match self.current {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::ModAssign)
+                    }
+                    _ => Ok(Token::Mod),
+                }
+            },
+            Some('(') => { self.advance(); Ok(Token::LeftParen) },
+            Some(')') => { self.advance(); Ok(Token::RightParen) },
+            Some('{') => { self.advance(); Ok(Token::LeftBrace) },
+            Some('}') => { self.advance(); Ok(Token::RightBrace) },
+            Some('[') => { self.advance(); Ok(Token::LeftBracket) },
+            Some(']') => { self.advance(); Ok(Token::RightBracket) },
+            Some(';') => { self.advance(); Ok(Token::Semicolon) },
+            Some(',') => { self.advance(); Ok(Token::Comma) },
+            Some('\\') => { self.advance(); Ok(Token::Backslash) },
+            Some('"') => self.read_string(),
+            Some(c) if c.is_alphabetic() => Ok(self.read_identifier()?),
+            Some(c) if c.is_numeric() => Ok(self.read_number()?),
+            Some(c) => Err(SyntaxError::UnknownToken(c.to_string())),
+            _ => unreachable!(),
         }
     }
 
-    pub fn read_char(&mut self) -> Option<u8> {
-        self.ch = self.peek_char()?;
-        self.position = self.read_position;
-        self.read_position += 1;
-
-        Some(self.ch)
-    }
-
-    pub fn peek_char(&self) -> Option<u8> {
-        self.input.get(self.read_position).copied()
-    }
-
     pub fn read_string(&mut self) -> Result<Token, SyntaxError> {
-        let mut result = Vec::<u8>::new();
+        self.advance(); // consume the opening "
+        let mut result = String::new();
 
         loop {
-            match self.read_char() {
-                Some(b'\\') => match self.peek_char() {
-                    Some(b'n') => {
-                        self.read_char();
-                        result.push(b'\n');
+            match self.advance() {
+                Some('\\') => match self.current {
+                    Some('n') => {
+                        self.advance();
+                        result.push('\n');
                     }
-                    Some(b'r') => {
-                        self.read_char();
-                        result.push(b'\r');
+                    Some('r') => {
+                        self.advance();
+                        result.push('\r');
                     }
-                    Some(b't') => {
-                        self.read_char();
-                        result.push(b'\t');
+                    Some('t') => {
+                        self.advance();
+                        result.push('\t');
                     }
-                    Some(b'"') => {
-                        self.read_char();
-                        result.push(b'"');
+                    Some('"') => {
+                        self.advance();
+                        result.push('"');
                     }
-                    Some(b'\\') => {
-                        self.read_char();
-                        result.push(b'\\');
+                    Some('\\') => {
+                        self.advance();
+                        result.push('\\');
                     }
-                    Some(b'x') => {
-                        self.read_char(); // consume the 'x'
+                    Some('x') => {
+                        self.advance(); // consume the 'x'
 
                         match (
-                            self.read_char().and_then(hex_byte_to_u8),
-                            self.read_char().and_then(hex_byte_to_u8),
+                            self.advance().and_then(char_to_u8),
+                            self.advance().and_then(char_to_u8),
                         ) {
-                            (Some(hi), Some(lo)) => result.push((hi << 4) | lo),
+                            (Some(hi), Some(lo)) => result.push(((hi << 4) | lo) as char),
                             (_, _) => return Err(SyntaxError::UnknownEscapeString),
                         }
                     }
                     Some(_) => return Err(SyntaxError::UnknownEscapeString),
                     None => return Err(SyntaxError::UnclosedString()),
                 },
-                Some(b'"') => break,
+                Some('"') => break,
                 Some(c) => result.push(c),
                 None => return Err(SyntaxError::UnclosedString()),
             }
         }
 
-        String::from_utf8(result)
-            .map(Token::String)
-            .map_err(|_| SyntaxError::InvalidUtf8Character)
+        Ok(Token::String(result))
     }
 
     pub fn read_identifier(&mut self) -> Result<Token, SyntaxError> {
-        let position = self.position;
+        let mut identifier = String::new();
 
-        while matches!(self.peek_char(), Some(identifiers!())) {
-            self.read_char();
+        while let Some(c) = self.current {
+            if c.is_alphanumeric() {
+                identifier.push(c);
+                self.advance();
+            } else {
+                break;
+            }
         }
 
-        Token::try_from(&self.input[position..self.read_position])
+        Token::try_from(identifier.as_str())
     }
 
     pub fn read_number(&mut self) -> Result<Token, SyntaxError> {
         let mut has_decimal = false;
-        let position = self.position;
+        let mut number = String::new();
 
-        loop {
-            match self.peek_char() {
-                Some(digits!()) => {
-                    self.read_char();
-                }
-                Some(b'.') if !has_decimal => {
-                    has_decimal = true;
-                    self.read_char();
-                }
-                _ => {
-                    break;
-                }
+        while let Some(c) = self.current {
+            if c.is_ascii_digit() {
+                number.push(c);
+                self.advance();
+            } else if c == '.' && !has_decimal {
+                has_decimal = true;
+                number.push(c);
+                self.advance();
+            } else {
+                break;
             }
         }
 
-        String::from_utf8(self.input[position..self.read_position].to_vec())
-            .map(if has_decimal { Token::Float } else { Token::Int })
-            .map_err(|_| SyntaxError::InvalidUtf8Character)
+        Ok(if has_decimal {
+            Token::Float(number)
+        } else {
+            Token::Int(number)
+        })
     }
 }
 
@@ -308,7 +333,7 @@ mod tests {
 
     #[test]
     fn test_valid_utf8() {
-        let mut lexer = Lexer::new("Hello\"");
+        let mut lexer = Lexer::new("\"Hello\"");
         let result = lexer.read_string();
         
         assert_eq!(result.unwrap(), Token::String("Hello".into()));
@@ -316,7 +341,7 @@ mod tests {
 
     #[test]
     fn test_japanese_chars() {
-        let mut lexer = Lexer::new("こんにちわ\"");
+        let mut lexer = Lexer::new("\"こんにちわ\"");
         let result = lexer.read_string();
 
         assert_eq!(result.unwrap(), Token::String("こんにちわ".into()));
@@ -324,7 +349,7 @@ mod tests {
 
     #[test]
     fn test_emojis() {
-        let mut lexer = Lexer::new("🦗\"");
+        let mut lexer = Lexer::new("\"🦗\"");
         let result = lexer.read_string();
 
         assert_eq!(result.unwrap(), Token::String("🦗".into()));
