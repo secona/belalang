@@ -295,14 +295,9 @@ impl<'a> Lexer<'a> {
             }
         }
 
-        let num = &self.input[position..self.read_position];
-        let num = std::str::from_utf8(num).unwrap();
-
-        Ok(if has_decimal {
-            Token::Float(String::from(num))
-        } else {
-            Token::Int(String::from(num))
-        })
+        String::from_utf8(self.input[position..self.read_position].to_vec())
+            .map(if has_decimal { Token::Float } else { Token::Int })
+            .map_err(|_| SyntaxError::InvalidUtf8Character)
     }
 }
 
