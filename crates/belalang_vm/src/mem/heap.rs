@@ -66,28 +66,30 @@ impl Heap {
     /// - The type T matches the type that was originally allocated
     /// - No other parts of the program retain references to this memory after deallocation
     pub unsafe fn dealloc<T>(&mut self, ptr: NonNull<T>) -> Result<(), RuntimeError> {
-        let layout = Layout::new::<T>();
+        unsafe {
+            let layout = Layout::new::<T>();
 
-        let base_ptr = ptr.as_ptr() as *mut BelalangBase;
+            let base_ptr = ptr.as_ptr() as *mut BelalangBase;
 
-        if let Some(start) = self.start {
-            if start.as_ptr() == base_ptr {
-                self.start = (*base_ptr).next;
-            } else {
-                let mut current = start;
-                while let Some(next) = (*current.as_ptr()).next {
-                    if next.as_ptr() == base_ptr {
-                        (*current.as_ptr()).next = (*base_ptr).next;
-                        break;
+            if let Some(start) = self.start {
+                if start.as_ptr() == base_ptr {
+                    self.start = (*base_ptr).next;
+                } else {
+                    let mut current = start;
+                    while let Some(next) = (*current.as_ptr()).next {
+                        if next.as_ptr() == base_ptr {
+                            (*current.as_ptr()).next = (*base_ptr).next;
+                            break;
+                        }
+                        current = next;
                     }
-                    current = next;
                 }
             }
+
+            dealloc(ptr.as_ptr() as *mut u8, layout);
+
+            Ok(())
         }
-
-        dealloc(ptr.as_ptr() as *mut u8, layout);
-
-        Ok(())
     }
 }
 

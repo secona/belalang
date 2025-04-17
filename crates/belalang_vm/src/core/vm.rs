@@ -10,7 +10,7 @@ use crate::objects::integer::BelalangInteger;
 use crate::objects::string::BelalangString;
 
 macro_rules! pop_object {
-    ($self:expr) => {
+    ($self:expr_2021) => {
         if let Ok(StackObject::Object(obj)) = $self.stack.pop() {
             obj.as_ptr()
         } else {

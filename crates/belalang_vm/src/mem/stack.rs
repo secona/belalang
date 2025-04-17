@@ -107,7 +107,7 @@ mod tests {
     use super::*;
 
     macro_rules! assert_belalang_integer {
-        ($top:expr, $value:expr) => {
+        ($top:expr_2021, $value:expr_2021) => {
             let StackObject::Object(obj) = $top else {
                 panic!("Not a StackObject::Object");
             };

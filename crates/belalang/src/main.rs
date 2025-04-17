@@ -13,13 +13,10 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
-        None => {
-            if let Some(filename) = matches.get_one::<String>("filename") {
-                run(filename.into()).unwrap();
-            } else {
-                repl();
-            }
-        }
+        None => match matches.get_one::<String>("filename") {
+            Some(filename) => run(filename.into()).unwrap(),
+            _ => repl(),
+        },
         _ => unreachable!(),
     }
 }
