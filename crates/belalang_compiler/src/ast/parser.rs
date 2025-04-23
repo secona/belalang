@@ -48,7 +48,7 @@ impl From<&Token> for Precedence {
 }
 
 macro_rules! expect_peek {
-    ($self:expr_2021, $token:pat) => {
+    ($self:expr, $token:pat) => {
         if matches!($self.peek_token, $token) {
             $self.next_token()?;
             true
@@ -61,7 +61,7 @@ macro_rules! expect_peek {
 pub(super) use expect_peek;
 
 macro_rules! optional_peek {
-    ($self:expr_2021, $token:pat) => {
+    ($self:expr, $token:pat) => {
         if matches!($self.peek_token, $token) {
             $self.next_token()?;
             true

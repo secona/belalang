@@ -125,7 +125,7 @@ pub trait BelalangOperators {
 }
 
 macro_rules! match_belalang_type {
-    ($other:expr_2021, $($type:ty => $body:expr_2021),* $(,)?) => {
+    ($other:expr, $($type:ty => $body:expr),* $(,)?) => {
         match $other.as_any() {
             $(
                 x if x.is::<$type>() => {
@@ -140,7 +140,7 @@ macro_rules! match_belalang_type {
         }
     };
 
-    ($other:expr_2021, $($type:ty => $body:expr_2021),*) => {
+    ($other:expr, $($type:ty => $body:expr),*) => {
         match_belalang_type!($other, $($type => $body),*,)
     };
 }
