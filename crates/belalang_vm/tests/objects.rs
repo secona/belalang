@@ -34,9 +34,9 @@ mod number {
         })
         .unwrap();
 
-        assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
+        assert_eq!(vm.stack_size(), 1, "Stack size is not 1!");
 
-        let Ok(obj) = vm.stack.pop() else {
+        let Ok(obj) = vm.stack_pop() else {
             panic!("Failed popping from the stack!");
         };
 
@@ -67,9 +67,9 @@ mod number {
         })
         .unwrap();
 
-        assert_eq!(vm.stack.size(), 1);
+        assert_eq!(vm.stack_size(), 1);
 
-        let Ok(obj) = vm.stack.pop() else {
+        let Ok(obj) = vm.stack_pop() else {
             panic!("Failed popping from the stack!");
         };
 
@@ -101,9 +101,9 @@ mod number {
         })
         .unwrap();
 
-        assert_eq!(vm.stack.size(), 1);
+        assert_eq!(vm.stack_size(), 1);
 
-        let Ok(obj) = vm.stack.pop() else {
+        let Ok(obj) = vm.stack_pop() else {
             panic!("Failed popping from the stack!");
         };
 
@@ -130,9 +130,9 @@ mod number {
         })
         .unwrap();
 
-        assert_eq!(vm.stack.size(), 1);
+        assert_eq!(vm.stack_size(), 1);
 
-        let Ok(obj) = vm.stack.pop() else {
+        let Ok(obj) = vm.stack_pop() else {
             panic!("Failed popping from the stack!");
         };
 
@@ -168,9 +168,9 @@ mod boolean {
         })
         .unwrap();
 
-        assert_eq!(vm.stack.size(), 1);
+        assert_eq!(vm.stack_size(), 1);
 
-        let Ok(obj) = vm.stack.pop() else {
+        let Ok(obj) = vm.stack_pop() else {
             panic!("Failed popping from the stack!");
         };
 
@@ -199,9 +199,9 @@ mod boolean {
         })
         .unwrap();
 
-        assert_eq!(vm.stack.size(), 1);
+        assert_eq!(vm.stack_size(), 1);
 
-        let Ok(obj) = vm.stack.pop() else {
+        let Ok(obj) = vm.stack_pop() else {
             panic!("Failed popping from the stack!");
         };
 
@@ -228,9 +228,9 @@ mod boolean {
         })
         .unwrap();
 
-        assert_eq!(vm.stack.size(), 1);
+        assert_eq!(vm.stack_size(), 1);
 
-        let Ok(obj) = vm.stack.pop() else {
+        let Ok(obj) = vm.stack_pop() else {
             panic!("Failed popping from the stack!");
         };
 
@@ -263,9 +263,9 @@ mod string {
         })
         .unwrap();
 
-        assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
+        assert_eq!(vm.stack_size(), 1, "Stack size is not 1!");
 
-        let Ok(obj) = vm.stack.pop() else {
+        let Ok(obj) = vm.stack_pop() else {
             panic!("Failed popping from the stack!");
         };
 
@@ -297,9 +297,9 @@ mod string {
         })
         .unwrap();
 
-        assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
+        assert_eq!(vm.stack_size(), 1, "Stack size is not 1!");
 
-        let Ok(obj) = vm.stack.pop() else {
+        let Ok(obj) = vm.stack_pop() else {
             panic!("Failed popping from the stack!");
         };
 
@@ -329,9 +329,9 @@ mod string {
         })
         .unwrap();
 
-        assert_eq!(vm.stack.size(), 1, "Stack size is not 1!");
+        assert_eq!(vm.stack_size(), 1, "Stack size is not 1!");
 
-        let Ok(obj) = vm.stack.pop() else {
+        let Ok(obj) = vm.stack_pop() else {
             panic!("Failed popping from the stack!");
         };
 

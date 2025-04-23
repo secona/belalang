@@ -39,8 +39,11 @@ pub struct VM {
     /// is supplied through the [`Bytecode`] struct.
     constants: Vec<Constant>,
 
-    pub stack: Stack,
-    pub heap: Heap,
+    /// The stack memory of the VM.
+    stack: Stack,
+
+    /// The heap memory of the VM. Made `pub(crate)` to support allocations in [crate::objects].
+    pub(crate) heap: Heap,
 }
 
 impl VM {
@@ -343,6 +346,14 @@ impl VM {
         self.ip += 1;
 
         v
+    }
+
+    pub fn stack_size(&self) -> usize {
+        self.stack.size()
+    }
+
+    pub fn stack_pop(&mut self) -> Result<StackObject, RuntimeError> {
+        self.stack.pop()
     }
 }
 
