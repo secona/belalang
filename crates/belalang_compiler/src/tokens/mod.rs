@@ -47,80 +47,138 @@ pub(crate) use bitwise_tokens;
 
 use crate::error::SyntaxError;
 
+/// Belalang language's tokens
+///
+/// This is all tokens that exist in the belalang language grammar.
+///
+/// # Note
+///
+/// I am leaning towards refactoring Belalang's lexer implementation to follow something similar to
+/// [`rustc_lexer`], especially the `LiteralKind` and separation of `Token` and `TokenKind`.
+///
+/// [`rustc_lexer`]: https://github.com/rust-lang/rust/blob/master/compiler/rustc_lexer/src/lib.rs
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub enum Token {
+    /// End of file marker
     #[default]
     EOF,
+
+    /// Empty token placeholder
     Empty,
 
+    /// Identifier token containing a variable or function name
     Ident(String),
+    /// Integer literal
     Int(String),
+    /// Floating point literal
     Float(String),
+    /// String literal
     String(String),
 
-    // Assignment operators
-    Assign,           // =
-    ColonAssign,      // :=
-    AddAssign,        // +=
-    SubAssign,        // -=
-    MulAssign,        // *=
-    DivAssign,        // /=
-    ModAssign,        // %=
-    BitAndAssign,     // &=
-    BitOrAssign,      // |=
-    BitXorAssign,     // ^=
-    ShiftLeftAssign,  // <<=
-    ShiftRightAssign, // >>=
+    /// Assignment operator `=`
+    Assign,
+    /// Colon assignment operator `:=`
+    ColonAssign,
+    /// Addition assignment operator `+=`
+    AddAssign,
+    /// Subtraction assignment operator `-=`
+    SubAssign,
+    /// Multiplication assignment operator `*=`
+    MulAssign,
+    /// Division assignment operator `/=`
+    DivAssign,
+    /// Modulo assignment operator `%=`
+    ModAssign,
+    /// Bitwise AND assignment operator `&=`
+    BitAndAssign,
+    /// Bitwise OR assignment operator `|=`
+    BitOrAssign,
+    /// Bitwise XOR assignment operator `^=`
+    BitXorAssign,
+    /// Shift left assignment operator `<<=`
+    ShiftLeftAssign,
+    /// Shift right assignment operator `>>=`
+    ShiftRightAssign,
 
-    // Arithmetic operators
-    Add, // +
-    Sub, // -
-    Mul, // *
-    Div, // /
-    Mod, // %
+    /// Addition operator `+`
+    Add,
+    /// Subtraction operator `-`
+    Sub,
+    /// Multiplication operator `*`
+    Mul,
+    /// Division operator `/`
+    Div,
+    /// Modulo operator `%`
+    Mod,
 
-    // Logical operators
-    Not, // !
-    And, // &&
-    Or,  // ||
+    /// Logical NOT operator `!`
+    Not,
+    /// Logical AND operator `&&`
+    And,
+    /// Logical OR operator `||`
+    Or,
 
-    // Bitwise operators
-    BitAnd, // &
-    BitOr,  // |
-    // BitNot,  // ~ TODO
-    BitXor,     // ^
-    ShiftLeft,  // <<
-    ShiftRight, // >>
+    /// Bitwise AND operator `&`
+    BitAnd,
+    /// Bitwise OR operator `|`
+    BitOr,
+    /// Bitwise XOR operator `^`
+    BitXor,
+    /// Shift left operator `<<`
+    ShiftLeft,
+    /// Shift right operator `>>`
+    ShiftRight,
 
-    // Comparison operators
-    Eq, // ==
-    Ne, // !=
-    Lt, // <
-    Le, // <=
-    Gt, // >
-    Ge, // >=
+    /// Equality comparison operator `==`
+    Eq,
+    /// Inequality comparison operator `!=`
+    Ne,
 
-    // Parenthesis and Braces
-    LeftParen,    // (
-    RightParen,   // )
-    LeftBrace,    // {
-    RightBrace,   // }
-    LeftBracket,  // [
-    RightBracket, // ]
+    /// Less than operator `<`
+    Lt,
+    /// Less than or equal operator `<=`
+    Le,
+    /// Greater than operator `>`
+    Gt,
+    /// Greater than or equal operator `>=`
+    Ge,
 
-    // Keywords
-    Function, // fn
-    While,    // while
-    If,       // if
-    Else,     // else
-    Return,   // return
-    True,     // true
-    False,    // false
+    /// Left parenthesis `()`
+    LeftParen,
+    /// Right parenthesis `)`
+    RightParen,
 
-    // Other tokens
-    Comma,     // ,
-    Semicolon, // ;
-    Backslash, // \
+    /// Left brace `{`
+    LeftBrace,
+    /// Right brace `}`
+    RightBrace,
+
+    /// Left bracket `[`
+    LeftBracket,
+    /// Right bracket `]`
+    RightBracket,
+
+    /// Function keyword `fn`
+    Function,
+    /// While loop keyword `while`
+    While,
+    /// If conditional keyword `if`
+    If,
+    /// Else conditional keyword `else`
+    Else,
+    /// Return keyword `return`
+    Return,
+    /// Boolean true literal `true`
+    True,
+    /// Boolean false literal `false`
+    False,
+
+    /// Comma separator `,`
+    Comma,
+    /// Semicolon terminator `;`
+    Semicolon,
+    /// Backslash character `\`
+    Backslash,
 }
 
 impl TryFrom<&str> for Token {
@@ -176,7 +234,6 @@ impl std::fmt::Display for Token {
 
             Token::BitAnd => "&",
             Token::BitOr => "|",
-            // Token::BitNot => "~", TODO
             Token::BitXor => "^",
             Token::ShiftLeft => "<<",
             Token::ShiftRight => ">>",
