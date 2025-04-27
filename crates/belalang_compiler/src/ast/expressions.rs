@@ -2,6 +2,17 @@ use crate::tokens::Token;
 
 use super::Statement;
 
+/// Represents a boolean literal expression.
+///
+/// # Examples
+///
+/// ```
+/// true
+/// ```
+///
+/// ```
+/// false
+/// ```
 #[derive(Debug, Clone)]
 pub struct BooleanExpression {
     pub token: Token,
@@ -14,6 +25,13 @@ impl std::fmt::Display for BooleanExpression {
     }
 }
 
+/// Represents an integer literal expression.
+///
+/// # Examples
+///
+/// ```
+/// 42
+/// ```
 #[derive(Debug, Clone)]
 pub struct IntegerLiteral {
     pub token: Token,
@@ -26,6 +44,13 @@ impl std::fmt::Display for IntegerLiteral {
     }
 }
 
+/// Represents an float literal expression.
+///
+/// # Examples
+///
+/// ```
+/// 3.14
+/// ```
 #[derive(Debug, Clone)]
 pub struct FloatLiteral {
     pub token: Token,
@@ -38,6 +63,13 @@ impl std::fmt::Display for FloatLiteral {
     }
 }
 
+/// Represents an string literal expression.
+///
+/// # Examples
+///
+/// ```
+/// "hello, world"
+/// ```
 #[derive(Debug, Clone)]
 pub struct StringLiteral {
     pub token: Token,
@@ -50,6 +82,18 @@ impl std::fmt::Display for StringLiteral {
     }
 }
 
+/// Represents an null literal expression.
+///
+/// # Examples
+///
+/// ```
+/// null
+/// ```
+///
+/// # Note
+///
+/// I don't know if I want to go forward with the name null. I am thinking of using the term None
+/// to make it easier to understand.
 #[derive(Debug, Clone)]
 pub struct NullLiteral {
     pub token: Token,
@@ -61,6 +105,13 @@ impl std::fmt::Display for NullLiteral {
     }
 }
 
+/// Represents an array literal expression.
+///
+/// # Examples
+///
+/// ```
+/// [1, 2, 3, "Hello"]
+/// ```
 #[derive(Debug, Clone)]
 pub struct ArrayLiteral {
     pub token: Token,
@@ -80,6 +131,19 @@ impl std::fmt::Display for ArrayLiteral {
     }
 }
 
+/// Represents an variable assignment literal expression.
+///
+/// # Examples
+///
+/// ```
+/// x = 12
+/// ```
+///
+/// # Note
+///
+/// The current implementation allows variable assignment to be used as an expression, meaning it
+/// can be used for everything that needs an expression, such as if statements, while loop, etc. I
+/// am not sure if this is *safe* to do in regards of easy bug identification and others.
 #[derive(Debug, Clone)]
 pub struct VarExpression {
     pub token: Token,
@@ -93,6 +157,13 @@ impl std::fmt::Display for VarExpression {
     }
 }
 
+/// Represents a function call expression.
+///
+/// # Examples
+///
+/// ```
+/// foo()
+/// ```
 #[derive(Debug, Clone)]
 pub struct CallExpression {
     pub token: Token,
@@ -113,6 +184,13 @@ impl std::fmt::Display for CallExpression {
     }
 }
 
+/// Represents an indexing expression.
+///
+/// # Examples
+///
+/// ```
+/// foo[1]
+/// ```
 #[derive(Debug, Clone)]
 pub struct IndexExpression {
     pub token: Token,
@@ -126,6 +204,19 @@ impl std::fmt::Display for IndexExpression {
     }
 }
 
+/// Represents a function expression.
+///
+/// # Examples
+///
+/// ```
+/// fn() {}
+/// ```
+///
+/// # Note
+///
+/// Currently, this is how functions are parsed. They are treated as variables rather than
+/// statements. I do want to have this feature but I have yet to find out how to do it efficiently
+/// while also having function statements.
 #[derive(Debug, Clone)]
 pub struct FunctionLiteral {
     pub token: Token,
@@ -146,6 +237,13 @@ impl std::fmt::Display for FunctionLiteral {
     }
 }
 
+/// Represents an identifier expression.
+///
+/// # Examples
+///
+/// ```
+/// foo
+/// ```
 #[derive(Debug, Clone)]
 pub struct Identifier {
     pub token: Token,
@@ -158,6 +256,20 @@ impl std::fmt::Display for Identifier {
     }
 }
 
+/// Represents an if expression.
+///
+/// # Examples
+///
+/// ```
+/// if () {} else {}
+/// ```
+///
+/// # Note
+///
+/// All if statements are actually if expressions, meaning they can be used as values. I borrowed
+/// this idea from Rust itself. However, due to my lack of knowledge, I don't know how to implement
+/// this efficiently. Should I have if expressions and if statements seperately? Or should I have
+/// them as one?
 #[derive(Debug, Clone)]
 pub struct IfExpression {
     pub token: Token,
@@ -181,6 +293,13 @@ impl std::fmt::Display for IfExpression {
     }
 }
 
+/// Represents an infix expression.
+///
+/// # Examples
+///
+/// ```
+/// 1 + 1
+/// ```
 #[derive(Debug, Clone)]
 pub struct InfixExpression {
     pub token: Token,
@@ -195,6 +314,13 @@ impl std::fmt::Display for InfixExpression {
     }
 }
 
+/// Represents an prefix expression.
+///
+/// # Examples
+///
+/// ```
+/// -1
+/// ```
 #[derive(Debug, Clone)]
 pub struct PrefixExpression {
     pub token: Token,
@@ -208,6 +334,15 @@ impl std::fmt::Display for PrefixExpression {
     }
 }
 
+/// Represents an code block expression.
+///
+/// This is used in while statements, if expressions, and etc that needs a code block.
+///
+/// # Examples
+///
+/// ```
+/// {}
+/// ```
 #[derive(Debug, Clone)]
 pub struct BlockExpression {
     pub token: Token,
@@ -227,6 +362,7 @@ impl std::fmt::Display for BlockExpression {
     }
 }
 
+/// Represents all expressions supported by The Belalang Compiler.
 #[derive(Debug, Clone)]
 pub enum Expression {
     Boolean(BooleanExpression),
