@@ -6,11 +6,11 @@ use super::Statement;
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// true
 /// ```
 ///
-/// ```
+/// ```belalang
 /// false
 /// ```
 #[derive(Debug, Clone)]
@@ -29,7 +29,7 @@ impl std::fmt::Display for BooleanExpression {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// 42
 /// ```
 #[derive(Debug, Clone)]
@@ -48,7 +48,7 @@ impl std::fmt::Display for IntegerLiteral {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// 3.14
 /// ```
 #[derive(Debug, Clone)]
@@ -67,7 +67,7 @@ impl std::fmt::Display for FloatLiteral {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// "hello, world"
 /// ```
 #[derive(Debug, Clone)]
@@ -86,7 +86,7 @@ impl std::fmt::Display for StringLiteral {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// null
 /// ```
 ///
@@ -109,7 +109,7 @@ impl std::fmt::Display for NullLiteral {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// [1, 2, 3, "Hello"]
 /// ```
 #[derive(Debug, Clone)]
@@ -135,7 +135,7 @@ impl std::fmt::Display for ArrayLiteral {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// x = 12
 /// ```
 ///
@@ -161,7 +161,7 @@ impl std::fmt::Display for VarExpression {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// foo()
 /// ```
 #[derive(Debug, Clone)]
@@ -188,7 +188,7 @@ impl std::fmt::Display for CallExpression {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// foo[1]
 /// ```
 #[derive(Debug, Clone)]
@@ -208,7 +208,7 @@ impl std::fmt::Display for IndexExpression {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// fn() {}
 /// ```
 ///
@@ -241,7 +241,7 @@ impl std::fmt::Display for FunctionLiteral {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// foo
 /// ```
 #[derive(Debug, Clone)]
@@ -260,7 +260,7 @@ impl std::fmt::Display for Identifier {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// if () {} else {}
 /// ```
 ///
@@ -297,7 +297,7 @@ impl std::fmt::Display for IfExpression {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// 1 + 1
 /// ```
 #[derive(Debug, Clone)]
@@ -318,7 +318,7 @@ impl std::fmt::Display for InfixExpression {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// -1
 /// ```
 #[derive(Debug, Clone)]
@@ -340,7 +340,7 @@ impl std::fmt::Display for PrefixExpression {
 ///
 /// # Examples
 ///
-/// ```
+/// ```belalang
 /// {}
 /// ```
 #[derive(Debug, Clone)]
