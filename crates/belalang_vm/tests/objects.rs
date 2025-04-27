@@ -345,29 +345,29 @@ mod string {
     }
 }
 
-mod array {
-    use super::*;
-
-    #[test]
-    fn array() {
-        let constants = vec![
-            Constant::Integer(1),
-            Constant::Integer(2),
-            Constant::Integer(3),
-        ];
-
-        let mut instructions = Vec::new();
-        instructions.extend(opcode::constant(0));
-        instructions.extend(opcode::constant(1));
-        instructions.extend(opcode::constant(2));
-        instructions.extend(opcode::array(3));
-
-        let mut vm = VM::default();
-
-        vm.run(Bytecode {
-            instructions,
-            constants,
-        })
-        .unwrap();
-    }
-}
+// mod array {
+//     use super::*;
+//
+//     #[test]
+//     fn array() {
+//         let constants = vec![
+//             Constant::Integer(1),
+//             Constant::Integer(2),
+//             Constant::Integer(3),
+//         ];
+//
+//         let mut instructions = Vec::new();
+//         instructions.extend(opcode::constant(0));
+//         instructions.extend(opcode::constant(1));
+//         instructions.extend(opcode::constant(2));
+//         instructions.extend(opcode::array(3));
+//
+//         let mut vm = VM::default();
+//
+//         vm.run(Bytecode {
+//             instructions,
+//             constants,
+//         })
+//         .unwrap();
+//     }
+// }

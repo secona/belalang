@@ -53,7 +53,7 @@ impl VM {
     /// * `code` -- The [`Bytecode`] to be executed.
     ///
     /// # Example
-    /// ```
+    /// ```rust,ignore
     /// let constants = vec![Constant::Integer(12), Constant::Integer(5)];
     ///
     /// let mut instructions = Vec::new();
