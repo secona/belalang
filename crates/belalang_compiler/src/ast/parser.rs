@@ -1,11 +1,11 @@
 use crate::ast::{self, Expression, Statement};
 use crate::error::SyntaxError;
+use crate::tokens::Lexer;
+use crate::tokens::Token;
 use crate::tokens::arithmetic_tokens;
 use crate::tokens::assignment_tokens;
 use crate::tokens::bitwise_tokens;
 use crate::tokens::comparison_tokens;
-use crate::tokens::Lexer;
-use crate::tokens::Token;
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
@@ -58,8 +58,6 @@ macro_rules! expect_peek {
     };
 }
 
-pub(super) use expect_peek;
-
 macro_rules! optional_peek {
     ($self:expr, $token:pat) => {
         if matches!($self.peek_token, $token) {
@@ -71,8 +69,10 @@ macro_rules! optional_peek {
     };
 }
 
-pub(super) use optional_peek;
-
+/// Belalang language parser.
+///
+/// Responsible for parsing a token stream into an abstract syntax tree. Also see
+/// [`Lexer`] and [`Token`].
 pub struct Parser<'a> {
     lexer: Lexer<'a>,
     curr_token: Token,
@@ -83,6 +83,7 @@ pub struct Parser<'a> {
 }
 
 impl Parser<'_> {
+    /// Creates a new Parser using a [`Lexer`].
     pub fn new(lexer: Lexer<'_>) -> Parser {
         Parser {
             lexer,
@@ -101,6 +102,12 @@ impl Parser<'_> {
         Ok(())
     }
 
+    /// Parses the token stream into a [`Program`] instance.
+    ///
+    /// Continues parsing the token stream until the end of input is reached. Each statement and
+    /// expression is parsed and added to the program.
+    ///
+    /// [`Program`]: crate::ast::program::Program
     pub fn parse_program(&mut self) -> Result<ast::Program, SyntaxError> {
         self.curr_token = self.lexer.next_token()?;
         self.peek_token = self.lexer.next_token()?;
@@ -241,7 +248,7 @@ impl Parser<'_> {
         }))
     }
 
-    pub fn parse_infix(&mut self, left: &Expression) -> Result<Option<Expression>, SyntaxError> {
+    fn parse_infix(&mut self, left: &Expression) -> Result<Option<Expression>, SyntaxError> {
         match self.peek_token {
             // parse_infix: parse infix expression
             arithmetic_tokens!()
@@ -340,7 +347,7 @@ impl Parser<'_> {
         }
     }
 
-    pub fn parse_prefix(&mut self) -> Result<Expression, SyntaxError> {
+    fn parse_prefix(&mut self) -> Result<Expression, SyntaxError> {
         match self.curr_token {
             // parse_identifier: parse current token as identifier
             Token::Ident(ref i) => Ok(Expression::Identifier(ast::Identifier {
