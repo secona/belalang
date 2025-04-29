@@ -1,11 +1,6 @@
 [workspace]
 resolver = "3"
-members = [
-	"crates/belalang",
-	"crates/belalang_compiler",
-	"crates/belalang_macros",
-	"crates/belalang_vm",
-]
+members = ["crates/*"]
 
 [workspace.dependencies]
 belalang_compiler = { path = "./crates/belalang_compiler" }
@@ -13,3 +8,15 @@ belalang_macros = { path = "./crates/belalang_macros" }
 belalang_vm = { path = "./crates/belalang_vm" }
 
 thiserror = "1.0.61"
+
+[package]
+name = "belalang"
+version = "0.1.0"
+edition = "2024"
+publish = false
+license = "Apache-2.0"
+
+[dependencies]
+belalang_compiler.workspace = true
+belalang_vm.workspace = true
+clap = { version = "4.5.4", features = ["derive"] }
