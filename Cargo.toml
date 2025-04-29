@@ -13,4 +13,3 @@ belalang_macros = { path = "./crates/belalang_macros" }
 belalang_vm = { path = "./crates/belalang_vm" }
 
 thiserror = "1.0.61"
-test-case = "3.3.1"
