@@ -8,6 +8,3 @@ license = "Apache-2.0"
 [dependencies]
 belalang_macros.workspace = true
 thiserror.workspace = true
-
-[dev-dependencies]
-test-case.workspace = true

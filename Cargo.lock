@@ -84,7 +84,6 @@ name = "belalang_vm"
 version = "0.1.0"
 dependencies = [
  "belalang_macros",
- "test-case",
  "thiserror",
 ]
 

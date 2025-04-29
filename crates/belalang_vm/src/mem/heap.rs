@@ -107,16 +107,13 @@ impl Drop for Heap {
 #[cfg(test)]
 #[allow(clippy::bool_assert_comparison)]
 mod tests {
-    use test_case::test_case;
-
     use crate::objects::boolean::BelalangBoolean;
     use crate::objects::integer::BelalangInteger;
     use crate::objects::BelalangObject;
 
     use super::*;
 
-    #[test_case(vec![1, 2, 3]; "1")]
-    fn heap_alloc(data: Vec<i64>) {
+    fn test_heap_alloc(data: Vec<i64>) {
         let mut heap = Heap::default();
         let mut allocated_ptrs = Vec::new();
 
@@ -164,16 +161,18 @@ mod tests {
         assert!(current.is_none());
     }
 
+    #[test]
+    fn heap_alloc_simple() {
+        test_heap_alloc(vec![1, 2, 3]);
+    }
+
     #[derive(Debug)]
     enum Type {
         Integer(i64),
         Boolean(bool),
     }
 
-    #[test_case(vec![Type::Integer(1), Type::Boolean(true)]; "1")]
-    #[test_case(vec![Type::Integer(1), Type::Boolean(true), Type::Boolean(false)]; "2")]
-    #[test_case(vec![Type::Integer(1), Type::Boolean(true), Type::Integer(100)]; "3")]
-    fn heap_alloc_multiple_types(data: Vec<Type>) {
+    fn test_heap_alloc_multiple_types(data: Vec<Type>) {
         let mut heap = Heap::default();
         let mut allocated_ptrs = Vec::new();
 
@@ -244,8 +243,22 @@ mod tests {
         assert!(current.is_none());
     }
 
-    #[test_case(vec![1, 2, 3]; "1")]
-    fn heap_dealloc(data: Vec<i64>) {
+    #[test]
+    fn heap_alloc_multiple_types_case_1() {
+        test_heap_alloc_multiple_types(vec![Type::Integer(1), Type::Boolean(true)]);
+    }
+
+    #[test]
+    fn heap_alloc_multiple_types_case_2() {
+        test_heap_alloc_multiple_types(vec![Type::Integer(1), Type::Boolean(true), Type::Boolean(false)]);
+    }
+
+    #[test]
+    fn heap_alloc_multiple_types_case_3() {
+        test_heap_alloc_multiple_types(vec![Type::Integer(1), Type::Boolean(true), Type::Integer(100)]);
+    }
+
+    fn test_heap_dealloc(data: Vec<i64>) {
         let mut heap = Heap::default();
         let mut allocated_ptrs = Vec::new();
 
@@ -294,6 +307,11 @@ mod tests {
         }
 
         assert!(current.is_none());
+    }
+
+    #[test]
+    fn heap_dealloc_case_1() {
+        test_heap_dealloc(vec![1, 2, 3]);
     }
 
     #[test]
