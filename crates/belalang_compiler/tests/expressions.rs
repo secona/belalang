@@ -8,11 +8,7 @@ use belalang_compiler::tokens::Token;
 use common::test_parse;
 use common::test_parse_to_string;
 
-use test_case::test_case;
-
-#[test_case("true;" => (Token::True, true); "_true")]
-#[test_case("false;" => (Token::False, false); "_false")]
-fn booleans(input: &str) -> (Token, bool) {
+fn test_booleans(input: &str, token: Token, value: bool) {
     let program = test_parse(input);
 
     assert_eq!(program.statements.len(), 1);
@@ -21,7 +17,18 @@ fn booleans(input: &str) -> (Token, bool) {
 
     let bool_expr = as_variant!(&expr.expression, ast::Expression::Boolean);
 
-    (bool_expr.token.clone(), bool_expr.value)
+    assert_eq!(bool_expr.token, token);
+    assert_eq!(bool_expr.value, value);
+}
+
+#[test]
+fn booleans_true() {
+    test_booleans("true;", Token::True, true);
+}
+
+#[test]
+fn booleans_false() {
+    test_booleans("false;", Token::False, false);
 }
 
 #[test]
@@ -146,22 +153,41 @@ fn function() {
     );
 }
 
-#[test_case("fn() {};" => Vec::<String>::new(); "no params")]
-#[test_case("fn(x) {};" => vec!["x"]; "one params")]
-#[test_case("fn(x, y) {};" => vec!["x", "y"]; "two params")]
-#[test_case("fn(x, y, z) {};" => vec!["x", "y", "z"]; "three params")]
-fn function_params(input: &str) -> Vec<String> {
+fn test_function_params(input: &str, output: Vec<&'static str>) {
     let program = test_parse(input);
 
     let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
 
     let function = as_variant!(&stmt.expression, ast::Expression::Function);
 
-    function
-        .params
-        .iter()
-        .map(|param| param.value.clone())
-        .collect::<Vec<String>>()
+    assert_eq!(
+        function
+            .params
+            .iter()
+            .map(|param| param.value.clone())
+            .collect::<Vec<_>>(),
+        output
+    )
+}
+
+#[test]
+fn function_params_no_params() {
+    test_function_params("fn() {};", Vec::new());
+}
+
+#[test]
+fn function_params_one_params() {
+    test_function_params("fn(x) {};", vec!["x"]);
+}
+
+#[test]
+fn function_params_two_params() {
+    test_function_params("fn(x, y) {};", vec!["x", "y"]);
+}
+
+#[test]
+fn function_params_three_params() {
+    test_function_params("fn(x, y, z) {};", vec!["x", "y", "z"]);
 }
 
 #[test]
