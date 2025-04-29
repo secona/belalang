@@ -11,14 +11,8 @@ use belalang_vm::objects::string::BelalangString;
 
 mod number {
     use super::*;
-    use test_case::test_case;
 
-    #[test_case(12, 5, opcode::ADD => 17; "addition")]
-    #[test_case(12, 5, opcode::SUB => 7; "subtraction")]
-    #[test_case(12, 5, opcode::MUL => 60; "multiplication")]
-    #[test_case(12, 5, opcode::DIV => 2; "division")]
-    #[test_case(12, 5, opcode::MOD => 2; "modulo")]
-    fn arithmetic_op(a: i64, b: i64, op: u8) -> i64 {
+    fn test_arithmetic_op(a: i64, b: i64, op: u8, c: i64) {
         let constants = vec![Constant::Integer(a), Constant::Integer(b)];
 
         let mut instructions = Vec::new();
@@ -44,14 +38,35 @@ mod number {
             panic!("TOS is not an Object!");
         };
 
-        unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value
+        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value, c);
     }
 
-    #[test_case(12, 12, opcode::EQUAL => true; "equal")]
-    #[test_case(12, 12, opcode::NOT_EQUAL => false; "not equal")]
-    #[test_case(12, 13, opcode::LESS_THAN => true; "less than")]
-    #[test_case(12, 12, opcode::LESS_THAN_EQUAL => true; "less than equal")]
-    fn comparison_op(a: i64, b: i64, op: u8) -> bool {
+    #[test]
+    fn arithmetic_op_addition() {
+        test_arithmetic_op(12, 5, opcode::ADD, 17);
+    }
+
+    #[test]
+    fn arithmetic_op_subtraction() {
+        test_arithmetic_op(12, 5, opcode::SUB, 7);
+    }
+
+    #[test]
+    fn arithmetic_op_multiplication() {
+        test_arithmetic_op(12, 5, opcode::MUL, 60);
+    }
+
+    #[test]
+    fn arithmetic_op_division() {
+        test_arithmetic_op(12, 5, opcode::DIV, 2);
+    }
+
+    #[test]
+    fn arithmetic_op_modulo() {
+        test_arithmetic_op(12, 5, opcode::MOD, 2);
+    }
+
+    fn test_comparison_op(a: i64, b: i64, op: u8, c: bool) {
         let constants = vec![Constant::Integer(a), Constant::Integer(b)];
 
         let mut instructions = Vec::new();
@@ -77,15 +92,30 @@ mod number {
             panic!("TOS is not an Object!");
         };
 
-        unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value
+        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value, c);
     }
 
-    #[test_case(12, 1, opcode::BIT_AND => 0; "bit and")]
-    #[test_case(12, 1, opcode::BIT_OR => 13; "bit or")]
-    #[test_case(12, 1, opcode::BIT_XOR => 13; "bit xor")]
-    #[test_case(12, 1, opcode::BIT_SL => 24; "bit sl")]
-    #[test_case(12, 1, opcode::BIT_SR => 6; "bit sr")]
-    fn bitwise_op(a: i64, b: i64, op: u8) -> i64 {
+    #[test]
+    fn comparison_op_equal() {
+        test_comparison_op(12, 12, opcode::EQUAL, true);
+    }
+
+    #[test]
+    fn comparison_op_not_equal() {
+        test_comparison_op(12, 12, opcode::NOT_EQUAL, false);
+    }
+
+    #[test]
+    fn comparison_op_less_than() {
+        test_comparison_op(12, 13, opcode::LESS_THAN, true);
+    }
+
+    #[test]
+    fn comparison_op_less_than_equal() {
+        test_comparison_op(12, 12, opcode::LESS_THAN_EQUAL, true);
+    }
+
+    fn test_bitwise_op(a: i64, b: i64, op: u8, c: i64) {
         let constants = vec![Constant::Integer(a), Constant::Integer(b)];
 
         let mut instructions = Vec::new();
@@ -111,7 +141,32 @@ mod number {
             panic!("TOS is not an Object!");
         };
 
-        unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value
+        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value, c)
+    }
+
+    #[test]
+    fn bitwise_op_bit_and() {
+        test_bitwise_op(12, 1, opcode::BIT_AND, 0);
+    }
+
+    #[test]
+    fn bitwise_op_bit_or() {
+        test_bitwise_op(12, 1, opcode::BIT_OR, 13);
+    }
+
+    #[test]
+    fn bitwise_op_bit_xor() {
+        test_bitwise_op(12, 1, opcode::BIT_OR, 13);
+    }
+
+    #[test]
+    fn bitwise_op_bit_sl() {
+        test_bitwise_op(12, 1, opcode::BIT_SL, 24);
+    }
+
+    #[test]
+    fn bitwise_op_bit_sr() {
+        test_bitwise_op(12, 1, opcode::BIT_SR, 6);
     }
 
     #[test]
@@ -148,11 +203,8 @@ mod number {
 
 mod boolean {
     use super::*;
-    use test_case::test_case;
 
-    #[test_case(true, true, opcode::EQUAL => true; "equal")]
-    #[test_case(true, false, opcode::NOT_EQUAL => true; "not equal")]
-    fn comparison_op(a: bool, b: bool, op: u8) -> bool {
+    fn test_comparison_op(a: bool, b: bool, op: u8, c: bool) {
         let constants = vec![Constant::Boolean(a), Constant::Boolean(b)];
 
         let mut instructions = Vec::new();
@@ -178,12 +230,20 @@ mod boolean {
             panic!("TOS is not an Object!");
         };
 
-        unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value
+        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value, c);
     }
 
-    #[test_case(true, false, opcode::AND => false; "and")]
-    #[test_case(true, false, opcode::OR => true; "or")]
-    fn logical_op(a: bool, b: bool, op: u8) -> bool {
+    #[test]
+    fn comparison_op_equal() {
+        test_comparison_op(true, true, opcode::EQUAL, true);
+    }
+
+    #[test]
+    fn comparison_op_not_equal() {
+        test_comparison_op(true, false, opcode::NOT_EQUAL, true);
+    }
+
+    fn test_logical_op(a: bool, b: bool, op: u8, c: bool) {
         let constants = vec![Constant::Boolean(a), Constant::Boolean(b)];
 
         let mut instructions = Vec::new();
@@ -209,7 +269,17 @@ mod boolean {
             panic!("TOS is not an Object!");
         };
 
-        unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value
+        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value, c);
+    }
+
+    #[test]
+    fn logical_op_and() {
+        test_logical_op(true, false, opcode::AND, false);
+    }
+
+    #[test]
+    fn logical_op_or() {
+        test_logical_op(true, false, opcode::OR, true);
     }
 
     #[test]
@@ -246,7 +316,6 @@ mod boolean {
 
 mod string {
     use super::*;
-    use test_case::test_case;
 
     #[test]
     fn init() {
@@ -277,11 +346,7 @@ mod string {
         assert_eq!(format!("{string}"), "Hello");
     }
 
-    #[test_case("Hello", -1 => (String::from(""), 0); "mul neg 1")]
-    #[test_case("Hello", 0 => (String::from(""), 0); "mul 0")]
-    #[test_case("Hello", 1 => (String::from("Hello"), 5); "mul 1")]
-    #[test_case("Hello", 3 => (String::from("HelloHelloHello"), 15); "mul 3")]
-    fn arithmetic_op_mul(string: &'static str, num: i64) -> (String, usize) {
+    fn test_arithmetic_op_mul(string: &'static str, num: i64, expected_string: &str, expected_len: usize) {
         let constants = vec![Constant::String(string), Constant::Integer(num)];
 
         let mut instructions = Vec::new();
@@ -308,12 +373,32 @@ mod string {
         };
 
         let string = unsafe { (object.as_ptr() as *mut BelalangString).read() };
-
-        (format!("{string}"), string.len)
+        
+        assert_eq!(format!("{string}"), expected_string);
+        assert_eq!(string.len, expected_len);
     }
 
-    #[test_case("Hello", ", World!" => String::from("Hello, World!"); "hello world")]
-    fn arithmetic_op_add(string_1: &'static str, string_2: &'static str) -> String {
+    #[test]
+    fn arithmetic_op_mul_neg_1() {
+        test_arithmetic_op_mul("Hello", -1, "", 0);
+    }
+
+    #[test]
+    fn arithmetic_op_mul_0() {
+        test_arithmetic_op_mul("Hello", 0, "", 0);
+    }
+
+    #[test]
+    fn arithmetic_op_mul_1() {
+        test_arithmetic_op_mul("Hello", 1, "Hello", 5);
+    }
+
+    #[test]
+    fn arithmetic_op_mul_3() {
+        test_arithmetic_op_mul("Hello", 3, "HelloHelloHello", 15);
+    }
+
+    fn test_arithmetic_op_add(string_1: &'static str, string_2: &'static str, expected: &str) {
         let constants = vec![Constant::String(string_1), Constant::String(string_2)];
 
         let mut instructions = Vec::new();
@@ -340,8 +425,13 @@ mod string {
         };
 
         let string = unsafe { (object.as_ptr() as *mut BelalangString).read() };
+        
+        assert_eq!(format!("{string}"), expected);
+    }
 
-        format!("{string}")
+    #[test]
+    fn arithmetic_op_add_hello_world() {
+        test_arithmetic_op_add("Hello", ", World!", "Hello, World!");
     }
 }
 
