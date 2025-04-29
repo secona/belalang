@@ -101,10 +101,5 @@ fn tokens_identifiers() {
 
 #[test]
 fn tokens_escape_strings() {
-    test_tokens(
-        r#""\n\r\t\"\x41""#,
-        vec![
-            Token::String("\n\r\t\"A".into()),
-        ],
-    );
+    test_tokens(r#""\n\r\t\"\x41""#, vec![Token::String("\n\r\t\"A".into())]);
 }

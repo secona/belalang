@@ -1,13 +1,13 @@
-use std::alloc::{alloc, Layout};
+use std::alloc::{Layout, alloc};
 use std::fmt::Display;
 
 use belalang_macros::belalang_object;
 
+use crate::BelalangBase;
 use crate::core::VM;
 use crate::errors::RuntimeError;
 use crate::objects::integer::BelalangInteger;
-use crate::objects::{match_belalang_type, BelalangObject, BelalangOperators};
-use crate::BelalangBase;
+use crate::objects::{BelalangObject, BelalangOperators, match_belalang_type};
 
 use super::ptr::BelalangPtr;
 

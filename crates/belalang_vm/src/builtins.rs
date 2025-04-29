@@ -5,8 +5,8 @@
 //! such as functions, types, and objects. Currently, objects live on their own
 //! module, [`crate::objects`].
 
-use crate::objects::integer::BelalangInteger;
 use crate::objects::BelalangObject;
+use crate::objects::integer::BelalangInteger;
 
 pub type BuiltinFn = fn(&[Box<dyn BelalangObject>]) -> Box<dyn BelalangObject>;
 

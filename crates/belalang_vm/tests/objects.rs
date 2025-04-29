@@ -1,9 +1,9 @@
 #![allow(clippy::vec_init_then_push)]
 #![allow(clippy::bool_assert_comparison)]
 
+use belalang_vm::core::VM;
 use belalang_vm::core::bytecode::{Bytecode, Constant};
 use belalang_vm::core::opcode;
-use belalang_vm::core::VM;
 use belalang_vm::mem::stack::StackObject;
 use belalang_vm::objects::boolean::BelalangBoolean;
 use belalang_vm::objects::integer::BelalangInteger;
@@ -38,7 +38,10 @@ mod number {
             panic!("TOS is not an Object!");
         };
 
-        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value, c);
+        assert_eq!(
+            unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value,
+            c
+        );
     }
 
     #[test]
@@ -92,7 +95,10 @@ mod number {
             panic!("TOS is not an Object!");
         };
 
-        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value, c);
+        assert_eq!(
+            unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value,
+            c
+        );
     }
 
     #[test]
@@ -141,7 +147,10 @@ mod number {
             panic!("TOS is not an Object!");
         };
 
-        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value, c)
+        assert_eq!(
+            unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value,
+            c
+        )
     }
 
     #[test]
@@ -230,7 +239,10 @@ mod boolean {
             panic!("TOS is not an Object!");
         };
 
-        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value, c);
+        assert_eq!(
+            unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value,
+            c
+        );
     }
 
     #[test]
@@ -269,7 +281,10 @@ mod boolean {
             panic!("TOS is not an Object!");
         };
 
-        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value, c);
+        assert_eq!(
+            unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value,
+            c
+        );
     }
 
     #[test]
@@ -346,7 +361,12 @@ mod string {
         assert_eq!(format!("{string}"), "Hello");
     }
 
-    fn test_arithmetic_op_mul(string: &'static str, num: i64, expected_string: &str, expected_len: usize) {
+    fn test_arithmetic_op_mul(
+        string: &'static str,
+        num: i64,
+        expected_string: &str,
+        expected_len: usize,
+    ) {
         let constants = vec![Constant::String(string), Constant::Integer(num)];
 
         let mut instructions = Vec::new();
@@ -373,7 +393,7 @@ mod string {
         };
 
         let string = unsafe { (object.as_ptr() as *mut BelalangString).read() };
-        
+
         assert_eq!(format!("{string}"), expected_string);
         assert_eq!(string.len, expected_len);
     }
@@ -425,7 +445,7 @@ mod string {
         };
 
         let string = unsafe { (object.as_ptr() as *mut BelalangString).read() };
-        
+
         assert_eq!(format!("{string}"), expected);
     }
 

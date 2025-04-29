@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use std::ptr::{drop_in_place, NonNull};
+use std::ptr::{NonNull, drop_in_place};
 
 use crate::BelalangBase;
 

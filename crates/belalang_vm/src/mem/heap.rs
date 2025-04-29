@@ -1,11 +1,11 @@
-use std::alloc::{alloc, dealloc, Layout};
+use std::alloc::{Layout, alloc, dealloc};
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
-use crate::errors::RuntimeError;
-use crate::objects::ptr::BelalangPtr;
-use crate::objects::BelalangObject;
 use crate::BelalangBase;
+use crate::errors::RuntimeError;
+use crate::objects::BelalangObject;
+use crate::objects::ptr::BelalangPtr;
 
 pub struct Heap {
     pub start: Option<NonNull<BelalangBase>>,
@@ -107,9 +107,9 @@ impl Drop for Heap {
 #[cfg(test)]
 #[allow(clippy::bool_assert_comparison)]
 mod tests {
+    use crate::objects::BelalangObject;
     use crate::objects::boolean::BelalangBoolean;
     use crate::objects::integer::BelalangInteger;
-    use crate::objects::BelalangObject;
 
     use super::*;
 
@@ -250,12 +250,20 @@ mod tests {
 
     #[test]
     fn heap_alloc_multiple_types_case_2() {
-        test_heap_alloc_multiple_types(vec![Type::Integer(1), Type::Boolean(true), Type::Boolean(false)]);
+        test_heap_alloc_multiple_types(vec![
+            Type::Integer(1),
+            Type::Boolean(true),
+            Type::Boolean(false),
+        ]);
     }
 
     #[test]
     fn heap_alloc_multiple_types_case_3() {
-        test_heap_alloc_multiple_types(vec![Type::Integer(1), Type::Boolean(true), Type::Integer(100)]);
+        test_heap_alloc_multiple_types(vec![
+            Type::Integer(1),
+            Type::Boolean(true),
+            Type::Integer(100),
+        ]);
     }
 
     fn test_heap_dealloc(data: Vec<i64>) {

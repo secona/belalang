@@ -1,11 +1,11 @@
-use std::alloc::{alloc, dealloc, Layout};
+use std::alloc::{Layout, alloc, dealloc};
 use std::fmt::Display;
 use std::ptr::drop_in_place;
 
 use belalang_macros::belalang_object;
 
-use crate::objects::BelalangOperators;
 use crate::BelalangBase;
+use crate::objects::BelalangOperators;
 
 use super::ptr::BelalangPtr;
 
