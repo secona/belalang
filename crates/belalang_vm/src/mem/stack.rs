@@ -8,18 +8,14 @@ use crate::core::BelalangPtr;
 /// explore.
 const STACK_SIZE: usize = 4096;
 
-/// Objects that live on the stack
-///
-/// # Problems
-/// - Should probably rename this to not have "Object", maybe "StackValue" would be good.
-/// - Namings of each variant should be more descriptive.
+/// Values that live on the stack
 #[derive(Default, Debug)]
-pub enum StackObject {
+pub enum StackValue {
     /// Pointer to an object, like [`BelalangInteger`][crate::objects::integer::BelalangInteger]
-    Object(BelalangPtr),
+    ObjectPtr(BelalangPtr),
 
     /// Pointer to an address in the bytecode
-    Ptr(u8),
+    AddressPtr(u8),
     
     /// Null value in the stack
     ///
@@ -32,13 +28,11 @@ pub enum StackObject {
     Null,
 }
 
-const DEFAULT_STACK_VALUE: StackObject = StackObject::Null;
-
 /// Belalang VM's stack implementation
 ///
 /// This stack is both the call stack and the frame stack.
 pub struct Stack {
-    stack: [StackObject; STACK_SIZE],
+    stack: [StackValue; STACK_SIZE],
     cap: usize,
     sp: usize,
     fp: usize,
@@ -62,7 +56,7 @@ impl Stack {
     /// Pretty self explainatory.
     pub fn new() -> Self {
         Self {
-            stack: [DEFAULT_STACK_VALUE; STACK_SIZE],
+            stack: [const { StackValue::Null }; STACK_SIZE],
             cap: STACK_SIZE,
             sp: 0,
             fp: 0,
@@ -74,8 +68,8 @@ impl Stack {
         self.sp
     }
 
-    /// Pushes a new [`StackObject`] to the stack
-    pub fn push(&mut self, elem: StackObject) -> Result<(), RuntimeError> {
+    /// Pushes a new [`StackValue`] to the stack
+    pub fn push(&mut self, elem: StackValue) -> Result<(), RuntimeError> {
         if self.sp >= self.cap {
             return Err(RuntimeError::StackOverflow);
         }
@@ -86,11 +80,11 @@ impl Stack {
         Ok(())
     }
 
-    /// Pops a [`StackObject`] from the stack
+    /// Pops a [`StackValue`] from the stack
     ///
     /// This function uses [`std::mem::take`] to get the top-most value of the stack, leaving a
-    /// [`StackObject::Null`] behind.
-    pub fn pop(&mut self) -> Result<StackObject, RuntimeError> {
+    /// [`StackValue::Null`] behind.
+    pub fn pop(&mut self) -> Result<StackValue, RuntimeError> {
         if self.sp == 0 {
             Err(RuntimeError::StackUnderflow)
         } else {
@@ -99,10 +93,10 @@ impl Stack {
         }
     }
 
-    /// Gets the top-most [`StackObject`] value from the stack
+    /// Gets the top-most [`StackValue`] value from the stack
     ///
     /// Returns the reference to the top-most value, and does not remove it.
-    pub fn top(&mut self) -> Option<&StackObject> {
+    pub fn top(&mut self) -> Option<&StackValue> {
         if self.sp == 0 {
             None
         } else {
@@ -114,12 +108,12 @@ impl Stack {
     ///
     /// Typically used when going into a function scope.
     pub fn push_frame(&mut self, locals_count: u8, return_address: u8) -> Result<(), RuntimeError> {
-        self.push(StackObject::Ptr(return_address))?;
-        self.push(StackObject::Ptr(self.fp as u8))?;
+        self.push(StackValue::AddressPtr(return_address))?;
+        self.push(StackValue::AddressPtr(self.fp as u8))?;
         self.fp = self.sp;
 
         for _ in 0..locals_count {
-            self.push(StackObject::Null)?;
+            self.push(StackValue::Null)?;
         }
 
         Ok(())
@@ -128,10 +122,10 @@ impl Stack {
     /// Pops a stack frame from the stack
     ///
     /// Typically used when going out of a function scope
-    pub fn pop_frame(&mut self) -> Result<StackObject, RuntimeError> {
+    pub fn pop_frame(&mut self) -> Result<StackValue, RuntimeError> {
         self.sp = self.fp;
 
-        if let StackObject::Ptr(v) = self.pop()? {
+        if let StackValue::AddressPtr(v) = self.pop()? {
             self.fp = v.into();
         }
 
@@ -150,8 +144,8 @@ mod tests {
 
     macro_rules! assert_belalang_integer {
         ($top:expr, $value:expr) => {
-            let StackObject::Object(obj) = $top else {
-                panic!("Not a StackObject::Object");
+            let StackValue::ObjectPtr(obj) = $top else {
+                panic!("Not a StackValue::Object");
             };
 
             let int = unsafe { (obj.as_ptr() as *const BelalangInteger).read() };
@@ -165,7 +159,7 @@ mod tests {
         let mut heap = Heap::default();
 
         let ptr = heap.alloc(BelalangInteger::new(10)).unwrap();
-        stack.push(StackObject::Object(ptr)).unwrap();
+        stack.push(StackValue::ObjectPtr(ptr)).unwrap();
 
         assert_belalang_integer!(&stack.top().unwrap(), 10);
 
@@ -179,13 +173,13 @@ mod tests {
         let mut heap = Heap::default();
 
         let ptr = heap.alloc(BelalangInteger::new(10)).unwrap();
-        stack.push(StackObject::Object(ptr)).unwrap();
+        stack.push(StackValue::ObjectPtr(ptr)).unwrap();
 
         let ptr = heap.alloc(BelalangInteger::new(11)).unwrap();
-        stack.push(StackObject::Object(ptr)).unwrap();
+        stack.push(StackValue::ObjectPtr(ptr)).unwrap();
 
         let ptr = heap.alloc(BelalangInteger::new(12)).unwrap();
-        stack.push(StackObject::Object(ptr)).unwrap();
+        stack.push(StackValue::ObjectPtr(ptr)).unwrap();
 
         assert_belalang_integer!(&stack.pop().unwrap(), 12);
         assert_belalang_integer!(&stack.pop().unwrap(), 11);
@@ -203,11 +197,11 @@ mod tests {
         assert_eq!(stack.fp, 2);
         assert_eq!(stack.sp, 5);
 
-        assert!(matches!(stack.pop().unwrap(), StackObject::Null)); // local 1
-        assert!(matches!(stack.pop().unwrap(), StackObject::Null)); // local 2
-        assert!(matches!(stack.pop().unwrap(), StackObject::Null)); // local 3
-        assert!(matches!(stack.pop().unwrap(), StackObject::Ptr(0))); // fp
-        assert!(matches!(stack.pop().unwrap(), StackObject::Ptr(12))); // return address
+        assert!(matches!(stack.pop().unwrap(), StackValue::Null)); // local 1
+        assert!(matches!(stack.pop().unwrap(), StackValue::Null)); // local 2
+        assert!(matches!(stack.pop().unwrap(), StackValue::Null)); // local 3
+        assert!(matches!(stack.pop().unwrap(), StackValue::AddressPtr(0))); // fp
+        assert!(matches!(stack.pop().unwrap(), StackValue::AddressPtr(12))); // return address
         assert!(matches!(stack.pop(), Err(RuntimeError::StackUnderflow))); // bottom of stack
     }
 

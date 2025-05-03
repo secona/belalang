@@ -2,7 +2,7 @@ use crate::core::bytecode::{Bytecode, Constant};
 use crate::core::opcode;
 use crate::errors::RuntimeError;
 use crate::mem::heap::Heap;
-use crate::mem::stack::{Stack, StackObject};
+use crate::mem::stack::{Stack, StackValue};
 
 use crate::objects::array::BelalangArray;
 use crate::objects::boolean::BelalangBoolean;
@@ -11,7 +11,7 @@ use crate::objects::string::BelalangString;
 
 macro_rules! pop_object {
     ($self:expr) => {
-        if let Ok(StackObject::Object(obj)) = $self.stack.pop() {
+        if let Ok(StackValue::ObjectPtr(obj)) = $self.stack.pop() {
             obj.as_ptr()
         } else {
             return Err(RuntimeError::TypeError);
@@ -94,7 +94,7 @@ impl VM {
 
                     let result = unsafe { (*left).add(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::SUB => {
@@ -103,7 +103,7 @@ impl VM {
 
                     let result = unsafe { (*left).sub(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::MUL => {
@@ -112,7 +112,7 @@ impl VM {
 
                     let result = unsafe { (*left).mul(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::DIV => {
@@ -121,7 +121,7 @@ impl VM {
 
                     let result = unsafe { (*left).div(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::MOD => {
@@ -130,7 +130,7 @@ impl VM {
 
                     let result = unsafe { (*left).r#mod(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::CONSTANT => {
@@ -140,15 +140,15 @@ impl VM {
                     let object = match constant {
                         Constant::Integer(int) => {
                             let ptr = self.heap.alloc(BelalangInteger::new(int))?;
-                            StackObject::Object(ptr)
+                            StackValue::ObjectPtr(ptr)
                         }
                         Constant::Boolean(boolean) => {
                             let ptr = self.heap.alloc(BelalangBoolean::new(boolean))?;
-                            StackObject::Object(ptr)
+                            StackValue::ObjectPtr(ptr)
                         }
                         Constant::String(string) => {
                             let ptr = self.heap.alloc(BelalangString::new(string))?;
-                            StackObject::Object(ptr)
+                            StackValue::ObjectPtr(ptr)
                         }
                         Constant::Null => todo!(),
                     };
@@ -158,16 +158,16 @@ impl VM {
 
                 opcode::TRUE => {
                     let ptr = self.heap.alloc(BelalangBoolean::new(true))?;
-                    self.stack.push(StackObject::Object(ptr))?;
+                    self.stack.push(StackValue::ObjectPtr(ptr))?;
                 }
 
                 opcode::FALSE => {
                     let ptr = self.heap.alloc(BelalangBoolean::new(false))?;
-                    self.stack.push(StackObject::Object(ptr))?;
+                    self.stack.push(StackValue::ObjectPtr(ptr))?;
                 }
 
                 opcode::NULL => {
-                    self.stack.push(StackObject::Null)?;
+                    self.stack.push(StackValue::Null)?;
                 }
 
                 opcode::EQUAL => {
@@ -176,7 +176,7 @@ impl VM {
 
                     let result = unsafe { (*left).eq(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::NOT_EQUAL => {
@@ -185,7 +185,7 @@ impl VM {
 
                     let result = unsafe { (*left).ne(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::LESS_THAN => {
@@ -194,7 +194,7 @@ impl VM {
 
                     let result = unsafe { (*left).lt(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::LESS_THAN_EQUAL => {
@@ -203,7 +203,7 @@ impl VM {
 
                     let result = unsafe { (*left).le(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::AND => {
@@ -212,7 +212,7 @@ impl VM {
 
                     let result = unsafe { (*left).and(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::OR => {
@@ -221,7 +221,7 @@ impl VM {
 
                     let result = unsafe { (*left).or(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::BIT_AND => {
@@ -230,7 +230,7 @@ impl VM {
 
                     let result = unsafe { (*left).bit_and(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::BIT_OR => {
@@ -239,7 +239,7 @@ impl VM {
 
                     let result = unsafe { (*left).bit_or(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::BIT_XOR => {
@@ -248,7 +248,7 @@ impl VM {
 
                     let result = unsafe { (*left).bit_xor(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::BIT_SL => {
@@ -257,7 +257,7 @@ impl VM {
 
                     let result = unsafe { (*left).bit_sl(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::BIT_SR => {
@@ -266,7 +266,7 @@ impl VM {
 
                     let result = unsafe { (*left).bit_sr(self, &*right) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::BANG => {
@@ -274,7 +274,7 @@ impl VM {
 
                     let result = unsafe { (*right).not(self) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::MINUS => {
@@ -282,7 +282,7 @@ impl VM {
 
                     let result = unsafe { (*right).neg(self) }?;
 
-                    self.stack.push(StackObject::Object(result))?;
+                    self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::ARRAY => {
@@ -290,7 +290,7 @@ impl VM {
                     let array = self.heap.alloc(BelalangArray::with_capacity(cap))?;
 
                     for i in 0..cap {
-                        let Ok(StackObject::Object(obj)) = self.stack.pop() else {
+                        let Ok(StackValue::ObjectPtr(obj)) = self.stack.pop() else {
                             return Err(RuntimeError::TypeError);
                         };
 
@@ -302,7 +302,7 @@ impl VM {
                         };
                     }
 
-                    self.stack.push(StackObject::Object(array))?;
+                    self.stack.push(StackValue::ObjectPtr(array))?;
                 }
 
                 opcode::JUMP => {
@@ -352,7 +352,7 @@ impl VM {
         self.stack.size()
     }
 
-    pub fn stack_pop(&mut self) -> Result<StackObject, RuntimeError> {
+    pub fn stack_pop(&mut self) -> Result<StackValue, RuntimeError> {
         self.stack.pop()
     }
 }

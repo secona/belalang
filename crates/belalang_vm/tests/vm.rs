@@ -4,7 +4,7 @@
 use belalang_vm::core::VM;
 use belalang_vm::core::bytecode::{Bytecode, Constant};
 use belalang_vm::core::opcode;
-use belalang_vm::mem::stack::StackObject;
+use belalang_vm::mem::stack::StackValue;
 use belalang_vm::objects::boolean::BelalangBoolean;
 use belalang_vm::objects::integer::BelalangInteger;
 
@@ -34,7 +34,7 @@ mod stack_op {
             panic!("Failed popping from the stack!");
         };
 
-        let StackObject::Object(object) = obj else {
+        let StackValue::ObjectPtr(object) = obj else {
             panic!("TOS is not an Object!");
         };
 
@@ -70,7 +70,7 @@ mod jump_op {
             panic!("Failed popping from the stack!");
         };
 
-        let StackObject::Object(object) = obj else {
+        let StackValue::ObjectPtr(object) = obj else {
             panic!("TOS is not an Object!");
         };
 
@@ -102,7 +102,7 @@ mod jump_op {
             panic!("Failed popping from the stack!");
         };
 
-        let StackObject::Object(object) = obj else {
+        let StackValue::ObjectPtr(object) = obj else {
             panic!("TOS is not an Object!");
         };
 
@@ -114,7 +114,7 @@ mod jump_op {
             panic!("Failed popping from the stack!");
         };
 
-        let StackObject::Object(object) = obj else {
+        let StackValue::ObjectPtr(object) = obj else {
             panic!("TOS is not an Object!");
         };
 
