@@ -5,11 +5,18 @@ use crate::BelalangBase;
 
 use crate::objects::BelalangObject;
 
+/// Pointer to a BelalangObject
+///
+/// Provides an interface to storing a BelalangObject through a pointer.
 pub struct BelalangPtr {
     ptr: NonNull<dyn BelalangObject>,
 }
 
 impl BelalangPtr {
+    /// Creates a new [`BelalangPtr`]
+    ///
+    /// Also does initialization for reference counting by incrementing the
+    /// [`ref_count`][BelalangBase::ref_count] by one (this pointer itself).
     pub fn new(ptr: NonNull<dyn BelalangObject>) -> Self {
         unsafe {
             let base_ptr = ptr.as_ptr() as *mut BelalangBase;
@@ -19,6 +26,7 @@ impl BelalangPtr {
         Self { ptr }
     }
 
+    /// Raw Rust pointer of [`BelalangPtr`]
     pub fn as_ptr(&self) -> *mut dyn BelalangObject {
         self.ptr.as_ptr()
     }
