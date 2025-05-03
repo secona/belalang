@@ -3,9 +3,9 @@ use std::marker::PhantomData;
 use std::ptr::NonNull;
 
 use crate::BelalangBase;
+use crate::core::BelalangPtr;
 use crate::errors::RuntimeError;
 use crate::objects::BelalangObject;
-use crate::objects::ptr::BelalangPtr;
 
 pub struct Heap {
     pub start: Option<NonNull<BelalangBase>>,

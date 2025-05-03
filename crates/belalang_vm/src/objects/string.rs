@@ -2,12 +2,11 @@ use std::alloc::{Layout, alloc};
 use std::fmt::Display;
 
 use crate::BelalangBase;
+use crate::core::BelalangPtr;
 use crate::core::VM;
 use crate::errors::RuntimeError;
 use crate::objects::integer::BelalangInteger;
 use crate::objects::{BelalangObject, BelalangOperators, match_belalang_type};
-
-use super::ptr::BelalangPtr;
 
 #[repr(C)]
 #[derive(Debug)]

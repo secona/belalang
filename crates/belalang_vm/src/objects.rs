@@ -8,15 +8,14 @@ use std::fmt::{Debug, Display};
 use std::hash::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
+use crate::core::BelalangPtr;
 use crate::core::VM;
 use crate::errors::RuntimeError;
-use crate::objects::ptr::BelalangPtr;
 
 pub mod array;
 pub mod base;
 pub mod boolean;
 pub mod integer;
-pub mod ptr;
 pub mod string;
 
 pub trait BelalangObject: BelalangOperators + Display + Debug {

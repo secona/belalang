@@ -3,7 +3,7 @@ use std::ptr::{NonNull, drop_in_place};
 
 use crate::BelalangBase;
 
-use super::BelalangObject;
+use crate::objects::BelalangObject;
 
 pub struct BelalangPtr {
     ptr: NonNull<dyn BelalangObject>,

@@ -1,5 +1,5 @@
 use crate::errors::RuntimeError;
-use crate::objects::ptr::BelalangPtr;
+use crate::core::BelalangPtr;
 
 const STACK_SIZE: usize = 4096;
 

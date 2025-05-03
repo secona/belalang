@@ -3,9 +3,9 @@ use std::fmt::Display;
 use std::ptr::drop_in_place;
 
 use crate::BelalangBase;
+use crate::core::BelalangPtr;
 use crate::objects::BelalangOperators;
 
-use super::ptr::BelalangPtr;
 use super::BelalangObject;
 
 #[repr(C)]

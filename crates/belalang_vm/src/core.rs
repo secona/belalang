@@ -5,6 +5,8 @@
 
 pub mod bytecode;
 pub mod opcode;
+mod ptr;
 mod vm;
 
 pub use vm::VM;
+pub use ptr::BelalangPtr;
