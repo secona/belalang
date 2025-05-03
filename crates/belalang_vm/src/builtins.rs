@@ -5,17 +5,12 @@
 //! such as functions, types, and objects. Currently, objects live on their own
 //! module, [`crate::objects`].
 
+use crate::functions::belalang_print;
 use crate::objects::BelalangObject;
-use crate::objects::integer::BelalangInteger;
 
 pub type BuiltinFn = fn(&[Box<dyn BelalangObject>]) -> Box<dyn BelalangObject>;
 
-pub static BUILTIN_FUNCTIONS: &[(&str, BuiltinFn)] = &[("print", |args| {
-    // TODO: handle null values
-
-    println!("{}", args.first().unwrap());
-    Box::new(BelalangInteger::new(0))
-})];
+pub static BUILTIN_FUNCTIONS: &[(&str, BuiltinFn)] = &[("print", belalang_print)];
 
 pub fn lookup_builtin(name: &str) -> Option<BuiltinFn> {
     BUILTIN_FUNCTIONS
