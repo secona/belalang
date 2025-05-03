@@ -62,7 +62,7 @@ impl Default for ScopeManager {
             scope_store: Vec::new(),
         };
 
-        for (key, _) in belalang_vm::builtins::BUILTIN_FUNCTIONS {
+        for (key, _) in belalang_vm::functions::BUILTIN_FUNCTIONS {
             sm.main_scope.symbol_store.insert(
                 key.to_string(),
                 Symbol {
