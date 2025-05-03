@@ -16,7 +16,6 @@ pub mod array;
 pub mod base;
 pub mod boolean;
 pub mod integer;
-pub mod string;
 
 pub trait BelalangObject: BelalangOperators + Display + Debug {
     fn type_name() -> String
