@@ -107,7 +107,7 @@ pub const RETURN: u8 = 0xB1;
 pub const RETURN_VALUE: u8 = 0xB2;
 
 /// Arrays -- Array creation (2 bytes: opcode + 8-bit element count)
-pub const ARRAY: u8 = 0xC0;
+pub const MAKE_ARRAY: u8 = 0xC0;
 
 /// Arrays -- Array indexing (1 byte)
 pub const INDEX: u8 = 0xC1;
@@ -200,15 +200,15 @@ pub fn get_builtin(v: u8) -> [u8; 2] {
     [GET_BUILTIN, v]
 }
 
-/// Encodes an [`ARRAY`] instruction with 8-bit element count
+/// Encodes an [`MAKE_ARRAY`] instruction with 8-bit element count
 ///
 /// # Arguments
 /// * `v` - Number of elements to pop from stack (0-255)
 ///
 /// # Returns
-/// 2-byte array: [[`ARRAY`], count]
-pub fn array(v: u8) -> [u8; 2] {
-    [ARRAY, v]
+/// 2-byte array: [[`MAKE_ARRAY`], count]
+pub fn make_array(v: u8) -> [u8; 2] {
+    [MAKE_ARRAY, v]
 }
 
 #[cfg(test)]

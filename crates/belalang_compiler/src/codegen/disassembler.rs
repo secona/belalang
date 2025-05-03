@@ -163,7 +163,7 @@ pub fn disassemble(bytes: Vec<u8>) -> String {
                 result.push_str(&format!("{:#06x}: RETURN_VALUE\n", i));
             }
 
-            opcode::ARRAY => {
+            opcode::MAKE_ARRAY => {
                 let (operand, start_i) = read_u16(&bytes, &mut i);
                 result.push_str(&format!("{:#06x}: ARRAY {:#03}\n", start_i, operand));
             }

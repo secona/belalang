@@ -281,7 +281,7 @@ impl VM {
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
-                opcode::ARRAY => {
+                opcode::MAKE_ARRAY => {
                     let cap: usize = self.read_u8().into();
                     let array = self.heap.alloc(BelalangArray::with_capacity(cap))?;
 
