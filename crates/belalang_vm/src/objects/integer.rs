@@ -1,7 +1,5 @@
 use std::fmt::Display;
 
-use belalang_macros::belalang_object;
-
 use crate::BelalangBase;
 use crate::core::VM;
 use crate::errors::RuntimeError;
@@ -11,8 +9,10 @@ use crate::objects::{BelalangObject, BelalangOperators};
 
 use super::ptr::BelalangPtr;
 
-#[belalang_object(name = "Integer")]
+#[repr(C)]
+#[derive(Debug)]
 pub struct BelalangInteger {
+    pub base: BelalangBase,
     pub value: i64,
 }
 
@@ -22,6 +22,16 @@ impl BelalangInteger {
             base: BelalangBase::new::<Self>(),
             value,
         }
+    }
+}
+
+impl BelalangObject for BelalangInteger {
+    fn type_name() -> String {
+        "Integer".to_string()
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 }
 

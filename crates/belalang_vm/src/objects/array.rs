@@ -2,15 +2,16 @@ use std::alloc::{Layout, alloc, dealloc};
 use std::fmt::Display;
 use std::ptr::drop_in_place;
 
-use belalang_macros::belalang_object;
-
 use crate::BelalangBase;
 use crate::objects::BelalangOperators;
 
 use super::ptr::BelalangPtr;
+use super::BelalangObject;
 
-#[belalang_object(name = "Array")]
+#[repr(C)]
+#[derive(Debug)]
 pub struct BelalangArray {
+    pub base: BelalangBase,
     pub ptr: *mut BelalangPtr,
     pub len: usize,
     pub cap: usize,
@@ -29,6 +30,16 @@ impl Drop for BelalangArray {
                 dealloc(self.ptr as *mut u8, layout);
             }
         }
+    }
+}
+
+impl BelalangObject for BelalangArray {
+    fn type_name() -> String {
+        "Array".to_string()
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 }
 
