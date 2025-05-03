@@ -1,18 +1,42 @@
 use crate::errors::RuntimeError;
 use crate::core::BelalangPtr;
 
+/// Default stack size of Belalang VM
+///
+/// This is currently a good enough stack size for Belalang VM. I don't really know how stack sizes
+/// are supposed to be implemented for efficiency. I still have stuff to read and things to
+/// explore.
 const STACK_SIZE: usize = 4096;
 
+/// Objects that live on the stack
+///
+/// # Problems
+/// - Should probably rename this to not have "Object", maybe "StackValue" would be good.
+/// - Namings of each variant should be more descriptive.
 #[derive(Default, Debug)]
 pub enum StackObject {
+    /// Pointer to an object, like [`BelalangInteger`][crate::objects::integer::BelalangInteger]
     Object(BelalangPtr),
+
+    /// Pointer to an address in the bytecode
     Ptr(u8),
+    
+    /// Null value in the stack
+    ///
+    /// This value is mostly used to indicate uninitialized variables and actual null values.
+    ///
+    /// # Problems
+    /// - I am not sure to go forward with the "null" name or not.
+    /// - I am not sure if uninitialized variables should have this as their value.
     #[default]
     Null,
 }
 
 const DEFAULT_STACK_VALUE: StackObject = StackObject::Null;
 
+/// Belalang VM's stack implementation
+///
+/// This stack is both the call stack and the frame stack.
 pub struct Stack {
     stack: [StackObject; STACK_SIZE],
     cap: usize,
@@ -33,6 +57,9 @@ impl Drop for Stack {
 }
 
 impl Stack {
+    /// Creates a new stack
+    ///
+    /// Pretty self explainatory.
     pub fn new() -> Self {
         Self {
             stack: [DEFAULT_STACK_VALUE; STACK_SIZE],
@@ -42,10 +69,12 @@ impl Stack {
         }
     }
 
+    /// Returns the stack size
     pub fn size(&self) -> usize {
         self.sp
     }
 
+    /// Pushes a new [`StackObject`] to the stack
     pub fn push(&mut self, elem: StackObject) -> Result<(), RuntimeError> {
         if self.sp >= self.cap {
             return Err(RuntimeError::StackOverflow);
@@ -57,6 +86,10 @@ impl Stack {
         Ok(())
     }
 
+    /// Pops a [`StackObject`] from the stack
+    ///
+    /// This function uses [`std::mem::take`] to get the top-most value of the stack, leaving a
+    /// [`StackObject::Null`] behind.
     pub fn pop(&mut self) -> Result<StackObject, RuntimeError> {
         if self.sp == 0 {
             Err(RuntimeError::StackUnderflow)
@@ -66,6 +99,9 @@ impl Stack {
         }
     }
 
+    /// Gets the top-most [`StackObject`] value from the stack
+    ///
+    /// Returns the reference to the top-most value, and does not remove it.
     pub fn top(&mut self) -> Option<&StackObject> {
         if self.sp == 0 {
             None
@@ -74,6 +110,9 @@ impl Stack {
         }
     }
 
+    /// Pushes a new stack frame to the stack
+    ///
+    /// Typically used when going into a function scope.
     pub fn push_frame(&mut self, locals_count: u8, return_address: u8) -> Result<(), RuntimeError> {
         self.push(StackObject::Ptr(return_address))?;
         self.push(StackObject::Ptr(self.fp as u8))?;
@@ -86,6 +125,9 @@ impl Stack {
         Ok(())
     }
 
+    /// Pops a stack frame from the stack
+    ///
+    /// Typically used when going out of a function scope
     pub fn pop_frame(&mut self) -> Result<StackObject, RuntimeError> {
         self.sp = self.fp;
 

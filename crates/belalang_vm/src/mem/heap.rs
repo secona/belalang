@@ -7,6 +7,12 @@ use crate::core::BelalangPtr;
 use crate::errors::RuntimeError;
 use crate::objects::BelalangObject;
 
+/// Belalang VM's heap implementation
+/// 
+/// This is a GC-managed heap allocator for Belalang VM. It works by having the objects in a linked
+/// list.
+//
+/// Note that this is a very early implementation. Breaking changes will be made. 
 pub struct Heap {
     pub start: Option<NonNull<BelalangBase>>,
     _marker: PhantomData<BelalangBase>,
@@ -23,6 +29,11 @@ impl Default for Heap {
 }
 
 impl Heap {
+    /// Allocate function for Belalang VM heap
+    /// 
+    /// It allocates the Belalang object into the linked list by inserting it at the front. It
+    /// returns the address to the allocated object. Note that this function not only allocates
+    /// memory but also write to the newly allocated memory.
     pub fn alloc<T: BelalangObject>(&mut self, object: T) -> Result<BelalangPtr, RuntimeError> {
         let layout = Layout::new::<T>();
 
@@ -53,10 +64,16 @@ impl Heap {
         }))
     }
 
+    /// Deallocate function for the Belalang VM
+    ///
+    /// Given a pointer to an object, this function deallocates said object from the GC-managed
+    /// heap. 
+    ///
     /// # Safety
     ///
     /// This function is unsafe because:
-    /// - It deallocates memory pointed to by `ptr`, which must have been previously allocated by this allocator
+    /// - It deallocates memory pointed to by `ptr`, which must have been previously allocated
+    ///   by this allocator
     /// - The pointer must be valid and properly aligned for type T
     /// - After deallocation, the memory must not be accessed or freed again
     /// - No references to the freed memory may exist after this call
