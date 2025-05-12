@@ -1,4 +1,4 @@
-use std::alloc::{Layout, alloc, dealloc};
+use std::alloc::{Layout, alloc};
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
@@ -63,61 +63,11 @@ impl Heap {
             >(base_ptr))
         }))
     }
-
-    /// Deallocate function for the Belalang VM
-    ///
-    /// Given a pointer to an object, this function deallocates said object from the GC-managed
-    /// heap. 
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe because:
-    /// - It deallocates memory pointed to by `ptr`, which must have been previously allocated
-    ///   by this allocator
-    /// - The pointer must be valid and properly aligned for type T
-    /// - After deallocation, the memory must not be accessed or freed again
-    /// - No references to the freed memory may exist after this call
-    ///
-    /// Caller must ensure:
-    /// - The pointer was allocated using this allocator's corresponding allocation method
-    /// - The type T matches the type that was originally allocated
-    /// - No other parts of the program retain references to this memory after deallocation
-    pub unsafe fn dealloc<T>(&mut self, ptr: NonNull<T>) -> Result<(), RuntimeError> {
-        unsafe {
-            let layout = Layout::new::<T>();
-
-            let base_ptr = ptr.as_ptr() as *mut BelalangBase;
-
-            if let Some(start) = self.start {
-                if start.as_ptr() == base_ptr {
-                    self.start = (*base_ptr).next;
-                } else {
-                    let mut current = start;
-                    while let Some(next) = (*current.as_ptr()).next {
-                        if next.as_ptr() == base_ptr {
-                            (*current.as_ptr()).next = (*base_ptr).next;
-                            break;
-                        }
-                        current = next;
-                    }
-                }
-            }
-
-            dealloc(ptr.as_ptr() as *mut u8, layout);
-
-            Ok(())
-        }
-    }
 }
 
 impl Drop for Heap {
     fn drop(&mut self) {
-        while let Some(ptr) = self.start {
-            unsafe {
-                self.start = (*ptr.as_ptr()).next;
-                self.dealloc::<BelalangBase>(ptr).unwrap();
-            }
-        }
+        self.start = None;
     }
 }
 
@@ -158,10 +108,7 @@ mod tests {
                 i
             );
 
-            let base = unsafe {
-                let ptr = c.as_ptr() as *const BelalangBase;
-                ptr.read()
-            };
+            let base = unsafe { &*c.as_ptr() };
 
             assert_eq!(base.obj_type, BelalangInteger::r#type());
 
@@ -226,30 +173,17 @@ mod tests {
                 i
             );
 
-            let base = unsafe {
-                let ptr = c.as_ptr() as *const BelalangBase;
-                ptr.read()
-            };
+            let base = unsafe { &*c.as_ptr() };
 
             match d {
                 Type::Integer(integer) => {
+                    let object = unsafe { &*(c.as_ptr() as *const BelalangInteger) };
                     assert_eq!(base.obj_type, BelalangInteger::r#type());
-
-                    let object = unsafe {
-                        let ptr = c.as_ptr() as *const BelalangInteger;
-                        ptr.read()
-                    };
-
                     assert_eq!(object.value, *integer);
                 }
                 Type::Boolean(boolean) => {
+                    let object = unsafe { &*(c.as_ptr() as *const BelalangBoolean) };
                     assert_eq!(base.obj_type, BelalangBoolean::r#type());
-
-                    let object = unsafe {
-                        let ptr = c.as_ptr() as *const BelalangBoolean;
-                        ptr.read()
-                    };
-
                     assert_eq!(object.value, *boolean);
                 }
             };
@@ -312,21 +246,13 @@ mod tests {
                 i
             );
 
-            let base = unsafe {
-                let ptr = c.as_ptr() as *const BelalangBase;
-                ptr.read()
-            };
-
+            let base = unsafe { &*c.as_ptr() };
             assert_eq!(base.obj_type, BelalangInteger::r#type());
 
-            let integer = unsafe {
-                let ptr = c.as_ptr() as *const BelalangInteger;
-                ptr.read()
-            };
-
+            let integer = unsafe { &*(c.as_ptr() as *const BelalangInteger) };
             assert_eq!(integer.value, *d);
 
-            unsafe { heap.dealloc(c).unwrap() };
+            drop(ptr);
 
             current = base.next;
         }
