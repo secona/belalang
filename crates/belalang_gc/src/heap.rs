@@ -51,7 +51,7 @@ pub struct GcHeap {
 }
 
 impl GcHeap {
-    pub fn alloc<T: GcObject>(&mut self, object: T) -> Result<GcPtr, MemoryError> {
+    pub fn alloc<T: GcObject>(&mut self, object: T) -> Result<GcPtr<T>, MemoryError> {
         let layout = Layout::new::<T>();
 
         let base_ptr: *mut T = unsafe {
@@ -66,19 +66,15 @@ impl GcHeap {
             ptr
         };
 
-        unsafe {
-            let ptr = base_ptr as *mut dyn GcObject;
-            (*ptr).header_mut().next = self.start;
+        // Safety: base_ptr was just created in this function call
+        let ptr = base_ptr as *mut dyn GcObject;
+        unsafe { (*ptr).header_mut().next = self.start };
 
-            self.start = Some(NonNull::new_unchecked(ptr));
-        }
+        // Safety: base_ptr was just created in this function call
+        unsafe { self.start = Some(NonNull::new_unchecked(ptr)) };
 
-        Ok(GcPtr::new(unsafe {
-            NonNull::new_unchecked(std::mem::transmute::<
-                *mut (dyn GcObject + '_),
-                *mut (dyn GcObject + 'static),
-            >(base_ptr))
-        }))
+        // Safety: base_ptr was just created in this function call
+        unsafe { Ok(GcPtr::new(&mut *base_ptr)) }
     }
 }
 
@@ -158,4 +154,6 @@ mod tests {
         // Ensure we've reached the end of the heap
         assert!(current.is_none(), "Heap has more elements than expected");
     }
+
+    // TODO: allocate multiple types
 }
