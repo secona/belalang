@@ -10,3 +10,4 @@ mod vm;
 
 pub use ptr::BelalangPtr;
 pub use vm::VM;
+pub(crate) use vm::with_heap;

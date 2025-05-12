@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::BelalangBase;
 use crate::core::BelalangPtr;
-use crate::core::VM;
+use crate::core::with_heap;
 use crate::errors::RuntimeError;
 use crate::objects::match_belalang_type;
 use crate::objects::{BelalangObject, BelalangOperators};
@@ -52,51 +52,51 @@ impl BelalangOperators for BelalangBoolean {
         self.value
     }
 
-    fn and(&self, vm: &mut VM, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
+    fn and(&self, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
         match_belalang_type!(other,
             BelalangBoolean => |other: &BelalangBoolean| {
                 let result = BelalangBoolean::new(self.value && other.value);
-                let ptr = vm.heap.alloc(result)?;
+                let ptr = with_heap(|heap| heap.alloc(result))?;
 
                 Ok(ptr)
             },
         )
     }
 
-    fn or(&self, vm: &mut VM, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
+    fn or(&self, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
         match_belalang_type!(other,
             BelalangBoolean => |other: &BelalangBoolean| {
                 let result = BelalangBoolean::new(self.value || other.value);
-                let ptr = vm.heap.alloc(result)?;
+                let ptr = with_heap(|heap| heap.alloc(result))?;
 
                 Ok(ptr)
             },
         )
     }
 
-    fn not(&self, vm: &mut VM) -> Result<BelalangPtr, RuntimeError> {
+    fn not(&self) -> Result<BelalangPtr, RuntimeError> {
         let result = BelalangBoolean::new(!self.value);
-        let ptr = vm.heap.alloc(result)?;
+        let ptr = with_heap(|heap| heap.alloc(result))?;
 
         Ok(ptr)
     }
 
-    fn eq(&self, vm: &mut VM, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
+    fn eq(&self, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
         match_belalang_type!(other,
             BelalangBoolean => |other: &BelalangBoolean| {
                 let result = BelalangBoolean::new(self.value == other.value);
-                let ptr = vm.heap.alloc(result)?;
+                let ptr = with_heap(|heap| heap.alloc(result))?;
 
                 Ok(ptr)
             },
         )
     }
 
-    fn ne(&self, vm: &mut VM, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
+    fn ne(&self, other: &dyn BelalangObject) -> Result<BelalangPtr, RuntimeError> {
         match_belalang_type!(other,
             BelalangBoolean => |other: &BelalangBoolean| {
                 let result = BelalangBoolean::new(self.value != other.value);
-                let ptr = vm.heap.alloc(result)?;
+                let ptr = with_heap(|heap| heap.alloc(result))?;
 
                 Ok(ptr)
             },

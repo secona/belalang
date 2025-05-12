@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+
 use crate::core::bytecode::{Bytecode, Constant};
 use crate::core::opcode;
 use crate::errors::RuntimeError;
@@ -7,6 +9,17 @@ use crate::mem::stack::{Stack, StackValue};
 use crate::objects::array::BelalangArray;
 use crate::objects::boolean::BelalangBoolean;
 use crate::objects::integer::BelalangInteger;
+
+thread_local! {
+    static HEAP: RefCell<Heap> = RefCell::new(Heap::default());
+}
+
+pub(crate) fn with_heap<F, R>(f: F) -> R
+where
+    F: FnOnce(&mut Heap) -> R,
+{
+    HEAP.with(|h| f(&mut h.borrow_mut()))
+}
 
 macro_rules! pop_object {
     ($self:expr) => {
@@ -40,9 +53,6 @@ pub struct VM {
 
     /// The stack memory of the VM.
     stack: Stack,
-
-    /// The heap memory of the VM. Made `pub(crate)` to support allocations in [crate::objects].
-    pub(crate) heap: Heap,
 }
 
 impl VM {
@@ -91,7 +101,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).add(self, &*right) }?;
+                    let result = unsafe { (*left).add(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -100,7 +110,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).sub(self, &*right) }?;
+                    let result = unsafe { (*left).sub(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -109,7 +119,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).mul(self, &*right) }?;
+                    let result = unsafe { (*left).mul(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -118,7 +128,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).div(self, &*right) }?;
+                    let result = unsafe { (*left).div(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -127,7 +137,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).r#mod(self, &*right) }?;
+                    let result = unsafe { (*left).r#mod(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -138,11 +148,11 @@ impl VM {
 
                     let object = match constant {
                         Constant::Integer(int) => {
-                            let ptr = self.heap.alloc(BelalangInteger::new(int))?;
+                            let ptr = with_heap(|heap| heap.alloc(BelalangInteger::new(int)))?;
                             StackValue::ObjectPtr(ptr)
                         }
                         Constant::Boolean(boolean) => {
-                            let ptr = self.heap.alloc(BelalangBoolean::new(boolean))?;
+                            let ptr = with_heap(|heap| heap.alloc(BelalangBoolean::new(boolean)))?;
                             StackValue::ObjectPtr(ptr)
                         }
                         Constant::String(_) => todo!(),
@@ -153,12 +163,12 @@ impl VM {
                 }
 
                 opcode::TRUE => {
-                    let ptr = self.heap.alloc(BelalangBoolean::new(true))?;
+                    let ptr = with_heap(|heap| heap.alloc(BelalangBoolean::new(true)))?;
                     self.stack.push(StackValue::ObjectPtr(ptr))?;
                 }
 
                 opcode::FALSE => {
-                    let ptr = self.heap.alloc(BelalangBoolean::new(false))?;
+                    let ptr = with_heap(|heap| heap.alloc(BelalangBoolean::new(false)))?;
                     self.stack.push(StackValue::ObjectPtr(ptr))?;
                 }
 
@@ -170,7 +180,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).eq(self, &*right) }?;
+                    let result = unsafe { (*left).eq(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -179,7 +189,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).ne(self, &*right) }?;
+                    let result = unsafe { (*left).ne(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -188,7 +198,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).lt(self, &*right) }?;
+                    let result = unsafe { (*left).lt(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -197,7 +207,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).le(self, &*right) }?;
+                    let result = unsafe { (*left).le(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -206,7 +216,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).and(self, &*right) }?;
+                    let result = unsafe { (*left).and(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -215,7 +225,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).or(self, &*right) }?;
+                    let result = unsafe { (*left).or(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -224,7 +234,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).bit_and(self, &*right) }?;
+                    let result = unsafe { (*left).bit_and(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -233,7 +243,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).bit_or(self, &*right) }?;
+                    let result = unsafe { (*left).bit_or(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -242,7 +252,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).bit_xor(self, &*right) }?;
+                    let result = unsafe { (*left).bit_xor(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -251,7 +261,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).bit_sl(self, &*right) }?;
+                    let result = unsafe { (*left).bit_sl(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -260,7 +270,7 @@ impl VM {
                     let right = pop_object!(self);
                     let left = pop_object!(self);
 
-                    let result = unsafe { (*left).bit_sr(self, &*right) }?;
+                    let result = unsafe { (*left).bit_sr(&*right) }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -268,7 +278,7 @@ impl VM {
                 opcode::BANG => {
                     let right = pop_object!(self);
 
-                    let result = unsafe { (*right).not(self) }?;
+                    let result = unsafe { (*right).not() }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
@@ -276,14 +286,14 @@ impl VM {
                 opcode::MINUS => {
                     let right = pop_object!(self);
 
-                    let result = unsafe { (*right).neg(self) }?;
+                    let result = unsafe { (*right).neg() }?;
 
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 }
 
                 opcode::MAKE_ARRAY => {
                     let cap: usize = self.read_u8().into();
-                    let array = self.heap.alloc(BelalangArray::with_capacity(cap))?;
+                    let array = with_heap(|heap| heap.alloc(BelalangArray::with_capacity(cap)))?;
 
                     for i in 0..cap {
                         let Ok(StackValue::ObjectPtr(obj)) = self.stack.pop() else {
@@ -359,6 +369,5 @@ impl Drop for VM {
         self.constants.clear();
 
         std::mem::drop(std::mem::take(&mut self.stack));
-        std::mem::drop(std::mem::take(&mut self.heap));
     }
 }
