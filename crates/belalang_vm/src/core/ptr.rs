@@ -1,7 +1,6 @@
 use std::fmt::Debug;
+use std::ops::{Deref, DerefMut};
 use std::ptr::{NonNull, drop_in_place};
-
-use crate::BelalangBase;
 
 use crate::objects::BelalangObject;
 
@@ -16,14 +15,14 @@ impl BelalangPtr {
     /// Creates a new [`BelalangPtr`]
     ///
     /// Also does initialization for reference counting by incrementing the
-    /// [`ref_count`][BelalangBase::ref_count] by one (this pointer itself).
+    /// [`ref_count`][crate::BelalangBase::ref_count] by one (this pointer itself).
     pub fn new(ptr: NonNull<dyn BelalangObject>) -> Self {
-        unsafe {
-            let base_ptr = ptr.as_ptr() as *mut BelalangBase;
-            (*base_ptr).ref_count.set((*base_ptr).ref_count.get() + 1);
-        };
+        let ptr = Self { ptr };
 
-        Self { ptr }
+        let base = ptr.base();
+        base.ref_count.set(base.ref_count.get() + 1);
+
+        ptr
     }
 
     /// Raw Rust pointer of [`BelalangPtr`]
@@ -40,28 +39,35 @@ impl Debug for BelalangPtr {
 
 impl Clone for BelalangPtr {
     fn clone(&self) -> Self {
-        unsafe {
-            let base_ptr = self.ptr.as_ptr() as *mut BelalangBase;
-            (*base_ptr).ref_count.set((*base_ptr).ref_count.get() + 1);
-        };
+        let base = self.base();
+        base.ref_count.set(base.ref_count.get() + 1);
 
         Self { ptr: self.ptr }
     }
 }
 
+impl Deref for BelalangPtr {
+    type Target = dyn BelalangObject;
+
+    fn deref(&self) -> &Self::Target {
+        unsafe { self.ptr.as_ref() }
+    }
+}
+
+impl DerefMut for BelalangPtr {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        unsafe { self.ptr.as_mut() }
+    }
+}
+
 impl Drop for BelalangPtr {
     fn drop(&mut self) {
-        unsafe {
-            let base_ptr = self.ptr.as_ptr() as *mut BelalangBase;
-            let ref_count = (*base_ptr).ref_count.get();
+        let base = self.base();
+        base.ref_count.set(base.ref_count.get() - 1);
 
-            let new_count = ref_count - 1;
-            (*base_ptr).ref_count.set(new_count);
-
-            if new_count == 0 {
-                drop_in_place(self.ptr.as_ptr());
-            }
-        };
+        if base.ref_count.get() == 0 {
+            unsafe { drop_in_place(self.ptr.as_ptr()) };
+        }
     }
 }
 
@@ -71,19 +77,13 @@ mod tests {
     use crate::mem::heap::Heap;
     use crate::objects::integer::BelalangInteger;
 
-    use super::*;
-
     #[test]
     fn increments_ref_count() {
         let mut heap = Heap::default();
 
         let int = heap.alloc(BelalangInteger::new(1)).unwrap();
 
-        let ref_count = unsafe {
-            let base_ptr = int.as_ptr() as *const BelalangBase;
-            (*base_ptr).ref_count.get()
-        };
-        assert_eq!(ref_count, 1);
+        assert_eq!(int.base().ref_count.get(), 1);
     }
 
     #[test]
@@ -91,13 +91,9 @@ mod tests {
         let mut heap = Heap::default();
 
         let int = heap.alloc(BelalangInteger::new(1)).unwrap();
-        let int2 = int.clone();
+        let int2 = int.clone(); // should increment the ref_count to 2
 
-        let ref_count = unsafe {
-            let base_ptr = int.as_ptr() as *const BelalangBase;
-            (*base_ptr).ref_count.get()
-        };
-        assert_eq!(ref_count, 2);
+        assert_eq!(int.base().ref_count.get(), 2);
     }
 
     #[test]
@@ -107,18 +103,10 @@ mod tests {
         let int = heap.alloc(BelalangInteger::new(1)).unwrap();
         let int2 = int.clone();
 
-        let ref_count = unsafe {
-            let base_ptr = int.as_ptr() as *const BelalangBase;
-            (*base_ptr).ref_count.get()
-        };
-        assert_eq!(ref_count, 2);
+        assert_eq!(int.base().ref_count.get(), 2); // from 2
 
         drop(int2);
 
-        let ref_count = unsafe {
-            let base_ptr = int.as_ptr() as *const BelalangBase;
-            (*base_ptr).ref_count.get()
-        };
-        assert_eq!(ref_count, 1);
+        assert_eq!(int.base().ref_count.get(), 1); // to 1
     }
 }

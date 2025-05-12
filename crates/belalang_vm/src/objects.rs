@@ -39,6 +39,9 @@ impl BelalangBase {
 }
 
 pub trait BelalangObject: BelalangOperators + Display + Debug {
+    fn base(&self) -> &BelalangBase;
+    fn base_mut(&mut self) -> &mut BelalangBase;
+
     fn type_name() -> String
     where
         Self: Sized;

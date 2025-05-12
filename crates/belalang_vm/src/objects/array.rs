@@ -41,6 +41,14 @@ impl BelalangObject for BelalangArray {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
+
+    fn base(&self) -> &BelalangBase {
+        &self.base
+    }
+
+    fn base_mut(&mut self) -> &mut BelalangBase {
+        &mut self.base
+    }
 }
 
 impl Display for BelalangArray {
