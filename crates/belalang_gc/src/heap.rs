@@ -156,9 +156,9 @@ mod tests {
     fn test_heap_allocations() {
         let mut heap = GcHeap::default();
 
-        let _ = heap.alloc(Integer::new(1));
-        let _ = heap.alloc(Float::new(2.0));
-        let _ = heap.alloc(Integer::new(3));
+        heap.alloc(Integer::new(1)).unwrap();
+        heap.alloc(Float::new(2.0)).unwrap();
+        heap.alloc(Integer::new(3)).unwrap();
 
         let current = heap.start.unwrap();
 
@@ -178,5 +178,18 @@ mod tests {
         let current = c.header().next;
 
         assert!(current.is_none(), "Heap has more elements than expected");
+    }
+
+    #[test]
+    fn test_heap_drop() {
+        let mut heap = GcHeap::default();
+
+        heap.alloc(Integer::new(1)).unwrap();
+        heap.alloc(Float::new(2.0)).unwrap();
+        heap.alloc(Integer::new(3)).unwrap();
+
+        drop(heap); // simulate dropping the heap
+
+        // no assertions needed --- if it doesn't crash, the test passes
     }
 }
