@@ -80,195 +80,162 @@ mod tests {
 
     use super::*;
 
-    fn test_heap_alloc(data: Vec<i64>) {
-        let mut heap = Heap::default();
-        let mut allocated_ptrs = Vec::new();
-
-        for i in &data {
-            let value = BelalangInteger::new(*i);
-            let ptr = heap.alloc(value).unwrap();
-            allocated_ptrs.push(ptr);
-        }
-
-        let mut current = heap.start;
-        for (i, (d, ptr)) in data
-            .iter()
-            .rev()
-            .zip(allocated_ptrs.iter().rev())
-            .enumerate()
-        {
-            let Some(c) = current else {
-                panic!("Error: Unexpected None at heap.start");
-            };
-
-            assert_eq!(
-                c.as_ptr() as *const (),
-                ptr.as_ptr() as *const (),
-                "Pointer mismatch at position {}",
-                i
-            );
-
-            let base = unsafe { &*c.as_ptr() };
-
-            assert_eq!(base.obj_type, BelalangInteger::r#type());
-
-            let integer = unsafe {
-                let ptr = c.as_ptr() as *const BelalangInteger;
-                ptr.read()
-            };
-
-            assert_eq!(integer.value, *d);
-
-            current = base.next;
-        }
-
-        assert!(current.is_none());
-    }
-
-    #[test]
-    fn heap_alloc_simple() {
-        test_heap_alloc(vec![1, 2, 3]);
-    }
-
-    #[derive(Debug)]
-    enum Type {
+    /// Test value that can be allocated on the heap
+    enum TestValue {
         Integer(i64),
         Boolean(bool),
     }
 
-    fn test_heap_alloc_multiple_types(data: Vec<Type>) {
-        let mut heap = Heap::default();
-        let mut allocated_ptrs = Vec::new();
-
-        for i in &data {
-            let ptr = match i {
-                Type::Integer(integer) => {
-                    let value = BelalangInteger::new(*integer);
-                    heap.alloc(value).unwrap()
-                }
-                Type::Boolean(boolean) => {
-                    let value = BelalangBoolean::new(*boolean);
-                    heap.alloc(value).unwrap()
-                }
-            };
-            allocated_ptrs.push(ptr);
+    impl TestValue {
+        /// Allocate this value on the heap
+        fn allocate(&self, heap: &mut Heap) -> BelalangPtr {
+            match self {
+                TestValue::Integer(val) => heap.alloc(BelalangInteger::new(*val)).unwrap(),
+                TestValue::Boolean(val) => heap.alloc(BelalangBoolean::new(*val)).unwrap(),
+            }
         }
 
-        let mut current = heap.start;
-
-        for (i, (d, ptr)) in data
-            .iter()
-            .rev()
-            .zip(allocated_ptrs.into_iter().rev())
-            .enumerate()
-        {
-            let Some(c) = current else {
-                panic!("Error: Unexpected None at heap.start");
-            };
-
-            assert_eq!(
-                c.as_ptr() as *const (),
-                ptr.as_ptr() as *const (),
-                "Pointer mismatch at position {}",
-                i
-            );
-
-            let base = unsafe { &*c.as_ptr() };
-
-            match d {
-                Type::Integer(integer) => {
-                    let object = unsafe { &*(c.as_ptr() as *const BelalangInteger) };
+        /// Verify that the pointer points to this value
+        fn verify(&self, ptr: &NonNull<BelalangBase>) {
+            let base = unsafe { &*ptr.as_ptr() };
+            
+            match self {
+                TestValue::Integer(expected) => {
                     assert_eq!(base.obj_type, BelalangInteger::r#type());
-                    assert_eq!(object.value, *integer);
+                    let integer = unsafe { &*(ptr.as_ptr() as *const BelalangInteger) };
+                    assert_eq!(integer.value, *expected);
                 }
-                Type::Boolean(boolean) => {
-                    let object = unsafe { &*(c.as_ptr() as *const BelalangBoolean) };
+                TestValue::Boolean(expected) => {
                     assert_eq!(base.obj_type, BelalangBoolean::r#type());
-                    assert_eq!(object.value, *boolean);
+                    let boolean = unsafe { &*(ptr.as_ptr() as *const BelalangBoolean) };
+                    assert_eq!(boolean.value, *expected);
                 }
-            };
-
-            current = base.next;
+            }
         }
-
-        assert!(current.is_none());
     }
 
-    #[test]
-    fn heap_alloc_multiple_types_case_1() {
-        test_heap_alloc_multiple_types(vec![Type::Integer(1), Type::Boolean(true)]);
-    }
-
-    #[test]
-    fn heap_alloc_multiple_types_case_2() {
-        test_heap_alloc_multiple_types(vec![
-            Type::Integer(1),
-            Type::Boolean(true),
-            Type::Boolean(false),
-        ]);
-    }
-
-    #[test]
-    fn heap_alloc_multiple_types_case_3() {
-        test_heap_alloc_multiple_types(vec![
-            Type::Integer(1),
-            Type::Boolean(true),
-            Type::Integer(100),
-        ]);
-    }
-
-    fn test_heap_dealloc(data: Vec<i64>) {
-        let mut heap = Heap::default();
-        let mut allocated_ptrs = Vec::new();
-
-        for i in &data {
-            let value = BelalangInteger::new(*i);
-            let ptr = heap.alloc(value).unwrap();
-            allocated_ptrs.push(ptr);
-        }
-
+    /// Helper function to verify the entire heap structure matches expected values
+    fn verify_heap_structure(heap: &Heap, expected_values: &[TestValue]) {
         let mut current = heap.start;
-
-        for (i, (d, ptr)) in data
-            .iter()
-            .rev()
-            .zip(allocated_ptrs.into_iter().rev())
-            .enumerate()
-        {
-            let Some(c) = current else {
-                panic!("Error: Unexpected None at heap.start");
+        
+        // Check each object in the heap matches the expected values (in reverse order)
+        for (i, expected) in expected_values.iter().rev().enumerate() {
+            let Some(ptr) = current else {
+                panic!("Heap has fewer elements than expected at position {}", i);
             };
+            
+            expected.verify(&ptr);
+            current = unsafe { &*ptr.as_ptr() }.next;
+        }
+        
+        // Ensure we've reached the end of the heap
+        assert!(current.is_none(), "Heap has more elements than expected");
+    }
 
+    /// Helper function to verify a vector of pointers to the Heap
+    fn verify_heap_pointer_equality(heap: &Heap, ptrs: Vec<BelalangPtr>) {
+        let mut current = heap.start;
+        for (i, ptr) in ptrs.iter().rev().enumerate() {
+            let Some(c) = current else {
+                panic!("Error: Unexpected None at position {}", i);
+            };
+            
             assert_eq!(
                 c.as_ptr() as *const (),
                 ptr.as_ptr() as *const (),
                 "Pointer mismatch at position {}",
                 i
             );
-
-            let base = unsafe { &*c.as_ptr() };
-            assert_eq!(base.obj_type, BelalangInteger::r#type());
-
-            let integer = unsafe { &*(c.as_ptr() as *const BelalangInteger) };
-            assert_eq!(integer.value, *d);
-
-            drop(ptr);
-
-            current = base.next;
+            
+            current = unsafe { &*c.as_ptr() }.next;
         }
-
-        assert!(current.is_none());
     }
 
     #[test]
-    fn heap_dealloc_case_1() {
-        test_heap_dealloc(vec![1, 2, 3]);
-    }
+    fn test_heap_allocations_1() {
+        // Test cases with their expected heap structures
+        let test_case = vec![
+            TestValue::Integer(1),
+            TestValue::Integer(2),
+            TestValue::Integer(3),
+        ];
 
-    #[test]
-    fn heap_drop() {
         let mut heap = Heap::default();
+        let mut ptrs = Vec::new();
+        
+        // Allocate all values
+        for value in &test_case {
+            let ptr = value.allocate(&mut heap);
+            ptrs.push(ptr);
+        }
+        
+        // Verify heap structure
+        verify_heap_structure(&heap, &test_case);
+        
+        // Also verify pointer equality
+        verify_heap_pointer_equality(&heap, ptrs);
+    }
+
+    #[test]
+    fn test_heap_allocations_2() {
+        // Test cases with their expected heap structures
+        let test_case = vec![
+            TestValue::Integer(1),
+            TestValue::Boolean(false),
+            TestValue::Integer(3),
+        ];
+
+        let mut heap = Heap::default();
+        let mut ptrs = Vec::new();
+        
+        // Allocate all values
+        for value in &test_case {
+            let ptr = value.allocate(&mut heap);
+            ptrs.push(ptr);
+        }
+        
+        // Verify heap structure
+        verify_heap_structure(&heap, &test_case);
+        
+        // Also verify pointer equality
+        verify_heap_pointer_equality(&heap, ptrs);
+    }
+
+    #[test]
+    fn test_heap_deallocation() {
+        let test_case = vec![
+            TestValue::Integer(1),
+            TestValue::Boolean(true),
+            TestValue::Integer(42),
+        ];
+        
+        let mut heap = Heap::default();
+        let mut ptrs = Vec::new();
+        
+        // Allocate all values
+        for value in &test_case {
+            let ptr = value.allocate(&mut heap);
+            ptrs.push(ptr);
+        }
+        
+        // Verify heap structure
+        verify_heap_structure(&heap, &test_case);
+        
+        // Drop each pointer one by one
+        for ptr in ptrs {
+            drop(ptr);
+        }
+    }
+
+    #[test]
+    fn test_heap_drop() {
+        let mut heap = Heap::default();
+
         heap.alloc(BelalangInteger::new(1)).unwrap();
-        drop(heap);
+        heap.alloc(BelalangBoolean::new(true)).unwrap();
+
+        drop(heap); // simulate dropping the heap
+
+        // no assertions needed --- if it doesn't crash, the test passes
     }
 }
