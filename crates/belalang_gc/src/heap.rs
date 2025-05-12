@@ -120,40 +120,63 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_heap_allocations_1() {
-        let values = [
-            Integer::new(1),
-            Integer::new(2),
-            Integer::new(3),
-        ];
-
-        let mut heap = GcHeap::default();
-        let mut ptrs = Vec::new();
-
-        // Allocate all values
-        for value in values.iter().cloned() {
-            let ptr = heap.alloc(value);
-            ptrs.push(ptr);
-        }
-
-        // Check structure
-        let mut current = heap.start;
-        for (i, expected) in values.iter().rev().enumerate() {
-            let Some(ptr) = current else {
-                panic!("Heap has fewer elements than expected at position {}", i);
-            };
-
-            let int = unsafe { &*(ptr.as_ptr() as *const Integer) };
-            assert_eq!(int.header().obj_type, Integer::r#type());
-            assert_eq!(int.value, expected.value);
-
-            current = int.header().next;
-        }
-
-        // Ensure we've reached the end of the heap
-        assert!(current.is_none(), "Heap has more elements than expected");
+    #[derive(Clone)]
+    struct Float {
+        header: GcObjectHeader,
+        value: f64,
     }
 
-    // TODO: allocate multiple types
+    impl Float {
+        pub fn new(value: f64) -> Float {
+            Self {
+                header: GcObjectHeader::new::<Self>(),
+                value,
+            }
+        }
+    }
+
+    impl GcObject for Float {
+        fn header(&self) -> &GcObjectHeader {
+            &self.header
+        }
+
+        fn header_mut(&mut self) -> &mut GcObjectHeader {
+            &mut self.header
+        }
+
+        fn type_name() -> String
+            where
+                Self: Sized
+        {
+            String::from("Integer")
+        }
+    }
+
+    #[test]
+    fn test_heap_allocations() {
+        let mut heap = GcHeap::default();
+
+        let _ = heap.alloc(Integer::new(1));
+        let _ = heap.alloc(Float::new(2.0));
+        let _ = heap.alloc(Integer::new(3));
+
+        let current = heap.start.unwrap();
+
+        let c = unsafe { &*(current.as_ptr() as *const Integer) };
+        assert_eq!(c.header().obj_type, Integer::r#type());
+        assert_eq!(c.value, 3);
+        let current = c.header().next.unwrap();
+
+        let c = unsafe { &*(current.as_ptr() as *const Float) };
+        assert_eq!(c.header().obj_type, Float::r#type());
+        assert_eq!(c.value, 2.0);
+        let current = c.header().next.unwrap();
+
+        let c = unsafe { &*(current.as_ptr() as *const Integer) };
+        assert_eq!(c.header().obj_type, Integer::r#type());
+        assert_eq!(c.value, 1);
+        let current = c.header().next;
+
+        assert!(current.is_none(), "Heap has more elements than expected");
+    }
 }
