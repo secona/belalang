@@ -4,18 +4,39 @@
 //! This structure may change. See [`crate::builtins`]
 
 use std::any::Any;
+use std::cell::Cell;
 use std::fmt::{Debug, Display};
 use std::hash::DefaultHasher;
 use std::hash::{Hash, Hasher};
+use std::ptr::NonNull;
 
 use crate::core::BelalangPtr;
 use crate::core::VM;
 use crate::errors::RuntimeError;
 
 pub mod array;
-pub mod base;
 pub mod boolean;
 pub mod integer;
+
+#[derive(Debug)]
+#[repr(C)]
+pub struct BelalangBase {
+    pub obj_type: u32,
+    pub ref_count: Cell<usize>,
+    pub is_marked: bool,
+    pub next: Option<NonNull<BelalangBase>>,
+}
+
+impl BelalangBase {
+    pub fn new<T: BelalangObject>() -> Self {
+        Self {
+            obj_type: T::r#type(),
+            ref_count: Cell::new(0),
+            is_marked: false,
+            next: None,
+        }
+    }
+}
 
 pub trait BelalangObject: BelalangOperators + Display + Debug {
     fn type_name() -> String
