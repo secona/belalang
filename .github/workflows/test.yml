@@ -25,7 +25,9 @@ jobs:
       run: rustup update nightly && rustup default nightly
 
     - name: Install nextest
-      run: cargo install nextest --locked
+      uses: taiki-e/install-action@v2
+      with:
+        tool: nextest
 
     - name: Run tests with nextest
       run: cargo nextest run --all-targets --all-features
