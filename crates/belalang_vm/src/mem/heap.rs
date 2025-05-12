@@ -8,11 +8,11 @@ use crate::errors::RuntimeError;
 use crate::objects::BelalangObject;
 
 /// Belalang VM's heap implementation
-/// 
+///
 /// This is a GC-managed heap allocator for Belalang VM. It works by having the objects in a linked
 /// list.
 //
-/// Note that this is a very early implementation. Breaking changes will be made. 
+/// Note that this is a very early implementation. Breaking changes will be made.
 pub struct Heap {
     pub start: Option<NonNull<BelalangBase>>,
     _marker: PhantomData<BelalangBase>,
@@ -30,7 +30,7 @@ impl Default for Heap {
 
 impl Heap {
     /// Allocate function for Belalang VM heap
-    /// 
+    ///
     /// It allocates the Belalang object into the linked list by inserting it at the front. It
     /// returns the address to the allocated object. Note that this function not only allocates
     /// memory but also write to the newly allocated memory.
@@ -98,7 +98,7 @@ mod tests {
         /// Verify that the pointer points to this value
         fn verify(&self, ptr: &NonNull<BelalangBase>) {
             let base = unsafe { &*ptr.as_ptr() };
-            
+
             match self {
                 TestValue::Integer(expected) => {
                     assert_eq!(base.obj_type, BelalangInteger::r#type());
@@ -117,17 +117,17 @@ mod tests {
     /// Helper function to verify the entire heap structure matches expected values
     fn verify_heap_structure(heap: &Heap, expected_values: &[TestValue]) {
         let mut current = heap.start;
-        
+
         // Check each object in the heap matches the expected values (in reverse order)
         for (i, expected) in expected_values.iter().rev().enumerate() {
             let Some(ptr) = current else {
                 panic!("Heap has fewer elements than expected at position {}", i);
             };
-            
+
             expected.verify(&ptr);
             current = unsafe { &*ptr.as_ptr() }.next;
         }
-        
+
         // Ensure we've reached the end of the heap
         assert!(current.is_none(), "Heap has more elements than expected");
     }
@@ -139,14 +139,14 @@ mod tests {
             let Some(c) = current else {
                 panic!("Error: Unexpected None at position {}", i);
             };
-            
+
             assert_eq!(
                 c.as_ptr() as *const (),
                 ptr.as_ptr() as *const (),
                 "Pointer mismatch at position {}",
                 i
             );
-            
+
             current = unsafe { &*c.as_ptr() }.next;
         }
     }
@@ -162,16 +162,16 @@ mod tests {
 
         let mut heap = Heap::default();
         let mut ptrs = Vec::new();
-        
+
         // Allocate all values
         for value in &test_case {
             let ptr = value.allocate(&mut heap);
             ptrs.push(ptr);
         }
-        
+
         // Verify heap structure
         verify_heap_structure(&heap, &test_case);
-        
+
         // Also verify pointer equality
         verify_heap_pointer_equality(&heap, ptrs);
     }
@@ -187,16 +187,16 @@ mod tests {
 
         let mut heap = Heap::default();
         let mut ptrs = Vec::new();
-        
+
         // Allocate all values
         for value in &test_case {
             let ptr = value.allocate(&mut heap);
             ptrs.push(ptr);
         }
-        
+
         // Verify heap structure
         verify_heap_structure(&heap, &test_case);
-        
+
         // Also verify pointer equality
         verify_heap_pointer_equality(&heap, ptrs);
     }
@@ -208,19 +208,19 @@ mod tests {
             TestValue::Boolean(true),
             TestValue::Integer(42),
         ];
-        
+
         let mut heap = Heap::default();
         let mut ptrs = Vec::new();
-        
+
         // Allocate all values
         for value in &test_case {
             let ptr = value.allocate(&mut heap);
             ptrs.push(ptr);
         }
-        
+
         // Verify heap structure
         verify_heap_structure(&heap, &test_case);
-        
+
         // Drop each pointer one by one
         for ptr in ptrs {
             drop(ptr);

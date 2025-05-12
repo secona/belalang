@@ -1,5 +1,5 @@
-use crate::errors::RuntimeError;
 use crate::core::BelalangPtr;
+use crate::errors::RuntimeError;
 
 /// Default stack size of Belalang VM
 ///
@@ -16,7 +16,7 @@ pub enum StackValue {
 
     /// Pointer to an address in the bytecode
     AddressPtr(u8),
-    
+
     /// Null value in the stack
     ///
     /// This value is mostly used to indicate uninitialized variables and actual null values.
