@@ -70,6 +70,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "belalang_gc"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
 name = "belalang_macros"
 version = "0.1.0"
 dependencies = [
