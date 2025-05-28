@@ -1,11 +1,11 @@
 [workspace]
 resolver = "3"
-members = ["crates/*"]
+members = ["compiler/*", "runtime/*"]
 
 [workspace.dependencies]
-belalang_compiler = { path = "./crates/belalang_compiler" }
-belalang_macros = { path = "./crates/belalang_macros" }
-belalang_vm = { path = "./crates/belalang_vm" }
+belalang_compiler = { path = "./compiler/belalang_compiler" }
+belalang_macros = { path = "./runtime/belalang_macros" }
+belalang_vm = { path = "./runtime/belalang_vm" }
 
 thiserror = "1.0.61"
 
