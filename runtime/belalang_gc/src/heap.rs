@@ -1,8 +1,8 @@
-use std::hash::{DefaultHasher, Hash, Hasher};
-use std::ptr::NonNull;
-use std::marker::PhantomData;
+use std::alloc::{Layout, alloc};
 use std::cell::Cell;
-use std::alloc::{alloc, Layout};
+use std::hash::{DefaultHasher, Hash, Hasher};
+use std::marker::PhantomData;
+use std::ptr::NonNull;
 
 use crate::{GcPtr, MemoryError};
 
@@ -113,8 +113,8 @@ mod tests {
         }
 
         fn type_name() -> String
-            where
-                Self: Sized
+        where
+            Self: Sized,
         {
             String::from("Integer")
         }
@@ -145,8 +145,8 @@ mod tests {
         }
 
         fn type_name() -> String
-            where
-                Self: Sized
+        where
+            Self: Sized,
         {
             String::from("Integer")
         }

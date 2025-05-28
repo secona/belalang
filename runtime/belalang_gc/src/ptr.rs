@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 use std::ops::{Deref, DerefMut};
-use std::ptr::{drop_in_place, NonNull};
+use std::ptr::{NonNull, drop_in_place};
 
 use crate::GcObject;
 
@@ -14,7 +14,9 @@ impl<T: GcObject + ?Sized> GcPtr<T> {
         base.ref_count.set(base.ref_count.get() + 1);
 
         // Safety: pointer is valid since we just received it
-        Self { ptr: unsafe { NonNull::new_unchecked(ptr) } }
+        Self {
+            ptr: unsafe { NonNull::new_unchecked(ptr) },
+        }
     }
 
     pub fn as_ptr(&self) -> *mut T {
@@ -26,14 +28,16 @@ impl<T: GcObject + ?Sized> Deref for GcPtr<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        // Safety: we maintain the invariant that ptr is always valid when GcPtr is created
+        // Safety: we maintain the invariant that ptr is always valid when GcPtr is
+        // created
         unsafe { self.ptr.as_ref() }
     }
 }
 
 impl<T: GcObject + ?Sized> DerefMut for GcPtr<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        // Safety: we maintain the invariant that ptr is always valid when GcPtr is created
+        // Safety: we maintain the invariant that ptr is always valid when GcPtr is
+        // created
         unsafe { self.ptr.as_mut() }
     }
 }
@@ -68,9 +72,8 @@ impl<T: GcObject + ?Sized> Drop for GcPtr<T> {
 #[cfg(test)]
 #[allow(unused_variables, dead_code)]
 mod tests {
-    use crate::{with_heap, GcObjectHeader};
-
     use super::*;
+    use crate::{GcObjectHeader, with_heap};
 
     #[derive(Clone)]
     struct Integer {
@@ -97,8 +100,8 @@ mod tests {
         }
 
         fn type_name() -> String
-            where
-                Self: Sized
+        where
+            Self: Sized,
         {
             String::from("Integer")
         }

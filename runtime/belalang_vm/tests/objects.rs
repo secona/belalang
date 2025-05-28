@@ -37,10 +37,7 @@ mod number {
             panic!("TOS is not an Object!");
         };
 
-        assert_eq!(
-            unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value,
-            c
-        );
+        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value, c);
     }
 
     #[test]
@@ -94,10 +91,7 @@ mod number {
             panic!("TOS is not an Object!");
         };
 
-        assert_eq!(
-            unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value,
-            c
-        );
+        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value, c);
     }
 
     #[test]
@@ -146,10 +140,7 @@ mod number {
             panic!("TOS is not an Object!");
         };
 
-        assert_eq!(
-            unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value,
-            c
-        )
+        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangInteger).read() }.value, c)
     }
 
     #[test]
@@ -238,10 +229,7 @@ mod boolean {
             panic!("TOS is not an Object!");
         };
 
-        assert_eq!(
-            unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value,
-            c
-        );
+        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value, c);
     }
 
     #[test]
@@ -280,10 +268,7 @@ mod boolean {
             panic!("TOS is not an Object!");
         };
 
-        assert_eq!(
-            unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value,
-            c
-        );
+        assert_eq!(unsafe { (object.as_ptr() as *mut BelalangBoolean).read() }.value, c);
     }
 
     #[test]

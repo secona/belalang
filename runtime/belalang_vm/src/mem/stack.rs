@@ -3,15 +3,16 @@ use crate::errors::RuntimeError;
 
 /// Default stack size of Belalang VM
 ///
-/// This is currently a good enough stack size for Belalang VM. I don't really know how stack sizes
-/// are supposed to be implemented for efficiency. I still have stuff to read and things to
-/// explore.
+/// This is currently a good enough stack size for Belalang VM. I don't really
+/// know how stack sizes are supposed to be implemented for efficiency. I still
+/// have stuff to read and things to explore.
 const STACK_SIZE: usize = 4096;
 
 /// Values that live on the stack
 #[derive(Default, Debug)]
 pub enum StackValue {
-    /// Pointer to an object, like [`BelalangInteger`][crate::objects::integer::BelalangInteger]
+    /// Pointer to an object, like
+    /// [`BelalangInteger`][crate::objects::integer::BelalangInteger]
     ObjectPtr(BelalangPtr),
 
     /// Pointer to an address in the bytecode
@@ -19,11 +20,13 @@ pub enum StackValue {
 
     /// Null value in the stack
     ///
-    /// This value is mostly used to indicate uninitialized variables and actual null values.
+    /// This value is mostly used to indicate uninitialized variables and actual
+    /// null values.
     ///
     /// # Problems
     /// - I am not sure to go forward with the "null" name or not.
-    /// - I am not sure if uninitialized variables should have this as their value.
+    /// - I am not sure if uninitialized variables should have this as their
+    ///   value.
     #[default]
     Null,
 }
@@ -82,8 +85,8 @@ impl Stack {
 
     /// Pops a [`StackValue`] from the stack
     ///
-    /// This function uses [`std::mem::take`] to get the top-most value of the stack, leaving a
-    /// [`StackValue::Null`] behind.
+    /// This function uses [`std::mem::take`] to get the top-most value of the
+    /// stack, leaving a [`StackValue::Null`] behind.
     pub fn pop(&mut self) -> Result<StackValue, RuntimeError> {
         if self.sp == 0 {
             Err(RuntimeError::StackUnderflow)
@@ -137,10 +140,9 @@ impl Stack {
 mod tests {
     #![allow(unused_allocation)]
 
+    use super::*;
     use crate::mem::heap::Heap;
     use crate::objects::integer::BelalangInteger;
-
-    use super::*;
 
     macro_rules! assert_belalang_integer {
         ($top:expr, $value:expr) => {

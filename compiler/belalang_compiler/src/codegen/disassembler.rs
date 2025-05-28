@@ -24,155 +24,152 @@ pub fn disassemble(bytes: Vec<u8>) -> String {
             opcode::CONSTANT => {
                 let (operand, start_i) = read_u16(&bytes, &mut i);
                 result.push_str(&format!("{:#06x}: CONSTANT {:#03}\n", start_i, operand));
-            }
+            },
 
             opcode::POP => {
                 result.push_str(&format!("{:#06x}: POP\n", i));
-            }
+            },
 
             opcode::ADD => {
                 result.push_str(&format!("{:#06x}: ADD\n", i));
-            }
+            },
 
             opcode::SUB => {
                 result.push_str(&format!("{:#06x}: SUB\n", i));
-            }
+            },
 
             opcode::MUL => {
                 result.push_str(&format!("{:#06x}: MUL\n", i));
-            }
+            },
 
             opcode::DIV => {
                 result.push_str(&format!("{:#06x}: DIV\n", i));
-            }
+            },
 
             opcode::MOD => {
                 result.push_str(&format!("{:#06x}: MOD\n", i));
-            }
+            },
 
             opcode::TRUE => {
                 result.push_str(&format!("{:#06x}: TRUE\n", i));
-            }
+            },
 
             opcode::FALSE => {
                 result.push_str(&format!("{:#06x}: FALSE\n", i));
-            }
+            },
 
             opcode::NULL => {
                 result.push_str(&format!("{:#06x}: NULL\n", i));
-            }
+            },
 
             opcode::EQUAL => {
                 result.push_str(&format!("{:#06x}: EQUAL\n", i));
-            }
+            },
 
             opcode::NOT_EQUAL => {
                 result.push_str(&format!("{:#06x}: NOT_EQUAL\n", i));
-            }
+            },
 
             opcode::LESS_THAN => {
                 result.push_str(&format!("{:#06x}: LESS_THAN\n", i));
-            }
+            },
 
             opcode::LESS_THAN_EQUAL => {
                 result.push_str(&format!("{:#06x}: LESS_THAN_EQUAL\n", i));
-            }
+            },
 
             opcode::AND => {
                 result.push_str(&format!("{:#06x}: AND\n", i));
-            }
+            },
 
             opcode::OR => {
                 result.push_str(&format!("{:#06x}: OR\n", i));
-            }
+            },
 
             opcode::BIT_AND => {
                 result.push_str(&format!("{:#06x}: BIT_AND\n", i));
-            }
+            },
 
             opcode::BIT_OR => {
                 result.push_str(&format!("{:#06x}: BIT_OR\n", i));
-            }
+            },
 
             opcode::BIT_XOR => {
                 result.push_str(&format!("{:#06x}: BIT_XOR\n", i));
-            }
+            },
 
             opcode::BIT_SL => {
                 result.push_str(&format!("{:#06x}: BIT_SL\n", i));
-            }
+            },
 
             opcode::BIT_SR => {
                 result.push_str(&format!("{:#06x}: BIT_SR\n", i));
-            }
+            },
 
             opcode::BANG => {
                 result.push_str(&format!("{:#06x}: BANG\n", i));
-            }
+            },
 
             opcode::MINUS => {
                 result.push_str(&format!("{:#06x}: MINUS\n", i));
-            }
+            },
 
             opcode::JUMP => {
                 let (operand, start_i) = read_u16(&bytes, &mut i);
                 result.push_str(&format!("{:#06x}: JUMP {:#03}\n", start_i, operand));
-            }
+            },
             opcode::JUMP_IF_FALSE => {
                 let (operand, start_i) = read_u16(&bytes, &mut i);
-                result.push_str(&format!(
-                    "{:#06x}: JUMP_IF_FALSE {:#03}\n",
-                    start_i, operand
-                ));
-            }
+                result.push_str(&format!("{:#06x}: JUMP_IF_FALSE {:#03}\n", start_i, operand));
+            },
 
             opcode::SET_GLOBAL => {
                 let (operand, start_i) = read_u16(&bytes, &mut i);
                 result.push_str(&format!("{:#06x}: SET_GLOBAL {:#03}\n", start_i, operand));
-            }
+            },
 
             opcode::GET_GLOBAL => {
                 let (operand, start_i) = read_u16(&bytes, &mut i);
                 result.push_str(&format!("{:#06x}: GET_GLOBAL {:#03}\n", start_i, operand));
-            }
+            },
 
             opcode::SET_LOCAL => {
                 let (operand, start_i) = read_u8(&bytes, &mut i);
                 result.push_str(&format!("{:#06x}: SET_LOCAL {:#03}\n", start_i, operand));
-            }
+            },
 
             opcode::GET_LOCAL => {
                 let (operand, start_i) = read_u8(&bytes, &mut i);
                 result.push_str(&format!("{:#06x}: GET_LOCAL {:#03}\n", start_i, operand));
-            }
+            },
 
             opcode::GET_BUILTIN => {
                 let (operand, start_i) = read_u8(&bytes, &mut i);
                 result.push_str(&format!("{:#06x}: GET_BUILTIN {:#03}\n", start_i, operand));
-            }
+            },
 
             opcode::CALL => {
                 result.push_str(&format!("{:#06x}: CALL\n", i));
-            }
+            },
 
             opcode::RETURN => {
                 result.push_str(&format!("{:#06x}: RETURN\n", i));
-            }
+            },
 
             opcode::RETURN_VALUE => {
                 result.push_str(&format!("{:#06x}: RETURN_VALUE\n", i));
-            }
+            },
 
             opcode::MAKE_ARRAY => {
                 let (operand, start_i) = read_u16(&bytes, &mut i);
                 result.push_str(&format!("{:#06x}: ARRAY {:#03}\n", start_i, operand));
-            }
+            },
 
             opcode::INDEX => {
                 result.push_str(&format!("{:#06x}: INDEX\n", i));
-            }
+            },
 
-            _ => {}
+            _ => {},
         }
 
         i += 1;

@@ -1,12 +1,12 @@
 //! Bytecode used by The Belalang VM.
 //!
-//! Defines the structure and components used to represent compiled bytecode, including
-//! instructions and constants.
+//! Defines the structure and components used to represent compiled bytecode,
+//! including instructions and constants.
 
 /// Constants used in the Belalang bytecode
 ///
-/// These values are used to represent literal data embedded in the bytecode. They are referenced
-/// by index in the constant pool during execution.
+/// These values are used to represent literal data embedded in the bytecode.
+/// They are referenced by index in the constant pool during execution.
 #[derive(Debug, Default, Clone, PartialEq)]
 pub enum Constant {
     #[default]

@@ -2,11 +2,10 @@ use std::alloc::{Layout, alloc, dealloc};
 use std::fmt::Display;
 use std::ptr::drop_in_place;
 
+use super::BelalangObject;
 use crate::BelalangBase;
 use crate::core::BelalangPtr;
 use crate::objects::BelalangOperators;
-
-use super::BelalangObject;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -64,8 +63,8 @@ impl BelalangArray {
     //
     //     let ptr = unsafe {
     //         let layout =
-    //             Layout::from_size_align(len, align_of::<*mut dyn BelalangObject>()).unwrap();
-    //         let ptr = alloc(layout);
+    //             Layout::from_size_align(len, align_of::<*mut dyn
+    // BelalangObject>()).unwrap();         let ptr = alloc(layout);
     //
     //         if ptr.is_null() {
     //             panic!("Failed to allocate memory for BelalangArray");

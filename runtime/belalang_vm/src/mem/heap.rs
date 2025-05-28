@@ -9,10 +9,11 @@ use crate::objects::BelalangObject;
 
 /// Belalang VM's heap implementation
 ///
-/// This is a GC-managed heap allocator for Belalang VM. It works by having the objects in a linked
-/// list.
+/// This is a GC-managed heap allocator for Belalang VM. It works by having the
+/// objects in a linked list.
 //
-/// Note that this is a very early implementation. Breaking changes will be made.
+/// Note that this is a very early implementation. Breaking changes will be
+/// made.
 pub struct Heap {
     pub start: Option<NonNull<BelalangBase>>,
     _marker: PhantomData<BelalangBase>,
@@ -31,9 +32,10 @@ impl Default for Heap {
 impl Heap {
     /// Allocate function for Belalang VM heap
     ///
-    /// It allocates the Belalang object into the linked list by inserting it at the front. It
-    /// returns the address to the allocated object. Note that this function not only allocates
-    /// memory but also write to the newly allocated memory.
+    /// It allocates the Belalang object into the linked list by inserting it at
+    /// the front. It returns the address to the allocated object. Note that
+    /// this function not only allocates memory but also write to the newly
+    /// allocated memory.
     pub fn alloc<T: BelalangObject>(&mut self, object: T) -> Result<BelalangPtr, RuntimeError> {
         let layout = Layout::new::<T>();
 
@@ -74,11 +76,10 @@ impl Drop for Heap {
 #[cfg(test)]
 #[allow(clippy::bool_assert_comparison)]
 mod tests {
+    use super::*;
     use crate::objects::BelalangObject;
     use crate::objects::boolean::BelalangBoolean;
     use crate::objects::integer::BelalangInteger;
-
-    use super::*;
 
     /// Test value that can be allocated on the heap
     enum TestValue {
@@ -104,17 +105,18 @@ mod tests {
                     assert_eq!(base.obj_type, BelalangInteger::r#type());
                     let integer = unsafe { &*(ptr.as_ptr() as *const BelalangInteger) };
                     assert_eq!(integer.value, *expected);
-                }
+                },
                 TestValue::Boolean(expected) => {
                     assert_eq!(base.obj_type, BelalangBoolean::r#type());
                     let boolean = unsafe { &*(ptr.as_ptr() as *const BelalangBoolean) };
                     assert_eq!(boolean.value, *expected);
-                }
+                },
             }
         }
     }
 
-    /// Helper function to verify the entire heap structure matches expected values
+    /// Helper function to verify the entire heap structure matches expected
+    /// values
     fn verify_heap_structure(heap: &Heap, expected_values: &[TestValue]) {
         let mut current = heap.start;
 
@@ -154,11 +156,7 @@ mod tests {
     #[test]
     fn test_heap_allocations_1() {
         // Test cases with their expected heap structures
-        let test_case = vec![
-            TestValue::Integer(1),
-            TestValue::Integer(2),
-            TestValue::Integer(3),
-        ];
+        let test_case = vec![TestValue::Integer(1), TestValue::Integer(2), TestValue::Integer(3)];
 
         let mut heap = Heap::default();
         let mut ptrs = Vec::new();
@@ -179,11 +177,7 @@ mod tests {
     #[test]
     fn test_heap_allocations_2() {
         // Test cases with their expected heap structures
-        let test_case = vec![
-            TestValue::Integer(1),
-            TestValue::Boolean(false),
-            TestValue::Integer(3),
-        ];
+        let test_case = vec![TestValue::Integer(1), TestValue::Boolean(false), TestValue::Integer(3)];
 
         let mut heap = Heap::default();
         let mut ptrs = Vec::new();
@@ -203,11 +197,7 @@ mod tests {
 
     #[test]
     fn test_heap_deallocation() {
-        let test_case = vec![
-            TestValue::Integer(1),
-            TestValue::Boolean(true),
-            TestValue::Integer(42),
-        ];
+        let test_case = vec![TestValue::Integer(1), TestValue::Boolean(true), TestValue::Integer(42)];
 
         let mut heap = Heap::default();
         let mut ptrs = Vec::new();

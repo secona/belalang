@@ -23,7 +23,7 @@ impl Parse for BelalangObjectArgs {
                         return Err(syn::Error::new(ident.span(), "duplicate `name` argument"));
                     }
                     name = Some(input.parse()?);
-                }
+                },
                 _ => return Err(syn::Error::new(ident.span(), "unknown argument")),
             }
 
@@ -44,12 +44,9 @@ pub fn belalang_object(attr: TokenStream, item: TokenStream) -> TokenStream {
     let args = parse_macro_input!(attr as BelalangObjectArgs);
 
     let Fields::Named(fields) = &input.fields else {
-        return syn::Error::new_spanned(
-            input,
-            "belalang_type attribute only supports structs with named fields",
-        )
-        .to_compile_error()
-        .into();
+        return syn::Error::new_spanned(input, "belalang_type attribute only supports structs with named fields")
+            .to_compile_error()
+            .into();
     };
 
     let struct_name = &input.ident;

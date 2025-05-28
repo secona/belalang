@@ -53,8 +53,9 @@ use crate::error::SyntaxError;
 ///
 /// # Note
 ///
-/// I am leaning towards refactoring Belalang's lexer implementation to follow something similar to
-/// [`rustc_lexer`], especially the `LiteralKind` and separation of `Token` and `TokenKind`.
+/// I am leaning towards refactoring Belalang's lexer implementation to follow
+/// something similar to [`rustc_lexer`], especially the `LiteralKind` and
+/// separation of `Token` and `TokenKind`.
 ///
 /// [`rustc_lexer`]: https://github.com/rust-lang/rust/blob/master/compiler/rustc_lexer/src/lib.rs
 #[derive(PartialEq, Eq, Debug, Clone, Default)]

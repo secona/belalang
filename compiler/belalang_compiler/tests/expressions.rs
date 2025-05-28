@@ -225,10 +225,7 @@ fn if_without_else() {
     );
 
     // testing the consequence block
-    let stmt_1 = as_variant!(
-        &if_expr.consequence.statements[0],
-        ast::Statement::Expression
-    );
+    let stmt_1 = as_variant!(&if_expr.consequence.statements[0], ast::Statement::Expression);
     expr_variant!(&stmt_1.expression, ast::Expression::Identifier = "x");
 
     // testing the alternative block
@@ -257,10 +254,7 @@ fn if_with_else() {
     );
 
     // testing the consequence block
-    let stmt_0 = as_variant!(
-        &if_expr.consequence.statements[0],
-        ast::Statement::Expression
-    );
+    let stmt_0 = as_variant!(&if_expr.consequence.statements[0], ast::Statement::Expression);
     expr_variant!(&stmt_0.expression, ast::Expression::Identifier = "x");
 
     // testing the alternative block
@@ -294,18 +288,12 @@ fn if_with_multiple_statements() {
     assert_eq!(if_expr.token, Token::If);
 
     // testing consequence block
-    let stmt_0 = as_variant!(
-        &if_expr.consequence.statements[0],
-        ast::Statement::Expression
-    );
+    let stmt_0 = as_variant!(&if_expr.consequence.statements[0], ast::Statement::Expression);
     let stmt_0 = as_variant!(&stmt_0.expression, ast::Expression::Var);
     ident_has_name!(stmt_0.name, "a");
     expr_variant!(&*stmt_0.value, ast::Expression::Integer = 10);
 
-    let stmt_1 = as_variant!(
-        &if_expr.consequence.statements[1],
-        ast::Statement::Expression
-    );
+    let stmt_1 = as_variant!(&if_expr.consequence.statements[1], ast::Statement::Expression);
     expr_variant!(&stmt_1.expression, ast::Expression::Identifier = "x");
 }
 

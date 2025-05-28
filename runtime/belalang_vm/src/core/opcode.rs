@@ -25,7 +25,8 @@ pub const DIV: u8 = 0x13;
 /// Arithmetic operation -- Modulo of top two stack values (1 byte)
 pub const MOD: u8 = 0x14;
 
-/// Constants -- Load constant from constant pool (3 bytes: opcode + 16-bit index)
+/// Constants -- Load constant from constant pool (3 bytes: opcode + 16-bit
+/// index)
 pub const CONSTANT: u8 = 0x20;
 
 /// Constants -- Push boolean value `true` (1 byte)
@@ -40,7 +41,8 @@ pub const NULL: u8 = 0x23;
 /// Comparison operation -- Compares top two stack values for equality (1 byte)
 pub const EQUAL: u8 = 0x30;
 
-/// Comparison operation -- Compares top two stack values for inequality (1 byte)
+/// Comparison operation -- Compares top two stack values for inequality (1
+/// byte)
 pub const NOT_EQUAL: u8 = 0x31;
 
 /// Comparison operation -- TOS-1 < TOS (1 byte)
@@ -79,7 +81,8 @@ pub const MINUS: u8 = 0x61;
 /// Jump operation -- Unconditional jump (3 bytes: opcode + 16-bit offset)
 pub const JUMP: u8 = 0x70;
 
-/// Jump operation -- Conditional jump if popped TOS is false (3 bytes: opcode + 16-bit offset)
+/// Jump operation -- Conditional jump if popped TOS is false (3 bytes: opcode +
+/// 16-bit offset)
 pub const JUMP_IF_FALSE: u8 = 0x71;
 
 /// Global variable -- Set global variable (3 bytes: opcode + 16-bit index)

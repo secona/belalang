@@ -118,8 +118,6 @@ impl ScopeManager {
             }
         }
 
-        self.main_scope
-            .resolve(&name)
-            .ok_or(CompileError::UnknownSymbol(name))
+        self.main_scope.resolve(&name).ok_or(CompileError::UnknownSymbol(name))
     }
 }

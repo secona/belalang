@@ -71,8 +71,8 @@ macro_rules! optional_peek {
 
 /// Belalang language parser.
 ///
-/// Responsible for parsing a token stream into an abstract syntax tree. Also see
-/// [`Lexer`] and [`Token`].
+/// Responsible for parsing a token stream into an abstract syntax tree. Also
+/// see [`Lexer`] and [`Token`].
 pub struct Parser<'a> {
     lexer: Lexer<'a>,
     curr_token: Token,
@@ -104,8 +104,8 @@ impl Parser<'_> {
 
     /// Parses the token stream into a [`Program`] instance.
     ///
-    /// Continues parsing the token stream until the end of input is reached. Each statement and
-    /// expression is parsed and added to the program.
+    /// Continues parsing the token stream until the end of input is reached.
+    /// Each statement and expression is parsed and added to the program.
     ///
     /// [`Program`]: crate::ast::program::Program
     pub fn parse_program(&mut self) -> Result<ast::Program, SyntaxError> {
@@ -133,11 +133,8 @@ impl Parser<'_> {
 
                 self.has_semicolon = expect_peek!(self, Token::Semicolon);
 
-                Ok(Statement::Return(ast::ReturnStatement {
-                    token,
-                    return_value,
-                }))
-            }
+                Ok(Statement::Return(ast::ReturnStatement { token, return_value }))
+            },
 
             // parse_while
             Token::While => {
@@ -157,7 +154,7 @@ impl Parser<'_> {
                     condition: Box::new(condition),
                     block,
                 }))
-            }
+            },
 
             // parse_if: parse if expression as statement
             Token::If => {
@@ -169,7 +166,7 @@ impl Parser<'_> {
                     token: Token::If,
                     expression,
                 }))
-            }
+            },
 
             _ => {
                 let stmt = ast::ExpressionStatement {
@@ -184,7 +181,7 @@ impl Parser<'_> {
                 };
 
                 Ok(Statement::Expression(stmt))
-            }
+            },
         }
     }
 
@@ -251,11 +248,7 @@ impl Parser<'_> {
     fn parse_infix(&mut self, left: &Expression) -> Result<Option<Expression>, SyntaxError> {
         match self.peek_token {
             // parse_infix: parse infix expression
-            arithmetic_tokens!()
-            | comparison_tokens!()
-            | bitwise_tokens!()
-            | Token::Or
-            | Token::And => {
+            arithmetic_tokens!() | comparison_tokens!() | bitwise_tokens!() | Token::Or | Token::And => {
                 self.next_token()?;
 
                 let token = self.curr_token.clone();
@@ -272,7 +265,7 @@ impl Parser<'_> {
                     operator,
                     right: Box::new(right),
                 })))
-            }
+            },
 
             // parse_call: parse call expression
             Token::LeftParen => {
@@ -301,7 +294,7 @@ impl Parser<'_> {
                     function: Box::new(left.clone()),
                     args,
                 })))
-            }
+            },
 
             Token::LeftBracket => {
                 let token = self.curr_token.clone();
@@ -318,7 +311,7 @@ impl Parser<'_> {
                     left: Box::new(left.clone()),
                     index,
                 })))
-            }
+            },
 
             assignment_tokens!() => {
                 if !matches!(left, Expression::Identifier(_)) {
@@ -336,12 +329,8 @@ impl Parser<'_> {
                 self.next_token()?;
                 let value = Box::new(self.parse_expression(Precedence::Lowest)?);
 
-                Ok(Some(Expression::Var(ast::VarExpression {
-                    token,
-                    name,
-                    value,
-                })))
-            }
+                Ok(Some(Expression::Var(ast::VarExpression { token, name, value })))
+            },
 
             _ => Ok(None),
         }
@@ -425,7 +414,7 @@ impl Parser<'_> {
                     token: prev_token,
                     right: Box::new(right),
                 }))
-            }
+            },
 
             // parse_grouped: parse grouped expression
             Token::LeftParen => {
@@ -435,13 +424,13 @@ impl Parser<'_> {
                 expect_peek!(self, Token::RightParen);
 
                 expr
-            }
+            },
 
             // parse_block
             Token::LeftBrace => {
                 let block = self.parse_block()?;
                 Ok(Expression::Block(block))
-            }
+            },
 
             // parse_if: parse current if expression
             Token::If => self.parse_if(),
@@ -478,12 +467,8 @@ impl Parser<'_> {
 
                 let body = self.parse_block()?;
 
-                Ok(Expression::Function(ast::FunctionLiteral {
-                    token,
-                    params,
-                    body,
-                }))
-            }
+                Ok(Expression::Function(ast::FunctionLiteral { token, params, body }))
+            },
 
             _ => Err(SyntaxError::UnknownPrefixOperator(self.curr_token.clone())),
         }
