@@ -1,23 +1,9 @@
 [workspace]
 resolver = "3"
-members = ["compiler/*", "runtime/*"]
+members = ["belalang", "compiler/*", "runtime/*"]
 
 [workspace.dependencies]
 belalang_compiler = { path = "./compiler/belalang_compiler" }
 belalang_macros = { path = "./runtime/belalang_macros" }
 belalang_vm = { path = "./runtime/belalang_vm" }
-
 thiserror = "1.0.61"
-
-[package]
-name = "belalang"
-version = "0.1.0"
-edition = "2024"
-publish = false
-license = "Apache-2.0"
-authors = ["Vito Secona <secona00@gmail.com>"]
-
-[dependencies]
-belalang_compiler.workspace = true
-belalang_vm.workspace = true
-clap = { version = "4.5.4", features = ["derive"] }

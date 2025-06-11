@@ -30,4 +30,4 @@ jobs:
         tool: nextest
 
     - name: Run tests with nextest
-      run: cargo nextest run --all
+      run: cargo nextest run
