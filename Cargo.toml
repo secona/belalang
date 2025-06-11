@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["belalang", "compiler/*", "runtime/*"]
+members = ["belalang", "compiler/*", "devtools/*", "runtime/*"]
 
 [workspace.dependencies]
 belalang_compiler = { path = "./compiler/belalang_compiler" }

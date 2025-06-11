@@ -77,6 +77,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "belalang_interactive_debug"
+version = "0.1.0"
+dependencies = [
+ "belalang_compiler",
+ "belalang_vm",
+ "thiserror",
+]
+
+[[package]]
 name = "belalang_macros"
 version = "0.1.0"
 dependencies = [

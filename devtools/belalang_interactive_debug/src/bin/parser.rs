@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             continue;
         }
 
-        let lexer = Lexer::new(input.as_bytes());
+        let lexer = Lexer::new(&input);
         let mut parser = Parser::new(lexer);
 
         match parser.parse_program() {

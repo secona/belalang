@@ -7,7 +7,7 @@ use belalang_compiler::codegen::disassembler::disassemble;
 use belalang_compiler::tokens::Lexer;
 
 fn compile(line: String) -> Result<(), Box<dyn Error>> {
-    let lexer = Lexer::new(line.as_bytes());
+    let lexer = Lexer::new(&line);
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program()?;
 

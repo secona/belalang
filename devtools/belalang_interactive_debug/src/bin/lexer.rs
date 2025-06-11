@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             continue;
         }
 
-        let mut lexer = Lexer::new(input.as_bytes());
+        let mut lexer = Lexer::new(&input);
 
         loop {
             match lexer.next_token() {

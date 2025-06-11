@@ -1,5 +1,5 @@
 [package]
-name = "belalang_compiler"
+name = "belalang_interactive_debug"
 version = "0.1.0"
 edition = "2024"
 publish = false
@@ -7,6 +7,6 @@ license = "Apache-2.0"
 authors = ["Vito Secona <secona00@gmail.com>"]
 
 [dependencies]
+belalang_compiler.workspace = true
 belalang_vm.workspace = true
 thiserror.workspace = true
-unicode-ident = "1.0.18"
