@@ -127,6 +127,7 @@ mod tests {
         let int2 = int.clone();
 
         assert_eq!(int.header().ref_count.get(), 2); // from 2
+        assert_eq!(int2.header().ref_count.get(), 2);
 
         drop(int2);
 
