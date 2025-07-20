@@ -84,7 +84,7 @@ pub struct Parser<'a> {
 
 impl Parser<'_> {
     /// Creates a new Parser using a [`Lexer`].
-    pub fn new(lexer: Lexer<'_>) -> Parser {
+    pub fn new(lexer: Lexer<'_>) -> Parser<'_> {
         Parser {
             lexer,
             curr_token: Token::default(),
