@@ -15,4 +15,5 @@ belvm = { path = "./vm/belvm" }
 belvm_bytecode = { path = "./vm/belvm_bytecode" }
 belvm_gc = { path = "./vm/belvm_gc/" }
 belvm_macros = { path = "./vm/belvm_macros" }
+belvm_std = { path = "./vm/belvm_std" }
 thiserror = "1.0.61"

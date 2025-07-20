@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
 use belvm_bytecode::opcode;
+use belvm_std::BUILTIN_FUNCTIONS;
 
 use crate::error::CompileError;
 
@@ -62,7 +63,7 @@ impl Default for ScopeManager {
             scope_store: Vec::new(),
         };
 
-        for (key, _) in belvm::functions::BUILTIN_FUNCTIONS {
+        for key in BUILTIN_FUNCTIONS {
             sm.main_scope.symbol_store.insert(
                 key.to_string(),
                 Symbol {

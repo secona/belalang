@@ -73,8 +73,8 @@ dependencies = [
 name = "belc"
 version = "0.1.0"
 dependencies = [
- "belvm",
  "belvm_bytecode",
+ "belvm_std",
  "thiserror",
  "unicode-ident",
 ]
@@ -110,6 +110,10 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "belvm_std"
+version = "0.1.0"
 
 [[package]]
 name = "clap"

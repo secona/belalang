@@ -7,7 +7,7 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-belvm.workspace = true
 belvm_bytecode.workspace = true
+belvm_std.workspace = true
 thiserror.workspace = true
 unicode-ident = "1.0.18"

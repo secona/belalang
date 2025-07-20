@@ -1,0 +1,7 @@
+[package]
+name = "belvm_std"
+publish = false
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
