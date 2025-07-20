@@ -3,57 +3,67 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
 
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    rust-overlay.url = "github:oxalica/rust-overlay";
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
 
-    naersk = {
-      url = "github:nix-community/naersk";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      flake-utils,
-      rust-overlay,
-      naersk,
-    }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        overlays = [ (import rust-overlay) ];
+    inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [ "x86_64-linux" ];
 
-        pkgs = import nixpkgs { inherit system overlays; };
+      imports = [ inputs.treefmt-nix.flakeModule ];
 
-        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+      perSystem =
+        {
+          pkgs,
+          system,
+          rust-toolchain,
+          buildRustPackage,
+          ...
+        }:
+        {
+          _module.args = {
+            pkgs = import inputs.nixpkgs {
+              inherit system;
+              overlays = [ inputs.rust-overlay.overlays.default ];
+            };
 
-        naersk' = pkgs.callPackage naersk {
-          cargo = toolchain;
-          rustc = toolchain;
-          clippy = toolchain;
+            rust-toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+
+            buildRustPackage =
+              (pkgs.makeRustPlatform {
+                cargo = rust-toolchain;
+                rustc = rust-toolchain;
+              }).buildRustPackage;
+          };
+
+          packages.default = buildRustPackage {
+            name = "belalang";
+            version = "0.1.0";
+            src = ./.;
+
+            cargoLock.lockFile = ./Cargo.lock;
+          };
+
+          devShells.default = pkgs.mkShell {
+            name = "belalang";
+            buildInputs = [
+              rust-toolchain
+              pkgs.cargo-nextest
+            ];
+          };
+
+          treefmt.programs = {
+            nixfmt.enable = true;
+            rustfmt.enable = true;
+            rustfmt.package = rust-toolchain;
+          };
         };
-
-        belalang = naersk'.buildPackage {
-          name = "belalang";
-          version = "0.1.0";
-          src = ./.;
-        };
-      in
-      {
-        formatter = pkgs.nixfmt-rfc-style;
-
-        packages.default = belalang;
-
-        devShells.default = pkgs.mkShell {
-          name = "belalang";
-          buildInputs = [ toolchain pkgs.cargo-nextest ];
-        };
-      }
-    );
+    };
 }
