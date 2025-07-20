@@ -123,7 +123,7 @@ mod tests {
         // Check each object in the heap matches the expected values (in reverse order)
         for (i, expected) in expected_values.iter().rev().enumerate() {
             let Some(ptr) = current else {
-                panic!("Heap has fewer elements than expected at position {}", i);
+                panic!("Heap has fewer elements than expected at position {i}");
             };
 
             expected.verify(&ptr);
@@ -139,14 +139,13 @@ mod tests {
         let mut current = heap.start;
         for (i, ptr) in ptrs.iter().rev().enumerate() {
             let Some(c) = current else {
-                panic!("Error: Unexpected None at position {}", i);
+                panic!("Error: Unexpected None at position {i}");
             };
 
             assert_eq!(
                 c.as_ptr() as *const (),
                 ptr.as_ptr() as *const (),
-                "Pointer mismatch at position {}",
-                i
+                "Pointer mismatch at position {i}"
             );
 
             current = unsafe { &*c.as_ptr() }.next;

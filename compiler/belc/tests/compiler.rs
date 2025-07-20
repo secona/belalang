@@ -56,7 +56,7 @@ fn booleans() {
 }
 
 fn test_compile_infix(op: &str, code: u8, reversed: bool) {
-    let input = format!("1 {} 3;", op);
+    let input = format!("1 {op} 3;");
     let compiled = test_compile(&input).unwrap();
 
     assert_eq!(compiled.instructions, vec![
