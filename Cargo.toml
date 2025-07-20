@@ -12,6 +12,7 @@ authors = ["Vito Secona <secona00@gmail.com>"]
 [workspace.dependencies]
 belc = { path = "./compiler/belc" }
 belvm = { path = "./vm/belvm" }
+belvm_bytecode = { path = "./vm/belvm_bytecode" }
 belvm_gc = { path = "./vm/belvm_gc/" }
 belvm_macros = { path = "./vm/belvm_macros" }
 thiserror = "1.0.61"

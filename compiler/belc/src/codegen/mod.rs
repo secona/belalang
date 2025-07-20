@@ -1,8 +1,8 @@
 pub mod disassembler;
 mod scope;
 
-use belvm::core::bytecode::{Bytecode, Constant};
-use belvm::core::opcode;
+use belvm_bytecode::opcode;
+use belvm_bytecode::{Bytecode, Constant};
 use scope::{ScopeLevel, ScopeManager};
 
 use crate::ast::{BlockExpression, Expression, Program, Statement};

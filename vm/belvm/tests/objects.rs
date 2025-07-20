@@ -2,11 +2,11 @@
 #![allow(clippy::bool_assert_comparison)]
 
 use belvm::core::VM;
-use belvm::core::bytecode::{Bytecode, Constant};
-use belvm::core::opcode;
 use belvm::mem::stack::StackValue;
 use belvm::objects::boolean::BelalangBoolean;
 use belvm::objects::integer::BelalangInteger;
+use belvm_bytecode::opcode;
+use belvm_bytecode::{Bytecode, Constant};
 
 mod number {
     use super::*;

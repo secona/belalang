@@ -1,7 +1,8 @@
 use std::cell::RefCell;
 
-use crate::core::bytecode::{Bytecode, Constant};
-use crate::core::opcode;
+use belvm_bytecode::opcode;
+use belvm_bytecode::{Bytecode, Constant};
+
 use crate::errors::RuntimeError;
 use crate::mem::heap::Heap;
 use crate::mem::stack::{Stack, StackValue};

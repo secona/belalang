@@ -5,8 +5,8 @@ use std::error::Error;
 use belc::codegen::Compiler;
 use belc::ast::Parser;
 use belc::tokens::Lexer;
-use belvm::core::bytecode::{Bytecode, Constant};
-use belvm::core::opcode;
+use belvm_bytecode::{Bytecode, Constant};
+use belvm_bytecode::opcode;
 
 fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
     let lexer = Lexer::new(input);

@@ -216,7 +216,7 @@ pub fn make_array(v: u8) -> [u8; 2] {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::opcode;
+    use crate::opcode;
 
     #[test]
     fn constant() {

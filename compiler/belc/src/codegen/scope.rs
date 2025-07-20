@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
-use belvm::core::opcode;
+use belvm_bytecode::opcode;
 
 use crate::error::CompileError;
 

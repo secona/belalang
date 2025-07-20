@@ -74,6 +74,7 @@ name = "belc"
 version = "0.1.0"
 dependencies = [
  "belvm",
+ "belvm_bytecode",
  "thiserror",
  "unicode-ident",
 ]
@@ -82,7 +83,15 @@ dependencies = [
 name = "belvm"
 version = "0.1.0"
 dependencies = [
+ "belvm_bytecode",
  "belvm_macros",
+ "thiserror",
+]
+
+[[package]]
+name = "belvm_bytecode"
+version = "0.1.0"
+dependencies = [
  "thiserror",
 ]
 
