@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         match parser.parse_program() {
             Ok(program) => println!("{:#?}", program.statements),
-            Err(err) => println!("ERROR: {}", err),
+            Err(err) => println!("ERROR: {err}"),
         }
 
         println!();

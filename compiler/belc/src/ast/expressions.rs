@@ -126,7 +126,7 @@ impl std::fmt::Display for ArrayLiteral {
             .collect::<Vec<_>>()
             .join(", ");
 
-        write!(f, "[{}]", elements)
+        write!(f, "[{elements}]")
     }
 }
 
@@ -359,7 +359,7 @@ impl std::fmt::Display for BlockExpression {
             .collect::<Vec<_>>()
             .join(" ");
 
-        write!(f, "{{ {} }}", statements)
+        write!(f, "{{ {statements} }}")
     }
 }
 

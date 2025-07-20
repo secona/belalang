@@ -21,7 +21,7 @@ fn compile(line: String) -> Result<(), Box<dyn Error>> {
 
     println!("\n===== CONSTANTS =====");
     for (i, constant) in code.constants.iter().enumerate() {
-        println!("{:#04x}: {:?}", i, constant);
+        println!("{i:#04x}: {constant:?}");
     }
 
     println!("\n===== SYMBOLS =====");
@@ -48,7 +48,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         if let Err(error) = compile(input.clone()) {
-            println!("ERROR: {}", error);
+            println!("ERROR: {error}");
         }
     }
 }

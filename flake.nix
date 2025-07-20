@@ -10,6 +10,9 @@
 
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    git-hooks-nix.url = "github:cachix/git-hooks.nix";
+    git-hooks-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -17,16 +20,29 @@
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
 
-      imports = [ inputs.treefmt-nix.flakeModule ];
+      imports = [
+        inputs.git-hooks-nix.flakeModule
+        inputs.treefmt-nix.flakeModule
+      ];
 
       perSystem =
         {
+          config,
           pkgs,
           system,
           rust-toolchain,
           buildRustPackage,
           ...
         }:
+        let
+          belalang = buildRustPackage {
+            name = "belalang";
+            version = "0.1.0";
+            src = ./.;
+
+            cargoLock.lockFile = ./Cargo.lock;
+          };
+        in
         {
           _module.args = {
             pkgs = import inputs.nixpkgs {
@@ -43,13 +59,7 @@
               }).buildRustPackage;
           };
 
-          packages.default = buildRustPackage {
-            name = "belalang";
-            version = "0.1.0";
-            src = ./.;
-
-            cargoLock.lockFile = ./Cargo.lock;
-          };
+          packages.default = belalang;
 
           devShells.default = pkgs.mkShell {
             name = "belalang";
@@ -57,6 +67,21 @@
               rust-toolchain
               pkgs.cargo-nextest
             ];
+            shellHook = ''
+              ${config.pre-commit.installationScript}
+            '';
+          };
+
+          pre-commit = {
+            check.enable = true;
+            settings.hooks = {
+              nixfmt-rfc-style.enable = true;
+              rustfmt = {
+                enable = true;
+                packageOverrides.cargo = rust-toolchain;
+                packageOverrides.rustfmt = rust-toolchain;
+              };
+            };
           };
 
           treefmt.programs = {
