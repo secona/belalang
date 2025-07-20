@@ -1,5 +1,5 @@
 [package]
-name = "belalang_vm"
+name = "belvm"
 publish = false
 version.workspace = true
 edition.workspace = true
@@ -7,5 +7,5 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-belalang_macros.workspace = true
+belvm_macros.workspace = true
 thiserror.workspace = true

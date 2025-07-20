@@ -55,51 +55,51 @@ dependencies = [
 name = "belalang"
 version = "0.1.0"
 dependencies = [
- "belalang_compiler",
- "belalang_vm",
+ "belc",
+ "belvm",
  "clap",
-]
-
-[[package]]
-name = "belalang_compiler"
-version = "0.1.0"
-dependencies = [
- "belalang_vm",
- "thiserror",
- "unicode-ident",
-]
-
-[[package]]
-name = "belalang_gc"
-version = "0.1.0"
-dependencies = [
- "thiserror",
 ]
 
 [[package]]
 name = "belalang_interactive_debug"
 version = "0.1.0"
 dependencies = [
- "belalang_compiler",
- "belalang_vm",
+ "belc",
+ "belvm",
  "thiserror",
 ]
 
 [[package]]
-name = "belalang_macros"
+name = "belc"
+version = "0.1.0"
+dependencies = [
+ "belvm",
+ "thiserror",
+ "unicode-ident",
+]
+
+[[package]]
+name = "belvm"
+version = "0.1.0"
+dependencies = [
+ "belvm_macros",
+ "thiserror",
+]
+
+[[package]]
+name = "belvm_gc"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
+name = "belvm_macros"
 version = "0.1.0"
 dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "belalang_vm"
-version = "0.1.0"
-dependencies = [
- "belalang_macros",
- "thiserror",
 ]
 
 [[package]]

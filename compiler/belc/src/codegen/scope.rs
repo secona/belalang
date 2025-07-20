@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
-use belalang_vm::core::opcode;
+use belvm::core::opcode;
 
 use crate::error::CompileError;
 
@@ -62,7 +62,7 @@ impl Default for ScopeManager {
             scope_store: Vec::new(),
         };
 
-        for (key, _) in belalang_vm::functions::BUILTIN_FUNCTIONS {
+        for (key, _) in belvm::functions::BUILTIN_FUNCTIONS {
             sm.main_scope.symbol_store.insert(
                 key.to_string(),
                 Symbol {

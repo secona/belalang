@@ -1,15 +1,12 @@
 [package]
-name = "belalang_macros"
+name = "belc"
 publish = false
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 authors.workspace = true
 
-[lib]
-proc-macro = true
-
 [dependencies]
-proc-macro2 = "1.0"
-syn = { version = "2.0", features = ["full"] }
-quote = "1.0"
+belvm.workspace = true
+thiserror.workspace = true
+unicode-ident = "1.0.18"

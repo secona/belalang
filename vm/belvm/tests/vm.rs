@@ -1,12 +1,12 @@
 #![allow(clippy::vec_init_then_push)]
 #![allow(clippy::bool_assert_comparison)]
 
-use belalang_vm::core::VM;
-use belalang_vm::core::bytecode::{Bytecode, Constant};
-use belalang_vm::core::opcode;
-use belalang_vm::mem::stack::StackValue;
-use belalang_vm::objects::boolean::BelalangBoolean;
-use belalang_vm::objects::integer::BelalangInteger;
+use belvm::core::VM;
+use belvm::core::bytecode::{Bytecode, Constant};
+use belvm::core::opcode;
+use belvm::mem::stack::StackValue;
+use belvm::objects::boolean::BelalangBoolean;
+use belvm::objects::integer::BelalangInteger;
 
 mod stack_op {
     use super::*;

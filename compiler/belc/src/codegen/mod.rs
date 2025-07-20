@@ -1,8 +1,8 @@
 pub mod disassembler;
 mod scope;
 
-use belalang_vm::core::bytecode::{Bytecode, Constant};
-use belalang_vm::core::opcode;
+use belvm::core::bytecode::{Bytecode, Constant};
+use belvm::core::opcode;
 use scope::{ScopeLevel, ScopeManager};
 
 use crate::ast::{BlockExpression, Expression, Program, Statement};

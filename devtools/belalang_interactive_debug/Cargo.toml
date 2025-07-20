@@ -7,6 +7,6 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-belalang_compiler.workspace = true
-belalang_vm.workspace = true
+belc.workspace = true
+belvm.workspace = true
 thiserror.workspace = true

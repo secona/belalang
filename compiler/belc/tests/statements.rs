@@ -1,8 +1,8 @@
 #[macro_use]
 mod common;
 
-use belalang_compiler::ast;
-use belalang_compiler::tokens::Token;
+use belc::ast;
+use belc::tokens::Token;
 use common::test_parse;
 
 #[test]

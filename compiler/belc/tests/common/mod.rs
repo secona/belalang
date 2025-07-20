@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
-use belalang_compiler::ast;
-use belalang_compiler::ast::Parser;
-use belalang_compiler::tokens::Lexer;
+use belc::ast;
+use belc::ast::Parser;
+use belc::tokens::Lexer;
 
 pub fn test_parse(input: &str) -> ast::Program {
     let lexer = Lexer::new(input);

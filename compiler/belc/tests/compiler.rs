@@ -2,11 +2,11 @@
 
 use std::error::Error;
 
-use belalang_compiler::codegen::Compiler;
-use belalang_compiler::ast::Parser;
-use belalang_compiler::tokens::Lexer;
-use belalang_vm::core::bytecode::{Bytecode, Constant};
-use belalang_vm::core::opcode;
+use belc::codegen::Compiler;
+use belc::ast::Parser;
+use belc::tokens::Lexer;
+use belvm::core::bytecode::{Bytecode, Constant};
+use belvm::core::opcode;
 
 fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
     let lexer = Lexer::new(input);

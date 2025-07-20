@@ -1,10 +1,10 @@
 use std::error::Error;
 use std::io::{self, Write};
 
-use belalang_compiler::ast::Parser;
-use belalang_compiler::codegen::Compiler;
-use belalang_compiler::codegen::disassembler::disassemble;
-use belalang_compiler::tokens::Lexer;
+use belc::ast::Parser;
+use belc::codegen::Compiler;
+use belc::codegen::disassembler::disassemble;
+use belc::tokens::Lexer;
 
 fn compile(line: String) -> Result<(), Box<dyn Error>> {
     let lexer = Lexer::new(&line);

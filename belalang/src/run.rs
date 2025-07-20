@@ -2,10 +2,10 @@ use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 
-use belalang_compiler::ast::Parser;
-use belalang_compiler::codegen::Compiler;
-use belalang_compiler::tokens::Lexer;
-use belalang_vm::core::VM;
+use belc::ast::Parser;
+use belc::codegen::Compiler;
+use belc::tokens::Lexer;
+use belvm::core::VM;
 
 pub fn run(filename: PathBuf) -> Result<(), Box<dyn Error>> {
     let file = fs::read_to_string(filename).expect("Unable to read file!");
