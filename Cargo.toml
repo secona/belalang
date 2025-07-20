@@ -2,6 +2,12 @@
 resolver = "3"
 members = ["belalang", "compiler/*", "devtools/*", "runtime/*"]
 
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+authors = ["Vito Secona <secona00@gmail.com>"]
+
 [workspace.dependencies]
 belalang_compiler = { path = "./compiler/belalang_compiler" }
 belalang_macros = { path = "./runtime/belalang_macros" }

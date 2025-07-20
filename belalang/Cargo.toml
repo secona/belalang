@@ -1,9 +1,9 @@
 [package]
 name = "belalang"
-version = "0.1.0"
-edition = "2024"
-license = "Apache-2.0"
-authors = ["Vito Secona <secona00@gmail.com>"]
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
 
 [dependencies]
 belalang_compiler.workspace = true
