@@ -11,4 +11,4 @@ workspace = true
 [dependencies]
 belc.workspace = true
 belvm.workspace = true
-clap = { version = "4.5.4", features = ["derive"] }
+clap.workspace = true
