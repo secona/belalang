@@ -1,7 +1,7 @@
 #![allow(clippy::vec_init_then_push)]
 #![allow(clippy::bool_assert_comparison)]
 
-use belvm::core::VM;
+use belvm::VM;
 use belvm::mem::stack::StackValue;
 use belvm::objects::boolean::BelalangBoolean;
 use belvm::objects::integer::BelalangInteger;

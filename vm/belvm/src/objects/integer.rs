@@ -1,12 +1,12 @@
 use std::fmt::Display;
 
 use crate::BelalangBase;
-use crate::core::BelalangPtr;
-use crate::core::with_heap;
+use crate::BelalangPtr;
 use crate::errors::RuntimeError;
 use crate::objects::boolean::BelalangBoolean;
 use crate::objects::match_belalang_type;
 use crate::objects::{BelalangObject, BelalangOperators};
+use crate::with_heap;
 
 #[repr(C)]
 #[derive(Debug)]

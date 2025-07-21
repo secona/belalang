@@ -10,7 +10,7 @@ use std::hash::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::ptr::NonNull;
 
-use crate::core::BelalangPtr;
+use crate::BelalangPtr;
 use crate::errors::RuntimeError;
 
 pub mod array;

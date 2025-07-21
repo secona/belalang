@@ -1,4 +1,4 @@
-use crate::core::BelalangPtr;
+use crate::BelalangPtr;
 use crate::errors::RuntimeError;
 
 /// Default stack size of Belalang VM
