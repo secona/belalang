@@ -1,12 +1,7 @@
-#![allow(clippy::vec_init_then_push)]
-#![allow(clippy::bool_assert_comparison)]
-
-use belvm::VM;
-use belvm::mem::stack::StackValue;
-use belvm::objects::boolean::BelalangBoolean;
-use belvm::objects::integer::BelalangInteger;
+use beltools_tests::IntoInstructionBytes;
+use beltools_tests::instructions;
+use belvm_bytecode::Constant;
 use belvm_bytecode::opcode;
-use belvm_bytecode::{Bytecode, Constant};
 
 mod stack_op {
     use super::*;
@@ -15,32 +10,14 @@ mod stack_op {
     fn pop() {
         let constants = vec![Constant::Integer(12), Constant::Integer(5)];
 
-        let mut instructions = Vec::new();
-        instructions.extend(opcode::constant(0));
-        instructions.extend(opcode::constant(1));
-        instructions.push(opcode::POP);
+        let instructions = instructions![opcode::constant(0), opcode::constant(1), opcode::POP,];
 
-        let mut vm = VM::default();
-
-        vm.run(Bytecode {
-            instructions,
-            constants,
-        })
-        .unwrap();
-
-        assert_eq!(vm.stack_size(), 1);
-
-        let Ok(obj) = vm.stack_pop() else {
-            panic!("Failed popping from the stack!");
-        };
-
-        let StackValue::ObjectPtr(object) = obj else {
-            panic!("TOS is not an Object!");
-        };
-
-        let int = unsafe { (object.as_ptr() as *mut BelalangInteger).read() };
-
-        assert_eq!(int.value, 12);
+        beltools_tests::VMBuilder::default()
+            .with_instructions(instructions)
+            .with_constants(constants)
+            .run_ok()
+            .expect_stack_size(1)
+            .expect_stack_top_is_int(12);
     }
 }
 
@@ -51,75 +28,28 @@ mod jump_op {
     fn jump() {
         let constants = Vec::new();
 
-        let mut instructions = Vec::new();
-        instructions.extend(opcode::jump(1));
-        instructions.push(opcode::TRUE);
-        instructions.push(opcode::FALSE);
+        let instructions = instructions![opcode::jump(1), opcode::TRUE, opcode::FALSE,];
 
-        let mut vm = VM::default();
-
-        vm.run(Bytecode {
-            instructions,
-            constants,
-        })
-        .unwrap();
-
-        assert_eq!(vm.stack_size(), 1);
-
-        let Ok(obj) = vm.stack_pop() else {
-            panic!("Failed popping from the stack!");
-        };
-
-        let StackValue::ObjectPtr(object) = obj else {
-            panic!("TOS is not an Object!");
-        };
-
-        let boolean = unsafe { (object.as_ptr() as *mut BelalangBoolean).read() };
-        assert_eq!(boolean.value, false);
+        beltools_tests::VMBuilder::default()
+            .with_instructions(instructions)
+            .with_constants(constants)
+            .run_ok()
+            .expect_stack_size(1)
+            .expect_stack_top_is_bool(false);
     }
 
     #[test]
     fn jump_if_false_op() {
         let constants = Vec::new();
 
-        let mut instructions = Vec::new();
-        instructions.push(opcode::TRUE);
-        instructions.extend(opcode::jump_if_false(1));
-        instructions.push(opcode::TRUE);
-        instructions.push(opcode::FALSE);
+        let instructions = instructions![opcode::TRUE, opcode::jump_if_false(1), opcode::TRUE, opcode::FALSE,];
 
-        let mut vm = VM::default();
-
-        vm.run(Bytecode {
-            instructions,
-            constants,
-        })
-        .unwrap();
-
-        assert_eq!(vm.stack_size(), 2);
-
-        let Ok(obj) = vm.stack_pop() else {
-            panic!("Failed popping from the stack!");
-        };
-
-        let StackValue::ObjectPtr(object) = obj else {
-            panic!("TOS is not an Object!");
-        };
-
-        let boolean = unsafe { (object.as_ptr() as *mut BelalangBoolean).read() };
-
-        assert_eq!(boolean.value, false);
-
-        let Ok(obj) = vm.stack_pop() else {
-            panic!("Failed popping from the stack!");
-        };
-
-        let StackValue::ObjectPtr(object) = obj else {
-            panic!("TOS is not an Object!");
-        };
-
-        let boolean = unsafe { (object.as_ptr() as *mut BelalangBoolean).read() };
-
-        assert_eq!(boolean.value, true);
+        beltools_tests::VMBuilder::default()
+            .with_instructions(instructions)
+            .with_constants(constants)
+            .run_ok()
+            .expect_stack_size(2)
+            .expect_stack_top_is_bool(false)
+            .expect_stack_top_is_bool(true);
     }
 }
