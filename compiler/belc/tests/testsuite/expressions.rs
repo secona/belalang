@@ -1,12 +1,10 @@
 #![allow(clippy::bool_assert_comparison)]
 
-#[macro_use]
-mod common;
-
 use belc::ast;
 use belc::tokens::Token;
-use common::test_parse;
-use common::test_parse_to_string;
+
+use crate::common::*;
+use crate::*;
 
 fn test_booleans(input: &str, token: Token, value: bool) {
     let program = test_parse(input);

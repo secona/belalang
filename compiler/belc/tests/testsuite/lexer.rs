@@ -1,6 +1,3 @@
-#[macro_use]
-mod common;
-
 use belc::tokens::Lexer;
 use belc::tokens::Token;
 

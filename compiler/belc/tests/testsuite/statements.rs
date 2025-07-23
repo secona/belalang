@@ -1,9 +1,8 @@
-#[macro_use]
-mod common;
-
 use belc::ast;
 use belc::tokens::Token;
-use common::test_parse;
+
+use crate::common::*;
+use crate::*;
 
 #[test]
 fn block() {
