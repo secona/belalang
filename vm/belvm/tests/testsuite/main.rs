@@ -1,2 +1,4 @@
-mod objects;
-mod vm;
+mod boolean;
+mod jump_op;
+mod number;
+mod stack_op;
