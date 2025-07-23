@@ -1,5 +1,5 @@
 [package]
-name = "belalang_interactive_debug"
+name = "beltools_debug"
 publish = false
 version.workspace = true
 edition.workspace = true
