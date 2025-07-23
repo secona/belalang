@@ -17,6 +17,7 @@ clap = "4.5.4"
 proc-macro2 = "1.0"
 syn = "2.0"
 thiserror = "1.0.61"
+unicode-ident = "1.0.18"
 quote = "1.0"
 
 # -- Belalang stuff
