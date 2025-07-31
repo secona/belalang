@@ -28,7 +28,7 @@ jobs:
       with:
         tool: nextest
     - name: Run tests with nextest
-      run: cargo nextest run --all --all-features
+      run: cargo nextest run --workspace --all-features
 
   build:
     strategy:
@@ -44,12 +44,13 @@ jobs:
     - name: Use nightly toolchain
       run: rustup update nightly && rustup default nightly
     - name: Build release
-      run: cargo build --release
+      run: cargo build --release --workspace
 
   flake-check:
     strategy:
       matrix:
-        checks: [treefmt]
+        # omit `workspace-test` and `workspace-build` as that is already covered
+        checks: [treefmt, workspace-clippy]
         target: [x86_64-linux]
 
     name: nix flake check

@@ -5,6 +5,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
 
+    crane.url = "github:ipetkov/crane";
+
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -30,17 +32,21 @@
           config,
           pkgs,
           system,
-          rust-toolchain,
-          buildRustPackage,
           ...
         }:
         let
-          belalang = buildRustPackage {
-            name = "belalang";
-            version = "0.1.0";
-            src = ./.;
+          rust-toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+          craneLib = (inputs.crane.mkLib pkgs).overrideToolchain rust-toolchain;
 
-            cargoLock.lockFile = ./Cargo.lock;
+          # Source of the entire workspace
+          src = craneLib.cleanCargoSource ./.;
+
+          # Build cargo deps of the entire workspace.
+          cargoArtifacts = craneLib.buildDepsOnly { inherit src; };
+
+          belalang = craneLib.buildPackage {
+            pname = "belalang";
+            inherit src cargoArtifacts;
           };
         in
         {
@@ -49,17 +55,26 @@
               inherit system;
               overlays = [ inputs.rust-overlay.overlays.default ];
             };
-
-            rust-toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-
-            buildRustPackage =
-              (pkgs.makeRustPlatform {
-                cargo = rust-toolchain;
-                rustc = rust-toolchain;
-              }).buildRustPackage;
           };
 
           packages.default = belalang;
+
+          checks = {
+            workspace-test = craneLib.cargoNextest {
+              inherit src cargoArtifacts;
+              cargoNextestExtraArgs = "--workspace --all-features";
+            };
+
+            workspace-clippy = craneLib.cargoClippy {
+              inherit src cargoArtifacts;
+              cargoClippyExtraArgs = "--workspace --all-features --keep-going -- -D warnings";
+            };
+
+            workspace-build = craneLib.cargoBuild {
+              inherit src cargoArtifacts;
+              cargoExtraArgs = "--workspace";
+            };
+          };
 
           devShells.default = pkgs.mkShell {
             name = "belalang";
