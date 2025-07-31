@@ -4,7 +4,7 @@ use std::io::{self, Write};
 use belc::ast::Parser;
 use belc::codegen::Compiler;
 use belc::codegen::disassembler::disassemble;
-use belc::tokens::Lexer;
+use belc_lexer::Lexer;
 
 fn compile(line: String) -> Result<(), Box<dyn Error>> {
     let lexer = Lexer::new(&line);

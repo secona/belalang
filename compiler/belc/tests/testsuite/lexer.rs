@@ -1,5 +1,4 @@
-use belc::tokens::Lexer;
-use belc_lexer::Token;
+use belc_lexer::{Lexer, Token};
 
 fn test_tokens(input: &str, expected: Vec<Token>) {
     let mut lexer = Lexer::new(input);

@@ -16,6 +16,9 @@ pub enum CompileError {
 
 #[derive(thiserror::Error, Debug)]
 pub enum SyntaxError {
+    #[error("lexer error: {0}")]
+    Lexer(#[from] belc_lexer::LexerError),
+
     #[error("unexpected token: {0}")]
     UnexpectedToken(Token),
 
@@ -27,9 +30,6 @@ pub enum SyntaxError {
 
     #[error("unknown prefix operator: {0}")]
     UnknownPrefixOperator(Token),
-
-    #[error("unknown token: {0}")]
-    UnknownToken(String),
 
     #[error("invalid lhs: {0}")]
     InvalidLHS(Expression),

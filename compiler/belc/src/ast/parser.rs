@@ -1,3 +1,4 @@
+use belc_lexer::Lexer;
 use belc_lexer::Token;
 use belc_lexer::arithmetic_tokens;
 use belc_lexer::assignment_tokens;
@@ -6,7 +7,6 @@ use belc_lexer::comparison_tokens;
 
 use crate::ast::{self, Expression, Statement};
 use crate::error::SyntaxError;
-use crate::tokens::Lexer;
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
