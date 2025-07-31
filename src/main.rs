@@ -1,22 +1,22 @@
-use belalang::{repl, run};
-use clap::{Arg, Command};
+use belalang::commands;
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Dis(commands::dis::Args),
+}
 
 fn main() {
-    let matches = Command::new("belalang")
-        .version("1.0")
-        .about("Belalang CLI")
-        .arg(
-            Arg::new("filename")
-                .help("Directly run a Belalang source code (.bel) (if no subcommand is given)")
-                .index(1),
-        )
-        .get_matches();
+    let cli = Cli::parse();
 
-    match matches.subcommand() {
-        None => match matches.get_one::<String>("filename") {
-            Some(filename) => run(filename.into()).unwrap(),
-            _ => repl(),
-        },
-        _ => unreachable!(),
+    match cli.command {
+        Commands::Dis(args) => args.exec(),
     }
 }

@@ -10,10 +10,8 @@ workspace = true
 
 [dependencies]
 belc.workspace = true
-belc_ast.workspace = true
-belc_lexer.workspace = true
 belvm.workspace = true
-clap.workspace = true
+clap = { workspace = true, features = ["derive"] }
 
 # =============================
 # -- workspace configuration --
