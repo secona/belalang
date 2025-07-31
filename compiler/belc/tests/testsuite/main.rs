@@ -6,7 +6,7 @@ mod statements;
 pub mod common {
     use belc::ast;
     use belc::ast::Parser;
-    use belc::tokens::Lexer;
+    use belc_lexer::Lexer;
 
     pub fn test_parse(input: &str) -> ast::Program {
         let lexer = Lexer::new(input);

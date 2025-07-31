@@ -1,10 +1,21 @@
 use std::iter::Peekable;
 use std::str::Chars;
 
-use belc_lexer::Token;
 use unicode_ident::{is_xid_continue, is_xid_start};
 
-use crate::error::SyntaxError;
+use super::Token;
+
+#[derive(thiserror::Error, Debug)]
+pub enum LexerError {
+    #[error("unknown token: {0}")]
+    UnknownToken(String),
+
+    #[error("unknown escape string")]
+    UnknownEscapeString,
+
+    #[error("unclosed string")]
+    UnclosedString,
+}
 
 pub fn char_to_u8(c: char) -> Option<u8> {
     match c {
@@ -34,7 +45,7 @@ impl<'a> Lexer<'a> {
         result
     }
 
-    pub fn next_token(&mut self) -> Result<Token, SyntaxError> {
+    pub fn next_token(&mut self) -> Result<Token, LexerError> {
         loop {
             match self.current {
                 // skips all lines that start with `#`
@@ -67,7 +78,7 @@ impl<'a> Lexer<'a> {
                         self.advance();
                         Ok(Token::ColonAssign)
                     },
-                    _ => Err(SyntaxError::UnknownToken(":".into())),
+                    _ => Err(LexerError::UnknownToken(":".into())),
                 }
             },
             Some('=') => {
@@ -261,7 +272,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn read_string(&mut self) -> Result<Token, SyntaxError> {
+    fn read_string(&mut self) -> Result<Token, LexerError> {
         self.advance(); // consume the opening "
         let mut result = String::new();
 
@@ -293,22 +304,22 @@ impl<'a> Lexer<'a> {
 
                         match (self.advance().and_then(char_to_u8), self.advance().and_then(char_to_u8)) {
                             (Some(hi), Some(lo)) => result.push(((hi << 4) | lo) as char),
-                            (_, _) => return Err(SyntaxError::UnknownEscapeString),
+                            (_, _) => return Err(LexerError::UnknownEscapeString),
                         }
                     },
-                    Some(_) => return Err(SyntaxError::UnknownEscapeString),
-                    None => return Err(SyntaxError::UnclosedString()),
+                    Some(_) => return Err(LexerError::UnknownEscapeString),
+                    None => return Err(LexerError::UnclosedString),
                 },
                 Some('"') => break,
                 Some(c) => result.push(c),
-                None => return Err(SyntaxError::UnclosedString()),
+                None => return Err(LexerError::UnclosedString),
             }
         }
 
         Ok(Token::String(result))
     }
 
-    fn read_identifier(&mut self) -> Result<Token, SyntaxError> {
+    fn read_identifier(&mut self) -> Result<Token, LexerError> {
         match self.current {
             Some(c) if is_xid_start(c) => {
                 let mut identifier = String::from(c);
@@ -325,12 +336,12 @@ impl<'a> Lexer<'a> {
 
                 Ok(Token::from(identifier.as_str()))
             },
-            Some(c) => Err(SyntaxError::UnknownToken(c.to_string())),
+            Some(c) => Err(LexerError::UnknownToken(c.to_string())),
             _ => Ok(Token::EOF),
         }
     }
 
-    fn read_number(&mut self) -> Result<Token, SyntaxError> {
+    fn read_number(&mut self) -> Result<Token, LexerError> {
         let mut has_decimal = false;
         let mut number = String::new();
 

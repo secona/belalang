@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use belc::ast::Parser;
 use belc::codegen::Compiler;
-use belc::tokens::Lexer;
+use belc_lexer::Lexer;
 use belvm::VM;
 
 pub fn run(filename: PathBuf) -> Result<(), Box<dyn Error>> {

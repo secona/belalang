@@ -10,5 +10,6 @@ workspace = true
 
 [dependencies]
 belc.workspace = true
+belc_lexer.workspace = true
 belvm.workspace = true
 clap.workspace = true

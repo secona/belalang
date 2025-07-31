@@ -1,3 +1,7 @@
+mod lexer;
+
+pub use lexer::*;
+
 #[macro_export]
 macro_rules! arithmetic_tokens {
     () => {

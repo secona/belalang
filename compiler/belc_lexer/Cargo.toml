@@ -8,3 +8,7 @@ authors.workspace = true
 
 [lints]
 workspace = true
+
+[dependencies]
+thiserror.workspace = true
+unicode-ident.workspace = true
