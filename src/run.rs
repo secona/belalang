@@ -2,8 +2,8 @@ use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 
-use belc::ast::Parser;
 use belc::codegen::Compiler;
+use belc_ast::Parser;
 use belc_lexer::Lexer;
 use belvm::VM;
 

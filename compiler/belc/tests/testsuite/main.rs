@@ -4,8 +4,8 @@ mod lexer;
 mod statements;
 
 pub mod common {
-    use belc::ast;
-    use belc::ast::Parser;
+    use belc_ast as ast;
+    use belc_ast::Parser;
     use belc_lexer::Lexer;
 
     pub fn test_parse(input: &str) -> ast::Program {

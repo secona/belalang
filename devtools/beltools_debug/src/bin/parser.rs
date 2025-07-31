@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::io::{self, Write};
 
-use belc::ast::Parser;
+use belc_ast::Parser;
 use belc_lexer::Lexer;
 
 fn main() -> Result<(), Box<dyn Error>> {
