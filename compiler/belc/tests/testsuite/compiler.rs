@@ -3,7 +3,7 @@
 use std::error::Error;
 
 use belc::codegen::Compiler;
-use belc::ast::Parser;
+use belc_ast::Parser;
 use belc_lexer::Lexer;
 use belvm_bytecode::{Bytecode, Constant};
 use belvm_bytecode::opcode;

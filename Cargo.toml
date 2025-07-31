@@ -10,6 +10,7 @@ workspace = true
 
 [dependencies]
 belc.workspace = true
+belc_ast.workspace = true
 belc_lexer.workspace = true
 belvm.workspace = true
 clap.workspace = true
@@ -41,6 +42,7 @@ quote = "1.0"
 
 # -- workspace dependencies --
 belc = { path = "./compiler/belc" }
+belc_ast = { path = "./compiler/belc_ast" }
 belc_lexer = { path = "./compiler/belc_lexer" }
 belvm = { path = "./vm/belvm" }
 belvm_bytecode = { path = "./vm/belvm_bytecode" }

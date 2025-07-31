@@ -56,6 +56,7 @@ name = "belalang"
 version = "0.1.0"
 dependencies = [
  "belc",
+ "belc_ast",
  "belc_lexer",
  "belvm",
  "clap",
@@ -65,11 +66,20 @@ dependencies = [
 name = "belc"
 version = "0.1.0"
 dependencies = [
+ "belc_ast",
  "belc_lexer",
  "belvm_bytecode",
  "belvm_std",
  "thiserror",
  "unicode-ident",
+]
+
+[[package]]
+name = "belc_ast"
+version = "0.1.0"
+dependencies = [
+ "belc_lexer",
+ "thiserror",
 ]
 
 [[package]]
@@ -85,6 +95,7 @@ name = "beltools_debug"
 version = "0.1.0"
 dependencies = [
  "belc",
+ "belc_ast",
  "belc_lexer",
  "belvm",
  "thiserror",

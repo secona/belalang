@@ -1,6 +1,6 @@
 #![allow(clippy::bool_assert_comparison)]
 
-use belc::ast;
+use belc_ast as ast;
 use belc_lexer::Token;
 
 use crate::common::*;
