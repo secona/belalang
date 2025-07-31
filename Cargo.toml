@@ -1,7 +1,26 @@
+[package]
+name = "belalang"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+belc.workspace = true
+belc_lexer.workspace = true
+belvm.workspace = true
+clap.workspace = true
+
+# =============================
+# -- workspace configuration --
+# =============================
+
 [workspace]
 resolver = "3"
-members = ["belalang", "compiler/*", "devtools/*", "vm/*"]
-default-members = ["belalang"]
+members = ["compiler/*", "devtools/*", "vm/*"]
 
 [workspace.package]
 version = "0.1.0"
@@ -20,7 +39,7 @@ thiserror = "1.0.61"
 unicode-ident = "1.0.18"
 quote = "1.0"
 
-# -- Belalang stuff
+# -- workspace dependencies --
 belc = { path = "./compiler/belc" }
 belc_lexer = { path = "./compiler/belc_lexer" }
 belvm = { path = "./vm/belvm" }
