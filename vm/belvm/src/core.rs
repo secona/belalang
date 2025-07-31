@@ -6,7 +6,6 @@ use belvm_bytecode::{Bytecode, Constant};
 use crate::errors::RuntimeError;
 use crate::mem::heap::Heap;
 use crate::mem::stack::{Stack, StackValue};
-use crate::objects::array::BelalangArray;
 use crate::objects::boolean::BelalangBoolean;
 use crate::objects::integer::BelalangInteger;
 
@@ -290,21 +289,6 @@ impl VM {
                     self.stack.push(StackValue::ObjectPtr(result))?;
                 },
 
-                opcode::MAKE_ARRAY => {
-                    let cap: usize = self.read_u8().into();
-                    let array = with_heap(|heap| heap.alloc(BelalangArray::with_capacity(cap)))?;
-
-                    for i in 0..cap {
-                        let Ok(StackValue::ObjectPtr(obj)) = self.stack.pop() else {
-                            return Err(RuntimeError::TypeError);
-                        };
-
-                        unsafe { (*(array.as_ptr() as *mut BelalangArray)).ptr.add(i).write(obj) };
-                    }
-
-                    self.stack.push(StackValue::ObjectPtr(array))?;
-                },
-
                 opcode::JUMP => {
                     let relative = self.read_u16() as i16;
                     self.increment_ip(relative as usize);
@@ -341,6 +325,7 @@ impl VM {
         ((hi as u16) << 8) | (lo as u16)
     }
 
+    #[allow(dead_code)]
     fn read_u8(&mut self) -> u8 {
         let v = self.instructions[self.ip + 1];
         self.ip += 1;

@@ -1,6 +1,5 @@
 mod core;
 pub mod errors;
-pub mod functions;
 pub mod mem;
 pub mod objects;
 mod ptr;

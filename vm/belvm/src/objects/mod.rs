@@ -13,7 +13,6 @@ use std::ptr::NonNull;
 use crate::BelalangPtr;
 use crate::errors::RuntimeError;
 
-pub mod array;
 pub mod boolean;
 pub mod integer;
 
