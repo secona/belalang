@@ -1,5 +1,6 @@
+use belc_lexer::Token;
+
 use super::{BlockExpression, Expression};
-use crate::tokens::Token;
 
 #[derive(Debug, Clone)]
 pub struct ExpressionStatement {

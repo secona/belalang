@@ -1,5 +1,6 @@
+use belc_lexer::Token;
+
 use super::Statement;
-use crate::tokens::Token;
 
 /// Represents a boolean literal expression.
 ///

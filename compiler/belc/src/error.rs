@@ -1,5 +1,6 @@
+use belc_lexer::Token;
+
 use crate::ast::Expression;
-use crate::tokens::Token;
 
 #[derive(thiserror::Error, Debug)]
 pub enum CompileError {

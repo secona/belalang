@@ -2,7 +2,7 @@ use std::error::Error;
 use std::io::{self, Write};
 
 use belc::tokens::Lexer;
-use belc::tokens::Token;
+use belc_lexer::Token;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut input = String::new();

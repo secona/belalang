@@ -1,5 +1,5 @@
 use belc::ast;
-use belc::tokens::Token;
+use belc_lexer::Token;
 
 use crate::common::*;
 use crate::*;

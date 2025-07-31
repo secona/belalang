@@ -1,5 +1,5 @@
 [package]
-name = "beltools_debug"
+name = "belc_lexer"
 publish = false
 version.workspace = true
 edition.workspace = true
@@ -8,9 +8,3 @@ authors.workspace = true
 
 [lints]
 workspace = true
-
-[dependencies]
-belc.workspace = true
-belc_lexer.workspace = true
-belvm.workspace = true
-thiserror.workspace = true

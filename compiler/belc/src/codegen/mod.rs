@@ -1,13 +1,13 @@
 pub mod disassembler;
 mod scope;
 
+use belc_lexer::Token;
 use belvm_bytecode::opcode;
 use belvm_bytecode::{Bytecode, Constant};
 use scope::{ScopeLevel, ScopeManager};
 
 use crate::ast::{BlockExpression, Expression, Program, Statement};
 use crate::error::CompileError;
-use crate::tokens::Token;
 
 #[derive(Default)]
 pub struct Compiler {

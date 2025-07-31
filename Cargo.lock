@@ -64,6 +64,7 @@ dependencies = [
 name = "belc"
 version = "0.1.0"
 dependencies = [
+ "belc_lexer",
  "belvm_bytecode",
  "belvm_std",
  "thiserror",
@@ -71,10 +72,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "belc_lexer"
+version = "0.1.0"
+
+[[package]]
 name = "beltools_debug"
 version = "0.1.0"
 dependencies = [
  "belc",
+ "belc_lexer",
  "belvm",
  "thiserror",
 ]

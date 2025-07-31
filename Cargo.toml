@@ -22,6 +22,7 @@ quote = "1.0"
 
 # -- Belalang stuff
 belc = { path = "./compiler/belc" }
+belc_lexer = { path = "./compiler/belc_lexer" }
 belvm = { path = "./vm/belvm" }
 belvm_bytecode = { path = "./vm/belvm_bytecode" }
 belvm_gc = { path = "./vm/belvm_gc/" }
