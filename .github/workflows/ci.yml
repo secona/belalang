@@ -46,6 +46,23 @@ jobs:
     - name: Build release
       run: cargo build --release
 
+  flake-check:
+    strategy:
+      matrix:
+        checks: [treefmt]
+        target: [x86_64-linux]
+
+    name: nix flake check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@v17
+    - name: nix flake check
+      run: nix build .#checks.${{ matrix.target }}.${{ matrix.checks }} -L
+
   flake-build:
     strategy:
       matrix:
