@@ -2,9 +2,9 @@ use std::alloc::{Layout, alloc};
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
+use crate::BelalangPtr;
 use crate::errors::RuntimeError;
-use crate::objects::BelalangObject;
-use crate::{BelalangBase, BelalangPtr};
+use crate::objects::{BelalangBase, BelalangObject};
 
 /// Belalang VM's heap implementation
 ///

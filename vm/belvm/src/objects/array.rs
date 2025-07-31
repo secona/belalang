@@ -3,8 +3,8 @@ use std::fmt::Display;
 use std::ptr::drop_in_place;
 
 use super::BelalangObject;
-use crate::objects::BelalangOperators;
-use crate::{BelalangBase, BelalangPtr};
+use crate::BelalangPtr;
+use crate::objects::{BelalangBase, BelalangOperators};
 
 #[repr(C)]
 #[derive(Debug)]
