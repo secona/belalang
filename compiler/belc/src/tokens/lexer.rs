@@ -1,10 +1,10 @@
 use std::iter::Peekable;
 use std::str::Chars;
 
+use belc_lexer::Token;
 use unicode_ident::{is_xid_continue, is_xid_start};
 
 use crate::error::SyntaxError;
-use crate::tokens::Token;
 
 pub fn char_to_u8(c: char) -> Option<u8> {
     match c {
@@ -323,7 +323,7 @@ impl<'a> Lexer<'a> {
                     }
                 }
 
-                Token::try_from(identifier.as_str())
+                Ok(Token::from(identifier.as_str()))
             },
             Some(c) => Err(SyntaxError::UnknownToken(c.to_string())),
             _ => Ok(Token::EOF),

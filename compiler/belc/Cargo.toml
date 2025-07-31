@@ -10,6 +10,7 @@ authors.workspace = true
 workspace = true
 
 [dependencies]
+belc_lexer.workspace = true
 belvm_bytecode.workspace = true
 belvm_std.workspace = true
 thiserror.workspace = true
