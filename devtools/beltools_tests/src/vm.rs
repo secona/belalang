@@ -1,7 +1,5 @@
 use belvm::VM;
-use belvm::mem::stack::StackValue;
-use belvm::objects::boolean::BelalangBoolean;
-use belvm::objects::integer::BelalangInteger;
+use belvm::stack::StackValue;
 use belvm_bytecode::{Bytecode, Constant};
 
 #[derive(Default)]
@@ -38,28 +36,29 @@ pub struct VMRunner {
 }
 
 impl VMRunner {
+    #[track_caller]
     pub fn expect_stack_size(self, expected: usize) -> Self {
         assert_eq!(self.vm.stack_size(), expected);
         self
     }
 
+    #[track_caller]
     pub fn expect_stack_top_is_int(mut self, expected: i64) -> Self {
         let obj = self.vm.stack_pop().expect("Failed popping from the stack!");
-        let StackValue::ObjectPtr(object) = obj else {
-            panic!("TOS is not an ObjectPtr!");
+        let StackValue::Integer(value) = obj else {
+            panic!("TOS is not an Integer!");
         };
-        let int = unsafe { (object.as_ptr() as *mut BelalangInteger).read() };
-        assert_eq!(int.value, expected, "Integer value mismatch on stack top!");
+        assert_eq!(value, expected, "Integer value mismatch on stack top!");
         self
     }
 
+    #[track_caller]
     pub fn expect_stack_top_is_bool(mut self, expected: bool) -> Self {
         let obj = self.vm.stack_pop().expect("Failed popping from the stack!");
-        let StackValue::ObjectPtr(object) = obj else {
-            panic!("TOS is not an ObjectPtr!");
+        let StackValue::Boolean(value) = obj else {
+            panic!("TOS is not a Boolean!");
         };
-        let boolean = unsafe { (object.as_ptr() as *mut BelalangBoolean).read() };
-        assert_eq!(boolean.value, expected, "Boolean value mismatch on stack top!");
+        assert_eq!(value, expected, "Boolean value mismatch on stack top!");
         self
     }
 

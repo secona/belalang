@@ -1,34 +1,8 @@
-use std::cell::RefCell;
-
 use belvm_bytecode::opcode;
 use belvm_bytecode::{Bytecode, Constant};
 
 use crate::errors::RuntimeError;
-use crate::mem::heap::Heap;
-use crate::mem::stack::{Stack, StackValue};
-use crate::objects::boolean::BelalangBoolean;
-use crate::objects::integer::BelalangInteger;
-
-thread_local! {
-    static HEAP: RefCell<Heap> = RefCell::new(Heap::default());
-}
-
-pub(crate) fn with_heap<F, R>(f: F) -> R
-where
-    F: FnOnce(&mut Heap) -> R,
-{
-    HEAP.with(|h| f(&mut h.borrow_mut()))
-}
-
-macro_rules! pop_object {
-    ($self:expr) => {
-        if let Ok(StackValue::ObjectPtr(obj)) = $self.stack.pop() {
-            obj.as_ptr()
-        } else {
-            return Err(RuntimeError::TypeError);
-        }
-    };
-}
+use crate::stack::{Stack, StackValue};
 
 /// The core Virtual Machine structure.
 ///
@@ -96,48 +70,73 @@ impl VM {
                 },
 
                 opcode::ADD => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).add(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Integer(a + b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::SUB => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).sub(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Integer(a - b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::MUL => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).mul(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Integer(a * b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::DIV => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).div(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Integer(a / b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::MOD => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).r#mod(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Integer(a % b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::CONSTANT => {
@@ -145,14 +144,8 @@ impl VM {
                     let constant = self.constants[index as usize].clone();
 
                     let object = match constant {
-                        Constant::Integer(int) => {
-                            let ptr = with_heap(|heap| heap.alloc(BelalangInteger::new(int)))?;
-                            StackValue::ObjectPtr(ptr)
-                        },
-                        Constant::Boolean(boolean) => {
-                            let ptr = with_heap(|heap| heap.alloc(BelalangBoolean::new(boolean)))?;
-                            StackValue::ObjectPtr(ptr)
-                        },
+                        Constant::Integer(int) => StackValue::Integer(int),
+                        Constant::Boolean(boolean) => StackValue::Boolean(boolean),
                         Constant::String(_) => todo!(),
                         Constant::Null => todo!(),
                     };
@@ -161,13 +154,11 @@ impl VM {
                 },
 
                 opcode::TRUE => {
-                    let ptr = with_heap(|heap| heap.alloc(BelalangBoolean::new(true)))?;
-                    self.stack.push(StackValue::ObjectPtr(ptr))?;
+                    self.stack.push(StackValue::Boolean(true))?;
                 },
 
                 opcode::FALSE => {
-                    let ptr = with_heap(|heap| heap.alloc(BelalangBoolean::new(false)))?;
-                    self.stack.push(StackValue::ObjectPtr(ptr))?;
+                    self.stack.push(StackValue::Boolean(false))?;
                 },
 
                 opcode::NULL => {
@@ -175,118 +166,185 @@ impl VM {
                 },
 
                 opcode::EQUAL => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).eq(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Boolean(a == b)),
+                        (Boolean(a), Boolean(b)) => Ok(Boolean(a == b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::NOT_EQUAL => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).ne(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Boolean(a != b)),
+                        (Boolean(a), Boolean(b)) => Ok(Boolean(a != b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::LESS_THAN => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).lt(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Boolean(a < b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::LESS_THAN_EQUAL => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).le(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Boolean(a <= b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::AND => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).and(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Boolean(a), Boolean(b)) => Ok(Boolean(a && b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::OR => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).or(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Boolean(a), Boolean(b)) => Ok(Boolean(a || b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::BIT_AND => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).bit_and(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Integer(a & b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::BIT_OR => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).bit_or(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Integer(a | b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::BIT_XOR => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).bit_xor(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Integer(a ^ b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::BIT_SL => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).bit_sl(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Integer(a << b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::BIT_SR => {
-                    let right = pop_object!(self);
-                    let left = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*left).bit_sr(&*right) }?;
+                    let right = self.stack.pop()?;
+                    let left = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match (left, right) {
+                        (Integer(a), Integer(b)) => Ok(Integer(a >> b)),
+                        (_, _) => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::BANG => {
-                    let right = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*right).not() }?;
+                    let right = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match right {
+                        Boolean(a) => Ok(Boolean(!a)),
+                        _ => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::MINUS => {
-                    let right = pop_object!(self);
+                    use StackValue::*;
 
-                    let result = unsafe { (*right).neg() }?;
+                    let right = self.stack.pop()?;
 
-                    self.stack.push(StackValue::ObjectPtr(result))?;
+                    let result = match right {
+                        Integer(a) => Ok(Integer(-a)),
+                        _ => Err(RuntimeError::TypeError),
+                    }?;
+
+                    self.stack.push(result)?;
                 },
 
                 opcode::JUMP => {
@@ -295,11 +353,18 @@ impl VM {
                 },
 
                 opcode::JUMP_IF_FALSE => {
+                    use StackValue::*;
+
                     let relative = self.read_u16() as i16;
+                    let right = self.stack.pop()?;
 
-                    let right = pop_object!(self);
+                    let result = match right {
+                        Integer(a) => Ok(a > 0),
+                        Boolean(a) => Ok(a),
+                        _ => Err(RuntimeError::TypeError),
+                    }?;
 
-                    if unsafe { !(*right).truthy() } {
+                    if !result {
                         self.increment_ip(relative as usize);
                     }
                 },

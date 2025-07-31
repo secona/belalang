@@ -1,4 +1,3 @@
-use crate::BelalangPtr;
 use crate::errors::RuntimeError;
 
 /// Default stack size of Belalang VM
@@ -11,9 +10,8 @@ const STACK_SIZE: usize = 4096;
 /// Values that live on the stack
 #[derive(Default, Debug)]
 pub enum StackValue {
-    /// Pointer to an object, like
-    /// [`BelalangInteger`][crate::objects::integer::BelalangInteger]
-    ObjectPtr(BelalangPtr),
+    Boolean(bool),
+    Integer(i64),
 
     /// Pointer to an address in the bytecode
     AddressPtr(u8),
@@ -141,51 +139,29 @@ mod tests {
     #![allow(unused_allocation)]
 
     use super::*;
-    use crate::mem::heap::Heap;
-    use crate::objects::integer::BelalangInteger;
-
-    macro_rules! assert_belalang_integer {
-        ($top:expr, $value:expr) => {
-            let StackValue::ObjectPtr(obj) = $top else {
-                panic!("Not a StackValue::Object");
-            };
-
-            let int = unsafe { (obj.as_ptr() as *const BelalangInteger).read() };
-            assert_eq!(int.value, $value);
-        };
-    }
 
     #[test]
     fn push() {
         let mut stack = Stack::new();
-        let mut heap = Heap::default();
 
-        let ptr = heap.alloc(BelalangInteger::new(10)).unwrap();
-        stack.push(StackValue::ObjectPtr(ptr)).unwrap();
+        stack.push(StackValue::Integer(10)).unwrap();
 
-        assert_belalang_integer!(&stack.top().unwrap(), 10);
+        assert!(matches!(stack.top().unwrap(), StackValue::Integer(10)));
 
         drop(stack);
-        drop(heap);
     }
 
     #[test]
     fn pop() {
         let mut stack = Stack::new();
-        let mut heap = Heap::default();
 
-        let ptr = heap.alloc(BelalangInteger::new(10)).unwrap();
-        stack.push(StackValue::ObjectPtr(ptr)).unwrap();
+        stack.push(StackValue::Integer(12)).unwrap();
+        stack.push(StackValue::Integer(11)).unwrap();
+        stack.push(StackValue::Integer(10)).unwrap();
 
-        let ptr = heap.alloc(BelalangInteger::new(11)).unwrap();
-        stack.push(StackValue::ObjectPtr(ptr)).unwrap();
-
-        let ptr = heap.alloc(BelalangInteger::new(12)).unwrap();
-        stack.push(StackValue::ObjectPtr(ptr)).unwrap();
-
-        assert_belalang_integer!(&stack.pop().unwrap(), 12);
-        assert_belalang_integer!(&stack.pop().unwrap(), 11);
-        assert_belalang_integer!(&stack.pop().unwrap(), 10);
+        assert!(matches!(stack.pop().unwrap(), StackValue::Integer(10)));
+        assert!(matches!(stack.pop().unwrap(), StackValue::Integer(11)));
+        assert!(matches!(stack.pop().unwrap(), StackValue::Integer(12)));
 
         assert!(matches!(stack.pop(), Err(RuntimeError::StackUnderflow)));
     }
