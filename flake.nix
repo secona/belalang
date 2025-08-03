@@ -103,6 +103,8 @@
             nixfmt.enable = true;
             rustfmt.enable = true;
             rustfmt.package = rust-toolchain;
+            taplo.enable = true;
+            yamlfmt.enable = true;
           };
         };
     };

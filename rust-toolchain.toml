@@ -10,6 +10,4 @@ components = [
   "clippy",
   "miri",
 ]
-targets = [
-  "x86_64-unknown-linux-gnu"
-]
+targets = ["x86_64-unknown-linux-gnu"]
