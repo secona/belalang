@@ -1,20 +1,15 @@
 use std::cell::RefCell;
 
-pub use errors::*;
-pub use heap::*;
-pub use ptr::*;
-
-mod errors;
-mod heap;
-mod ptr;
+pub mod errors;
+pub mod gc;
 
 thread_local! {
-    static HEAP: RefCell<GcHeap> = RefCell::new(GcHeap::default());
+    static HEAP: RefCell<gc::GcHeap> = RefCell::new(gc::GcHeap::default());
 }
 
 pub fn with_heap<F, R>(f: F) -> R
 where
-    F: FnOnce(&mut GcHeap) -> R,
+    F: FnOnce(&mut gc::GcHeap) -> R,
 {
     HEAP.with(|h| f(&mut h.borrow_mut()))
 }
