@@ -44,14 +44,6 @@ macro_rules! bitwise_tokens {
 /// Belalang language's tokens
 ///
 /// This is all tokens that exist in the belalang language grammar.
-///
-/// # Note
-///
-/// I am leaning towards refactoring Belalang's lexer implementation to follow
-/// something similar to [`rustc_lexer`], especially the `LiteralKind` and
-/// separation of `Token` and `TokenKind`.
-///
-/// [`rustc_lexer`]: https://github.com/rust-lang/rust/blob/master/compiler/rustc_lexer/src/lib.rs
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub enum Token {
     /// End of file marker

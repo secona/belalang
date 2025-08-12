@@ -5,11 +5,6 @@ use crate::errors::RuntimeError;
 use crate::stack::{Stack, StackValue};
 
 /// The core Virtual Machine structure.
-///
-/// # Note
-/// The `stack` and `heap` are public to facilitate integration tests in
-/// `crates/belvm/tests`. However, changes need to be made to make
-/// these fields private.
 #[derive(Default)]
 pub struct VM {
     /// The current instruction the VM is pointing to. This is why it's
@@ -50,11 +45,6 @@ impl VM {
     ///     constants,
     /// })
     /// ```
-    ///
-    /// # Note
-    /// In the example above, the [`Bytecode`] is generated manually. This is
-    /// not representative of real world situations. Instead the [`Bytecode`]
-    /// should be generated using tools, such as `belc`.
     pub fn run(&mut self, code: Bytecode) -> Result<(), RuntimeError> {
         self.constants.extend(code.constants);
         self.instructions.extend(code.instructions);

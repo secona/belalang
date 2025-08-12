@@ -89,11 +89,6 @@ impl std::fmt::Display for StringLiteral {
 /// ```belalang
 /// null
 /// ```
-///
-/// # Note
-///
-/// I don't know if I want to go forward with the name null. I am thinking of
-/// using the term None to make it easier to understand.
 #[derive(Debug, Clone)]
 pub struct NullLiteral {
     pub token: Token,
@@ -138,13 +133,6 @@ impl std::fmt::Display for ArrayLiteral {
 /// ```belalang
 /// x = 12
 /// ```
-///
-/// # Note
-///
-/// The current implementation allows variable assignment to be used as an
-/// expression, meaning it can be used for everything that needs an expression,
-/// such as if statements, while loop, etc. I am not sure if this is *safe* to
-/// do in regards of easy bug identification and others.
 #[derive(Debug, Clone)]
 pub struct VarExpression {
     pub token: Token,
@@ -212,12 +200,6 @@ impl std::fmt::Display for IndexExpression {
 /// ```belalang
 /// fn() {}
 /// ```
-///
-/// # Note
-///
-/// Currently, this is how functions are parsed. They are treated as variables
-/// rather than statements. I do want to have this feature but I have yet to
-/// find out how to do it efficiently while also having function statements.
 #[derive(Debug, Clone)]
 pub struct FunctionLiteral {
     pub token: Token,
@@ -264,13 +246,6 @@ impl std::fmt::Display for Identifier {
 /// ```belalang
 /// if () {} else {}
 /// ```
-///
-/// # Note
-///
-/// All if statements are actually if expressions, meaning they can be used as
-/// values. I borrowed this idea from Rust itself. However, due to my lack of
-/// knowledge, I don't know how to implement this efficiently. Should I have if
-/// expressions and if statements seperately? Or should I have them as one?
 #[derive(Debug, Clone)]
 pub struct IfExpression {
     pub token: Token,
