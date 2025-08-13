@@ -90,12 +90,7 @@
           pre-commit = {
             check.enable = true;
             settings.hooks = {
-              nixfmt-rfc-style.enable = true;
-              rustfmt = {
-                enable = true;
-                packageOverrides.cargo = rust-toolchain;
-                packageOverrides.rustfmt = rust-toolchain;
-              };
+              check-merge-conflicts.enable = true;
             };
           };
 
