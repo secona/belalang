@@ -1,4 +1,4 @@
-use belc_lexer::{Lexer, LiteralKind, Token};
+use belc_lexer::{AssignmentKind, Lexer, LiteralKind, Token};
 
 fn test_tokens(input: &str, expected: Vec<Token>) {
     let mut lexer = Lexer::new(input);
@@ -17,7 +17,9 @@ fn tokens_all() {
     test_tokens(
         "=+(){}[],;!-/*5;5 < 10 > 5;:= >= <= += -= /= %= *= || &&",
         vec![
-            Token::Assign,
+            Token::Assign {
+                kind: AssignmentKind::Assign,
+            },
             Token::Add,
             Token::LeftParen,
             Token::RightParen,
@@ -51,14 +53,26 @@ fn tokens_all() {
                 value: "5".into(),
             },
             Token::Semicolon,
-            Token::ColonAssign,
+            Token::Assign {
+                kind: AssignmentKind::ColonAssign,
+            },
             Token::Ge,
             Token::Le,
-            Token::AddAssign,
-            Token::SubAssign,
-            Token::DivAssign,
-            Token::ModAssign,
-            Token::MulAssign,
+            Token::Assign {
+                kind: AssignmentKind::AddAssign,
+            },
+            Token::Assign {
+                kind: AssignmentKind::SubAssign,
+            },
+            Token::Assign {
+                kind: AssignmentKind::DivAssign,
+            },
+            Token::Assign {
+                kind: AssignmentKind::ModAssign,
+            },
+            Token::Assign {
+                kind: AssignmentKind::MulAssign,
+            },
             Token::Or,
             Token::And,
         ],

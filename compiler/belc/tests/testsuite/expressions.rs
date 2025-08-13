@@ -1,7 +1,7 @@
 #![allow(clippy::bool_assert_comparison)]
 
 use belc_ast as ast;
-use belc_lexer::Token;
+use belc_lexer::{AssignmentKind, Token};
 
 use crate::common::*;
 use crate::*;
@@ -312,7 +312,7 @@ fn infix_var_declare() {
     let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
     let expr = as_variant!(&stmt.expression, ast::Expression::Var);
 
-    assert_eq!(expr.token, Token::ColonAssign);
+    assert_eq!(expr.kind, AssignmentKind::ColonAssign);
     ident_has_name!(expr.name, "x");
 
     expr_variant!(&*expr.value, ast::Expression::Integer = 5);
@@ -327,7 +327,7 @@ fn infix_var_assign() {
     let stmt = as_variant!(&program.statements[0], ast::Statement::Expression);
     let expr = as_variant!(&stmt.expression, ast::Expression::Var);
 
-    assert_eq!(expr.token, Token::Assign);
+    assert_eq!(expr.kind, AssignmentKind::Assign);
     ident_has_name!(expr.name, "x");
 
     expr_variant!(&*expr.value, ast::Expression::Integer = 5);

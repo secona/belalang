@@ -2,7 +2,7 @@ pub mod disassembler;
 mod scope;
 
 use belc_ast::{BlockExpression, Expression, Program, Statement};
-use belc_lexer::Token;
+use belc_lexer::{AssignmentKind, Token};
 use belvm_bytecode::opcode;
 use belvm_bytecode::{Bytecode, Constant};
 use scope::{ScopeLevel, ScopeManager};
@@ -118,8 +118,8 @@ impl Compiler {
                 // self.add_instruction(opcode::array(array_len).to_vec());
             },
 
-            Expression::Var(var) => match var.token {
-                Token::ColonAssign => {
+            Expression::Var(var) => match var.kind {
+                AssignmentKind::ColonAssign => {
                     let symbol = self.scope.define(var.name.value)?;
                     let scope = symbol.scope;
                     let index = symbol.index;
@@ -133,56 +133,56 @@ impl Compiler {
                     let scope = symbol.scope;
                     let index = symbol.index;
 
-                    match var.token {
-                        Token::Assign => {
+                    match var.kind {
+                        AssignmentKind::Assign => {
                             self.compile_expression(*var.value)?;
                         },
-                        Token::AddAssign => {
+                        AssignmentKind::AddAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::ADD);
                         },
-                        Token::SubAssign => {
+                        AssignmentKind::SubAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::SUB);
                         },
-                        Token::MulAssign => {
+                        AssignmentKind::MulAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::MUL);
                         },
-                        Token::DivAssign => {
+                        AssignmentKind::DivAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::DIV);
                         },
-                        Token::ModAssign => {
+                        AssignmentKind::ModAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::MOD);
                         },
-                        Token::BitAndAssign => {
+                        AssignmentKind::BitAndAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::BIT_AND);
                         },
-                        Token::BitOrAssign => {
+                        AssignmentKind::BitOrAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::BIT_OR);
                         },
-                        Token::BitXorAssign => {
+                        AssignmentKind::BitXorAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::BIT_XOR);
                         },
-                        Token::ShiftLeftAssign => {
+                        AssignmentKind::ShiftLeftAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::BIT_SL);
                         },
-                        Token::ShiftRightAssign => {
+                        AssignmentKind::ShiftRightAssign => {
                             self.get_variable(&scope, index);
                             self.compile_expression(*var.value)?;
                             self.add_bytecode(opcode::BIT_SR);

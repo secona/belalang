@@ -1,4 +1,4 @@
-use belc_lexer::Token;
+use belc_lexer::{AssignmentKind, Token};
 
 use super::Statement;
 
@@ -128,14 +128,14 @@ impl std::fmt::Display for ArrayLiteral {
 /// ```
 #[derive(Debug, Clone)]
 pub struct VarExpression {
-    pub token: Token,
+    pub kind: AssignmentKind,
     pub name: Identifier,
     pub value: Box<Expression>,
 }
 
 impl std::fmt::Display for VarExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {} {};", self.name, self.token, self.value)
+        write!(f, "{} {} {};", self.name, self.kind, self.value)
     }
 }
 

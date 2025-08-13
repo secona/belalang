@@ -17,24 +17,6 @@ macro_rules! comparison_tokens {
 }
 
 #[macro_export]
-macro_rules! assignment_tokens {
-    () => {
-        Token::Assign
-            | Token::ColonAssign
-            | Token::AddAssign
-            | Token::SubAssign
-            | Token::MulAssign
-            | Token::DivAssign
-            | Token::ModAssign
-            | Token::BitAndAssign
-            | Token::BitOrAssign
-            | Token::BitXorAssign
-            | Token::ShiftLeftAssign
-            | Token::ShiftRightAssign
-    };
-}
-
-#[macro_export]
 macro_rules! bitwise_tokens {
     () => {
         Token::BitAnd | Token::BitOr | Token::BitXor | Token::ShiftLeft | Token::ShiftRight
@@ -59,30 +41,8 @@ pub enum Token {
     /// Literals
     Literal { kind: LiteralKind, value: String },
 
-    /// Assignment operator `=`
-    Assign,
-    /// Colon assignment operator `:=`
-    ColonAssign,
-    /// Addition assignment operator `+=`
-    AddAssign,
-    /// Subtraction assignment operator `-=`
-    SubAssign,
-    /// Multiplication assignment operator `*=`
-    MulAssign,
-    /// Division assignment operator `/=`
-    DivAssign,
-    /// Modulo assignment operator `%=`
-    ModAssign,
-    /// Bitwise AND assignment operator `&=`
-    BitAndAssign,
-    /// Bitwise OR assignment operator `|=`
-    BitOrAssign,
-    /// Bitwise XOR assignment operator `^=`
-    BitXorAssign,
-    /// Shift left assignment operator `<<=`
-    ShiftLeftAssign,
-    /// Shift right assignment operator `>>=`
-    ShiftRightAssign,
+    /// Assignments
+    Assign { kind: AssignmentKind },
 
     /// Addition operator `+`
     Add,
@@ -173,6 +133,54 @@ pub enum LiteralKind {
     String,
 }
 
+/// Assignment types supported by the lexer
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum AssignmentKind {
+    /// Assignment operator `=`
+    Assign,
+    /// Colon assignment operator `:=`
+    ColonAssign,
+    /// Addition assignment operator `+=`
+    AddAssign,
+    /// Subtraction assignment operator `-=`
+    SubAssign,
+    /// Multiplication assignment operator `*=`
+    MulAssign,
+    /// Division assignment operator `/=`
+    DivAssign,
+    /// Modulo assignment operator `%=`
+    ModAssign,
+    /// Bitwise AND assignment operator `&=`
+    BitAndAssign,
+    /// Bitwise OR assignment operator `|=`
+    BitOrAssign,
+    /// Bitwise XOR assignment operator `^=`
+    BitXorAssign,
+    /// Shift left assignment operator `<<=`
+    ShiftLeftAssign,
+    /// Shift right assignment operator `>>=`
+    ShiftRightAssign,
+}
+
+impl std::fmt::Display for AssignmentKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::Assign => "=",
+            Self::ColonAssign => ":=",
+            Self::AddAssign => "+=",
+            Self::SubAssign => "-=",
+            Self::MulAssign => "*=",
+            Self::DivAssign => "/=",
+            Self::ModAssign => "%=",
+            Self::BitAndAssign => "&=",
+            Self::BitOrAssign => "|=",
+            Self::BitXorAssign => "^=",
+            Self::ShiftLeftAssign => "<<=",
+            Self::ShiftRightAssign => ">>=",
+        })
+    }
+}
+
 impl From<&str> for Token {
     fn from(value: &str) -> Self {
         match value {
@@ -190,25 +198,17 @@ impl From<&str> for Token {
 
 impl std::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Token::Assign { kind } = self {
+            f.write_str(&kind.to_string())?;
+            return Ok(());
+        }
+
         f.write_str(match self {
             Token::Empty => "<empty>",
             Token::EOF => "EOF",
 
             Token::Ident(s) => s,
             Token::Literal { value, .. } => value,
-
-            Token::Assign => "=",
-            Token::ColonAssign => ":=",
-            Token::AddAssign => "+=",
-            Token::SubAssign => "-=",
-            Token::MulAssign => "*=",
-            Token::DivAssign => "/=",
-            Token::ModAssign => "%=",
-            Token::BitAndAssign => "&=",
-            Token::BitOrAssign => "|=",
-            Token::BitXorAssign => "^=",
-            Token::ShiftLeftAssign => "<<=",
-            Token::ShiftRightAssign => ">>=",
 
             Token::Add => "+",
             Token::Sub => "-",
@@ -251,6 +251,8 @@ impl std::fmt::Display for Token {
             Token::Comma => ",",
             Token::Semicolon => ";",
             Token::Backslash => r"\",
+
+            _ => unreachable!(),
         })
     }
 }

@@ -4,7 +4,7 @@ use std::str::Chars;
 use unicode_ident::{is_xid_continue, is_xid_start};
 
 use super::Token;
-use crate::LiteralKind;
+use crate::{AssignmentKind, LiteralKind};
 
 #[derive(thiserror::Error, Debug)]
 pub enum LexerError {
@@ -77,7 +77,9 @@ impl<'a> Lexer<'a> {
                 match self.current {
                     Some('=') => {
                         self.advance();
-                        Ok(Token::ColonAssign)
+                        Ok(Token::Assign {
+                            kind: AssignmentKind::ColonAssign,
+                        })
                     },
                     _ => Err(LexerError::UnknownToken(":".into())),
                 }
@@ -89,7 +91,9 @@ impl<'a> Lexer<'a> {
                         self.advance();
                         Ok(Token::Eq)
                     },
-                    _ => Ok(Token::Assign),
+                    _ => Ok(Token::Assign {
+                        kind: AssignmentKind::Assign,
+                    }),
                 }
             },
             Some('!') => {
@@ -111,7 +115,9 @@ impl<'a> Lexer<'a> {
                     },
                     Some('=') => {
                         self.advance();
-                        Ok(Token::BitAndAssign)
+                        Ok(Token::Assign {
+                            kind: AssignmentKind::BitAndAssign,
+                        })
                     },
                     _ => Ok(Token::BitAnd),
                 }
@@ -125,7 +131,9 @@ impl<'a> Lexer<'a> {
                     },
                     Some('=') => {
                         self.advance();
-                        Ok(Token::BitOrAssign)
+                        Ok(Token::Assign {
+                            kind: AssignmentKind::BitOrAssign,
+                        })
                     },
                     _ => Ok(Token::BitOr),
                 }
@@ -135,7 +143,9 @@ impl<'a> Lexer<'a> {
                 match self.current {
                     Some('=') => {
                         self.advance();
-                        Ok(Token::BitXorAssign)
+                        Ok(Token::Assign {
+                            kind: AssignmentKind::BitXorAssign,
+                        })
                     },
                     _ => Ok(Token::BitXor),
                 }
@@ -152,7 +162,9 @@ impl<'a> Lexer<'a> {
                         match self.chars.peek() {
                             Some('=') => {
                                 self.advance();
-                                Ok(Token::ShiftLeftAssign)
+                                Ok(Token::Assign {
+                                    kind: AssignmentKind::ShiftLeftAssign,
+                                })
                             },
                             _ => Ok(Token::ShiftLeft),
                         }
@@ -172,7 +184,9 @@ impl<'a> Lexer<'a> {
                         match self.chars.peek() {
                             Some('=') => {
                                 self.advance();
-                                Ok(Token::ShiftRightAssign)
+                                Ok(Token::Assign {
+                                    kind: AssignmentKind::ShiftRightAssign,
+                                })
                             },
                             _ => Ok(Token::ShiftRight),
                         }
@@ -185,7 +199,9 @@ impl<'a> Lexer<'a> {
                 match self.current {
                     Some('=') => {
                         self.advance();
-                        Ok(Token::AddAssign)
+                        Ok(Token::Assign {
+                            kind: AssignmentKind::AddAssign,
+                        })
                     },
                     _ => Ok(Token::Add),
                 }
@@ -195,7 +211,9 @@ impl<'a> Lexer<'a> {
                 match self.current {
                     Some('=') => {
                         self.advance();
-                        Ok(Token::SubAssign)
+                        Ok(Token::Assign {
+                            kind: AssignmentKind::SubAssign,
+                        })
                     },
                     _ => Ok(Token::Sub),
                 }
@@ -205,7 +223,9 @@ impl<'a> Lexer<'a> {
                 match self.current {
                     Some('=') => {
                         self.advance();
-                        Ok(Token::MulAssign)
+                        Ok(Token::Assign {
+                            kind: AssignmentKind::MulAssign,
+                        })
                     },
                     _ => Ok(Token::Mul),
                 }
@@ -215,7 +235,9 @@ impl<'a> Lexer<'a> {
                 match self.current {
                     Some('=') => {
                         self.advance();
-                        Ok(Token::DivAssign)
+                        Ok(Token::Assign {
+                            kind: AssignmentKind::DivAssign,
+                        })
                     },
                     _ => Ok(Token::Div),
                 }
@@ -225,7 +247,9 @@ impl<'a> Lexer<'a> {
                 match self.current {
                     Some('=') => {
                         self.advance();
-                        Ok(Token::ModAssign)
+                        Ok(Token::Assign {
+                            kind: AssignmentKind::ModAssign,
+                        })
                     },
                     _ => Ok(Token::Mod),
                 }
