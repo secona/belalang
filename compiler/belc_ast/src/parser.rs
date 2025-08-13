@@ -2,7 +2,6 @@ use belc_lexer::Lexer;
 use belc_lexer::LiteralKind;
 use belc_lexer::Token;
 use belc_lexer::arithmetic_tokens;
-use belc_lexer::assignment_tokens;
 use belc_lexer::bitwise_tokens;
 use belc_lexer::comparison_tokens;
 
@@ -48,7 +47,7 @@ pub enum Precedence {
 impl From<&Token> for Precedence {
     fn from(value: &Token) -> Self {
         match value {
-            assignment_tokens!() => Self::AssignmentOps,
+            Token::Assign { .. } => Self::AssignmentOps,
             Token::Or => Self::LogicalOr,
             Token::And => Self::LogicalAnd,
             Token::BitOr => Self::BitOr,
@@ -311,7 +310,8 @@ impl Parser<'_> {
                 })))
             },
 
-            assignment_tokens!() => {
+            Token::Assign { ref kind } => {
+                let kind = kind.clone();
                 if !matches!(left, Expression::Identifier(_)) {
                     return Err(ParserError::InvalidLHS(left.clone()));
                 }
@@ -321,12 +321,11 @@ impl Parser<'_> {
                 };
 
                 self.next_token()?;
-                let token = self.curr_token.clone();
 
                 self.next_token()?;
                 let value = Box::new(self.parse_expression(Precedence::Lowest)?);
 
-                Ok(Some(Expression::Var(VarExpression { token, name, value })))
+                Ok(Some(Expression::Var(VarExpression { kind, name, value })))
             },
 
             _ => Ok(None),
