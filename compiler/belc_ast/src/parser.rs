@@ -1,10 +1,8 @@
+use belc_lexer::InfixKind;
 use belc_lexer::Lexer;
 use belc_lexer::LiteralKind;
 use belc_lexer::PrefixKind;
 use belc_lexer::Token;
-use belc_lexer::arithmetic_tokens;
-use belc_lexer::bitwise_tokens;
-use belc_lexer::comparison_tokens;
 
 use super::{Expression, ParserError, Statement};
 use crate::ArrayLiteral;
@@ -252,7 +250,24 @@ impl Parser<'_> {
     fn parse_infix(&mut self, left: &Expression) -> Result<Option<Expression>, ParserError> {
         match self.peek_token {
             // parse_infix: parse infix expression
-            arithmetic_tokens!() | comparison_tokens!() | bitwise_tokens!() | Token::Or | Token::And => {
+            Token::Add
+            | Token::Sub
+            | Token::Mul
+            | Token::Div
+            | Token::Mod
+            | Token::Eq
+            | Token::Ne
+            | Token::Gt
+            | Token::Ge
+            | Token::Lt
+            | Token::Le
+            | Token::BitAnd
+            | Token::BitOr
+            | Token::BitXor
+            | Token::ShiftLeft
+            | Token::ShiftRight
+            | Token::Or
+            | Token::And => {
                 self.next_token()?;
 
                 let operator = self.curr_token.clone();
@@ -264,7 +279,27 @@ impl Parser<'_> {
 
                 Ok(Some(Expression::Infix(InfixExpression {
                     left: Box::new(left.clone()),
-                    operator,
+                    operator: match operator {
+                        Token::Add => InfixKind::Add,
+                        Token::Sub => InfixKind::Sub,
+                        Token::Mul => InfixKind::Mul,
+                        Token::Div => InfixKind::Div,
+                        Token::Mod => InfixKind::Mod,
+                        Token::Eq => InfixKind::Eq,
+                        Token::Ne => InfixKind::Ne,
+                        Token::Gt => InfixKind::Gt,
+                        Token::Ge => InfixKind::Ge,
+                        Token::Lt => InfixKind::Lt,
+                        Token::Le => InfixKind::Le,
+                        Token::BitAnd => InfixKind::BitAnd,
+                        Token::BitOr => InfixKind::BitOr,
+                        Token::BitXor => InfixKind::BitXor,
+                        Token::ShiftLeft => InfixKind::ShiftLeft,
+                        Token::ShiftRight => InfixKind::ShiftRight,
+                        Token::Or => InfixKind::Or,
+                        Token::And => InfixKind::And,
+                        _ => unreachable!(),
+                    },
                     right: Box::new(right),
                 })))
             },

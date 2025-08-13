@@ -2,7 +2,7 @@ pub mod disassembler;
 mod scope;
 
 use belc_ast::{BlockExpression, Expression, Program, Statement};
-use belc_lexer::{AssignmentKind, PrefixKind, Token};
+use belc_lexer::{AssignmentKind, InfixKind, PrefixKind};
 use belvm_bytecode::opcode;
 use belvm_bytecode::{Bytecode, Constant};
 use scope::{ScopeLevel, ScopeManager};
@@ -269,7 +269,7 @@ impl Compiler {
 
             Expression::Infix(infix) => {
                 match infix.operator {
-                    Token::Gt | Token::Ge => {
+                    InfixKind::Gt | InfixKind::Ge => {
                         self.compile_expression(*infix.right)?;
                         self.compile_expression(*infix.left)?;
                     },
@@ -280,23 +280,22 @@ impl Compiler {
                 }
 
                 self.add_bytecode(match infix.operator {
-                    Token::Add => opcode::ADD,
-                    Token::Sub => opcode::SUB,
-                    Token::Mul => opcode::MUL,
-                    Token::Div => opcode::DIV,
-                    Token::Mod => opcode::MOD,
-                    Token::Eq => opcode::EQUAL,
-                    Token::Ne => opcode::NOT_EQUAL,
-                    Token::And => opcode::AND,
-                    Token::Or => opcode::OR,
-                    Token::BitAnd => opcode::BIT_AND,
-                    Token::BitOr => opcode::BIT_OR,
-                    Token::BitXor => opcode::BIT_XOR,
-                    Token::ShiftLeft => opcode::BIT_SL,
-                    Token::ShiftRight => opcode::BIT_SR,
-                    Token::Lt | Token::Gt => opcode::LESS_THAN,
-                    Token::Le | Token::Ge => opcode::LESS_THAN_EQUAL,
-                    _ => return Err(CompileError::UnknownInfixOp(infix.operator)),
+                    InfixKind::Add => opcode::ADD,
+                    InfixKind::Sub => opcode::SUB,
+                    InfixKind::Mul => opcode::MUL,
+                    InfixKind::Div => opcode::DIV,
+                    InfixKind::Mod => opcode::MOD,
+                    InfixKind::Eq => opcode::EQUAL,
+                    InfixKind::Ne => opcode::NOT_EQUAL,
+                    InfixKind::And => opcode::AND,
+                    InfixKind::Or => opcode::OR,
+                    InfixKind::BitAnd => opcode::BIT_AND,
+                    InfixKind::BitOr => opcode::BIT_OR,
+                    InfixKind::BitXor => opcode::BIT_XOR,
+                    InfixKind::ShiftLeft => opcode::BIT_SL,
+                    InfixKind::ShiftRight => opcode::BIT_SR,
+                    InfixKind::Lt | InfixKind::Gt => opcode::LESS_THAN,
+                    InfixKind::Le | InfixKind::Ge => opcode::LESS_THAN_EQUAL,
                 });
             },
 

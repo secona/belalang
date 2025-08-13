@@ -1,4 +1,4 @@
-use belc_lexer::{AssignmentKind, PrefixKind, Token};
+use belc_lexer::{AssignmentKind, InfixKind, PrefixKind};
 
 use super::Statement;
 
@@ -267,7 +267,7 @@ impl std::fmt::Display for IfExpression {
 #[derive(Debug, Clone)]
 pub struct InfixExpression {
     pub left: Box<Expression>,
-    pub operator: Token,
+    pub operator: InfixKind,
     pub right: Box<Expression>,
 }
 

@@ -1,5 +1,5 @@
 use belc_ast as ast;
-use belc_lexer::Token;
+use belc_lexer::InfixKind;
 
 use crate::common::*;
 use crate::*;
@@ -35,7 +35,7 @@ fn block() {
 
     expr_variant!(&expr_2.expression, Infix => (
         ast::Expression::Integer = 1,
-        Token::Add,
+        InfixKind::Add,
         ast::Expression::Integer = 2
     ));
 }
