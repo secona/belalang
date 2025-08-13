@@ -2,27 +2,6 @@ mod lexer;
 
 pub use lexer::*;
 
-#[macro_export]
-macro_rules! arithmetic_tokens {
-    () => {
-        Token::Add | Token::Sub | Token::Mul | Token::Div | Token::Mod
-    };
-}
-
-#[macro_export]
-macro_rules! comparison_tokens {
-    () => {
-        Token::Eq | Token::Ne | Token::Gt | Token::Ge | Token::Lt | Token::Le
-    };
-}
-
-#[macro_export]
-macro_rules! bitwise_tokens {
-    () => {
-        Token::BitAnd | Token::BitOr | Token::BitXor | Token::ShiftLeft | Token::ShiftRight
-    };
-}
-
 /// Belalang language's tokens
 ///
 /// This is all tokens that exist in the belalang language grammar.
