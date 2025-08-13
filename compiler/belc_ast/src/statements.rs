@@ -1,10 +1,7 @@
-use belc_lexer::Token;
-
 use super::{BlockExpression, Expression};
 
 #[derive(Debug, Clone)]
 pub struct ExpressionStatement {
-    pub token: Token,
     pub expression: Expression,
 }
 
@@ -16,7 +13,6 @@ impl std::fmt::Display for ExpressionStatement {
 
 #[derive(Debug, Clone)]
 pub struct ReturnStatement {
-    pub token: Token,
     pub return_value: Expression,
 }
 
@@ -28,7 +24,6 @@ impl std::fmt::Display for ReturnStatement {
 
 #[derive(Debug, Clone)]
 pub struct WhileStatement {
-    pub token: Token,
     pub condition: Box<Expression>,
     pub block: BlockExpression,
 }

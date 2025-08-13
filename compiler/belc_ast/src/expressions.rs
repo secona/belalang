@@ -15,7 +15,6 @@ use super::Statement;
 /// ```
 #[derive(Debug, Clone)]
 pub struct BooleanExpression {
-    pub token: Token,
     pub value: bool,
 }
 
@@ -34,7 +33,6 @@ impl std::fmt::Display for BooleanExpression {
 /// ```
 #[derive(Debug, Clone)]
 pub struct IntegerLiteral {
-    pub token: Token,
     pub value: i64,
 }
 
@@ -53,7 +51,6 @@ impl std::fmt::Display for IntegerLiteral {
 /// ```
 #[derive(Debug, Clone)]
 pub struct FloatLiteral {
-    pub token: Token,
     pub value: f64,
 }
 
@@ -72,7 +69,6 @@ impl std::fmt::Display for FloatLiteral {
 /// ```
 #[derive(Debug, Clone)]
 pub struct StringLiteral {
-    pub token: Token,
     pub value: String,
 }
 
@@ -90,9 +86,7 @@ impl std::fmt::Display for StringLiteral {
 /// null
 /// ```
 #[derive(Debug, Clone)]
-pub struct NullLiteral {
-    pub token: Token,
-}
+pub struct NullLiteral {}
 
 impl std::fmt::Display for NullLiteral {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -109,7 +103,6 @@ impl std::fmt::Display for NullLiteral {
 /// ```
 #[derive(Debug, Clone)]
 pub struct ArrayLiteral {
-    pub token: Token,
     pub elements: Vec<Expression>,
 }
 
@@ -155,7 +148,6 @@ impl std::fmt::Display for VarExpression {
 /// ```
 #[derive(Debug, Clone)]
 pub struct CallExpression {
-    pub token: Token,
     pub function: Box<Expression>,
     pub args: Vec<Expression>,
 }
@@ -182,7 +174,6 @@ impl std::fmt::Display for CallExpression {
 /// ```
 #[derive(Debug, Clone)]
 pub struct IndexExpression {
-    pub token: Token,
     pub left: Box<Expression>,
     pub index: Box<Expression>,
 }
@@ -202,7 +193,6 @@ impl std::fmt::Display for IndexExpression {
 /// ```
 #[derive(Debug, Clone)]
 pub struct FunctionLiteral {
-    pub token: Token,
     pub params: Vec<Identifier>,
     pub body: BlockExpression,
 }
@@ -229,7 +219,6 @@ impl std::fmt::Display for FunctionLiteral {
 /// ```
 #[derive(Debug, Clone)]
 pub struct Identifier {
-    pub token: Token,
     pub value: String,
 }
 
@@ -248,7 +237,6 @@ impl std::fmt::Display for Identifier {
 /// ```
 #[derive(Debug, Clone)]
 pub struct IfExpression {
-    pub token: Token,
     pub condition: Box<Expression>,
     pub consequence: BlockExpression,
     pub alternative: Option<Box<Expression>>,
@@ -278,7 +266,6 @@ impl std::fmt::Display for IfExpression {
 /// ```
 #[derive(Debug, Clone)]
 pub struct InfixExpression {
-    pub token: Token,
     pub left: Box<Expression>,
     pub operator: Token,
     pub right: Box<Expression>,
@@ -299,7 +286,6 @@ impl std::fmt::Display for InfixExpression {
 /// ```
 #[derive(Debug, Clone)]
 pub struct PrefixExpression {
-    pub token: Token,
     pub operator: Token,
     pub right: Box<Expression>,
 }
@@ -322,7 +308,6 @@ impl std::fmt::Display for PrefixExpression {
 /// ```
 #[derive(Debug, Clone)]
 pub struct BlockExpression {
-    pub token: Token,
     pub statements: Vec<Statement>,
 }
 
