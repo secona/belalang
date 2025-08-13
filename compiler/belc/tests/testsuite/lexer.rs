@@ -1,4 +1,4 @@
-use belc_lexer::{Lexer, Token};
+use belc_lexer::{Lexer, LiteralKind, Token};
 
 fn test_tokens(input: &str, expected: Vec<Token>) {
     let mut lexer = Lexer::new(input);
@@ -31,13 +31,25 @@ fn tokens_all() {
             Token::Sub,
             Token::Div,
             Token::Mul,
-            Token::Int("5".into()),
+            Token::Literal {
+                kind: LiteralKind::Integer,
+                value: "5".into(),
+            },
             Token::Semicolon,
-            Token::Int("5".into()),
+            Token::Literal {
+                kind: LiteralKind::Integer,
+                value: "5".into(),
+            },
             Token::Lt,
-            Token::Int("10".into()),
+            Token::Literal {
+                kind: LiteralKind::Integer,
+                value: "10".into(),
+            },
             Token::Gt,
-            Token::Int("5".into()),
+            Token::Literal {
+                kind: LiteralKind::Integer,
+                value: "5".into(),
+            },
             Token::Semicolon,
             Token::ColonAssign,
             Token::Ge,
@@ -58,9 +70,15 @@ fn tokens_strings() {
     test_tokens(
         r#""Hello, World"; "Test""#,
         vec![
-            Token::String("Hello, World".into()),
+            Token::Literal {
+                kind: LiteralKind::String,
+                value: "Hello, World".into(),
+            },
             Token::Semicolon,
-            Token::String("Test".into()),
+            Token::Literal {
+                kind: LiteralKind::String,
+                value: "Test".into(),
+            },
         ],
     );
 }
@@ -70,13 +88,25 @@ fn tokens_integers() {
     test_tokens(
         "123; 456; 789 + 1",
         vec![
-            Token::Int("123".into()),
+            Token::Literal {
+                kind: LiteralKind::Integer,
+                value: "123".into(),
+            },
             Token::Semicolon,
-            Token::Int("456".into()),
+            Token::Literal {
+                kind: LiteralKind::Integer,
+                value: "456".into(),
+            },
             Token::Semicolon,
-            Token::Int("789".into()),
+            Token::Literal {
+                kind: LiteralKind::Integer,
+                value: "789".into(),
+            },
             Token::Add,
-            Token::Int("1".into()),
+            Token::Literal {
+                kind: LiteralKind::Integer,
+                value: "1".into(),
+            },
         ],
     );
 }
@@ -97,5 +127,11 @@ fn tokens_identifiers() {
 
 #[test]
 fn tokens_escape_strings() {
-    test_tokens(r#""\n\r\t\"\x41""#, vec![Token::String("\n\r\t\"A".into())]);
+    test_tokens(
+        r#""\n\r\t\"\x41""#,
+        vec![Token::Literal {
+            kind: LiteralKind::String,
+            value: "\n\r\t\"A".into(),
+        }],
+    );
 }

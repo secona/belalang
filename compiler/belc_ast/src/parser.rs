@@ -1,4 +1,5 @@
 use belc_lexer::Lexer;
+use belc_lexer::LiteralKind;
 use belc_lexer::Token;
 use belc_lexer::arithmetic_tokens;
 use belc_lexer::assignment_tokens;
@@ -360,34 +361,31 @@ impl Parser<'_> {
                 value: i.into(),
             })),
 
-            // parse_integer: parse current token as integer
-            Token::Int(ref i) => match i.parse::<i64>() {
-                Ok(lit) => Ok(Expression::Integer(IntegerLiteral {
+            Token::Literal { ref kind, ref value } => match kind {
+                LiteralKind::Integer => match value.parse::<i64>() {
+                    Ok(lit) => Ok(Expression::Integer(IntegerLiteral {
+                        token: self.curr_token.clone(),
+                        value: lit,
+                    })),
+                    Err(_) => Err(ParserError::ParsingInteger(value.into())),
+                },
+                LiteralKind::Float => match value.parse::<f64>() {
+                    Ok(lit) => Ok(Expression::Float(FloatLiteral {
+                        token: self.curr_token.clone(),
+                        value: lit,
+                    })),
+                    Err(_) => Err(ParserError::ParsingFloat(value.into())),
+                },
+                LiteralKind::String => Ok(Expression::String(StringLiteral {
                     token: self.curr_token.clone(),
-                    value: lit,
+                    value: value.into(),
                 })),
-                Err(_) => Err(ParserError::ParsingInteger(i.into())),
-            },
-
-            // parse_float: parse current token as float
-            Token::Float(ref f) => match f.parse::<f64>() {
-                Ok(lit) => Ok(Expression::Float(FloatLiteral {
-                    token: self.curr_token.clone(),
-                    value: lit,
-                })),
-                Err(_) => Err(ParserError::ParsingFloat(f.into())),
             },
 
             // parse_boolean: parse current token as boolean
             Token::True | Token::False => Ok(Expression::Boolean(BooleanExpression {
                 token: self.curr_token.clone(),
                 value: matches!(self.curr_token, Token::True),
-            })),
-
-            // parse_string: parse current expression as string
-            Token::String(ref s) => Ok(Expression::String(StringLiteral {
-                token: self.curr_token.clone(),
-                value: s.into(),
             })),
 
             // parse_array

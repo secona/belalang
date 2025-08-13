@@ -4,6 +4,7 @@ use std::str::Chars;
 use unicode_ident::{is_xid_continue, is_xid_start};
 
 use super::Token;
+use crate::LiteralKind;
 
 #[derive(thiserror::Error, Debug)]
 pub enum LexerError {
@@ -316,7 +317,10 @@ impl<'a> Lexer<'a> {
             }
         }
 
-        Ok(Token::String(result))
+        Ok(Token::Literal {
+            kind: LiteralKind::String,
+            value: result,
+        })
     }
 
     fn read_identifier(&mut self) -> Result<Token, LexerError> {
@@ -358,11 +362,12 @@ impl<'a> Lexer<'a> {
             }
         }
 
-        Ok(if has_decimal {
-            Token::Float(number)
+        let kind = if has_decimal {
+            LiteralKind::Float
         } else {
-            Token::Int(number)
-        })
+            LiteralKind::Integer
+        };
+        Ok(Token::Literal { kind, value: number })
     }
 }
 
@@ -370,13 +375,18 @@ impl<'a> Lexer<'a> {
 mod tests {
     use super::Lexer;
     use super::Token;
+    use crate::LiteralKind;
 
     #[test]
     fn str_ascii() {
         let mut lexer = Lexer::new("\"Hello\"");
         let result = lexer.read_string();
 
-        assert_eq!(result.unwrap(), Token::String("Hello".into()));
+        let expect = Token::Literal {
+            kind: LiteralKind::String,
+            value: "Hello".into(),
+        };
+        assert_eq!(result.unwrap(), expect);
     }
 
     #[test]
@@ -384,7 +394,11 @@ mod tests {
         let mut lexer = Lexer::new("\"こんにちわ\"");
         let result = lexer.read_string();
 
-        assert_eq!(result.unwrap(), Token::String("こんにちわ".into()));
+        let expect = Token::Literal {
+            kind: LiteralKind::String,
+            value: "こんにちわ".into(),
+        };
+        assert_eq!(result.unwrap(), expect);
     }
 
     #[test]
@@ -392,7 +406,11 @@ mod tests {
         let mut lexer = Lexer::new("\"🦗\"");
         let result = lexer.read_string();
 
-        assert_eq!(result.unwrap(), Token::String("🦗".into()));
+        let expect = Token::Literal {
+            kind: LiteralKind::String,
+            value: "🦗".into(),
+        };
+        assert_eq!(result.unwrap(), expect);
     }
 
     #[test]
@@ -424,7 +442,11 @@ mod tests {
         let mut lexer = Lexer::new("123");
         let result = lexer.read_number();
 
-        assert_eq!(result.unwrap(), Token::Int("123".into()));
+        let expect = Token::Literal {
+            kind: LiteralKind::Integer,
+            value: "123".into(),
+        };
+        assert_eq!(result.unwrap(), expect);
     }
 
     #[test]
@@ -432,6 +454,10 @@ mod tests {
         let mut lexer = Lexer::new("123.123");
         let result = lexer.read_number();
 
-        assert_eq!(result.unwrap(), Token::Float("123.123".into()));
+        let expect = Token::Literal {
+            kind: LiteralKind::Float,
+            value: "123.123".into(),
+        };
+        assert_eq!(result.unwrap(), expect);
     }
 }

@@ -1,7 +1,7 @@
 #![allow(clippy::bool_assert_comparison)]
 
 use belc_ast as ast;
-use belc_lexer::Token;
+use belc_lexer::{LiteralKind, Token};
 
 use crate::common::*;
 use crate::*;
@@ -388,7 +388,13 @@ fn integer() {
 
     let int = as_variant!(&expr.expression, ast::Expression::Integer);
 
-    assert_eq!(int.token, Token::Int("12".into()));
+    assert_eq!(
+        int.token,
+        Token::Literal {
+            kind: LiteralKind::Integer,
+            value: "12".into()
+        }
+    );
     assert_eq!(int.value, 12);
 }
 

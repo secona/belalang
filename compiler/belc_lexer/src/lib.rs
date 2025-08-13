@@ -55,12 +55,9 @@ pub enum Token {
 
     /// Identifier token containing a variable or function name
     Ident(String),
-    /// Integer literal
-    Int(String),
-    /// Floating point literal
-    Float(String),
-    /// String literal
-    String(String),
+
+    /// Literals
+    Literal { kind: LiteralKind, value: String },
 
     /// Assignment operator `=`
     Assign,
@@ -168,6 +165,14 @@ pub enum Token {
     Backslash,
 }
 
+/// Literal types supported by the lexer
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum LiteralKind {
+    Integer,
+    Float,
+    String,
+}
+
 impl From<&str> for Token {
     fn from(value: &str) -> Self {
         match value {
@@ -190,9 +195,7 @@ impl std::fmt::Display for Token {
             Token::EOF => "EOF",
 
             Token::Ident(s) => s,
-            Token::Int(s) => s,
-            Token::Float(s) => s,
-            Token::String(s) => s,
+            Token::Literal { value, .. } => value,
 
             Token::Assign => "=",
             Token::ColonAssign => ":=",
