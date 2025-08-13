@@ -1,9 +1,9 @@
 use std::error::Error;
 use std::io::{self, Write};
 
-use belc::codegen::Compiler;
-use belc::codegen::disassembler::disassemble;
 use belc_ast::Parser;
+use belc_codegen_vm::Compiler;
+use belc_codegen_vm::disassembler::disassemble;
 use belc_lexer::Lexer;
 
 fn compile(line: String) -> Result<(), Box<dyn Error>> {

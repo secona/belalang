@@ -1,4 +1,5 @@
 pub mod disassembler;
+mod error;
 mod scope;
 
 use belc_ast::{BlockExpression, Expression, Program, Statement};
@@ -7,7 +8,7 @@ use belvm_bytecode::opcode;
 use belvm_bytecode::{Bytecode, Constant};
 use scope::{ScopeLevel, ScopeManager};
 
-use crate::error::CompileError;
+use crate::error::CodegenError;
 
 #[derive(Default)]
 pub struct Compiler {
@@ -18,7 +19,7 @@ pub struct Compiler {
 }
 
 impl Compiler {
-    pub fn compile_program(&mut self, program: Program) -> Result<Bytecode, CompileError> {
+    pub fn compile_program(&mut self, program: Program) -> Result<Bytecode, CodegenError> {
         for statement in program.statements {
             self.compile_statement(statement)?;
         }
@@ -36,7 +37,7 @@ impl Compiler {
         })
     }
 
-    pub fn compile_statement(&mut self, statement: Statement) -> Result<(), CompileError> {
+    pub fn compile_statement(&mut self, statement: Statement) -> Result<(), CodegenError> {
         match statement {
             Statement::Expression(statement) => {
                 self.compile_expression(statement.expression)?;
@@ -78,7 +79,7 @@ impl Compiler {
         Ok(())
     }
 
-    pub fn compile_expression(&mut self, expression: Expression) -> Result<(), CompileError> {
+    pub fn compile_expression(&mut self, expression: Expression) -> Result<(), CodegenError> {
         match expression {
             Expression::Boolean(boolean) => {
                 self.add_bytecode(if boolean.value { opcode::TRUE } else { opcode::FALSE });
@@ -322,7 +323,7 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile_block(&mut self, block: BlockExpression) -> Result<(), CompileError> {
+    fn compile_block(&mut self, block: BlockExpression) -> Result<(), CodegenError> {
         for statement in block.statements {
             self.compile_statement(statement)?;
         }
