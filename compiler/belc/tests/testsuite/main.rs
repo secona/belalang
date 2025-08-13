@@ -35,7 +35,6 @@ pub mod common {
     macro_rules! ident_has_name {
         ($value:expr, $expected:expr) => {
             assert_eq!($value.value, $expected);
-            assert_eq!($value.token.to_string(), $expected.to_string());
         };
     }
 
@@ -45,7 +44,6 @@ pub mod common {
             let v = as_variant!($value, $variant);
 
             assert_eq!(v.value, $expected);
-            assert_eq!(v.token.to_string(), $expected.to_string());
         };
         ($value:expr, Infix => ($left_variant:path = $left:expr, $op:expr, $right_variant:path = $right:expr)) => {
             let v = as_variant!($value, ast::Expression::Infix);

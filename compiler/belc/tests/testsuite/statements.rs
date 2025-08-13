@@ -1,5 +1,5 @@
 use belc_ast as ast;
-use belc_lexer::{LiteralKind, Token};
+use belc_lexer::Token;
 
 use crate::common::*;
 use crate::*;
@@ -21,13 +21,6 @@ fn block() {
 
     let int_0 = as_variant!(&expr_0.expression, ast::Expression::Integer);
 
-    assert_eq!(
-        int_0.token,
-        Token::Literal {
-            kind: LiteralKind::Integer,
-            value: "12".into()
-        }
-    );
     assert_eq!(int_0.value, 12);
 
     // second statement
@@ -35,13 +28,6 @@ fn block() {
 
     let int_1 = as_variant!(&expr_1.expression, ast::Expression::Integer);
 
-    assert_eq!(
-        int_1.token,
-        Token::Literal {
-            kind: LiteralKind::Integer,
-            value: "14".into()
-        }
-    );
     assert_eq!(int_1.value, 14);
 
     // third statement
@@ -62,17 +48,8 @@ fn r#return() {
 
     let ret = as_variant!(&program.statements[0], ast::Statement::Return);
 
-    assert_eq!(ret.token, Token::Return);
-
     let val = as_variant!(&ret.return_value, ast::Expression::Integer);
 
-    assert_eq!(
-        val.token,
-        Token::Literal {
-            kind: LiteralKind::Integer,
-            value: "12".into()
-        }
-    );
     assert_eq!(val.value, 12);
 }
 

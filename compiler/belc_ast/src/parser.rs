@@ -143,20 +143,16 @@ impl Parser<'_> {
         match self.curr_token {
             // parse_return
             Token::Return => {
-                let token = self.curr_token.clone();
-
                 self.next_token()?;
                 let return_value = self.parse_expression(Precedence::Lowest)?;
 
                 self.has_semicolon = expect_peek!(self, Token::Semicolon);
 
-                Ok(Statement::Return(ReturnStatement { token, return_value }))
+                Ok(Statement::Return(ReturnStatement { return_value }))
             },
 
             // parse_while
             Token::While => {
-                let token = self.curr_token.clone();
-
                 self.next_token()?;
                 let condition = self.parse_expression(Precedence::Lowest)?;
 
@@ -167,7 +163,6 @@ impl Parser<'_> {
                 self.has_semicolon = optional_peek!(self, Token::Semicolon);
 
                 Ok(Statement::While(WhileStatement {
-                    token,
                     condition: Box::new(condition),
                     block,
                 }))
@@ -179,15 +174,11 @@ impl Parser<'_> {
 
                 self.has_semicolon = optional_peek!(self, Token::Semicolon);
 
-                Ok(Statement::Expression(ExpressionStatement {
-                    token: Token::If,
-                    expression,
-                }))
+                Ok(Statement::Expression(ExpressionStatement { expression }))
             },
 
             _ => {
                 let stmt = ExpressionStatement {
-                    token: self.curr_token.clone(),
                     expression: self.parse_expression(Precedence::Lowest)?,
                 };
 
@@ -216,7 +207,6 @@ impl Parser<'_> {
     }
 
     fn parse_block(&mut self) -> Result<BlockExpression, ParserError> {
-        let token = self.curr_token.clone();
         let mut statements = Vec::new();
 
         self.next_token()?;
@@ -228,12 +218,10 @@ impl Parser<'_> {
         }
         self.depth -= 1;
 
-        Ok(BlockExpression { statements, token })
+        Ok(BlockExpression { statements })
     }
 
     fn parse_if(&mut self) -> Result<Expression, ParserError> {
-        let token = self.curr_token.clone();
-
         self.next_token()?;
         let condition = self.parse_expression(Precedence::Lowest)?;
 
@@ -255,7 +243,6 @@ impl Parser<'_> {
         };
 
         Ok(Expression::If(IfExpression {
-            token,
             condition: Box::new(condition),
             consequence,
             alternative,
@@ -268,7 +255,6 @@ impl Parser<'_> {
             arithmetic_tokens!() | comparison_tokens!() | bitwise_tokens!() | Token::Or | Token::And => {
                 self.next_token()?;
 
-                let token = self.curr_token.clone();
                 let operator = self.curr_token.clone();
                 let precedence = Precedence::from(&self.curr_token);
 
@@ -277,7 +263,6 @@ impl Parser<'_> {
                 let right = self.parse_expression(precedence)?;
 
                 Ok(Some(Expression::Infix(InfixExpression {
-                    token,
                     left: Box::new(left.clone()),
                     operator,
                     right: Box::new(right),
@@ -307,15 +292,12 @@ impl Parser<'_> {
                 }
 
                 Ok(Some(Expression::Call(CallExpression {
-                    token: self.curr_token.clone(),
                     function: Box::new(left.clone()),
                     args,
                 })))
             },
 
             Token::LeftBracket => {
-                let token = self.curr_token.clone();
-
                 self.next_token()?;
                 self.next_token()?;
 
@@ -324,7 +306,6 @@ impl Parser<'_> {
                 expect_peek!(self, Token::RightBracket);
 
                 Ok(Some(Expression::Index(IndexExpression {
-                    token,
                     left: Box::new(left.clone()),
                     index,
                 })))
@@ -336,7 +317,6 @@ impl Parser<'_> {
                 }
 
                 let name = Identifier {
-                    token: self.curr_token.clone(),
                     value: self.curr_token.to_string(),
                 };
 
@@ -356,41 +336,27 @@ impl Parser<'_> {
     fn parse_prefix(&mut self) -> Result<Expression, ParserError> {
         match self.curr_token {
             // parse_identifier: parse current token as identifier
-            Token::Ident(ref i) => Ok(Expression::Identifier(Identifier {
-                token: self.curr_token.clone(),
-                value: i.into(),
-            })),
+            Token::Ident(ref i) => Ok(Expression::Identifier(Identifier { value: i.into() })),
 
             Token::Literal { ref kind, ref value } => match kind {
                 LiteralKind::Integer => match value.parse::<i64>() {
-                    Ok(lit) => Ok(Expression::Integer(IntegerLiteral {
-                        token: self.curr_token.clone(),
-                        value: lit,
-                    })),
+                    Ok(lit) => Ok(Expression::Integer(IntegerLiteral { value: lit })),
                     Err(_) => Err(ParserError::ParsingInteger(value.into())),
                 },
                 LiteralKind::Float => match value.parse::<f64>() {
-                    Ok(lit) => Ok(Expression::Float(FloatLiteral {
-                        token: self.curr_token.clone(),
-                        value: lit,
-                    })),
+                    Ok(lit) => Ok(Expression::Float(FloatLiteral { value: lit })),
                     Err(_) => Err(ParserError::ParsingFloat(value.into())),
                 },
-                LiteralKind::String => Ok(Expression::String(StringLiteral {
-                    token: self.curr_token.clone(),
-                    value: value.into(),
-                })),
+                LiteralKind::String => Ok(Expression::String(StringLiteral { value: value.into() })),
             },
 
             // parse_boolean: parse current token as boolean
             Token::True | Token::False => Ok(Expression::Boolean(BooleanExpression {
-                token: self.curr_token.clone(),
                 value: matches!(self.curr_token, Token::True),
             })),
 
             // parse_array
             Token::LeftBracket => Ok(Expression::Array(ArrayLiteral {
-                token: self.curr_token.clone(),
                 elements: {
                     self.next_token()?;
 
@@ -425,7 +391,6 @@ impl Parser<'_> {
 
                 Ok(Expression::Prefix(PrefixExpression {
                     operator: prev_token.clone(),
-                    token: prev_token,
                     right: Box::new(right),
                 }))
             },
@@ -451,7 +416,6 @@ impl Parser<'_> {
 
             // parse_function: parse current expression as function
             Token::Function => {
-                let token = self.curr_token.clone();
                 let mut params = Vec::new();
 
                 expect_peek!(self, Token::LeftParen);
@@ -460,7 +424,6 @@ impl Parser<'_> {
 
                 if !matches!(self.curr_token, Token::RightParen) {
                     params.push(Identifier {
-                        token: self.curr_token.clone(),
                         value: self.curr_token.to_string(),
                     });
 
@@ -469,7 +432,6 @@ impl Parser<'_> {
                         self.next_token()?;
 
                         params.push(Identifier {
-                            token: self.curr_token.clone(),
                             value: self.curr_token.to_string(),
                         });
                     }
@@ -481,7 +443,7 @@ impl Parser<'_> {
 
                 let body = self.parse_block()?;
 
-                Ok(Expression::Function(FunctionLiteral { token, params, body }))
+                Ok(Expression::Function(FunctionLiteral { params, body }))
             },
 
             _ => Err(ParserError::UnknownPrefixOperator(self.curr_token.clone())),

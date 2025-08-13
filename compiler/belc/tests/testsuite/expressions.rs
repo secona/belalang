@@ -1,12 +1,12 @@
 #![allow(clippy::bool_assert_comparison)]
 
 use belc_ast as ast;
-use belc_lexer::{LiteralKind, Token};
+use belc_lexer::Token;
 
 use crate::common::*;
 use crate::*;
 
-fn test_booleans(input: &str, token: Token, value: bool) {
+fn test_booleans(input: &str, value: bool) {
     let program = test_parse(input);
 
     assert_eq!(program.statements.len(), 1);
@@ -15,18 +15,17 @@ fn test_booleans(input: &str, token: Token, value: bool) {
 
     let bool_expr = as_variant!(&expr.expression, ast::Expression::Boolean);
 
-    assert_eq!(bool_expr.token, token);
     assert_eq!(bool_expr.value, value);
 }
 
 #[test]
 fn booleans_true() {
-    test_booleans("true;", Token::True, true);
+    test_booleans("true;", true);
 }
 
 #[test]
 fn booleans_false() {
-    test_booleans("false;", Token::False, false);
+    test_booleans("false;", false);
 }
 
 #[test]
@@ -211,8 +210,6 @@ fn if_without_else() {
 
     let if_expr = as_variant!(&stmt.expression, ast::Expression::If);
 
-    assert_eq!(if_expr.token, Token::If);
-
     // testing the condition
     expr_variant!(
         &*if_expr.condition, Infix => (
@@ -240,8 +237,6 @@ fn if_with_else() {
 
     let if_expr = as_variant!(&stmt.expression, ast::Expression::If);
 
-    assert_eq!(if_expr.token, Token::If);
-
     // testing the condition
     expr_variant!(
         &*if_expr.condition, Infix => (
@@ -258,7 +253,6 @@ fn if_with_else() {
     // testing the alternative block
     let alt = if_expr.alternative.clone().unwrap();
     let alt = as_variant!(*alt, ast::Expression::Block);
-    assert_eq!(alt.token, Token::LeftBrace);
 
     let stmt_0 = as_variant!(&alt.statements[0], ast::Statement::Expression);
     expr_variant!(&stmt_0.expression, ast::Expression::Identifier = "y");
@@ -283,7 +277,6 @@ fn if_with_multiple_statements() {
     );
 
     assert!(if_expr.alternative.is_none());
-    assert_eq!(if_expr.token, Token::If);
 
     // testing consequence block
     let stmt_0 = as_variant!(&if_expr.consequence.statements[0], ast::Statement::Expression);
@@ -388,13 +381,6 @@ fn integer() {
 
     let int = as_variant!(&expr.expression, ast::Expression::Integer);
 
-    assert_eq!(
-        int.token,
-        Token::Literal {
-            kind: LiteralKind::Integer,
-            value: "12".into()
-        }
-    );
     assert_eq!(int.value, 12);
 }
 
