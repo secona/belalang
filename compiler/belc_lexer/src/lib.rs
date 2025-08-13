@@ -181,6 +181,22 @@ impl std::fmt::Display for AssignmentKind {
     }
 }
 
+/// Prefix operators supported by the lexer
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum PrefixKind {
+    Not,
+    Sub,
+}
+
+impl std::fmt::Display for PrefixKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::Not => "!",
+            Self::Sub => "-",
+        })
+    }
+}
+
 impl From<&str> for Token {
     fn from(value: &str) -> Self {
         match value {

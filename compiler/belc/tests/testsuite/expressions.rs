@@ -1,7 +1,7 @@
 #![allow(clippy::bool_assert_comparison)]
 
 use belc_ast as ast;
-use belc_lexer::{AssignmentKind, Token};
+use belc_lexer::{AssignmentKind, PrefixKind, Token};
 
 use crate::common::*;
 use crate::*;
@@ -393,7 +393,7 @@ fn prefix_minus_number() {
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
     expr_variant!(&expr.expression, Prefix => (
-        Token::Sub,
+        PrefixKind::Sub,
         ast::Expression::Integer = 12
     ));
 }
@@ -407,7 +407,7 @@ fn prefix_bang_number() {
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
     expr_variant!(&expr.expression, Prefix => (
-        Token::Not,
+        PrefixKind::Not,
         ast::Expression::Integer = 12
     ));
 }
@@ -421,7 +421,7 @@ fn prefix_minus_boolean() {
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
     expr_variant!(&expr.expression, Prefix => (
-        Token::Sub,
+        PrefixKind::Sub,
         ast::Expression::Boolean = true
     ));
 }
@@ -435,7 +435,7 @@ fn prefix_bang_boolean() {
     let expr = as_variant!(&program.statements[0], ast::Statement::Expression);
 
     expr_variant!(&expr.expression, Prefix => (
-        Token::Not,
+        PrefixKind::Not,
         ast::Expression::Boolean = true
     ));
 }

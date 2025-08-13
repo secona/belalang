@@ -1,4 +1,4 @@
-use belc_lexer::{AssignmentKind, Token};
+use belc_lexer::{AssignmentKind, PrefixKind, Token};
 
 use super::Statement;
 
@@ -286,7 +286,7 @@ impl std::fmt::Display for InfixExpression {
 /// ```
 #[derive(Debug, Clone)]
 pub struct PrefixExpression {
-    pub operator: Token,
+    pub operator: PrefixKind,
     pub right: Box<Expression>,
 }
 
