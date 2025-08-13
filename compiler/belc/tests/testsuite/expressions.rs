@@ -1,7 +1,7 @@
 #![allow(clippy::bool_assert_comparison)]
 
 use belc_ast as ast;
-use belc_lexer::{AssignmentKind, PrefixKind, Token};
+use belc_lexer::{AssignmentKind, InfixKind, PrefixKind};
 
 use crate::common::*;
 use crate::*;
@@ -45,14 +45,14 @@ fn call() {
     expr_variant!(
         &expr.args[1], Infix => (
             ast::Expression::Integer = 2,
-            Token::Mul,
+            InfixKind::Mul,
             ast::Expression::Integer = 3
         )
     );
     expr_variant!(
         &expr.args[2], Infix => (
             ast::Expression::Integer = 4,
-            Token::Add,
+            InfixKind::Add,
             ast::Expression::Integer = 5
         )
     );
@@ -85,7 +85,7 @@ fn call_with_function_literal() {
     expr_variant!(
         &body_stmt.expression, Infix => (
             ast::Expression::Identifier = "x",
-            Token::Add,
+            InfixKind::Add,
             ast::Expression::Identifier = "y"
         )
     );
@@ -144,7 +144,7 @@ fn function() {
     expr_variant!(
         &body_stmt.expression, Infix => (
             ast::Expression::Identifier = "x",
-            Token::Add,
+            InfixKind::Add,
             ast::Expression::Identifier = "y"
         )
     );
@@ -214,7 +214,7 @@ fn if_without_else() {
     expr_variant!(
         &*if_expr.condition, Infix => (
             ast::Expression::Identifier = "x",
-            Token::Lt,
+            InfixKind::Lt,
             ast::Expression::Identifier = "y"
         )
     );
@@ -241,7 +241,7 @@ fn if_with_else() {
     expr_variant!(
         &*if_expr.condition, Infix => (
             ast::Expression::Identifier = "x",
-            Token::Lt,
+            InfixKind::Lt,
             ast::Expression::Identifier = "y"
         )
     );
@@ -271,7 +271,7 @@ fn if_with_multiple_statements() {
     expr_variant!(
         if_expr.condition.as_ref(), Infix => (
             ast::Expression::Identifier = "x",
-            Token::Lt,
+            InfixKind::Lt,
             ast::Expression::Identifier = "y"
         )
     );
@@ -298,7 +298,7 @@ fn infix() {
 
     expr_variant!(&expr.expression, Infix => (
         ast::Expression::Integer = 1,
-        Token::Add,
+        InfixKind::Add,
         ast::Expression::Integer = 2
     ));
 }

@@ -197,6 +197,53 @@ impl std::fmt::Display for PrefixKind {
     }
 }
 
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum InfixKind {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Mod,
+    Eq,
+    Ne,
+    Gt,
+    Ge,
+    Lt,
+    Le,
+    BitAnd,
+    BitOr,
+    BitXor,
+    ShiftLeft,
+    ShiftRight,
+    Or,
+    And,
+}
+
+impl std::fmt::Display for InfixKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::Add => "+",
+            Self::Sub => "-",
+            Self::Mul => "*",
+            Self::Div => "/",
+            Self::Mod => "%",
+            Self::Eq => "==",
+            Self::Ne => "!=",
+            Self::Gt => ">",
+            Self::Ge => ">=",
+            Self::Lt => "<",
+            Self::Le => "<=",
+            Self::BitAnd => "&",
+            Self::BitOr => "|",
+            Self::BitXor => "^",
+            Self::ShiftLeft => "<<",
+            Self::ShiftRight => ">>",
+            Self::Or => "||",
+            Self::And => "&&",
+        })
+    }
+}
+
 impl From<&str> for Token {
     fn from(value: &str) -> Self {
         match value {
