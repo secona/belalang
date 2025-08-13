@@ -2,7 +2,7 @@ pub mod disassembler;
 mod scope;
 
 use belc_ast::{BlockExpression, Expression, Program, Statement};
-use belc_lexer::{AssignmentKind, Token};
+use belc_lexer::{AssignmentKind, PrefixKind, Token};
 use belvm_bytecode::opcode;
 use belvm_bytecode::{Bytecode, Constant};
 use scope::{ScopeLevel, ScopeManager};
@@ -303,9 +303,8 @@ impl Compiler {
             Expression::Prefix(prefix) => {
                 self.compile_expression(*prefix.right)?;
                 self.add_bytecode(match prefix.operator {
-                    Token::Sub => opcode::MINUS,
-                    Token::Not => opcode::BANG,
-                    _ => return Err(CompileError::UnknownInfixOp(prefix.operator)),
+                    PrefixKind::Sub => opcode::MINUS,
+                    PrefixKind::Not => opcode::BANG,
                 });
             },
 

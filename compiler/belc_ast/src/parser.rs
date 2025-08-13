@@ -1,5 +1,6 @@
 use belc_lexer::Lexer;
 use belc_lexer::LiteralKind;
+use belc_lexer::PrefixKind;
 use belc_lexer::Token;
 use belc_lexer::arithmetic_tokens;
 use belc_lexer::bitwise_tokens;
@@ -389,7 +390,11 @@ impl Parser<'_> {
                 let right = self.parse_expression(Precedence::Prefix).unwrap();
 
                 Ok(Expression::Prefix(PrefixExpression {
-                    operator: prev_token.clone(),
+                    operator: match prev_token {
+                        Token::Not => PrefixKind::Not,
+                        Token::Sub => PrefixKind::Sub,
+                        _ => unreachable!(),
+                    },
                     right: Box::new(right),
                 }))
             },
