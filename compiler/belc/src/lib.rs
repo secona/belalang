@@ -1,13 +1,11 @@
 #![feature(assert_matches)]
 
 use belc_ast::Parser;
+use belc_codegen_vm::Compiler;
+pub use belc_codegen_vm::disassembler::disassemble;
 use belc_lexer::Lexer;
 use belvm_bytecode::Bytecode;
 
-use crate::codegen::Compiler;
-pub use crate::codegen::disassembler::disassemble;
-
-pub mod codegen;
 pub mod error;
 
 pub fn compile(source: &str) -> Bytecode {

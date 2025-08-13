@@ -4,7 +4,7 @@ use std::collections::hash_map::Entry;
 use belvm_bytecode::opcode;
 use belvm_std::BUILTIN_FUNCTIONS;
 
-use crate::error::CompileError;
+use crate::error::CodegenError;
 
 #[derive(Debug, Clone, Copy)]
 pub enum ScopeLevel {
@@ -27,7 +27,7 @@ pub struct CompilationScope {
 }
 
 impl CompilationScope {
-    pub fn define(&mut self, name: String) -> Result<&Symbol, CompileError> {
+    pub fn define(&mut self, name: String) -> Result<&Symbol, CodegenError> {
         let symbol = Symbol {
             scope: self.scope,
             index: self.symbol_count,
@@ -37,7 +37,7 @@ impl CompilationScope {
 
         match self.symbol_store.entry(name.clone()) {
             Entry::Vacant(entry) => Ok(entry.insert(symbol)),
-            Entry::Occupied(_) => Err(CompileError::DuplicateSymbol(name)),
+            Entry::Occupied(_) => Err(CodegenError::DuplicateSymbol(name)),
         }
     }
 
@@ -108,17 +108,17 @@ impl ScopeManager {
         self.scope_store.last().unwrap_or(&self.main_scope)
     }
 
-    pub fn define(&mut self, name: String) -> Result<&Symbol, CompileError> {
+    pub fn define(&mut self, name: String) -> Result<&Symbol, CodegenError> {
         self.current_mut().define(name)
     }
 
-    pub fn resolve(&self, name: String) -> Result<&Symbol, CompileError> {
+    pub fn resolve(&self, name: String) -> Result<&Symbol, CodegenError> {
         for symbol in self.scope_store.iter().rev() {
             if let Some(symbol) = symbol.resolve(&name) {
                 return Ok(symbol);
             }
         }
 
-        self.main_scope.resolve(&name).ok_or(CompileError::UnknownSymbol(name))
+        self.main_scope.resolve(&name).ok_or(CodegenError::UnknownSymbol(name))
     }
 }
