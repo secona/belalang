@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Use nightly toolchain
         run: rustup update nightly && rustup default nightly
       - name: Install nextest
@@ -32,7 +32,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Use nightly toolchain
         run: rustup update nightly && rustup default nightly
       - name: Build workspace for release
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v17
       - name: Check Nix flake
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v17
       - name: Build Nix package
