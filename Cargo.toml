@@ -31,8 +31,11 @@ authors = ["Vito Secona <secona00@gmail.com>"]
 self_named_module_files = "deny"
 
 [workspace.dependencies]
+bincode = "2.0.1"
 clap = "4.5.4"
+crc32fast = "1.5.0"
 proc-macro2 = "1.0"
+serde = "1.0.219"
 syn = "2.0"
 thiserror = "1.0.61"
 unicode-ident = "1.0.18"

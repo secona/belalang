@@ -10,4 +10,7 @@ authors.workspace = true
 workspace = true
 
 [dependencies]
+bincode.workspace = true
+crc32fast.workspace = true
 thiserror.workspace = true
+serde.workspace = true
