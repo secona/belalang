@@ -11,6 +11,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Dis(commands::dis::Args),
+    Compile(commands::compile::Args),
 }
 
 fn main() {
@@ -18,5 +19,6 @@ fn main() {
 
     match cli.command {
         Commands::Dis(args) => args.exec(),
+        Commands::Compile(args) => args.exec(),
     }
 }
