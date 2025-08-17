@@ -1,4 +1,5 @@
 {
+  "extends": ["config:base"],
   "semanticCommits": "enabled",
   "dependencyDashboard": true,
   "commitMessageAction": "update",
