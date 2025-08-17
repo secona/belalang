@@ -49,7 +49,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v17
+        uses: DeterminateSystems/nix-installer-action@v19
       - name: Check Nix flake
         run: nix build .#checks.${{ matrix.target }}.${{ matrix.checks }} -L
   flake-build:
@@ -62,6 +62,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v17
+        uses: DeterminateSystems/nix-installer-action@v19
       - name: Build Nix package
         run: nix build .#packages.${{ matrix.target }}.default -L
