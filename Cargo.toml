@@ -37,7 +37,7 @@ crc32fast = "1.5.0"
 proc-macro2 = "1.0"
 serde = "1.0.219"
 syn = "2.0"
-thiserror = "1.0.61"
+thiserror = "2.0.0"
 unicode-ident = "1.0.18"
 quote = "1.0"
 
