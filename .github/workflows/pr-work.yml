@@ -14,9 +14,11 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v46
         with:
-          files: |
-            compiler/**
-            vm/**
+          files_yaml:
+            compiler:
+              - 'compiler/**'
+            vm:
+              - 'vm/**'
       - name: Label based on compiler changes
         if: steps.changed-files.outputs.compiler_any_changed == 'true'
         uses: actions/github-script@v7
