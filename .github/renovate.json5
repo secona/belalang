@@ -1,6 +1,8 @@
 {
-  "extends": ["config:base"],
-  "semanticCommits": "enabled",
-  "dependencyDashboard": true,
-  "commitMessageAction": "update",
+  extends: [
+    'config:recommended',
+  ],
+  semanticCommits: 'enabled',
+  dependencyDashboard: true,
+  commitMessageAction: 'update',
 }
