@@ -67,7 +67,7 @@
 
             workspace-clippy = craneLib.cargoClippy {
               inherit src cargoArtifacts;
-              cargoClippyExtraArgs = "--workspace --all-features --keep-going -- -D warnings";
+              cargoClippyExtraArgs = "--workspace --all-targets --all-features --keep-going -- -D warnings";
             };
 
             workspace-build = craneLib.cargoBuild {

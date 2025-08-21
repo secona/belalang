@@ -22,7 +22,7 @@ fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
 fn integer_literals() {
     let code = test_compile("1; 2; 3;").unwrap();
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::POP,
@@ -43,7 +43,7 @@ fn integer_literals() {
 fn booleans() {
     let code = test_compile("true; false;").unwrap();
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     assert_eq!(code.instructions, vec![
         opcode::TRUE,
         opcode::POP,
@@ -59,7 +59,7 @@ fn test_compile_infix(op: &str, code: u8, reversed: bool) {
     let input = format!("1 {op} 3;");
     let compiled = test_compile(&input).unwrap();
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     assert_eq!(compiled.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::CONSTANT, 0, 1,
@@ -97,7 +97,7 @@ fn infix_expressions() {
 fn prefix_expressions() {
     let code = test_compile("-5;").unwrap();
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::MINUS,
@@ -112,7 +112,7 @@ fn prefix_expressions() {
 fn if_expressions() {
     let code = test_compile("if (1 == 1) { 10 }; 9;").unwrap();
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::CONSTANT, 0, 1,
@@ -142,7 +142,7 @@ fn if_expressions() {
 fn if_else_expressions() {
     let code = test_compile("if (true) { 10 } else { 11 };").unwrap();
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     assert_eq!(code.instructions, vec![
         opcode::TRUE,
         opcode::JUMP_IF_FALSE, 0, 6,
@@ -167,7 +167,7 @@ fn if_else_if_expressions() {
     )
     .unwrap();
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     assert_eq!(code.instructions, vec![
         opcode::TRUE,
         opcode::JUMP_IF_FALSE, 0, 6,
@@ -192,7 +192,7 @@ fn if_else_if_expressions() {
 fn var() {
     let code = test_compile("x := 12; x = 11; x;").unwrap();
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::SET_GLOBAL, 0, 1,
@@ -212,7 +212,7 @@ fn var() {
 fn var_assignment_ops() {
     let code = test_compile("x := 1; x += 1;").unwrap();
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::SET_GLOBAL, 0, 1,
@@ -232,7 +232,7 @@ fn var_assignment_ops() {
 fn block_expression() {
     let code = test_compile("{ x := 12; };").unwrap();
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::SET_GLOBAL, 0, 1, // need to change when block scope
