@@ -9,7 +9,8 @@ pub mod common {
     use belc_lexer::Lexer;
 
     pub fn test_parse(input: &str) -> ast::Program {
-        let lexer = Lexer::new(input);
+        let source = input.to_owned();
+        let lexer = Lexer::new(&source);
         let mut parser = Parser::new(lexer);
 
         parser.parse_program().expect("parser errors")

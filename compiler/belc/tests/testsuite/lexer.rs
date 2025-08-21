@@ -1,7 +1,8 @@
 use belc_lexer::{AssignmentKind, Lexer, LiteralKind, Token};
 
 fn test_tokens(input: &str, expected: Vec<Token>) {
-    let mut lexer = Lexer::new(input);
+    let source = input.to_owned();
+    let mut lexer = Lexer::new(&source);
     let mut result = Vec::new();
     while let Ok(token) = lexer.next_token() {
         if let Token::EOF = token {

@@ -30,14 +30,16 @@ pub fn char_to_u8(c: char) -> Option<u8> {
 pub struct Lexer<'a> {
     current: Option<char>,
     chars: Peekable<Chars<'a>>,
+    #[allow(dead_code)]
+    source: &'a String,
 }
 
 impl<'a> Lexer<'a> {
-    pub fn new(input: &'a str) -> Lexer<'a> {
-        let mut chars = input.chars().peekable();
+    pub fn new(source: &'a String) -> Lexer<'a> {
+        let mut chars = source.chars().peekable();
         let current = chars.next();
 
-        Lexer { current, chars }
+        Lexer { current, chars, source }
     }
 
     fn advance(&mut self) -> Option<char> {
@@ -403,7 +405,8 @@ mod tests {
 
     #[test]
     fn str_ascii() {
-        let mut lexer = Lexer::new("\"Hello\"");
+        let source = String::from("\"Hello\"");
+        let mut lexer = Lexer::new(&source);
         let result = lexer.read_string();
 
         let expect = Token::Literal {
@@ -415,7 +418,8 @@ mod tests {
 
     #[test]
     fn str_japanese_chars() {
-        let mut lexer = Lexer::new("\"こんにちわ\"");
+        let source = String::from("\"こんにちわ\"");
+        let mut lexer = Lexer::new(&source);
         let result = lexer.read_string();
 
         let expect = Token::Literal {
@@ -427,7 +431,8 @@ mod tests {
 
     #[test]
     fn str_emojis() {
-        let mut lexer = Lexer::new("\"🦗\"");
+        let source = String::from("\"🦗\"");
+        let mut lexer = Lexer::new(&source);
         let result = lexer.read_string();
 
         let expect = Token::Literal {
@@ -439,7 +444,8 @@ mod tests {
 
     #[test]
     fn ident_ascii() {
-        let mut lexer = Lexer::new("Hello");
+        let source = String::from("Hello");
+        let mut lexer = Lexer::new(&source);
         let result = lexer.read_identifier();
 
         assert_eq!(result.unwrap(), Token::Ident("Hello".into()));
@@ -447,7 +453,8 @@ mod tests {
 
     #[test]
     fn ident_japanese_chars() {
-        let mut lexer = Lexer::new("こんにちわ");
+        let source = String::from("こんにちわ");
+        let mut lexer = Lexer::new(&source);
         let result = lexer.read_identifier();
 
         assert_eq!(result.unwrap(), Token::Ident("こんにちわ".into()));
@@ -455,7 +462,8 @@ mod tests {
 
     #[test]
     fn ident_underscores() {
-        let mut lexer = Lexer::new("hel_lo_");
+        let source = String::from("hel_lo_");
+        let mut lexer = Lexer::new(&source);
         let result = lexer.read_identifier();
 
         assert_eq!(result.unwrap(), Token::Ident("hel_lo_".into()));
@@ -463,7 +471,8 @@ mod tests {
 
     #[test]
     fn number_int_ascii() {
-        let mut lexer = Lexer::new("123");
+        let source = String::from("123");
+        let mut lexer = Lexer::new(&source);
         let result = lexer.read_number();
 
         let expect = Token::Literal {
@@ -475,7 +484,8 @@ mod tests {
 
     #[test]
     fn number_float_ascii() {
-        let mut lexer = Lexer::new("123.123");
+        let source = String::from("123.123");
+        let mut lexer = Lexer::new(&source);
         let result = lexer.read_number();
 
         let expect = Token::Literal {
