@@ -32,6 +32,11 @@ pub struct Lexer<'a> {
     chars: Peekable<Chars<'a>>,
     #[allow(dead_code)]
     source: &'a String,
+
+    /// The current line number the lexer is at.
+    ///
+    /// Points to the next line to process.
+    current_row: u32,
 }
 
 impl<'a> Lexer<'a> {
@@ -39,7 +44,12 @@ impl<'a> Lexer<'a> {
         let mut chars = source.chars().peekable();
         let current = chars.next();
 
-        Lexer { current, chars, source }
+        Lexer {
+            current,
+            chars,
+            source,
+            current_row: 1,
+        }
     }
 
     fn advance(&mut self) -> Option<char> {
@@ -56,14 +66,20 @@ impl<'a> Lexer<'a> {
                     while let Some(c) = self.advance() {
                         if c == '\n' {
                             self.advance();
+                            self.current_row += 1;
                             break;
                         }
                     }
                 },
                 // skips all empty whitespaces
-                Some(' ' | '\t' | '\n' | '\r') => {
+                Some(' ' | '\t' | '\r') => {
                     self.advance();
                 },
+                // skips newlines
+                Some('\n') => {
+                    self.advance();
+                    self.current_row += 1;
+                }
                 // break the loop if it isn't a whitespace or a comment
                 _ => break,
             };
@@ -414,6 +430,7 @@ mod tests {
             value: "Hello".into(),
         };
         assert_eq!(result.unwrap(), expect);
+        assert_eq!(lexer.current_row, 1);
     }
 
     #[test]
@@ -427,6 +444,7 @@ mod tests {
             value: "こんにちわ".into(),
         };
         assert_eq!(result.unwrap(), expect);
+        assert_eq!(lexer.current_row, 1);
     }
 
     #[test]
@@ -440,6 +458,7 @@ mod tests {
             value: "🦗".into(),
         };
         assert_eq!(result.unwrap(), expect);
+        assert_eq!(lexer.current_row, 1);
     }
 
     #[test]
@@ -449,6 +468,7 @@ mod tests {
         let result = lexer.read_identifier();
 
         assert_eq!(result.unwrap(), Token::Ident("Hello".into()));
+        assert_eq!(lexer.current_row, 1);
     }
 
     #[test]
@@ -458,6 +478,7 @@ mod tests {
         let result = lexer.read_identifier();
 
         assert_eq!(result.unwrap(), Token::Ident("こんにちわ".into()));
+        assert_eq!(lexer.current_row, 1);
     }
 
     #[test]
@@ -467,6 +488,7 @@ mod tests {
         let result = lexer.read_identifier();
 
         assert_eq!(result.unwrap(), Token::Ident("hel_lo_".into()));
+        assert_eq!(lexer.current_row, 1);
     }
 
     #[test]
@@ -480,6 +502,7 @@ mod tests {
             value: "123".into(),
         };
         assert_eq!(result.unwrap(), expect);
+        assert_eq!(lexer.current_row, 1);
     }
 
     #[test]
@@ -493,5 +516,16 @@ mod tests {
             value: "123.123".into(),
         };
         assert_eq!(result.unwrap(), expect);
+        assert_eq!(lexer.current_row, 1);
+    }
+
+    #[test]
+    fn multiline() {
+        let source = String::from("123.123\n\n");
+        let mut lexer = Lexer::new(&source);
+        lexer.next_token().unwrap();
+        lexer.next_token().unwrap();
+
+        assert_eq!(lexer.current_row, 3);
     }
 }
