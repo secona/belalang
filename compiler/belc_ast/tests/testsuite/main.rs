@@ -1,6 +1,4 @@
-mod compiler;
 mod expressions;
-mod lexer;
 mod statements;
 
 pub mod common {
