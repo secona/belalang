@@ -37,6 +37,11 @@ pub struct Lexer<'a> {
     ///
     /// Points to the next line to process.
     current_row: u32,
+
+    /// The current column number the lexer is at.
+    ///
+    /// Points to the next character to process.
+    current_col: u32,
 }
 
 impl<'a> Lexer<'a> {
@@ -49,12 +54,14 @@ impl<'a> Lexer<'a> {
             chars,
             source,
             current_row: 1,
+            current_col: 1,
         }
     }
 
     fn advance(&mut self) -> Option<char> {
         let result = self.current;
         self.current = self.chars.next();
+        self.current_col += 1;
         result
     }
 
@@ -67,6 +74,7 @@ impl<'a> Lexer<'a> {
                         if c == '\n' {
                             self.advance();
                             self.current_row += 1;
+                            self.current_col = 1;
                             break;
                         }
                     }
@@ -79,7 +87,8 @@ impl<'a> Lexer<'a> {
                 Some('\n') => {
                     self.advance();
                     self.current_row += 1;
-                }
+                    self.current_col = 1;
+                },
                 // break the loop if it isn't a whitespace or a comment
                 _ => break,
             };
@@ -431,6 +440,7 @@ mod tests {
         };
         assert_eq!(result.unwrap(), expect);
         assert_eq!(lexer.current_row, 1);
+        assert_eq!(lexer.current_col, 8);
     }
 
     #[test]
@@ -445,6 +455,7 @@ mod tests {
         };
         assert_eq!(result.unwrap(), expect);
         assert_eq!(lexer.current_row, 1);
+        assert_eq!(lexer.current_col, 8);
     }
 
     #[test]
@@ -459,6 +470,7 @@ mod tests {
         };
         assert_eq!(result.unwrap(), expect);
         assert_eq!(lexer.current_row, 1);
+        assert_eq!(lexer.current_col, 4);
     }
 
     #[test]
@@ -469,6 +481,7 @@ mod tests {
 
         assert_eq!(result.unwrap(), Token::Ident("Hello".into()));
         assert_eq!(lexer.current_row, 1);
+        assert_eq!(lexer.current_col, 6);
     }
 
     #[test]
@@ -479,6 +492,7 @@ mod tests {
 
         assert_eq!(result.unwrap(), Token::Ident("こんにちわ".into()));
         assert_eq!(lexer.current_row, 1);
+        assert_eq!(lexer.current_col, 6);
     }
 
     #[test]
@@ -489,6 +503,7 @@ mod tests {
 
         assert_eq!(result.unwrap(), Token::Ident("hel_lo_".into()));
         assert_eq!(lexer.current_row, 1);
+        assert_eq!(lexer.current_col, 8);
     }
 
     #[test]
@@ -503,6 +518,7 @@ mod tests {
         };
         assert_eq!(result.unwrap(), expect);
         assert_eq!(lexer.current_row, 1);
+        assert_eq!(lexer.current_col, 4);
     }
 
     #[test]
@@ -517,6 +533,7 @@ mod tests {
         };
         assert_eq!(result.unwrap(), expect);
         assert_eq!(lexer.current_row, 1);
+        assert_eq!(lexer.current_col, 8);
     }
 
     #[test]
@@ -527,5 +544,6 @@ mod tests {
         lexer.next_token().unwrap();
 
         assert_eq!(lexer.current_row, 3);
+        assert_eq!(lexer.current_col, 1);
     }
 }
