@@ -1,12 +1,10 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
 use std::error::Error;
 
 use belc_ast::Parser;
 use belc_codegen_vm::Compiler;
 use belc_lexer::Lexer;
-use belvm_bytecode::{Bytecode, Constant};
 use belvm_bytecode::opcode;
+use belvm_bytecode::{Bytecode, Constant};
 
 fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
     let source = input.to_owned();
@@ -24,6 +22,7 @@ fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
 fn integer_literals() {
     let code = test_compile("1; 2; 3;").unwrap();
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::POP,
@@ -34,17 +33,17 @@ fn integer_literals() {
         opcode::RETURN_VALUE,
     ]);
 
-    assert_eq!(code.constants, vec![
-        Constant::Integer(1),
-        Constant::Integer(2),
-        Constant::Integer(3),
-    ]);
+    assert_eq!(
+        code.constants,
+        vec![Constant::Integer(1), Constant::Integer(2), Constant::Integer(3),]
+    );
 }
 
 #[test]
 fn booleans() {
     let code = test_compile("true; false;").unwrap();
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     assert_eq!(code.instructions, vec![
         opcode::TRUE,
         opcode::POP,
@@ -60,6 +59,7 @@ fn test_compile_infix(op: &str, code: u8, reversed: bool) {
     let input = format!("1 {op} 3;");
     let compiled = test_compile(&input).unwrap();
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     assert_eq!(compiled.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::CONSTANT, 0, 1,
@@ -68,17 +68,14 @@ fn test_compile_infix(op: &str, code: u8, reversed: bool) {
         opcode::RETURN_VALUE,
     ]);
 
-    assert_eq!(compiled.constants, if reversed {
-        vec![
-            Constant::Integer(3),
-            Constant::Integer(1),
-        ]
-    } else {
-        vec![
-            Constant::Integer(1),
-            Constant::Integer(3),
-        ]
-    });
+    assert_eq!(
+        compiled.constants,
+        if reversed {
+            vec![Constant::Integer(3), Constant::Integer(1)]
+        } else {
+            vec![Constant::Integer(1), Constant::Integer(3)]
+        }
+    );
 }
 
 #[test]
@@ -100,6 +97,7 @@ fn infix_expressions() {
 fn prefix_expressions() {
     let code = test_compile("-5;").unwrap();
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::MINUS,
@@ -107,15 +105,14 @@ fn prefix_expressions() {
         opcode::RETURN_VALUE,
     ]);
 
-    assert_eq!(code.constants, vec![
-        Constant::Integer(5),
-    ]);
+    assert_eq!(code.constants, vec![Constant::Integer(5),]);
 }
 
 #[test]
 fn if_expressions() {
     let code = test_compile("if (1 == 1) { 10 }; 9;").unwrap();
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::CONSTANT, 0, 1,
@@ -130,18 +127,22 @@ fn if_expressions() {
         opcode::RETURN_VALUE,
     ]);
 
-    assert_eq!(code.constants, vec![
-        Constant::Integer(1),
-        Constant::Integer(1),
-        Constant::Integer(10),
-        Constant::Integer(9),
-    ]);
+    assert_eq!(
+        code.constants,
+        vec![
+            Constant::Integer(1),
+            Constant::Integer(1),
+            Constant::Integer(10),
+            Constant::Integer(9),
+        ]
+    );
 }
 
 #[test]
 fn if_else_expressions() {
     let code = test_compile("if (true) { 10 } else { 11 };").unwrap();
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     assert_eq!(code.instructions, vec![
         opcode::TRUE,
         opcode::JUMP_IF_FALSE, 0, 6,
@@ -152,20 +153,21 @@ fn if_else_expressions() {
         opcode::RETURN_VALUE,
     ]);
 
-    assert_eq!(code.constants, vec![
-        Constant::Integer(10),
-        Constant::Integer(11),
-    ]);
+    assert_eq!(code.constants, vec![Constant::Integer(10), Constant::Integer(11),]);
 }
 
 #[test]
 fn if_else_if_expressions() {
-    let code = test_compile("
+    let code = test_compile(
+        "
         if (true) { 10 }
         else if (true) { 11 }
         else { 12 };
-    ").unwrap();
+    ",
+    )
+    .unwrap();
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     assert_eq!(code.instructions, vec![
         opcode::TRUE,
         opcode::JUMP_IF_FALSE, 0, 6,
@@ -180,17 +182,17 @@ fn if_else_if_expressions() {
         opcode::RETURN_VALUE,
     ]);
 
-    assert_eq!(code.constants, vec![
-        Constant::Integer(10),
-        Constant::Integer(11),
-        Constant::Integer(12),
-    ]);
+    assert_eq!(
+        code.constants,
+        vec![Constant::Integer(10), Constant::Integer(11), Constant::Integer(12),]
+    );
 }
 
 #[test]
 fn var() {
     let code = test_compile("x := 12; x = 11; x;").unwrap();
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::SET_GLOBAL, 0, 1,
@@ -203,16 +205,14 @@ fn var() {
         opcode::RETURN_VALUE,
     ]);
 
-    assert_eq!(code.constants, vec![
-        Constant::Integer(12),
-        Constant::Integer(11),
-    ]);
+    assert_eq!(code.constants, vec![Constant::Integer(12), Constant::Integer(11),]);
 }
 
 #[test]
 fn var_assignment_ops() {
     let code = test_compile("x := 1; x += 1;").unwrap();
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::SET_GLOBAL, 0, 1,
@@ -225,16 +225,14 @@ fn var_assignment_ops() {
         opcode::RETURN_VALUE,
     ]);
 
-    assert_eq!(code.constants, vec![
-        Constant::Integer(1),
-        Constant::Integer(1),
-    ]);
+    assert_eq!(code.constants, vec![Constant::Integer(1), Constant::Integer(1),]);
 }
 
 #[test]
 fn block_expression() {
     let code = test_compile("{ x := 12; };").unwrap();
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     assert_eq!(code.instructions, vec![
         opcode::CONSTANT, 0, 0,
         opcode::SET_GLOBAL, 0, 1, // need to change when block scope
@@ -242,9 +240,7 @@ fn block_expression() {
         opcode::RETURN_VALUE,
     ]);
 
-    assert_eq!(code.constants, vec![
-        Constant::Integer(12),
-    ]);
+    assert_eq!(code.constants, vec![Constant::Integer(12),]);
 }
 
 // #[test]
@@ -274,7 +270,8 @@ fn block_expression() {
 //
 // #[test]
 // fn function_with_args_expressions() {
-//     let code = test_compile("add := fn(a, b) { a + b }; three := add(1, 2);").unwrap();
+//     let code = test_compile("add := fn(a, b) { a + b }; three := add(1,
+// 2);").unwrap();
 //
 //     assert_eq!(code.instructions, vec![
 //         opcode::CONSTANT, 0, 0,
