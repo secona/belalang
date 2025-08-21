@@ -9,7 +9,8 @@ use belvm_bytecode::{Bytecode, Constant};
 use belvm_bytecode::opcode;
 
 fn test_compile(input: &str) -> Result<Bytecode, Box<dyn Error>> {
-    let lexer = Lexer::new(input);
+    let source = input.to_owned();
+    let lexer = Lexer::new(&source);
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program()?;
 

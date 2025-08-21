@@ -8,7 +8,7 @@ use belvm_bytecode::Bytecode;
 
 pub mod error;
 
-pub fn compile(source: &str) -> Bytecode {
+pub fn compile(source: &String) -> Bytecode {
     let lexer = Lexer::new(source);
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program().unwrap();
